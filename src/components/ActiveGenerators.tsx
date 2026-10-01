@@ -7,6 +7,8 @@ import { getBonuses } from '../utils/bonuses';
 import { getGeneratorOutput } from '../utils/energyGeneration';
 import { GENERATOR_SPRITES } from './generatorSprites';
 
+const NO_REFUND_TEXT = 'No refund: scrapping removes the generator for good and frees its room.';
+
 function statusOf(g: Generator) {
   if (g.isActive) return { text: 'Running', className: 'text-emerald-400' };
   if (g.outOfFuel) return { text: 'Out of fuel', className: 'text-red-400' };
@@ -36,7 +38,8 @@ export default function ActiveGenerators() {
             const status = statusOf(g);
             const name = `${def.name} #${i + 1}`;
             return (
-              <li key={g.id} className="flex items-center gap-3 rounded-lg bg-slate-800 p-2" data-testid={`generator-${g.id}`}>
+              <li key={g.id} className="rounded-lg bg-slate-800 p-2" data-testid={`generator-${g.id}`}>
+                <div className="flex items-center gap-3">
                 <img
                   src={sprites[g.isActive ? GENERATOR_SPRITES[g.type].active : GENERATOR_SPRITES[g.type].inactive]}
                   alt=""
@@ -58,29 +61,51 @@ export default function ActiveGenerators() {
                 >
                   {g.isActive ? 'Turn off' : 'Turn on'}
                 </button>
-                {confirming === g.id ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      scrap(g.id);
-                      setConfirming(null);
-                    }}
-                    onBlur={() => setConfirming(null)}
-                    aria-label={`Confirm scrap ${name}`}
-                    className="min-h-11 rounded bg-red-700 px-3 py-2 text-sm font-semibold hover:bg-red-600"
-                  >
-                    Confirm
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setConfirming(g.id)}
-                    aria-label={`Scrap ${name}`}
-                    title="Remove for good to free its room. No refund."
-                    className="min-h-11 rounded px-2 py-2 text-sm text-slate-400 hover:bg-slate-700 hover:text-red-300"
-                  >
-                    Scrap
-                  </button>
+                {confirming !== g.id && (
+                  <span className="group relative">
+                    <button
+                      type="button"
+                      onClick={() => setConfirming(g.id)}
+                      aria-label={`Scrap ${name}`}
+                      aria-describedby={`scrap-tip-${g.id}`}
+                      className="min-h-11 rounded px-2 py-2 text-sm text-slate-400 hover:bg-slate-700 hover:text-red-300"
+                    >
+                      Scrap
+                    </button>
+                    <span
+                      id={`scrap-tip-${g.id}`}
+                      role="tooltip"
+                      className="pointer-events-none absolute bottom-full right-0 z-30 mb-1 hidden w-52 rounded bg-slate-950 p-2 text-xs text-slate-200 shadow-lg group-hover:block group-has-focus-visible:block"
+                    >
+                      {NO_REFUND_TEXT}
+                    </span>
+                  </span>
+                )}
+                </div>
+                {confirming === g.id && (
+                  <div role="alert" className="mt-2 flex flex-wrap items-center gap-2 rounded bg-red-950/60 p-2 text-sm text-red-100">
+                    <span className="flex-1">{NO_REFUND_TEXT}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        scrap(g.id);
+                        setConfirming(null);
+                      }}
+                      aria-label={`Confirm scrap ${name}`}
+                      className="min-h-11 rounded bg-red-700 px-3 py-2 font-semibold hover:bg-red-600"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      type="button"
+                      autoFocus
+                      onClick={() => setConfirming(null)}
+                      aria-label={`Cancel scrap ${name}`}
+                      className="min-h-11 rounded bg-slate-600 px-3 py-2 font-semibold hover:bg-slate-500"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 )}
               </li>
             );

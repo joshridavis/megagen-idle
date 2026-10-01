@@ -216,6 +216,20 @@ describe('Mid-tier generators UI', () => {
 });
 
 describe('Scrap', () => {
+  it('tells the player there is no refund, and Cancel keeps the generator', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Build Solar Panel' }));
+    const scrapBtn = screen.getByRole('button', { name: 'Scrap Solar Panel #1' });
+    expect(document.getElementById(scrapBtn.getAttribute('aria-describedby')!)!.textContent).toContain('No refund');
+    fireEvent.click(scrapBtn);
+    expect(screen.getByRole('alert').textContent).toContain('No refund');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap Solar Panel #1' }));
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(useStore.getState().activeGenerators).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Scrap Solar Panel #1' })).toBeTruthy();
+  });
+
   it('needs a confirm click, then frees the room', () => {
     useStore.setState(createInitialState(Date.now()));
     render(<App />);

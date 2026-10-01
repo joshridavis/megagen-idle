@@ -140,7 +140,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** stone costs on generators and research raised about 1.5×: Wind 5→8, Coal 10→15, Hydro 80→120, Tidal 60→90, Gas 50→75; Hydropower research 50→75. Room expansion prices unchanged (owner said they are good).
 **Acceptance:** tests pass with the new numbers; a fresh save can still build its first Wind Turbine without a stall.
 
-### 0.54 — Scrap: cancel button and no-refund notice — CODE — Not started
+### 0.54 — Scrap: cancel button and no-refund notice — CODE — Done
 **Goal:** apply playtest 4 feedback: scrapping stays refund-free, but the player can back out, and is told there is no refund before confirming.
 **Details:** when Scrap is clicked, show "Confirm" and "Cancel" buttons plus a short inline message "No refund: the generator is removed for good." The Scrap button also has a tooltip (hover and keyboard focus) saying there is no refund. Cancel restores the normal row.
 **Acceptance:** UI tests: Scrap → Cancel leaves the generator; Scrap → Confirm removes it; the no-refund text is visible while confirming and in the tooltip.
