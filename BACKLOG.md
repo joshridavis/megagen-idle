@@ -42,6 +42,11 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.64 Tab icons (playtest 5 feedback) → CHECKPOINT
 0. 0.69 Manual generator ordering (playtest 6 feedback)
 0. 0.70 Scrap several producers at once (playtest 6 feedback)
+0. 0.71 Offline limit shown as "24 hours" (playtest 7 feedback)
+0. 0.72 Research progress visible on every tab (playtest 7 feedback)
+0. 0.73 Room meter redesign and expansion animation (playtest 7 feedback)
+0. 0.74 More room expansion tiers (playtest 7 feedback)
+0. 0.75 Resource boost research (playtest 7 feedback) → CHECKPOINT
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -215,6 +220,31 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Goal:** apply playtest 6 feedback: scrapping producers asks how many.
 **Details:** the producer confirm row gets a number field (1 to owned, default 1) with − / + buttons and an "All" button; the notice states the number and the room freed. Pure `scrapProducer(state, id, count)` clamps to 0..owned.
 **Acceptance:** tests: scrapping N lowers the count by N and frees N × room; values outside the range are clamped; Cancel changes nothing.
+
+### 0.71 — Offline limit shown as "24 hours" — CODE — Done
+**Goal:** apply playtest 7 feedback: the offline limit reads "24 hours", not "1d".
+**Details:** a `formatHours` helper for whole-hour limits ("24 hours", "1 hour"); used by the Settings note and the welcome-back "only the first … count" line.
+**Acceptance:** UI tests check both texts say "24 hours".
+
+### 0.72 — Research progress visible on every tab — CODE — Not started
+**Goal:** apply playtest 7 feedback: while research runs, the player sees it on any tab with the time left; the running node in the tree blinks to show it is in progress.
+**Details:** a compact chip under the top bar ("🔬 Wind Power Fundamentals · 12m 30s left" with a thin progress bar), visible on every tab; clicking it opens the Research tab. Hidden when nothing runs. The running research node gets a blinking (pulsing glow) border; `prefers-reduced-motion` gets a steady highlight instead.
+**Acceptance:** UI tests: chip on the Generators tab shows name and time left; click switches to Research; node has the running animation class.
+
+### 0.73 — Room meter redesign and expansion animation — CODE — Not started
+**Goal:** apply playtest 7 feedback: the segment build-in still looks odd (segments wrap onto new lines and shift).
+**Details:** replace the segment grid with one fixed-width bar: used room (green, red at 90%+) and free room. After an expansion, the newly added share of the bar appears as an amber striped "under construction" section that slides in over about 1 s, holds, then turns into normal free room by 2 s. Still derived only from `lastExpansionAt`; reduced motion shows the final state. Tick marks every 10 room keep scale readable.
+**Acceptance:** tests for the new segment phase logic; no layout shift (bar width fixed); screenshots in the PR.
+
+### 0.74 — More room expansion tiers — CODE — Not started
+**Goal:** apply playtest 7 feedback: more room tiers (finite).
+**Details:** add tiers 4 to 8 in `src/data/rooms.ts` with growing size and cost (energy, metal, stone, later coal). Total stays finite. Room panel shows "Expansion N of 8".
+**Acceptance:** tests that tiers go in order, costs grow, and the last tier ends expansion; pacing probe still has no stall.
+
+### 0.75 — Resource boost research — CODE — Not started
+**Goal:** apply playtest 7 feedback: research that boosts the other resources and gives discounts there.
+**Details:** new bonus types: `resourceProduction` (all producers), per-resource production for metal and stone, `producerDiscount` (cheaper producers), `fuelEfficiency` (generators burn less fuel). About 6 research nodes in the Materials category, following the duration rule. Bonuses apply in the simulation, producer costs and fuel use; resource rate tooltips list the boosts like the energy tooltip does; the Bonuses panel shows them.
+**Acceptance:** tests for each new bonus type, stacking and caps; tooltips show boosts; pacing probe has no stall.
 
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.
@@ -472,4 +502,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 4 | 0.36 | 2026-10-01 | Costs and research times fine for now (longer playtests later). Tooltip good. Mid-tier generators feel like upgrades. Scrap: no refund, but add Cancel and a no-refund notice. Show a small release version. "Research level 2" looked like it rose before research finished. Construction animation looks odd: try another approach. Add ways to raise metal, stone, coal and gas income. Raise stone prices a bit. | 0.58, 0.54, 0.55, 0.56, 0.57; 0.31 moved up |
 | 5 (v0.5.0) | 0.31 | 2026-10-01 | Producer cost growth should be 20%. Producers should be scrappable. Research labels clear now. Room animation not seen yet. Make research rewards ("Gives") stand out. Scrollbar not in game colours. Celebrate research completion with an animation on any tab. Small images on tab buttons. Add to backlog: achievements, perfection tracker, public release with accounts. | 0.59-0.64; later 0.65-0.68 |
 | 6 (v0.6.0) | 0.64 | 2026-10-01 | Celebration and room animation not seen yet. Perfection tracker = 100% completion (confirmed). Accounts are for both cloud saves and leaderboards. Add manual ordering of generators. Scrapping producers should ask how many. Asked whether the sprites can be used legally (yes: drawn by our own script from shapes and AAP-64 colours; add LICENSE and credits before going public, see 0.67). | 0.69, 0.70; 0.66 and 0.67 updated |
-| 7 (v0.7.0) | 0.30 | 2026-10-01 | (waiting for owner) | |
+| 7 (v0.7.0) | 0.30 | 2026-10-01 | List order as fuel priority is intuitive. Welcome-back detail fine; must mention completed research (it already does). Short notation as default (already). Boost research worth it: add ones for other resources (production and discounts). Say "24 hours" not "1d". Show running research on every tab with time left; running node should blink. Research celebration looks great. Room upgrade animation still looks weird (video not received); add more room tiers. | 0.71-0.75 |

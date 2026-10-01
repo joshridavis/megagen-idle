@@ -61,3 +61,10 @@ export function formatRate(n: number, notation: NumberNotation = 'short'): strin
   if (abs < 1000) return formatNumber(n, notation, 1);
   return formatNumber(n, notation);
 }
+
+/** Whole-hour limits as words: "24 hours", "1 hour", "90 minutes" if not whole hours. */
+export function formatHours(seconds: number): string {
+  if (seconds % 3600 !== 0) return `${Math.round(seconds / 60)} minutes`;
+  const h = seconds / 3600;
+  return `${h} hour${h === 1 ? '' : 's'}`;
+}

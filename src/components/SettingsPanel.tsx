@@ -3,7 +3,7 @@ import { useStore } from '../store';
 import { exportSave, parseSaveFile } from '../utils/saveFile';
 import type { GameState, NumberNotation } from '../types/state';
 import { MAX_OFFLINE_SECONDS } from '../data/time';
-import { formatDuration } from '../utils/format';
+import { formatHours } from '../utils/format';
 import { useNumberFormat } from './useNumberFormat';
 
 const NOTATIONS: { id: NumberNotation; label: string; example: string }[] = [
@@ -129,7 +129,7 @@ export default function SettingsPanel() {
       <div className="rounded-lg bg-slate-800 p-4 text-sm text-slate-300">
         <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-400">Offline progress</h2>
         Generators, producers and research keep going while the game is closed, for up to{' '}
-        <strong>{formatDuration(MAX_OFFLINE_SECONDS)}</strong>. Research that finishes later still completes.
+        <strong>{formatHours(MAX_OFFLINE_SECONDS)}</strong>. Research that finishes later still completes.
       </div>
       <div className="rounded-lg border border-red-900 bg-slate-800 p-4">
         <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-red-300">Reset</h2>

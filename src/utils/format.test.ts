@@ -66,3 +66,12 @@ describe('formatDuration', () => {
     expect(formatDuration(Number.NaN)).toBe('0s');
   });
 });
+
+describe('formatHours', () => {
+  it('words whole-hour limits', async () => {
+    const { formatHours } = await import('./format');
+    expect(formatHours(24 * 3600)).toBe('24 hours');
+    expect(formatHours(3600)).toBe('1 hour');
+    expect(formatHours(5400)).toBe('90 minutes');
+  });
+});

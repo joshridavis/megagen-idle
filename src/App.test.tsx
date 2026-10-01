@@ -451,7 +451,7 @@ describe('Welcome back and settings (0.28)', () => {
     render(<App />);
     const d = screen.getByTestId('welcome-back');
     expect(d.textContent).toContain('3d');
-    expect(d.textContent).toContain('Only the first 1d count');
+    expect(d.textContent).toContain('Only the first 24 hours count');
     expect(d.textContent).toContain('+4.32K');
     expect(d.textContent).toContain('Research complete: Basic Solar');
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
@@ -511,7 +511,7 @@ describe('Settings (0.29)', () => {
     useStore.setState(createInitialState(Date.now()));
     render(<App />);
     fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
-    expect(screen.getByRole('region', { name: 'Settings' }).textContent).toContain('for up to 1d');
+    expect(screen.getByRole('region', { name: 'Settings' }).textContent).toContain('for up to 24 hours');
   });
 });
 
