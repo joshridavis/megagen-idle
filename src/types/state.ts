@@ -1,8 +1,8 @@
-import type { Generator } from './generator';
+import type { Generator, GeneratorType } from './generator';
 import type { ProducerId } from './resource';
 import type { CurrentResearch } from './research';
 
-export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas';
+export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas' | 'oil' | 'uranium';
 
 export type Resources = Record<ResourceId, number>;
 
@@ -32,6 +32,15 @@ export interface ResourceState {
 export interface GeneratorState {
   /** Every built generator, active or not. */
   activeGenerators: Generator[];
+  /** Permanent records for completion: scrapping never lowers them (0.82). */
+  records: GeneratorRecords;
+}
+
+export interface GeneratorRecords {
+  /** Generator types ever built. */
+  builtTypes: GeneratorType[];
+  /** Highest upgrade level ever reached per type. */
+  bestLevel: Partial<Record<GeneratorType, number>>;
 }
 
 export interface ResearchState {

@@ -14,14 +14,22 @@ import gasPlant from './sprites/generators/gas_plant.png';
 import gasPlantInactive from './sprites/generators/gas_plant_inactive.png';
 import tidalStation from './sprites/generators/tidal_station.png';
 import tidalStationInactive from './sprites/generators/tidal_station_inactive.png';
+import oilPlant from './sprites/generators/oil_plant.png';
+import oilPlantInactive from './sprites/generators/oil_plant_inactive.png';
+import nuclearPlant from './sprites/generators/nuclear_plant.png';
+import nuclearPlantInactive from './sprites/generators/nuclear_plant_inactive.png';
 import resourceCoal from './sprites/resources/coal.png';
 import resourceStone from './sprites/resources/stone.png';
 import resourceMetal from './sprites/resources/metal.png';
 import resourceNaturalGas from './sprites/resources/natural_gas.png';
+import resourceOil from './sprites/resources/oil.png';
+import resourceUranium from './sprites/resources/uranium.png';
 import producerQuarry from './sprites/producers/quarry.png';
 import producerMine from './sprites/producers/mine.png';
 import producerCoalMine from './sprites/producers/coal_mine.png';
 import producerGasWell from './sprites/producers/gas_well.png';
+import producerOilRig from './sprites/producers/oil_rig.png';
+import producerUraniumMine from './sprites/producers/uranium_mine.png';
 import roomExpansion from './sprites/ui/room_expansion.png';
 import capacityEmpty from './sprites/ui/capacity_empty.png';
 import capacityFilled from './sprites/ui/capacity_filled.png';
@@ -50,14 +58,22 @@ export const sprites = {
   gas_plant_inactive: gasPlantInactive,
   tidal_station: tidalStation,
   tidal_station_inactive: tidalStationInactive,
+  oil_plant: oilPlant,
+  oil_plant_inactive: oilPlantInactive,
+  nuclear_plant: nuclearPlant,
+  nuclear_plant_inactive: nuclearPlantInactive,
   resource_coal: resourceCoal,
   resource_stone: resourceStone,
   resource_metal: resourceMetal,
   resource_natural_gas: resourceNaturalGas,
+  resource_oil: resourceOil,
+  resource_uranium: resourceUranium,
   producer_quarry: producerQuarry,
   producer_mine: producerMine,
   producer_coal_mine: producerCoalMine,
   producer_gas_well: producerGasWell,
+  producer_oil_rig: producerOilRig,
+  producer_uranium_mine: producerUraniumMine,
   room_expansion: roomExpansion,
   capacity_empty: capacityEmpty,
   capacity_filled: capacityFilled,

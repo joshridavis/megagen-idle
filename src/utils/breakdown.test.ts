@@ -41,7 +41,7 @@ describe('getClickBreakdown', () => {
 describe('getResourceBreakdown', () => {
   it('shows producer output, fuel burned, and the net rate', () => {
     const b = getResourceBreakdown(
-      { producers: { quarry: 1, mine: 1, coalMine: 2, gasWell: 0 }, activeGenerators: [gen('a', GeneratorType.COAL), gen('b', GeneratorType.COAL, false)], completedResearch: [] },
+      { producers: { quarry: 1, mine: 1, coalMine: 2, gasWell: 0, oilRig: 0, uraniumMine: 0 }, activeGenerators: [gen('a', GeneratorType.COAL), gen('b', GeneratorType.COAL, false)], completedResearch: [] },
       'coal',
     );
     expect(b.base).toBeCloseTo(0.1);
@@ -50,7 +50,7 @@ describe('getResourceBreakdown', () => {
   });
 
   it('has no modifiers when nothing burns the resource', () => {
-    expect(getResourceBreakdown({ producers: { quarry: 3, mine: 0, coalMine: 0, gasWell: 0 }, activeGenerators: [], completedResearch: [] }, 'stone')).toEqual({
+    expect(getResourceBreakdown({ producers: { quarry: 3, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0 }, activeGenerators: [], completedResearch: [] }, 'stone')).toEqual({
       base: expect.closeTo(0.3),
       modifiers: [],
       total: expect.closeTo(0.3),

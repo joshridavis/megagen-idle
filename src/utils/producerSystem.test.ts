@@ -10,7 +10,7 @@ import { advanceTime, deriveRates } from './simulation';
 const rich = (over: Partial<GameState> = {}): GameState => ({
   ...createInitialState(0),
   energy: 1e7,
-  resources: { metal: 1e5, stone: 1e5, coal: 1e5, naturalGas: 0 },
+  resources: { metal: 1e5, stone: 1e5, coal: 1e5, naturalGas: 0, oil: 0, uranium: 0 },
   ...over,
 });
 
@@ -47,7 +47,7 @@ describe('buying producers', () => {
   });
 
   it('is blocked without resources or energy', () => {
-    expect(getProducerBlock(rich({ resources: { metal: 0, stone: 0, coal: 0, naturalGas: 0 } }), 'quarry')).toBe('resources');
+    expect(getProducerBlock(rich({ resources: { metal: 0, stone: 0, coal: 0, naturalGas: 0, oil: 0, uranium: 0 } }), 'quarry')).toBe('resources');
     expect(getProducerBlock(rich({ energy: 0 }), 'quarry')).toBe('energy');
   });
 
@@ -59,11 +59,11 @@ describe('buying producers', () => {
 
 describe('rates and room scale with count', () => {
   it('production is linear in the number owned', () => {
-    expect(getProductionRates({ quarry: 4, mine: 0, coalMine: 0, gasWell: 0 }).stone).toBeCloseTo(0.4);
+    expect(getProductionRates({ quarry: 4, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0 }).stone).toBeCloseTo(0.4);
   });
 
   it('producers count toward room used', () => {
-    const s = deriveRates({ ...createInitialState(0), producers: { quarry: 2, mine: 2, coalMine: 1, gasWell: 1 } });
+    const s = deriveRates({ ...createInitialState(0), producers: { quarry: 2, mine: 2, coalMine: 1, gasWell: 1, oilRig: 0, uraniumMine: 0 } });
     expect(s.roomUsed).toBe(2 + 2 + 1 + 2);
   });
 
@@ -101,12 +101,12 @@ describe('scrapping producers (playtest 5)', () => {
 
 describe('scrapping several producers (playtest 6)', () => {
   it('scraps N and frees N x room', () => {
-    const s = scrapProducer(rich({ producers: { quarry: 5, mine: 1, coalMine: 1, gasWell: 0 }, roomUsed: 7 }), 'quarry', 3);
+    const s = scrapProducer(rich({ producers: { quarry: 5, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 }, roomUsed: 7 }), 'quarry', 3);
     expect(s.producers.quarry).toBe(2);
     expect(s.roomUsed).toBe(4);
   });
   it('clamps to what is owned, and ignores zero or negative counts', () => {
-    const base = rich({ producers: { quarry: 2, mine: 1, coalMine: 1, gasWell: 0 } });
+    const base = rich({ producers: { quarry: 2, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 } });
     expect(scrapProducer(base, 'quarry', 99).producers.quarry).toBe(0);
     expect(scrapProducer(base, 'quarry', 0)).toBe(base);
     expect(scrapProducer(base, 'quarry', -3)).toBe(base);
@@ -115,9 +115,9 @@ describe('scrapping several producers (playtest 6)', () => {
 
 describe('research-granted producers take no room', () => {
   it('the Gas Well from Natural Gas Extraction is free; bought ones take room', () => {
-    const base = { ...createInitialState(0), completedResearch: ['gas_extraction'], producers: { quarry: 1, mine: 1, coalMine: 1, gasWell: 1 } };
+    const base = { ...createInitialState(0), completedResearch: ['gas_extraction'], producers: { quarry: 1, mine: 1, coalMine: 1, gasWell: 1, oilRig: 0, uraniumMine: 0 } };
     expect(deriveRates(base).roomUsed).toBe(3);
-    expect(deriveRates({ ...base, producers: { ...base.producers, gasWell: 3 } }).roomUsed).toBe(3 + 2 * 2);
+    expect(deriveRates({ ...base, producers: { ...base.producers, gasWell: 3, oilRig: 0, uraniumMine: 0 } }).roomUsed).toBe(3 + 2 * 2);
   });
   it('finishing the research when room is full never puts room over capacity', () => {
     const full = deriveRates({

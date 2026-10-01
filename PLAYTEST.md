@@ -1,6 +1,6 @@
-# Playtest 9 (v0.9.0): upgrades, safe saves, floating research chip, balance simulator (after item 0.32)
+# Playtest 10 (v0.10.0): clearer research tree, tab-switch and tooltip fixes, max-level completion, Oil and Nuclear (after item 0.33)
 
-The version at the bottom of the screen should read **v0.9.0**.
+The version at the bottom of the screen should read **v0.10.0**.
 
 ## How to play
 
@@ -12,37 +12,40 @@ Your save carries over.
 ## New since last playtest
 
 - **Your feedback:**
-  - **Save-on-close safeguard.** Every save is also copied instantly to a backup, so closing the tab right after an action no longer loses it. A test simulates a tab closing before the main save lands, and the action survives.
-  - **Floating research chip.** While a research runs, its chip floats at the bottom of the screen on every tab. The page leaves room beneath, so the version number is never hidden.
-  - **Three starting research.** New root **Basic Mining** (+10% output from all producers). It starts the resource upgrades (Better Pickaxes, Controlled Blasting, Modular Mines). Like Basic Solar, it needs a Solar Panel built first.
-  - **200 hours to 100% completion** is now the official long-term target. The balance simulator measures it (see below).
-- **Generator upgrades.** Each generator in your list shows its level (Lv 1/10) and an **⬆ Upgrade** button. Each level adds +25% of its base output, and upgrades never take extra room. Hover over the button for the cost and gain.
-- **Fix:** the free Gas Well from Natural Gas Extraction no longer takes room. It could push your room over capacity, for example 65/63.
-- **Re-costed:** room tiers 6–8 need less metal, stone and coal (energy costs unchanged).
-- **Balance simulator** (`npm run simulate`, for development): a simulated idle player plays the game and writes `BALANCE_REPORT.md` with milestone times, targets and stalls.
+  - **Research tree in three branches.** The tree is now split into labelled bands: *Energy & research*, *Resources* and *Fuels*. Each starts from one of the three first research. Lines within a branch are solid. The few lines that cross between branches are fainter.
+  - **Fix: "You were away for 1m 1s" after switching tabs.** The welcome-back message now shows only after a real absence of at least a minute. It reports what you gained while the tab was hidden. Short tab switches show nothing.
+  - **Fix: build-card tooltips.** The pop-up is now fully opaque and sits above the card above it, so it is readable. This includes locked cards.
+  - **100% completion now includes every generator type at max level.** The game permanently remembers each type you have built and its best level. Scrapping a generator never lowers your completion.
+- **Tier 3: Oil and Nuclear.**
+  - **Oil Power Plant:** research level 9. It burns 6 oil per hour and gives 2.5× the energy per room of a gas plant.
+  - **Nuclear Fission Plant:** research level 10. It burns 1 uranium per hour, for another 2.5× the energy per room.
+  - **New resources:** oil and uranium. **New producers:** Oil Rig and Uranium Mine. Your first of each is granted by research.
+  - **Seven new research:** Oil Drilling, Oil Refining, Uranium Mining, Nuclear Fission, Reinforced Concrete, Heat Recovery and Reactor Safety Systems.
 
 ## What the simulator says now
 
-- First research about 12 minutes, Wind about 2.5 h, Coal about 2.7 h, Hydro about 4.4 h, Gas Plants about 15 h. No stalls.
-- **100% completion: about 25 hours.** Your target is 200+. The gap is mostly missing content, which the coming items add (tier 3 and fictional generators, more methods, a deeper tree, achievements). A final tuning pass (0.47) then aims for 200 hours.
+- First Oil plant at about 16.5 h and first Nuclear plant at about 40 h. No stalls. All earlier targets are still met: Wind about 2.5 h, Coal about 2.7 h, Hydro about 4.4 h, Gas about 10 h.
+- **100% completion: about 82 hours** (was 25). Max levels added about 27 h and tier 3 about 30 h. Your target is still 200+; the fictional generators (0.34), more methods, a deeper tree and achievements come next.
 
 ## Things to try
 
-1. Upgrade a generator a few times. Watch its level, its output and the energy rate.
-2. Start a research and scroll to the bottom on a phone and on a computer. Does the chip float nicely without covering the version?
-3. Build something, then close the tab right away and reopen it. Is it still there?
-4. Look at the three starting research in the tree. Research Basic Mining and check the resource tooltips.
-5. Once you have the resources, watch the room expansion animation.
+1. Open the Research tab. Can you follow each branch now? Is any line still confusing?
+2. Switch to another browser tab for 10 seconds, then come back. You should see no "away" message. Leave it for over a minute: you should see one that matches what you gained.
+3. Hover over a build card in the second or third row, including a locked one. Is the tooltip readable?
+4. Research Oil Drilling and Oil Refining (Fuels branch), then build an Oil Power Plant. Watch the oil stock and the Burns line.
+5. Let an Oil plant run out of oil. Does it switch off with a clear warning?
+6. Research Uranium Mining (Resources branch) and Nuclear Fission. Build a reactor.
+7. Upgrade a generator and then scrap it. Completion should not go down (the tracker screen comes with item 0.66).
 
 ## Known issues
 
-- The research tree is getting tall, and some connecting lines run long. A layout pass is planned (0.41/0.43).
-- In the generator list, long names wrap on narrow screens.
+- The research tree is now wide; on a small screen you scroll sideways.
+- There is no screen that shows completion yet (perfection tracker, item 0.66).
 - Placeholder art.
 
 ## Questions for you
 
-1. Should **100% completion include upgrading every generator type to max level**? That would add many hours and fits "perfection".
-2. Do upgrades feel worth their cost compared with building new generators?
-3. Is +25% per level and a maximum of 10 levels a good shape?
-4. Is the floating chip better now?
+1. Is the branch layout what you had in mind? Should the branch labels or colours differ?
+2. Do Oil and Nuclear feel like a real step up? Is uranium (1 per 30 minutes) too slow, or about right?
+3. Are research level 9 and 10 for Oil and Nuclear reasonable gates?
+4. With 100% at about 82 h now, should the remaining hours come mostly from new content, or partly from slower pacing?

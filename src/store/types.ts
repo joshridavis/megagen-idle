@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import type { GameState, Resources } from '../types/state';
+import type { AwaySnapshot } from '../utils/awayReport';
 import type { EnergyActions } from './slices/energySlice';
 import type { ResourceActions } from './slices/resourceSlice';
 import type { GeneratorActions } from './slices/generatorSlice';
@@ -33,6 +34,8 @@ export interface TransientState {
   /** Research completed during live play, waiting to be celebrated (oldest first). */
   celebrations: { id: string; at: number }[];
   welcomeBack: WelcomeBackReport | null;
+  /** Set while the tab is hidden (0.79). */
+  awaySnapshot: AwaySnapshot | null;
 }
 
 export type GameStore = GameState &

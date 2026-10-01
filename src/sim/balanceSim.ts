@@ -1,8 +1,9 @@
-import { GENERATOR_TYPES, GENERATORS } from '../data/generators';
+import { GENERATOR_TYPES, GENERATORS, UPGRADES } from '../data/generators';
 import { createInitialState } from '../data/initialState';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { RESEARCH } from '../data/research';
 import { ROOM_TIERS } from '../data/rooms';
+import type { Bonuses } from '../types/bonus';
 import type { GeneratorType } from '../types/generator';
 import type { ProducerId } from '../types/resource';
 import type { GameState, ResourceId } from '../types/state';
@@ -66,7 +67,7 @@ function netRate(s: GameState, id: ResourceId): number {
   return getProductionRates(s.producers, b)[id] - getFuelUseRates(s.activeGenerators, b)[id];
 }
 
-const PRODUCER_FOR: Record<ResourceId, ProducerId> = { metal: 'mine', stone: 'quarry', coal: 'coalMine', naturalGas: 'gasWell' };
+const PRODUCER_FOR: Record<ResourceId, ProducerId> = { metal: 'mine', stone: 'quarry', coal: 'coalMine', naturalGas: 'gasWell', oil: 'oilRig', uranium: 'uraniumMine' };
 
 /**
  * Deterministic greedy player:
@@ -116,6 +117,8 @@ function act(s: GameState, now: number): GameState {
           let tried = s;
           for (const g of [...s.activeGenerators].sort((a, b) => perRoom(a.type) - perRoom(b.type))) {
             if (tried.roomCapacity - tried.roomUsed >= stats.roomCost || perRoom(g.type) * 1.5 > perRoom(t)) break;
+            // keep the one generator being raised to max level for completion
+            if ((s.records.bestLevel[g.type] ?? 0) < maxLevelOf(g.type) && RESEARCH.every((r) => s.completedResearch.includes(r.id))) continue;
             tried = scrapGenerator(tried, g.id);
           }
           const built = buildGenerator(tried, t, unlocked, bonuses());
@@ -141,6 +144,12 @@ function act(s: GameState, now: number): GameState {
     const short = (Object.keys(nextTier.resources) as ResourceId[]).find((id) => s.resources[id] < (nextTier.resources[id] ?? 0));
     if (short && getProducerBlock(s, PRODUCER_FOR[short], bonuses()) === null) s = buildProducer(s, PRODUCER_FOR[short], bonuses());
   }
+  // 4a. completionist (0.82): with research and room done, first bring every
+  // generator type to max level, building one of each type it lacks.
+  if (!nextTier && RESEARCH.every((r) => s.completedResearch.includes(r.id))) {
+    const chased = chaseMaxLevels(s, unlocked, bonuses());
+    if (chased !== s) return chased;
+  }
   // 4. upgrades: best energy gain per energy spent, only with a comfortable surplus
   // (and never with energy set aside for the next room tier)
   const reserve = savingForRoom && nextTier ? nextTier.energy : 0;
@@ -163,6 +172,26 @@ function act(s: GameState, now: number): GameState {
   return s;
 }
 
+const maxLevelOf = (t: GeneratorType) => GENERATORS[t].maxLevel ?? UPGRADES.maxLevel;
+
+function chaseMaxLevels(s: GameState, unlocked: ReturnType<typeof getUnlockedGeneratorTypes>, b: Bonuses): GameState {
+  const t = GENERATOR_TYPES.find((type) => (s.records.bestLevel[type] ?? 0) < maxLevelOf(type));
+  if (!t) return s;
+  const own = s.activeGenerators.filter((g) => g.type === t).sort((x, y) => y.level - x.level)[0];
+  if (own) return getUpgradeBlock(s, own.id, b) === null ? upgradeGenerator(s, own.id, b) : s;
+  if (s.energy < getGeneratorStats(t, b).energyCost) return s;
+  // free room by scrapping the weakest generators whose type is already maxed
+  // or has spare copies
+  let tried = s;
+  for (const g of [...s.activeGenerators].sort((x, y) => perRoom(x.type) - perRoom(y.type))) {
+    if (tried.roomCapacity - tried.roomUsed >= getGeneratorStats(t, b).roomCost) break;
+    const copies = tried.activeGenerators.filter((x) => x.type === g.type).length;
+    if ((s.records.bestLevel[g.type] ?? 0) >= maxLevelOf(g.type) || copies > 1) tried = scrapGenerator(tried, g.id);
+  }
+  const built = buildGenerator(tried, t, unlocked, b);
+  return built === tried ? s : built;
+}
+
 /** Runs the deterministic greedy player and records milestones. */
 export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): SimResult {
   const o = { ...DEFAULT_SIM, ...opts };
@@ -170,7 +199,6 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
   let t = T0;
   const milestones: Milestone[] = [];
   const seen = new Set<string>();
-  const everBuilt = new Set<string>();
   const samples: SimResult['samples'] = [];
   const hit = (id: string, label: string) => {
     if (seen.has(id)) return;
@@ -185,20 +213,23 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
       s = act(s, t);
       if (s === before) break;
     }
-    for (const g of s.activeGenerators) {
-      if (!everBuilt.has(g.type)) {
-        everBuilt.add(g.type);
-        if (everBuilt.size === 1) hit('firstGenerator', 'First generator built');
-        hit(`generator:${g.type}`, `First ${GENERATORS[g.type].name}`);
-      }
+    for (const t of s.records.builtTypes) {
+      hit('firstGenerator', 'First generator built');
+      hit(`generator:${t}`, `First ${GENERATORS[t].name}`);
     }
-    for (const id of PRODUCER_IDS) if ((s.producers[id] ?? 0) > 0) hit(`producer:${id}`, `Has a ${PRODUCERS[id].name}`);
+    for (const t of GENERATOR_TYPES) {
+      const best = s.records.bestLevel[t] ?? 0;
+      // every new best level is a visible step (Lv n/10 in the generator list)
+      for (let lv = 2; lv < Math.min(best + 1, maxLevelOf(t)); lv++) hit(`level${lv}:${t}`, `${GENERATORS[t].name} at level ${lv}`);
+      if (best >= maxLevelOf(t)) hit(`maxed:${t}`, `${GENERATORS[t].name} at max level`);
+    }
+    for (const id of PRODUCER_IDS) if ((s.producers[id] ?? 0) > 0) hit(`producer:${id}`, `Has ${/^[AEIOU]/.test(PRODUCERS[id].name) ? 'an' : 'a'} ${PRODUCERS[id].name}`);
     for (let i = 1; i <= s.expansionLevel; i++) hit(`room:${i}`, `Room expansion ${i} of ${ROOM_TIERS.length}`);
     s.completedResearch.forEach((id, i) => {
       if (i === 0) hit('firstResearch', 'First research completed');
       hit(`research:${id}`, `Research: ${RESEARCH.find((r) => r.id === id)?.name ?? id}`);
     });
-    const c = getCompletion(s, everBuilt).ratio;
+    const c = getCompletion(s).ratio;
     for (const q of [25, 50, 75, 100]) if (c * 100 >= q) hit(`completion:${q}`, `${q}% completion`);
     if (step % Math.round(3600 / o.stepSeconds) === 0) {
       samples.push({ hours: (t - T0) / 3_600_000, energyPerSecond: s.energyPerSecond, completion: c, room: `${s.roomUsed}/${s.roomCapacity}` });
@@ -214,7 +245,7 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
   const times = [0, ...milestones.map((m) => m.hours), hours].sort((a, b) => a - b);
   const gaps: [number, number][] = [];
   for (let i = 1; i < times.length; i++) if (times[i] - times[i - 1] > stallHours) gaps.push([times[i - 1], times[i]]);
-  return { milestones, hours, completion: getCompletion(s, everBuilt).ratio, gaps, samples, finalState: s };
+  return { milestones, hours, completion: getCompletion(s).ratio, gaps, samples, finalState: s };
 }
 
 export const ALL_GENERATOR_TYPES = GENERATOR_TYPES;

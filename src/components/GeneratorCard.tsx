@@ -39,9 +39,11 @@ export default function GeneratorCard({
 
   return (
     <article
-      className={`group relative flex flex-col gap-2 rounded-lg border p-3 ${locked ? 'border-slate-700 bg-slate-800/50 opacity-60' : 'border-slate-600 bg-slate-800'}`}
+      className={`group relative flex flex-col rounded-lg border p-3 hover:z-40 focus-within:z-40 ${locked ? 'border-slate-700 bg-slate-800/50' : 'border-slate-600 bg-slate-800'}`}
       data-testid={`generator-card-${type}`}
     >
+      {/* Fade the content, not the card, so the tooltip stays fully opaque (0.80). */}
+      <div className={`flex flex-1 flex-col gap-2 ${locked ? 'opacity-60' : ''}`} data-testid={`generator-card-body-${type}`}>
       <div className="flex items-center gap-3">
         <img
           src={sprites[locked ? GENERATOR_SPRITES[type].inactive : GENERATOR_SPRITES[type].active]}
@@ -87,10 +89,11 @@ export default function GeneratorCard({
       >
         {block ? BLOCK_TEXT[block] : `Build ${def.name}`}
       </button>
+      </div>
       <div
         id={tooltipId}
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-56 -translate-x-1/2 rounded bg-slate-950 p-2 text-xs text-slate-200 shadow-lg group-hover:block group-has-focus-visible:block"
+        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-56 -translate-x-1/2 rounded border border-slate-600 bg-slate-950 p-2 text-xs text-slate-100 shadow-xl group-hover:block group-has-focus-visible:block"
       >
         {def.description} {(stats.energyPerSecond / stats.roomCost).toFixed(2)} energy/s per room.
       </div>

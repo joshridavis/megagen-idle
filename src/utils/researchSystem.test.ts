@@ -25,7 +25,7 @@ const rich = (over: Partial<GameState> = {}): GameState => ({
   ...createInitialState(T0),
   activeGenerators: [solar],
   energy: 100_000,
-  resources: { metal: 999, stone: 999, coal: 999, naturalGas: 0 },
+  resources: { metal: 999, stone: 999, coal: 999, naturalGas: 0, oil: 0, uranium: 0 },
   ...over,
 });
 
@@ -49,7 +49,7 @@ describe('research gating', () => {
 
   it('enforces cost, including resources', () => {
     expect(getResearchBlock(rich({ energy: RESEARCH_BY_ID.basic_solar.cost.energy - 1 }), 'basic_solar')).toBe('cost');
-    const noCoal = rich({ researchLevel: 2, resources: { metal: 0, stone: 0, coal: 9, naturalGas: 0 } });
+    const noCoal = rich({ researchLevel: 2, resources: { metal: 0, stone: 0, coal: 9, naturalGas: 0, oil: 0, uranium: 0 } });
     expect(getResearchBlock(noCoal, 'fossil_fuels')).toBe('cost');
   });
 

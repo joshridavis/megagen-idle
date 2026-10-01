@@ -11,8 +11,8 @@ const played = (): GameState =>
   deriveRates({
     ...createInitialState(T),
     energy: 12345.678,
-    resources: { metal: 12.5, stone: 99, coal: 3, naturalGas: 0 },
-    producers: { quarry: 2, mine: 3, coalMine: 1, gasWell: 0 },
+    resources: { metal: 12.5, stone: 99, coal: 3, naturalGas: 0, oil: 0, uranium: 0 },
+    producers: { quarry: 2, mine: 3, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 },
     activeGenerators: [
       { id: 'gen-2', type: GeneratorType.WIND, isActive: true, level: 1 },
       { id: 'gen-1', type: GeneratorType.SOLAR, isActive: false, level: 1 },
@@ -73,7 +73,7 @@ describe('export and import', () => {
       version: 0,
       state: {
         energy: 500,
-        resources: { coal: 0, stone: 0, metal: 0, naturalGas: 0 },
+        resources: { coal: 0, stone: 0, metal: 0, naturalGas: 0, oil: 0, uranium: 0 },
         researchLevel: 1,
         activeGenerators: [],
         roomCapacity: 10,

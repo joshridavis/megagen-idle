@@ -12,7 +12,7 @@ function researchEverything() {
   let s = {
     ...createInitialState(0),
     energy: 1e12,
-    resources: { metal: 1e9, stone: 1e9, coal: 1e9, naturalGas: 1e9 },
+    resources: { metal: 1e9, stone: 1e9, coal: 1e9, naturalGas: 1e9, oil: 1e9, uranium: 1e9 },
     activeGenerators: GENERATOR_TYPES.map((type, i) => ({ id: `gen-${i + 1}`, type, isActive: true, level: 1 })),
   };
   for (let changed = true; changed; ) {

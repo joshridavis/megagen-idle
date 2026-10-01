@@ -175,6 +175,49 @@ function tidalStation() {
   return c;
 }
 
+function oilPlant() {
+  const c = new Canvas(64, 64);
+  c.rect(2, 54, 60, 6, C.grey5); // pad
+  isoBlock(c, 4, 34, 30, 20, 5, C.grey1, C.grey2, C.grey4); // boiler house
+  c.rect(8, 40, 4, 4, C.amber);
+  c.rect(16, 40, 4, 4, C.amber);
+  c.rect(24, 40, 4, 4, C.amber);
+  c.rect(14, 8, 6, 27, C.grey3); // chimney
+  c.rect(14, 12, 6, 3, C.red);
+  c.rect(14, 20, 6, 3, C.red);
+  c.circle(17, 5, 3, C.grey2, 200); // smoke
+  c.circle(22, 3, 2, C.grey2, 160);
+  // oil tank
+  cylinder(c, 50, 36, 9, 16, C.brown3, C.brown5, C.brown2);
+  c.rect(41, 42, 18, 2, C.black);
+  c.rect(34, 46, 8, 3, C.grey4); // pipe
+  c.outline(C.ink);
+  return c;
+}
+
+function nuclearPlant() {
+  const c = new Canvas(64, 64);
+  c.rect(2, 56, 60, 6, C.grey5); // pad
+  // cooling tower: hyperbolic outline
+  for (let y = 10; y < 56; y++) {
+    const t = (y - 10) / 46;
+    const half = Math.round(10 + 6 * (2 * t - 1) ** 2 + 2 * t);
+    c.rect(22 - half, y, half, 1, C.grey1);
+    c.rect(22, y, half, 1, C.grey3);
+  }
+  c.rect(8, 10, 28, 2, C.grey2);
+  c.circle(22, 6, 5, C.white, 220); // steam
+  c.circle(30, 3, 3, C.white, 180);
+  // reactor dome
+  c.rect(40, 40, 20, 16, C.grey2);
+  c.circle(50, 40, 10, C.grey1);
+  c.rect(40, 40, 20, 2, C.grey3);
+  c.rect(47, 47, 6, 9, C.grey4); // door
+  c.circle(50, 34, 2, C.lime); // glow
+  c.outline(C.ink);
+  return c;
+}
+
 // ---------- resources ----------
 
 function coalIcon() {
@@ -210,6 +253,27 @@ function naturalGasIcon() {
   c.polygon([[12, 2], [5, 13], [6, 19], [12, 22], [18, 19], [19, 13]], C.blue);
   c.polygon([[12, 8], [8, 15], [9, 19], [12, 21], [15, 19], [16, 15]], C.sky);
   c.polygon([[12, 13], [10, 17], [12, 20], [14, 17]], C.mint);
+  c.outline(C.ink);
+  return c;
+}
+
+function oilIcon() {
+  const c = new Canvas(24, 24);
+  c.polygon([[12, 2], [5, 13], [5, 18], [9, 22], [15, 22], [19, 18], [19, 13]], C.black);
+  c.polygon([[9, 12], [7, 16], [9, 19], [10, 16]], C.grey5); // shine
+  c.set(8, 15, C.grey3);
+  c.outline(C.ink);
+  return c;
+}
+
+function uraniumIcon() {
+  const c = new Canvas(24, 24);
+  // glowing pellet
+  c.rect(6, 4, 12, 16, C.green);
+  c.rect(6, 4, 4, 16, C.lime);
+  c.rect(6, 4, 12, 3, C.lemon);
+  c.rect(6, 18, 12, 2, C.darkGreen);
+  c.rect(14, 7, 4, 11, C.forest);
   c.outline(C.ink);
   return c;
 }
@@ -330,6 +394,43 @@ function capacity(fill, light, border) {
   const c = new Canvas(16, 16);
   c.box(1, 1, 14, 14, fill, border);
   if (light) c.rect(2, 2, 12, 2, light);
+  return c;
+}
+
+function oilRig() {
+  const c = new Canvas(48, 48);
+  c.rect(0, 38, 48, 10, C.blue); // sea
+  waves(c, 40, 48, C.sky);
+  c.rect(10, 26, 3, 16, C.grey4); // legs
+  c.rect(34, 26, 3, 16, C.grey4);
+  isoBlock(c, 6, 22, 34, 5, 3, C.grey1, C.grey2, C.grey4); // deck
+  // derrick
+  c.line(16, 22, 22, 4, C.amber);
+  c.line(28, 22, 22, 4, C.amber);
+  c.line(18, 16, 26, 16, C.amber);
+  c.line(20, 10, 24, 10, C.amber);
+  c.rect(30, 14, 8, 8, C.cream); // cabin
+  c.rect(32, 16, 2, 2, C.sky);
+  c.outline(C.ink);
+  return c;
+}
+
+function uraniumMine() {
+  const c = new Canvas(48, 48);
+  c.polygon([[0, 40], [10, 22], [24, 16], [38, 22], [48, 40]], C.brown3); // hill
+  c.polygon([[0, 40], [10, 22], [16, 20], [8, 40]], C.brown2);
+  c.polygon([[18, 40], [20, 30], [28, 30], [30, 40]], C.ink); // tunnel
+  c.rect(18, 28, 12, 2, C.brown5);
+  c.rect(0, 40, 48, 8, C.mud);
+  // ore cart with glowing ore
+  c.rect(32, 36, 10, 5, C.grey4);
+  c.rect(33, 34, 8, 2, C.lime);
+  c.circle(34, 42, 1.5, C.grey6);
+  c.circle(40, 42, 1.5, C.grey6);
+  // hazard sign
+  c.polygon([[8, 26], [3, 34], [13, 34]], C.yellow);
+  c.rect(8, 29, 1, 3, C.ink);
+  c.outline(C.ink);
   return c;
 }
 
@@ -461,14 +562,20 @@ const DRAW = {
   hydro_dam: hydroDam,
   gas_plant: gasPlant,
   tidal_station: tidalStation,
+  oil_plant: oilPlant,
+  nuclear_plant: nuclearPlant,
   resource_coal: coalIcon,
   resource_stone: stoneIcon,
   resource_metal: metalIcon,
   resource_natural_gas: naturalGasIcon,
+  resource_oil: oilIcon,
+  resource_uranium: uraniumIcon,
   producer_quarry: quarry,
   producer_mine: mine,
   producer_coal_mine: coalMine,
   producer_gas_well: gasWell,
+  producer_oil_rig: oilRig,
+  producer_uranium_mine: uraniumMine,
   room_expansion: roomExpansion,
   capacity_empty: () => capacity(C.grey6, null, C.grey4),
   capacity_filled: () => capacity(C.green, C.lime, C.forest),

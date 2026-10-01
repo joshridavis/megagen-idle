@@ -30,7 +30,7 @@ export const useStore = create<GameStore>()(
           ...createRoomSlice(init)(...a),
           ...createSettingsSlice(init)(...a),
           welcomeBack: null,
-          resetGame: () => set({ ...createInitialState(), celebrations: [], welcomeBack: null }, undefined, 'core/reset'),
+          resetGame: () => set({ ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null }, undefined, 'core/reset'),
           loadSave: (state) => set({ ...pickSaved(state), celebrations: [], welcomeBack: null }, undefined, 'core/loadSave'),
           dismissWelcomeBack: () => set({ welcomeBack: null }, undefined, 'core/dismissWelcomeBack'),
         };
