@@ -34,6 +34,12 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.56 Research level shown clearly (playtest 4 feedback)
 0. 0.57 New room construction animation (playtest 4 feedback)
 0. 0.31 Resource producers use room (moved up: playtest 4 feedback)
+0. 0.59 Producer cost growth 20% (playtest 5 feedback)
+0. 0.60 Scrap producers (playtest 5 feedback)
+0. 0.61 Research rewards stand out (playtest 5 feedback)
+0. 0.62 Scrollbars in game colours (playtest 5 feedback)
+0. 0.63 Research-complete celebration (playtest 5 feedback)
+0. 0.64 Tab icons (playtest 5 feedback) → CHECKPOINT
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -68,6 +74,10 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 32. 0.45 Deeper research tree
 33. 0.46 Crash recovery and error boundaries
 34. 0.47 Balance re-tune and difficulty curve review
+35. 0.65 Achievements (owner request, playtest 5)
+36. 0.66 Perfection (completion) tracker (owner request, playtest 5)
+37. 0.67 Public release plan: accounts and cloud saves (owner request, playtest 5)
+38. 0.68 Accounts and cloud saves (needs owner setup, see 0.67)
 
 ---
 
@@ -161,6 +171,37 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** replace the overlay with the capacity meter itself growing: after an expansion, the new room segments appear one after another as scaffolding (amber) and settle into normal empty segments, over about 2 seconds. Still derived only from `lastExpansionAt` (no separate timer state), so it cannot desync. Respects `prefers-reduced-motion` (segments appear at once). Remove the overlay.
 **Acceptance:** test that segments added by the last expansion are the animated ones and that animation stops after the duration; reduced motion shows the final state.
 **Done notes:** new generic sprite `ui/capacity_building.png` (16×16 scaffold) added to the manifest and generator. The old `room_expansion` overlay sprite is no longer used but stays in the manifest for later art. Dev builds expose `window.__megagenStore` for browser checks (stripped from production).
+
+### 0.59 — Producer cost growth 20% — CODE — Done
+**Goal:** apply playtest 5 feedback: each producer bought should cost 20% more than the previous one (was 15%).
+**Details:** `PRODUCER_COST_GROWTH` 1.15 → 1.20 in `src/data/producers.ts`.
+**Acceptance:** cost tests use the new factor; pacing probe shows no stall.
+
+### 0.60 — Scrap producers — CODE — Done
+**Goal:** apply playtest 5 feedback: producers can be scrapped like generators.
+**Details:** pure `scrapProducer(state, id)` lowers the count by one (never below 0) and frees its room; no refund. Producer cards get the same Scrap flow as generators: tooltip saying there is no refund, then a confirm row with the notice, Confirm and Cancel. Scrapping does not lower the price of the next one below what the new count implies (price follows the count).
+**Acceptance:** tests: count and room drop, no refund, cannot go below 0, Cancel keeps it; UI test for the flow.
+
+### 0.61 — Research rewards stand out — CODE — Done
+**Goal:** apply playtest 5 feedback: in the research panel, what the player gets from a research must be obvious.
+**Details:** the "Gives" row becomes a highlighted reward box (green tint, 🎁 icon, "You get:" label), each reward on its own line with its own icon (⚡ unlocks a generator, ⛏️ grants a producer, 📈 a percentage boost). Research nodes show a small reward hint too (e.g. "🎁 Wind Turbine").
+**Acceptance:** UI test that the reward box lists every unlock, producer grant and boost of a research.
+
+### 0.62 — Scrollbars in game colours — CODE — Done
+**Goal:** apply playtest 5 feedback: the scrollbar on long lists (Your generators) uses browser default white and grey; it should match the game.
+**Details:** global scrollbar styling from the theme (slate track, sky/slate thumb, rounded) using `scrollbar-color`/`scrollbar-width` for Firefox and Chromium plus `::-webkit-scrollbar` rules for older WebKit. Applies to every scroll area (generator list, research tree, page).
+**Acceptance:** CSS present for both engines; screenshot check in the PR.
+
+### 0.63 — Research-complete celebration — CODE — Done
+**Goal:** apply playtest 5 feedback: when a research finishes while the player is looking at the game, an animation celebrates it, whatever tab is open.
+**Details:** the idle tick records a transient (not saved) "just completed" event when research completes during live play (not when catching up offline on load; that belongs to the welcome-back summary, 0.28). A global overlay plays a short burst (badge with the research icon, name, "Research complete!", reward line, sparkle burst) for about 3 seconds, then fades; clicking dismisses it; multiple completions queue. Respects `prefers-reduced-motion` (static banner, no burst). Announced to screen readers.
+**Acceptance:** tests: a live completion triggers it on any tab; offline catch-up on load does not; it auto-hides; reduced motion shows the static version.
+**Done notes:** a tick of at most `LIVE_TICK_MAX_SECONDS` (5 s) counts as live. Reduced motion is CSS-only (no burst, no scale), so it is not covered by a jsdom test.
+
+### 0.64 — Tab icons — CODE — Done
+**Goal:** apply playtest 5 feedback: each tab button shows a small image of what it holds.
+**Details:** 20 px icon from the sprite index next to each tab label: Generators → solar panel, Producers → metal mine, Research → research (atom) icon. Icons are decorative (`alt=""`); labels stay for accessibility. Must still fit at 360 px.
+**Acceptance:** each tab renders its icon; no horizontal scroll at 360 px.
 
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.
@@ -369,6 +410,27 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** run 0.35 across the full content set, find stalls and runaway growth, adjust data files only (no mechanic changes), and record before and after in `BALANCE_REPORT.md`. Where the owner's playtest feedback conflicts with the targets, follow the feedback and update `src/data/pacingTargets.ts`.
 **Acceptance:** no stall longer than the target for its phase; report explains every change.
 
+
+### 0.65 — Achievements — CODE — Not started
+**Goal:** owner request (playtest 5): achievements that reward milestones.
+**Details:** data-driven list in `src/data/achievements.ts` (first generator, 10 generators, each generator type built, each research completed, energy totals 1K/1M/1B, room expansions, producer counts, offline returns). Pure `checkAchievements(state)` run by the systems (not components); unlocked achievements saved with their unlock time. Achievements tab or panel with locked/unlocked states and progress bars; a toast when one unlocks (uses the event/toast system from 0.38 if present, otherwise its own). Rewards are cosmetic or small boosts only if the owner agrees; start with no gameplay rewards. New generic sprites (achievement badge locked/unlocked) via the manifest and generator script.
+**Acceptance:** unlocks fire once, persist, survive migration; tests for each condition type.
+
+### 0.66 — Perfection (completion) tracker — CODE — Not started
+**Goal:** owner request (playtest 5): a tracker showing how close the player is to "perfection", read here as 100% completion. Confirm the meaning with the owner at the next playtest.
+**Details:** pure `getCompletion(state)` combining: research completed / total, generator types built / total, room expansions bought / total, achievements unlocked / total (once 0.65 exists), producer types owned. Shows an overall % in the top bar and a breakdown panel listing what is left.
+**Acceptance:** 0% on a fresh save (except what starts owned), 100% only when everything is done; tests for the aggregation.
+
+### 0.67 — Public release plan: accounts and cloud saves — CODE — Not started
+**Goal:** owner request (playtest 5): make the game available to the public with sign-up, usernames, passwords, log-in and a per-account save.
+**Details:** GitHub Pages hosts static files only, so accounts need a hosted backend. This item writes `docs/PUBLIC_RELEASE.md`: options compared (e.g. Supabase, Firebase, a small server), recommended choice, data model (user, save blob, version), security (hashed passwords handled by the provider, no secrets in the repo, rate limits), privacy (what is stored, deleting an account), cheating considerations for an idle game, cost estimate, and the exact one-time steps the owner must do (create the project, add the public keys as GitHub repository variables). Also adds a save-sync abstraction in code (`SaveBackend` interface with the current IndexedDB implementation) so a cloud backend can plug in later without touching game logic.
+**Acceptance:** plan document reviewed in the PR; the abstraction is in place with the local backend and tests; nothing requires secrets.
+
+### 0.68 — Accounts and cloud saves — CODE — Not started (needs owner setup)
+**Goal:** implement 0.67's plan once the owner has created the backend project.
+**Details:** sign-up, log-in, log-out, password reset through the chosen provider; cloud save upload and download with conflict handling (newest wins, with a prompt); guest play keeps working offline. **Blocked until the owner completes the one-time setup in `docs/PUBLIC_RELEASE.md`.** Until then, skip it and continue with other items.
+**Acceptance:** end-to-end test against the provider's local emulator if available; otherwise mocked; no secrets committed.
+
 ---
 
 ## Changes from the original Notion backlog
@@ -392,4 +454,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 2 | 0.09 | 2026-10-01 | Works; layout readable; first Solar buildable at once is right; early metal pace fine for now. Fuel "Burns" line should not share the red of "not enough". Energy needs a use: building should cost energy equal to 10 minutes of the generator's output. | 0.49, 0.50 |
 | 3 | 0.16 | 2026-10-01 | Starting research is clear; first room expansion price good; tree background looks great. Energy costs (build and research) reached too easily: raise them. Research times far too short; each level must take longer than the previous. Show boosts (e.g. Basic Solar) and their effect when hovering the energy rate, later for resources too. | 0.51, 0.52, 0.53 |
 | 4 | 0.36 | 2026-10-01 | Costs and research times fine for now (longer playtests later). Tooltip good. Mid-tier generators feel like upgrades. Scrap: no refund, but add Cancel and a no-refund notice. Show a small release version. "Research level 2" looked like it rose before research finished. Construction animation looks odd: try another approach. Add ways to raise metal, stone, coal and gas income. Raise stone prices a bit. | 0.58, 0.54, 0.55, 0.56, 0.57; 0.31 moved up |
-| 5 (v0.5.0) | 0.31 | 2026-10-01 | (waiting for owner) | |
+| 5 (v0.5.0) | 0.31 | 2026-10-01 | Producer cost growth should be 20%. Producers should be scrappable. Research labels clear now. Room animation not seen yet. Make research rewards ("Gives") stand out. Scrollbar not in game colours. Celebrate research completion with an animation on any tab. Small images on tab buttons. Add to backlog: achievements, perfection tracker, public release with accounts. | 0.59-0.64; later 0.65-0.68 |
+| 6 (v0.6.0) | 0.64 | 2026-10-01 | (waiting for owner) | |

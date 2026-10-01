@@ -45,3 +45,9 @@ export function buildProducer(state: GameState, id: ProducerId, bonuses: Bonuses
     producers: { ...state.producers, [id]: (state.producers[id] ?? 0) + 1 },
   });
 }
+
+/** Removes one producer of a type, freeing its room. No refund; never below 0. */
+export function scrapProducer(state: GameState, id: ProducerId): GameState {
+  if (!((state.producers[id] ?? 0) > 0)) return state;
+  return deriveRates({ ...state, producers: { ...state.producers, [id]: state.producers[id] - 1 } });
+}

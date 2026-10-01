@@ -1,5 +1,5 @@
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { act, render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import pkg from '../package.json';
 import { useStore } from './store';
@@ -306,5 +306,89 @@ describe('Producer rates', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
     expect(screen.getByTestId('producer-card-gasWell').textContent).toContain('+6 natural gas/h each');
     expect(screen.getByTestId('producer-card-quarry').textContent).toContain('+0.100 stone/s each');
+  });
+});
+
+describe('Scrap producers (playtest 5)', () => {
+  it('scraps one producer after confirming; Cancel keeps it', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Scrap one Metal Mine' }));
+    expect(screen.getByRole('alert').textContent).toContain('No refund');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap one Metal Mine' }));
+    expect(useStore.getState().producers.mine).toBe(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Scrap one Metal Mine' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap one Metal Mine' }));
+    expect(useStore.getState().producers.mine).toBe(0);
+    expect(useStore.getState().roomUsed).toBe(2);
+    expect(screen.queryByRole('button', { name: 'Scrap one Metal Mine' })).toBeNull();
+  });
+});
+
+describe('Research rewards stand out (playtest 5)', () => {
+  const open = (id: string) => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    fireEvent.click(screen.getByTestId(`research-node-${id}`));
+    return screen.getByTestId('research-rewards').textContent!;
+  };
+  it('lists a generator unlock', () => {
+    expect(open('wind_power')).toContain('Unlocks the Wind Turbine');
+  });
+  it('lists a percentage boost and the level gain', () => {
+    const t = open('basic_solar');
+    expect(t).toContain('You get:');
+    expect(t).toContain('+10% energy from all generators');
+    expect(t).toContain('Research level +1');
+  });
+  it('lists a producer grant', () => {
+    expect(open('gas_extraction')).toContain('1 free Gas Well');
+  });
+  it('nodes show a reward hint', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    expect(screen.getByTestId('research-node-hydropower').textContent).toContain('🎁 Hydropower Dam');
+  });
+});
+
+describe('Research celebration overlay (playtest 5)', () => {
+  it('shows on any tab, then hides by itself', () => {
+    vi.useFakeTimers();
+    try {
+      useStore.setState({ ...createInitialState(Date.now()), celebrations: [{ id: 'wind_power', at: Date.now() }] });
+      render(<App />);
+      // on the Generators tab, not Research
+      const c = screen.getByTestId('research-celebration');
+      expect(c.textContent).toContain('Research complete!');
+      expect(c.textContent).toContain('Wind Power Fundamentals');
+      expect(c.textContent).toContain('Unlocks the Wind Turbine');
+      act(() => {
+        vi.advanceTimersByTime(4000);
+      });
+      expect(screen.queryByTestId('research-celebration')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('click dismisses it', () => {
+    useStore.setState({ ...createInitialState(Date.now()), celebrations: [{ id: 'basic_solar', at: Date.now() }] });
+    render(<App />);
+    fireEvent.click(screen.getByTestId('research-celebration'));
+    expect(screen.queryByTestId('research-celebration')).toBeNull();
+  });
+});
+
+describe('Tab icons (playtest 5)', () => {
+  it('every tab shows its icon and keeps its text label', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    for (const id of ['generators', 'producers', 'research']) {
+      expect(screen.getByTestId(`tab-icon-${id}`).getAttribute('alt')).toBe('');
+    }
+    expect(screen.getByRole('tab', { name: 'Research' })).toBeTruthy();
   });
 });

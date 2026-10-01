@@ -3,7 +3,6 @@ import { sprites } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { RESEARCH_BY_ID } from '../data/research';
 import { useStore } from '../store';
-import type { BonusType } from '../types/research';
 import { getBonuses } from '../utils/bonuses';
 import {
   getResearchBlock,
@@ -14,15 +13,9 @@ import {
 } from '../utils/researchSystem';
 import CostList from './CostList';
 import ProgressBar from './ProgressBar';
+import { getResearchRewards } from './researchRewards';
 import { RESEARCH_ICONS } from './researchSprites';
 
-const BONUS_TEXT: Record<BonusType, string> = {
-  buildDiscount: 'cheaper building',
-  researchCostReduction: 'cheaper research',
-  researchSpeed: 'faster research',
-  globalEnergy: 'energy from all generators',
-  clickPower: 'energy per click',
-};
 
 const BLOCK_TEXT: Record<ResearchBlock, string> = {
   unknown: 'Unknown research',
@@ -65,6 +58,7 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
   }, []);
 
   if (!def) return null;
+  const rewards = getResearchRewards(def);
   const bonuses = getBonuses(state.completedResearch);
   const cost = getResearchCost(def, bonuses);
   const block = getResearchBlock(state, id);
@@ -133,14 +127,25 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
               </dd>
             </>
           )}
-          <dt className="text-slate-400">Gives</dt>
-          <dd>
-            {[
-              ...(def.unlocks.generators ?? []).map((g) => `Unlocks ${GENERATORS[g].name}`),
-              ...(def.effects ?? []).map((e) => `+${Math.round(e.value * 100)}% ${BONUS_TEXT[e.type]}`),
-            ].join(' · ') || '—'}
-          </dd>
         </dl>
+        <div
+          className="mb-3 rounded-lg border border-emerald-500/60 bg-emerald-950/60 p-3"
+          data-testid="research-rewards"
+        >
+          <div className="mb-1 text-sm font-semibold text-emerald-300">🎁 You get:</div>
+          <ul className="space-y-1 text-sm text-emerald-100">
+            {rewards.map((r) => (
+              <li key={r.text} className="flex gap-2">
+                <span aria-hidden="true">{r.icon}</span>
+                <span>{r.text}</span>
+              </li>
+            ))}
+            <li className="flex gap-2 text-emerald-200/80">
+              <span aria-hidden="true">⬆️</span>
+              <span>Research level +1</span>
+            </li>
+          </ul>
+        </div>
         {running ? (
           <div className="space-y-1">
             <ProgressBar value={researchProgress(state, now)} label={`${def.name} progress`} />

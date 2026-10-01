@@ -1,10 +1,11 @@
 import { sprites } from '../assets';
 import type { ResearchDef } from '../types/research';
 import type { NodeStatus } from './researchStatus';
+import { getResearchRewards } from './researchRewards';
 import { RESEARCH_ICONS } from './researchSprites';
 
 export const NODE_W = 184;
-export const NODE_H = 72;
+export const NODE_H = 84;
 
 const STYLE: Record<NodeStatus, string> = {
   completed: 'border-emerald-500 bg-emerald-950/80',
@@ -35,6 +36,7 @@ export default function ResearchNode({
   y: number;
   onOpen: () => void;
 }) {
+  const reward = getResearchRewards(def)[0];
   return (
     <button
       type="button"
@@ -52,6 +54,7 @@ export default function ResearchNode({
         <span className="block text-xs text-slate-400">
           Needs level {def.requiredLevel} · {def.cost.energy.toLocaleString('en-US')} energy
         </span>
+        {reward && <span className="block truncate text-xs text-emerald-300">🎁 {reward.short}</span>}
       </span>
       {status === 'completed' && <img src={sprites.research_check} alt="" width={16} height={16} className="pixelated" />}
       {status === 'locked' && <img src={sprites.research_lock} alt="" width={16} height={16} className="pixelated" />}
