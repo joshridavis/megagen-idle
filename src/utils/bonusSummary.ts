@@ -13,7 +13,18 @@ export interface BonusLine {
   sources: { name: string; value: number }[];
 }
 
-const ORDER: BonusType[] = ['globalEnergy', 'clickPower', 'buildDiscount', 'researchSpeed', 'researchCostReduction'];
+const ORDER: BonusType[] = [
+  'globalEnergy',
+  'clickPower',
+  'buildDiscount',
+  'researchSpeed',
+  'researchCostReduction',
+  'resourceProduction',
+  'metalProduction',
+  'stoneProduction',
+  'producerDiscount',
+  'fuelEfficiency',
+];
 
 /** Active bonuses with their sources, for the Bonuses panel. Only types with at least one source. */
 export function getBonusSummary(completedResearch: string[]): BonusLine[] {

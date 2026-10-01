@@ -1,4 +1,5 @@
 import { PRODUCER_COST_GROWTH, PRODUCERS } from '../data/producers';
+import { BONUS_CAPS } from '../data/research';
 import { NO_BONUSES, type Bonuses } from '../types/bonus';
 import type { ProducerId, ResourceAmounts } from '../types/resource';
 import type { GameState } from '../types/state';
@@ -16,7 +17,8 @@ export interface ProducerCost {
  */
 export function getProducerCost(id: ProducerId, owned: number, bonuses: Bonuses = NO_BONUSES): ProducerCost {
   const def = PRODUCERS[id];
-  const f = PRODUCER_COST_GROWTH ** Math.max(0, owned) * (1 - bonuses.buildDiscount);
+  const discount = Math.min(BONUS_CAPS.buildDiscount, bonuses.buildDiscount + bonuses.producerDiscount);
+  const f = PRODUCER_COST_GROWTH ** Math.max(0, owned) * (1 - discount);
   const resources: ResourceAmounts = {};
   for (const [r, n] of Object.entries(def.baseCost.resources)) resources[r as keyof ResourceAmounts] = Math.ceil((n ?? 0) * f);
   return { energy: Math.ceil(def.baseCost.energy * f), resources };

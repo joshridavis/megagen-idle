@@ -15,5 +15,7 @@ export const getUnlockedGenerators = (s: Pick<GameState, 'completedResearch'>): 
 /** Active research bonuses. Not a stable reference: use inside useMemo or with completedResearch. */
 export const selectBonuses = (s: Pick<GameState, 'completedResearch'>) => getBonuses(s.completedResearch);
 /** Derived, not stable references: call inside useMemo, not as a store selector. */
-export const selectProductionRates = (s: Pick<GameState, 'producers'>) => getProductionRates(s.producers);
-export const selectFuelUseRates = (s: Pick<GameState, 'activeGenerators'>) => getFuelUseRates(s.activeGenerators);
+export const selectProductionRates = (s: Pick<GameState, 'producers' | 'completedResearch'>) =>
+  getProductionRates(s.producers, getBonuses(s.completedResearch));
+export const selectFuelUseRates = (s: Pick<GameState, 'activeGenerators' | 'completedResearch'>) =>
+  getFuelUseRates(s.activeGenerators, getBonuses(s.completedResearch));

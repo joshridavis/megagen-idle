@@ -1,6 +1,6 @@
-# Playtest 7 (v0.7.0): settings, welcome back, boost research, ordering (after item 0.30)
+# Playtest 8 (v0.8.0): research everywhere, new room bar, resource research (after item 0.75)
 
-The version at the bottom of the screen should read **v0.7.0**.
+The version at the bottom of the screen should read **v0.8.0**.
 
 ## How to play
 
@@ -9,55 +9,50 @@ The version at the bottom of the screen should read **v0.7.0**.
 
 Your save carries over.
 
-## New since last playtest
+## New since last playtest (all from your feedback)
 
-- **Your feedback:**
-  - **Reorder generators.** Use ▲▼ on each row (Shift+click to send it to the top or bottom), or drag rows on a computer. The order is also the **fuel priority**: when coal or gas runs short, generators higher in the list get it first. Generator names (#1, #2…) no longer change when you reorder.
-  - **Scrap several producers at once.** Scrap asks how many, with − / + buttons, a number field and an "All" button, and shows how much room you'll free.
-- **Welcome back.** After at least a minute away, a summary shows:
-  - how long you were away, and whether only the first 24 hours counted;
-  - energy and resources gained;
-  - research completed;
-  - generators that ran out of fuel.
-- **Settings tab** (gear icon):
-  - number style: Short 1.23M, Scientific 1.23e6, or Full 1,234,567;
-  - **Export save / Import save** for backups or moving devices (a wrong or damaged file is rejected and your game is untouched);
-  - a note on the offline limit;
-  - **Reset game**, which asks twice.
-- **Short numbers everywhere:** 1.23K, 45.6M, 789B, 1.2T. They're never rounded up, so you never see more than you have.
-- **Eight boost research nodes** (levels 3 to 7):
-  - Hand-Crank Dynamo: double click energy.
-  - Standard Parts and Bulk Purchasing: cheaper building.
-  - Lab Notebooks and Automated Labs: faster research.
-  - Grant Funding: cheaper research.
-  - Smart Grid and Superconductors: more energy.
-  - The Research tab shows an **Active bonuses** panel listing each bonus and where it comes from.
-- **On phones,** tabs that aren't active show only their icon, so all four fit.
+- **Research on every tab.** While a research runs, a chip under the energy display shows its name, time left and a progress bar on any tab. Click it to jump to Research. The running node in the research tree blinks.
+- **New room bar.** Your video showed the old meter wrapping onto a second row, with scaffolding jumping between rows and sometimes coming back. The meter is now one fixed-width bar:
+  - used room in green (red at 90%+), with tick marks every 10 room;
+  - after an expansion, the new room slides in as an amber striped "under construction" section, then settles after about 2 seconds;
+  - I checked it in a browser: it plays once and never comes back.
+- **8 room tiers** (was 3): +35, +50, +70, +100 and +140 room after the first three. Later tiers also cost coal, and the last one costs natural gas. The panel shows "Expansion N of 8".
+- **Resource research** (six new nodes):
+  - Better Pickaxes: +25% metal.
+  - Controlled Blasting: +25% stone.
+  - Conveyor Belts: +15% from all producers.
+  - Modular Mines: 15% cheaper producers.
+  - Efficient Boilers: 20% less fuel burned.
+  - Deep Drilling: +20% from all producers.
+  
+  Hover over a resource's rate to see these boosts, and the Active bonuses panel lists them.
+- **"24 hours"** now replaces "1d" for the offline limit.
+- Already in place, as you asked: the welcome-back summary lists research that finished while you were away, and Short is the default number style.
 
-## Pacing I measured (idle player who buys mines and quarries, no clicking)
+## Pacing I measured (simple idle player, 48 hours)
 
-- All 16 research done within about 19 hours: Hydro at about 4 hours, Gas Plants at about 10 hours, Superconductors at about 19 hours.
+- All 22 research done by about 25 hours.
+- Room tiers 4 to 7 by about 20 hours. Tier 8 (100 natural gas) is a long-term goal.
 - No stalls.
 
 ## Things to try
 
-1. Reorder your generators with ▲▼ and by dragging. Put a coal plant at the top and let coal run low: does the top one keep running?
-2. Scrap 3 of one producer at once.
-3. Close the game for a while, then come back. Is the welcome-back summary useful?
-4. Settings: switch the number style, export your save, then import it again.
-5. Try Reset game, but press Cancel (unless you want to start over).
-6. Research Hand-Crank Dynamo and check that clicks give 2.
-7. Look at Active bonuses after a few boost research.
+1. Start a research, then switch tabs. Is the chip clear? Click it.
+2. Look at the blinking node in the research tree.
+3. Expand your room and watch the new bar animation.
+4. Research Better Pickaxes or Conveyor Belts and hover over the metal rate.
+5. Run coal plants with Efficient Boilers: does the coal rate improve?
+6. Check the Settings note says "24 hours".
 
 ## Known issues
 
-- No balance simulator yet (0.35); boost numbers are first guesses.
-- The room animation and research celebration are still waiting for your verdict.
+- Saves are written in the background, so an action in the last second before closing the tab may not be saved. Tell me if you want a save-on-close safeguard.
+- No balance simulator yet (0.35). All numbers are first guesses.
 - Placeholder art.
 
 ## Questions for you
 
-1. Is using list order as fuel priority intuitive, or would you rather set priority separately?
-2. Is the welcome-back summary the right amount of detail?
-3. Which number style do you prefer as the default?
-4. Do the boost research feel worth their cost and time?
+1. Is the new room bar animation better?
+2. Is the research chip in the right place, or would you prefer it smaller or somewhere else?
+3. Are 8 room tiers enough, and do the later costs feel right?
+4. Which resource research felt most useful?

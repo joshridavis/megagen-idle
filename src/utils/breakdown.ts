@@ -3,6 +3,7 @@ import { BASE_CLICK_VALUE } from '../data/player';
 import { RESEARCH_BY_ID } from '../data/research';
 import type { BonusType } from '../types/research';
 import type { GameState, ResourceId } from '../types/state';
+import { getBonuses } from './bonuses';
 import { getFuelUseRates, getProductionRates } from './resourceSystem';
 
 export interface RateModifier {
@@ -50,19 +51,25 @@ export function getClickBreakdown(completedResearch: string[]): RateBreakdown {
 }
 
 /**
- * Net per-second change of one resource: production from producers, then
- * fuel burned by running generators (a negative modifier).
+ * Net per-second change of one resource: base production from producers,
+ * research production boosts, then fuel burned by running generators
+ * (after fuel efficiency) as a negative modifier.
  */
 export function getResourceBreakdown(
-  state: Pick<GameState, 'producers' | 'activeGenerators'>,
+  state: Pick<GameState, 'producers' | 'activeGenerators' | 'completedResearch'>,
   id: ResourceId,
 ): RateBreakdown {
   const base = getProductionRates(state.producers)[id];
-  const burn = getFuelUseRates(state.activeGenerators)[id];
-  const modifiers: RateModifier[] = [];
+  const boosts = breakdownFromResearch(base, state.completedResearch, 'resourceProduction').modifiers;
+  const specific = id === 'metal' ? 'metalProduction' : id === 'stone' ? 'stoneProduction' : null;
+  if (specific) boosts.push(...breakdownFromResearch(base, state.completedResearch, specific).modifiers);
+  const bonuses = getBonuses(state.completedResearch);
+  const burn = getFuelUseRates(state.activeGenerators, bonuses)[id];
+  const modifiers: RateModifier[] = [...boosts];
   if (burn > 0) {
     const burners = state.activeGenerators.filter((g) => g.isActive && (GENERATORS[g.type]?.maintenanceCost?.[id] ?? 0) > 0);
-    modifiers.push({ source: `Fuel for ${burners.length} running generator${burners.length === 1 ? '' : 's'}`, amount: -burn });
+    const eff = bonuses.fuelEfficiency > 0 ? ` (−${Math.round(bonuses.fuelEfficiency * 100)}% from research)` : '';
+    modifiers.push({ source: `Fuel for ${burners.length} running generator${burners.length === 1 ? '' : 's'}${eff}`, amount: -burn });
   }
-  return { base, modifiers, total: base - burn };
+  return { base, modifiers, total: base + modifiers.reduce((sum, m) => sum + m.amount, 0) };
 }

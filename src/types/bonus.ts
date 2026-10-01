@@ -5,6 +5,14 @@ export interface Bonuses {
   researchSpeed: number;
   globalEnergy: number;
   clickPower: number;
+  /** All producers produce more (0.1 = +10%). */
+  resourceProduction: number;
+  metalProduction: number;
+  stoneProduction: number;
+  /** Cheaper producers (stacks with buildDiscount, shares its cap). */
+  producerDiscount: number;
+  /** Generators burn less fuel (0.2 = 20% less). */
+  fuelEfficiency: number;
 }
 
 export const NO_BONUSES: Bonuses = {
@@ -13,4 +21,9 @@ export const NO_BONUSES: Bonuses = {
   researchSpeed: 0,
   globalEnergy: 0,
   clickPower: 0,
+  resourceProduction: 0,
+  metalProduction: 0,
+  stoneProduction: 0,
+  producerDiscount: 0,
+  fuelEfficiency: 0,
 };

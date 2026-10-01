@@ -9,6 +9,11 @@ const LABEL: Record<BonusType, string> = {
   buildDiscount: '🏗️ Cheaper building',
   researchSpeed: '⏩ Faster research',
   researchCostReduction: '💰 Cheaper research',
+  resourceProduction: '⛏️ Output from all producers',
+  metalProduction: '🔩 Metal from mines',
+  stoneProduction: '🪨 Stone from quarries',
+  producerDiscount: '🏭 Cheaper producers',
+  fuelEfficiency: '🔥 Less fuel burned',
 };
 
 const pct = (n: number) => `${Math.round(n * 100)}%`;

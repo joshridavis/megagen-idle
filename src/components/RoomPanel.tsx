@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { sprites } from '../assets';
+import { ROOM_TIERS } from '../data/rooms';
 import { useStore } from '../store';
 import {
-  expansionSegmentPhase,
+  expansionBarPhase,
   getExpandBlock,
   getNextRoomTier,
   isExpansionAnimating,
@@ -33,11 +33,11 @@ function useExpansionElapsed(lastExpansionAt: number | null): number | null {
 }
 
 /**
- * Capacity meter: one segment per unit of room, up to a readable maximum.
- * After an expansion the new segments build in one by one (scaffolding),
- * then settle into empty room.
+ * Room bar: one fixed-width bar with used room and free room, tick marks for
+ * scale. After an expansion the new room's share slides in as an amber
+ * striped "under construction" section, then settles into free room.
  */
-function CapacityMeter({
+function RoomBar({
   used,
   capacity,
   critical,
@@ -50,42 +50,35 @@ function CapacityMeter({
   added: number;
   elapsed: number | null;
 }) {
-  const MAX_SEGMENTS = 40;
-  const scale = capacity > MAX_SEGMENTS ? capacity / MAX_SEGMENTS : 1;
-  const total = Math.ceil(capacity / scale);
-  const filled = Math.min(total, Math.ceil(used / scale));
-  const firstNew = Math.min(total, Math.ceil((capacity - added) / scale));
+  const pct = (n: number) => `${Math.max(0, Math.min(100, (n / Math.max(1, capacity)) * 100))}%`;
+  const anim = expansionBarPhase(elapsed);
+  const newStart = capacity - added;
+  const tickEvery = capacity > 200 ? 50 : 10;
+  const ticks = Array.from({ length: Math.floor((capacity - 1) / tickEvery) }, (_, i) => (i + 1) * tickEvery);
   return (
     <div
-      className="flex flex-wrap gap-0.5"
       role="meter"
       aria-label="Room used"
       aria-valuemin={0}
       aria-valuemax={capacity}
       aria-valuenow={used}
+      className="relative h-5 w-full overflow-hidden rounded border border-slate-600 bg-slate-900"
     >
-      {Array.from({ length: total }, (_, i) => {
-        const phase = expansionSegmentPhase(i, firstNew, total, elapsed);
-        const src =
-          phase === 'building'
-            ? sprites.capacity_building
-            : i < filled
-              ? critical
-                ? sprites.capacity_critical
-                : sprites.capacity_filled
-              : sprites.capacity_empty;
-        return (
-          <img
-            key={i}
-            src={src}
-            alt=""
-            width={16}
-            height={16}
-            data-phase={phase}
-            className={`pixelated ${phase === 'hidden' ? 'invisible' : ''}`}
-          />
-        );
-      })}
+      <div
+        data-testid="room-used-bar"
+        className={`absolute inset-y-0 left-0 ${critical ? 'bg-red-600' : 'bg-emerald-600'} transition-[width] duration-300`}
+        style={{ width: pct(used) }}
+      />
+      {anim.building && added > 0 && (
+        <div
+          data-testid="room-building"
+          className="room-building absolute inset-y-0"
+          style={{ left: pct(newStart), width: pct(added * anim.reveal) }}
+        />
+      )}
+      {ticks.map((t) => (
+        <div key={t} aria-hidden="true" className="absolute inset-y-0 w-px bg-slate-500/50" style={{ left: pct(t) }} />
+      ))}
     </div>
   );
 }
@@ -119,7 +112,7 @@ export default function RoomPanel() {
           {state.roomUsed}/{state.roomCapacity}
         </span>
       </div>
-      <CapacityMeter
+      <RoomBar
         used={state.roomUsed}
         capacity={state.roomCapacity}
         critical={warn}
@@ -137,7 +130,9 @@ export default function RoomPanel() {
       {next ? (
         <div className="mt-3 space-y-2 text-sm">
           <div>
-            <span className="text-slate-400">Expansion {next.tier}: </span>
+            <span className="text-slate-400">
+              Expansion {next.tier} of {ROOM_TIERS.length}:{' '}
+            </span>
             <strong>+{next.capacity} room</strong>
           </div>
           <div>

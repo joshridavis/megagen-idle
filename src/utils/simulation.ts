@@ -40,8 +40,9 @@ export function advanceTime(
   while (left > 0) {
     const dt = Math.min(SIM_STEP_SECONDS, left);
     left -= dt;
-    const produced = accrueResources(s.resources, s.producers, dt);
-    const fuel = burnFuel(produced, s.activeGenerators, dt);
+    const bonuses = getBonuses(s.completedResearch);
+    const produced = accrueResources(s.resources, s.producers, dt, bonuses);
+    const fuel = burnFuel(produced, s.activeGenerators, dt, bonuses);
     s = { ...s, resources: fuel.resources, activeGenerators: fuel.generators };
     if (fuel.deactivated.length) {
       s = deriveRates(s);

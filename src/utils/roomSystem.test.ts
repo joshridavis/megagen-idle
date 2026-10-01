@@ -5,12 +5,12 @@ import { ROOM_TIERS } from '../data/rooms';
 import { GeneratorType } from '../types/generator';
 import type { GameState } from '../types/state';
 import { buildGenerator, getBuildBlock } from './generatorSystem';
-import { canExpandRoom, expandRoom, expansionSegmentPhase, getExpandBlock, getNextRoomTier, isExpansionAnimating, lastExpansionSize, isRoomNearlyFull } from './roomSystem';
+import { canExpandRoom, expandRoom, expansionBarPhase, getExpandBlock, getNextRoomTier, isExpansionAnimating, lastExpansionSize, isRoomNearlyFull } from './roomSystem';
 
 const rich = (over: Partial<GameState> = {}): GameState => ({
   ...createInitialState(0),
-  energy: 1e6,
-  resources: { metal: 1e4, stone: 1e4, coal: 0, naturalGas: 0 },
+  energy: 1e8,
+  resources: { metal: 1e6, stone: 1e6, coal: 1e5, naturalGas: 1e4 },
   ...over,
 });
 
@@ -25,15 +25,15 @@ describe('room expansion', () => {
     const s = expandRoom(rich());
     expect(s.roomCapacity).toBe(23);
     expect(s.expansionLevel).toBe(1);
-    expect(s.energy).toBe(1e6 - 500);
-    expect(s.resources.metal).toBe(1e4 - 50);
-    expect(s.resources.stone).toBe(1e4 - 20);
+    expect(s.energy).toBe(1e8 - 500);
+    expect(s.resources.metal).toBe(1e6 - 50);
+    expect(s.resources.stone).toBe(1e6 - 20);
   });
 
   it('tiers go in order and stop at the last', () => {
     let s = rich();
     for (const t of ROOM_TIERS) s = expandRoom(s, t.tier);
-    expect(s.roomCapacity).toBe(13 + 10 + 15 + 25);
+    expect(s.roomCapacity).toBe(13 + ROOM_TIERS.reduce((sum, t) => sum + t.capacity, 0));
     expect(getNextRoomTier(s.expansionLevel)).toBeNull();
     expect(getExpandBlock(s)).toBe('maxed');
     expect(expandRoom(s)).toBe(s);
@@ -65,15 +65,15 @@ describe('room expansion', () => {
   });
 });
 
-describe('expansion animation: meter grows (playtest 4, absorbs 0.21)', () => {
-  it('new segments appear one by one as scaffolding, then settle', () => {
-    // 10 old segments, 10 new (indices 10..19), 2000 ms
-    expect(expansionSegmentPhase(5, 10, 20, 0)).toBe('done'); // old segment untouched
-    expect(expansionSegmentPhase(10, 10, 20, 0)).toBe('building'); // first new appears at once
-    expect(expansionSegmentPhase(19, 10, 20, 0)).toBe('hidden'); // last not yet
-    expect(expansionSegmentPhase(19, 10, 20, 1200)).toBe('building'); // all shown by 60%
-    expect(expansionSegmentPhase(19, 10, 20, 2000)).toBe('done'); // settled at the end
-    expect(expansionSegmentPhase(19, 10, 20, null)).toBe('done'); // no expansion yet
+describe('expansion animation: room bar (playtest 7 redesign, absorbs 0.21)', () => {
+  it('the new room slides in over the first half, holds, then settles', () => {
+    expect(expansionBarPhase(null)).toEqual({ building: false, reveal: 1 });
+    expect(expansionBarPhase(0)).toEqual({ building: true, reveal: 0 });
+    expect(expansionBarPhase(500)).toEqual({ building: true, reveal: 0.5 });
+    expect(expansionBarPhase(1000)).toEqual({ building: true, reveal: 1 });
+    expect(expansionBarPhase(1999)).toEqual({ building: true, reveal: 1 });
+    expect(expansionBarPhase(2000)).toEqual({ building: false, reveal: 1 });
+    expect(expansionBarPhase(-1)).toEqual({ building: false, reveal: 1 });
   });
 
   it('is driven only by the expansion timestamp', () => {
@@ -89,5 +89,19 @@ describe('expansion animation: meter grows (playtest 4, absorbs 0.21)', () => {
     const s = expandRoom(rich({ energy: 0 }), undefined, 5_000);
     expect(s.lastExpansionAt).toBeNull();
     expect(isExpansionAnimating(s.lastExpansionAt, 5_500)).toBe(false);
+  });
+});
+
+describe('room tiers (playtest 7: more, finite)', () => {
+  it('there are 8 tiers, in order, each bigger and dearer than the last', () => {
+    expect(ROOM_TIERS).toHaveLength(8);
+    ROOM_TIERS.forEach((t, i) => {
+      expect(t.tier).toBe(i + 1);
+      if (i > 0) {
+        expect(t.capacity).toBeGreaterThan(ROOM_TIERS[i - 1].capacity);
+        expect(t.energy).toBeGreaterThan(ROOM_TIERS[i - 1].energy);
+        expect(t.resources.metal!).toBeGreaterThan(ROOM_TIERS[i - 1].resources.metal!);
+      }
+    });
   });
 });

@@ -4,7 +4,7 @@ import { RESEARCH_BY_ID } from '../data/research';
 import { RESOURCE_IDS, RESOURCE_NAMES } from '../data/resources';
 import { MAX_OFFLINE_SECONDS } from '../data/time';
 import { useStore } from '../store';
-import { formatDuration } from '../utils/format';
+import { formatDuration, formatHours } from '../utils/format';
 import { useNumberFormat } from './useNumberFormat';
 
 /** "Welcome back" summary of what happened while the game was closed. */
@@ -48,7 +48,7 @@ export default function WelcomeBack() {
           You were away for <strong>{formatDuration(report.awaySeconds)}</strong>.
           {capped && (
             <span className="block text-amber-300">
-              Only the first {formatDuration(MAX_OFFLINE_SECONDS)} count toward offline progress.
+              Only the first {formatHours(MAX_OFFLINE_SECONDS)} count toward offline progress.
             </span>
           )}
         </p>

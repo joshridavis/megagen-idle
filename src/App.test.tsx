@@ -207,16 +207,15 @@ describe('Mid-tier generators UI', () => {
     expect(screen.getByTestId('generator-card-hydro').querySelector('button')!.textContent).toBe('Research level too low');
   });
 
-  it('builds the new meter segments in after expanding', () => {
+  it('shows the new room under construction after expanding, in a fixed-width bar', () => {
     useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0 } });
     render(<App />);
-    const meter = () => screen.getByRole('meter', { name: 'Room used' });
-    expect(meter().querySelectorAll('[data-phase="building"]').length).toBe(0);
+    expect(screen.queryByTestId('room-building')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
-    expect(meter().querySelectorAll('img').length).toBe(23);
-    // right after expanding: the first new segment is scaffolding, the old 13 are untouched
-    expect(meter().querySelectorAll('img')[13].getAttribute('data-phase')).toBe('building');
-    expect(meter().querySelectorAll('img')[12].getAttribute('data-phase')).toBe('done');
+    const building = screen.getByTestId('room-building');
+    // new room is the last 10 of 23
+    expect(building.style.left).toBe(`${(13 / 23) * 100}%`);
+    expect(screen.getByRole('meter', { name: 'Room used' }).getAttribute('aria-valuemax')).toBe('23');
   });
 });
 
@@ -451,7 +450,7 @@ describe('Welcome back and settings (0.28)', () => {
     render(<App />);
     const d = screen.getByTestId('welcome-back');
     expect(d.textContent).toContain('3d');
-    expect(d.textContent).toContain('Only the first 1d count');
+    expect(d.textContent).toContain('Only the first 24 hours count');
     expect(d.textContent).toContain('+4.32K');
     expect(d.textContent).toContain('Research complete: Basic Solar');
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
@@ -511,7 +510,7 @@ describe('Settings (0.29)', () => {
     useStore.setState(createInitialState(Date.now()));
     render(<App />);
     fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
-    expect(screen.getByRole('region', { name: 'Settings' }).textContent).toContain('for up to 1d');
+    expect(screen.getByRole('region', { name: 'Settings' }).textContent).toContain('for up to 24 hours');
   });
 });
 
@@ -523,5 +522,43 @@ describe('Bonuses panel (0.30)', () => {
     expect(screen.getByTestId('bonus-buildDiscount').textContent).toContain('+10%');
     expect(screen.getByTestId('bonus-buildDiscount').textContent).toContain('Standard Parts +5%');
     expect(screen.getByTestId('bonus-globalEnergy').textContent).toContain('+10%');
+  });
+});
+
+describe('Research visible on every tab (playtest 7)', () => {
+  it('shows the running research and time left on the Generators tab; click opens Research', () => {
+    const now = Date.now();
+    useStore.setState({
+      ...createInitialState(now),
+      currentResearch: { id: 'wind_power', startTime: now - 600_000, duration: 1800 },
+      completedResearch: ['basic_solar'],
+      researchLevel: 2,
+    });
+    render(<App />);
+    const chip = screen.getByTestId('research-chip');
+    expect(chip.textContent).toContain('Wind Power Fundamentals');
+    expect(chip.textContent).toContain('20m left');
+    fireEvent.click(chip);
+    expect(screen.getByRole('tab', { name: 'Research' }).getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByTestId('research-node-wind_power').className).toContain('research-running');
+  });
+
+  it('is hidden when no research runs', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    expect(screen.queryByTestId('research-chip')).toBeNull();
+  });
+});
+
+describe('Resource boosts in the UI (0.75)', () => {
+  it('the metal tooltip and Bonuses panel show resource boosts', () => {
+    useStore.setState({ ...createInitialState(Date.now()), completedResearch: ['standard_parts', 'better_picks', 'conveyor_belts'] });
+    render(<App />);
+    const tip = document.getElementById('resource-breakdown-metal')!;
+    expect(tip.textContent).toContain('Better Pickaxes (+25%)');
+    expect(tip.textContent).toContain('Conveyor Belts (+15%)');
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    expect(screen.getByTestId('bonus-metalProduction').textContent).toContain('+25%');
+    expect(screen.getByTestId('bonus-resourceProduction').textContent).toContain('+15%');
   });
 });

@@ -11,6 +11,8 @@ export function getBonuses(completedResearch: string[]): Bonuses {
   b.buildDiscount = Math.min(b.buildDiscount, BONUS_CAPS.buildDiscount);
   b.researchCostReduction = Math.min(b.researchCostReduction, BONUS_CAPS.researchCostReduction);
   b.researchSpeed = Math.min(b.researchSpeed, BONUS_CAPS.researchSpeed);
+  b.producerDiscount = Math.min(b.producerDiscount, BONUS_CAPS.producerDiscount);
+  b.fuelEfficiency = Math.min(b.fuelEfficiency, BONUS_CAPS.fuelEfficiency);
   return b;
 }
 
