@@ -192,10 +192,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** global scrollbar styling from the theme (slate track, sky/slate thumb, rounded) using `scrollbar-color`/`scrollbar-width` for Firefox and Chromium plus `::-webkit-scrollbar` rules for older WebKit. Applies to every scroll area (generator list, research tree, page).
 **Acceptance:** CSS present for both engines; screenshot check in the PR.
 
-### 0.63 — Research-complete celebration — CODE — Not started
+### 0.63 — Research-complete celebration — CODE — Done
 **Goal:** apply playtest 5 feedback: when a research finishes while the player is looking at the game, an animation celebrates it, whatever tab is open.
 **Details:** the idle tick records a transient (not saved) "just completed" event when research completes during live play (not when catching up offline on load; that belongs to the welcome-back summary, 0.28). A global overlay plays a short burst (badge with the research icon, name, "Research complete!", reward line, sparkle burst) for about 3 seconds, then fades; clicking dismisses it; multiple completions queue. Respects `prefers-reduced-motion` (static banner, no burst). Announced to screen readers.
 **Acceptance:** tests: a live completion triggers it on any tab; offline catch-up on load does not; it auto-hides; reduced motion shows the static version.
+**Done notes:** a tick of at most `LIVE_TICK_MAX_SECONDS` (5 s) counts as live. Reduced motion is CSS-only (no burst, no scale), so it is not covered by a jsdom test.
 
 ### 0.64 — Tab icons — CODE — Not started
 **Goal:** apply playtest 5 feedback: each tab button shows a small image of what it holds.

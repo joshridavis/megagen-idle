@@ -5,6 +5,7 @@ import DepletionWarning from './components/DepletionWarning';
 import EnergyDisplay from './components/EnergyDisplay';
 import GeneratorGrid from './components/GeneratorGrid';
 import ProducerPanel from './components/ProducerPanel';
+import ResearchCelebration from './components/ResearchCelebration';
 import ResearchTree from './components/ResearchTree';
 import ResourceDisplay from './components/ResourceDisplay';
 import RoomPanel from './components/RoomPanel';
@@ -65,6 +66,7 @@ export default function App() {
         )}
       </div>
       <VersionFooter />
+      <ResearchCelebration />
     </main>
   );
 }

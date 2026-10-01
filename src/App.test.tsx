@@ -1,5 +1,5 @@
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { act, render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import pkg from '../package.json';
 import { useStore } from './store';
@@ -351,5 +351,33 @@ describe('Research rewards stand out (playtest 5)', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
     expect(screen.getByTestId('research-node-hydropower').textContent).toContain('🎁 Hydropower Dam');
+  });
+});
+
+describe('Research celebration overlay (playtest 5)', () => {
+  it('shows on any tab, then hides by itself', () => {
+    vi.useFakeTimers();
+    try {
+      useStore.setState({ ...createInitialState(Date.now()), celebrations: [{ id: 'wind_power', at: Date.now() }] });
+      render(<App />);
+      // on the Generators tab, not Research
+      const c = screen.getByTestId('research-celebration');
+      expect(c.textContent).toContain('Research complete!');
+      expect(c.textContent).toContain('Wind Power Fundamentals');
+      expect(c.textContent).toContain('Unlocks the Wind Turbine');
+      act(() => {
+        vi.advanceTimersByTime(4000);
+      });
+      expect(screen.queryByTestId('research-celebration')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('click dismisses it', () => {
+    useStore.setState({ ...createInitialState(Date.now()), celebrations: [{ id: 'basic_solar', at: Date.now() }] });
+    render(<App />);
+    fireEvent.click(screen.getByTestId('research-celebration'));
+    expect(screen.queryByTestId('research-celebration')).toBeNull();
   });
 });

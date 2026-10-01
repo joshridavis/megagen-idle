@@ -11,7 +11,14 @@ export interface CoreActions {
   resetGame: () => void;
 }
 
+/** Transient UI events: never saved. */
+export interface TransientState {
+  /** Research completed during live play, waiting to be celebrated (oldest first). */
+  celebrations: { id: string; at: number }[];
+}
+
 export type GameStore = GameState &
+  TransientState &
   EnergyActions &
   ResourceActions &
   GeneratorActions &
