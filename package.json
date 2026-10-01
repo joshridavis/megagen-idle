@@ -1,7 +1,7 @@
 {
   "name": "megagen-idle",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.9.0",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -13,7 +13,8 @@
     "test": "vitest run",
     "generate:assets": "node scripts/generate-generic-assets.mjs",
     "check:assets": "node scripts/check-assets.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "simulate": "tsx scripts/simulate.ts"
   },
   "dependencies": {
     "localforage": "^1.10.0",
@@ -33,6 +34,7 @@
     "jsdom": "^29.1.1",
     "pngjs": "^7.0.0",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.2",
     "vitest": "^5.0.3"

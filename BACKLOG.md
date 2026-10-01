@@ -47,6 +47,9 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.73 Room meter redesign and expansion animation (playtest 7 feedback)
 0. 0.74 More room expansion tiers (playtest 7 feedback)
 0. 0.75 Resource boost research (playtest 7 feedback) → CHECKPOINT
+0. 0.76 Save-on-close safeguard (playtest 8 feedback)
+0. 0.77 Floating research chip (playtest 8 feedback)
+0. 0.78 Third starting research: Basic Mining (playtest 8 feedback)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -248,6 +251,21 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** tests for each new bonus type, stacking and caps; tooltips show boosts; pacing probe has no stall.
 **Done notes:** six nodes: Better Pickaxes (+25% metal), Controlled Blasting (+25% stone), Conveyor Belts (+15% all producers), Modular Mines (−15% producer cost, shares the build-discount cap), Efficient Boilers (−20% fuel), Deep Drilling (+20% all producers). 48 h probe: all 22 research done by about 25 h, room tiers 4–7 by about 20 h, no stalls; tier 8 stays a long-term goal.
 
+### 0.76 — Save-on-close safeguard — CODE — Done
+**Goal:** apply playtest 8 feedback: nothing done just before closing the tab is lost.
+**Details:** the save storage also writes every save synchronously to a `localStorage` backup (with a timestamp) at the moment zustand saves; the IndexedDB write stays the main save and records its own timestamp when it completes. On load, whichever copy is newer wins. Works if `localStorage` is unavailable (falls back to IndexedDB only). Reset clears both.
+**Acceptance:** unit tests for choosing the newer copy and for missing or corrupt copies; the e2e smoke test reloads right after an action under a 20× CPU slowdown and the action survives.
+
+### 0.77 — Floating research chip — CODE — Done
+**Goal:** apply playtest 8 feedback: the research chip sits oddly between the energy display and the button; it should float at the bottom of the screen without ever covering the version footer.
+**Details:** the chip becomes `position: fixed` at the bottom centre (with safe-area padding on phones); while it shows, the page gets matching bottom padding so scrolling to the end reveals the footer above it. Same content and click behaviour as before.
+**Acceptance:** UI test that the chip is rendered in the floating container and the page gets bottom padding only while research runs; browser check that the footer is visible at the bottom of the scroll with the chip shown.
+
+### 0.78 — Third starting research: Basic Mining — CODE — Done
+**Goal:** apply playtest 8 feedback: the tree should start from three basic research, one of them starting the resource upgrades.
+**Details:** new level-1 root "Basic Mining" (+10% output from all producers, needs a Solar Panel built like Basic Solar, so starting energy cannot be stranded). Better Pickaxes, Controlled Blasting and Modular Mines now require Basic Mining instead of Standard Parts. Duration follows the rule (level 1, shorter than every level-2 research).
+**Acceptance:** the tree has three roots (Basic Solar, Basic Mining, Fossil Fuels 101); data tests (duration rule, reachability) pass; pacing probe has no stall.
+
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.
 **Details:** set `MAX_OFFLINE_SECONDS` in `src/data/time.ts` to 24 hours. Update the offline-cap mention in `PLAYTEST.md` and any test that relies on the old value. Keep click value and click feedback unchanged (owner is happy with them).
@@ -383,15 +401,17 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** building a producer deducts costs and room; a fresh save is still playable; tests for rate scaling and room checks.
 **Done notes:** new Producers tab. Each producer costs energy + resources, growing ×1.15 per one owned (`PRODUCER_COST_GROWTH`); quarry, mine and coal mine take 1 room, the gas well 2 and needs Natural Gas Extraction. Base room raised 10 → 13 so the three starting producers do not shrink the room for generators (save migration adds 3 to existing saves). Resource rates got the hover breakdown (producers, fuel burned, net), as asked in playtest 3. New generic sprite `producers/gas_well.png`.
 
-### 0.35 — Balance simulator — CODE — Not started
+### 0.35 — Balance simulator — CODE — Done
 **Goal:** tune pacing with numbers, since Claude cannot feel the game.
-**Details:** `npm run simulate` runs a headless simulation using the pure game functions and a simple greedy player (occasional clicks; buys the best affordable item by payback time; researches when affordable) for 24 simulated hours. It writes `BALANCE_REPORT.md`: time to the first generator, time to each unlock, room and resource stalls. Targets in `src/data/pacingTargets.ts` (first guesses: first generator in 1 to 2 minutes, first research done within 5 minutes, research level 5 within about an hour, mid-tier generators in 2 to 3 hours, late game over days). Tune data files until targets are met within about 30% and record changes in the report. Owner playtest feedback overrides these targets.
+**Details:** `npm run simulate` runs a headless simulation using the pure game functions and a simple greedy player (occasional clicks; buys the best affordable item by payback time; researches when affordable) for 24 simulated hours. It writes `BALANCE_REPORT.md`: time to the first generator, time to each unlock, room and resource stalls. Targets in `src/data/pacingTargets.ts`. Owner targets so far: research much slower than first guesses (playtest 3), and **at least 200 hours of play for 100% completion once the game is finished** (playtest 8); the simulator must report hours to 100% completion so this can be tracked as content grows. Tune data files until targets are met within about 30% and record changes in the report. Owner playtest feedback overrides these targets.
 **Acceptance:** deterministic; finishes in under 60 seconds; report generated; targets met or deviations explained.
+**Done notes:** `src/sim/balanceSim.ts` (pure, tested), `scripts/simulate.ts` via `tsx`. It runs until 100% completion (cap 400 h) rather than 24 h, so the owner's 200 h target can be tracked. First run: all near-term targets met with no stalls; 100% completion at about 25 h, explained in the report's tuning log (content-limited; tuned in 0.47). Adds `src/utils/completion.ts`, the groundwork for 0.66.
 
-### 0.32 — Generator upgrades — CODE — Not started
+### 0.32 — Generator upgrades — CODE — Done
 **Goal:** machines improve without taking more room.
 **Details:** use the `level` field. Upgrade cost and output growth formulas in the data file; max level per generator. Upgrade button and level display on cards. Research bonuses apply on top.
 **Acceptance:** tests for cost growth, output growth and max level; room cost unchanged by upgrades.
+**Done notes:** `UPGRADES` in `src/data/generators.ts`: max level 10, +25% base output per level, energy cost ×1.6 and resources ×1.3 per level. Each row in the generator list shows the level and an Upgrade button (cost and gain in a tooltip). The simulator found and this item fixed a room bug: producers granted by research now take no room. Late room tiers were re-costed; see the tuning log in `BALANCE_REPORT.md`.
 
 ### 0.33 — Tier 3 generators and wider tree — CODE — Not started
 **Goal:** more energy sources and a fuller research tree.
@@ -454,7 +474,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** tests simulate a corrupt save and a thrown render error; the save is recoverable in both cases.
 
 ### 0.47 — Balance re-tune and difficulty curve review — CODE — Not started
-**Goal:** one coherent pacing pass once all content exists.
+**Goal:** one coherent pacing pass once all content exists, aiming for at least 200 hours to 100% completion (owner, playtest 8).
 **Details:** run 0.35 across the full content set, find stalls and runaway growth, adjust data files only (no mechanic changes), and record before and after in `BALANCE_REPORT.md`. Where the owner's playtest feedback conflicts with the targets, follow the feedback and update `src/data/pacingTargets.ts`.
 **Acceptance:** no stall longer than the target for its phase; report explains every change.
 
@@ -505,4 +525,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 5 (v0.5.0) | 0.31 | 2026-10-01 | Producer cost growth should be 20%. Producers should be scrappable. Research labels clear now. Room animation not seen yet. Make research rewards ("Gives") stand out. Scrollbar not in game colours. Celebrate research completion with an animation on any tab. Small images on tab buttons. Add to backlog: achievements, perfection tracker, public release with accounts. | 0.59-0.64; later 0.65-0.68 |
 | 6 (v0.6.0) | 0.64 | 2026-10-01 | Celebration and room animation not seen yet. Perfection tracker = 100% completion (confirmed). Accounts are for both cloud saves and leaderboards. Add manual ordering of generators. Scrapping producers should ask how many. Asked whether the sprites can be used legally (yes: drawn by our own script from shapes and AAP-64 colours; add LICENSE and credits before going public, see 0.67). | 0.69, 0.70; 0.66 and 0.67 updated |
 | 7 (v0.7.0) | 0.30 | 2026-10-01 | List order as fuel priority is intuitive. Welcome-back detail fine; must mention completed research (it already does). Short notation as default (already). Boost research worth it: add ones for other resources (production and discounts). Say "24 hours" not "1d". Show running research on every tab with time left; running node should blink. Research celebration looks great. Room upgrade animation still looks weird (video not received); add more room tiers. | 0.71-0.75 |
-| 8 (v0.8.0) | 0.75 | 2026-10-01 | (waiting for owner) | |
+| 8 (v0.8.0) | 0.75 | 2026-10-01 | Add the save-on-close safeguard. Room bar looks good (animation not seen yet). Research chip location odd: make it float at the bottom without hiding the version. 8 room tiers fine for now. +15% all-producer output sounds useful. The tree should start from 3 basic research, one starting resource upgrades. Long-term target: at least 200 hours of play for 100% completion. | 0.76-0.78; 200 h target added to 0.35 and 0.47 |
+| 9 (v0.9.0) | 0.32 | 2026-10-01 | (waiting for owner) | |

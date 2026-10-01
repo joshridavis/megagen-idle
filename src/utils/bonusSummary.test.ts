@@ -12,7 +12,7 @@ import { calculateEnergyRate } from './energyGeneration';
 
 describe('permanent-boost research (0.30)', () => {
   it('boost entries (8 from 0.30, 6 from 0.75) are in the efficiency and materials categories', () => {
-    const boosts = RESEARCH.filter((r) => (r.effects ?? []).length > 0 && r.id !== 'basic_solar');
+    const boosts = RESEARCH.filter((r) => (r.effects ?? []).length > 0 && !['basic_solar', 'basic_mining'].includes(r.id));
     expect(boosts).toHaveLength(14);
     for (const r of boosts) {
       expect(['efficiency', 'materials']).toContain(r.category);

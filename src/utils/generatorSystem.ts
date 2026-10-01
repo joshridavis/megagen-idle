@@ -1,4 +1,5 @@
-import { GENERATOR_ENERGY_COST_SECONDS, GENERATORS } from '../data/generators';
+import { GENERATOR_ENERGY_COST_SECONDS, GENERATORS, UPGRADES } from '../data/generators';
+import { levelMultiplier } from './energyGeneration';
 import { NO_BONUSES, type Bonuses } from '../types/bonus';
 import type { Generator, GeneratorType } from '../types/generator';
 import type { ResourceAmounts } from '../types/resource';
@@ -111,4 +112,54 @@ export function moveGenerator(state: GameState, id: string, toIndex: number): Ga
   const [g] = list.splice(from, 1);
   list.splice(to, 0, g);
   return { ...state, activeGenerators: list };
+}
+
+/** Highest level a generator type can reach. */
+export function maxLevel(type: GeneratorType): number {
+  return GENERATORS[type].maxLevel ?? UPGRADES.maxLevel;
+}
+
+export interface UpgradeCost {
+  energy: number;
+  resources: ResourceAmounts;
+}
+
+/** Cost to raise a generator from `level` to `level + 1` (discount applies): see UPGRADES. */
+export function getUpgradeCost(type: GeneratorType, level: number, bonuses: Bonuses = NO_BONUSES): UpgradeCost {
+  const stats = getGeneratorStats(type, bonuses);
+  const f = UPGRADES.costGrowth ** Math.max(1, level);
+  const rf = UPGRADES.resourceGrowth ** Math.max(1, level);
+  const resources: ResourceAmounts = {};
+  for (const [id, n] of Object.entries(stats.buildCost)) resources[id as keyof ResourceAmounts] = Math.ceil((n ?? 0) * rf);
+  return { energy: Math.ceil(stats.energyCost * f), resources };
+}
+
+/** Extra base output (energy/s, before research bonuses) the next level adds. */
+export function upgradeGain(type: GeneratorType, level: number): number {
+  return GENERATORS[type].energyPerSecond * (levelMultiplier(level + 1) - levelMultiplier(level));
+}
+
+export type UpgradeBlock = 'unknown' | 'max' | 'resources' | 'energy';
+
+export function getUpgradeBlock(state: GameState, id: string, bonuses: Bonuses = NO_BONUSES): UpgradeBlock | null {
+  const g = state.activeGenerators.find((x) => x.id === id);
+  if (!g) return 'unknown';
+  if (g.level >= maxLevel(g.type)) return 'max';
+  const cost = getUpgradeCost(g.type, g.level, bonuses);
+  if (!canAfford(state.resources, cost.resources)) return 'resources';
+  if (state.energy < cost.energy) return 'energy';
+  return null;
+}
+
+/** Raises a generator one level. Room use does not change. Unchanged state if blocked. */
+export function upgradeGenerator(state: GameState, id: string, bonuses: Bonuses = NO_BONUSES): GameState {
+  if (getUpgradeBlock(state, id, bonuses) !== null) return state;
+  const g = state.activeGenerators.find((x) => x.id === id)!;
+  const cost = getUpgradeCost(g.type, g.level, bonuses);
+  return deriveRates({
+    ...state,
+    energy: state.energy - cost.energy,
+    resources: consumeResource(state.resources, cost.resources).resources,
+    activeGenerators: state.activeGenerators.map((x) => (x.id === id ? { ...x, level: x.level + 1 } : x)),
+  });
 }

@@ -2,6 +2,7 @@ import { act, render, screen, cleanup, fireEvent } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { pickSaved } from './store/migrations';
+import { deriveRates } from './utils/simulation';
 import pkg from '../package.json';
 import { useStore } from './store';
 import { createInitialState } from './data/initialState';
@@ -560,5 +561,46 @@ describe('Resource boosts in the UI (0.75)', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
     expect(screen.getByTestId('bonus-metalProduction').textContent).toContain('+25%');
     expect(screen.getByTestId('bonus-resourceProduction').textContent).toContain('+15%');
+  });
+});
+
+describe('Floating research chip (playtest 8)', () => {
+  it('floats in a bottom dock and the page gets bottom padding only while research runs', () => {
+    const now = Date.now();
+    useStore.setState({
+      ...createInitialState(now),
+      currentResearch: { id: 'basic_solar', startTime: now, duration: 600 },
+    });
+    render(<App />);
+    const dock = screen.getByTestId('research-chip-dock');
+    expect(dock.className).toContain('fixed');
+    expect(dock.className).toContain('bottom-0');
+    expect(dock.contains(screen.getByTestId('research-chip'))).toBe(true);
+    expect(screen.getByTestId('main').className).toContain('pb-28');
+    cleanup();
+    useStore.setState(createInitialState(now));
+    render(<App />);
+    expect(screen.queryByTestId('research-chip-dock')).toBeNull();
+    expect(screen.getByTestId('main').className).not.toContain('pb-28');
+  });
+});
+
+describe('Generator upgrades UI (0.32)', () => {
+  it('shows the level and upgrades from the list', () => {
+    useStore.setState(
+      deriveRates({
+        ...createInitialState(Date.now()),
+        energy: 1e6,
+        resources: { metal: 1e4, stone: 1e4, coal: 0, naturalGas: 0 },
+        activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }],
+      }),
+    );
+    render(<App />);
+    expect(screen.getByTestId('level-gen-1').textContent).toBe('Lv 1/10');
+    const btn = screen.getByRole('button', { name: 'Upgrade Solar Panel #1 to level 2' });
+    expect(document.getElementById(btn.getAttribute('aria-describedby')!)!.textContent).toContain('no extra room');
+    fireEvent.click(btn);
+    expect(useStore.getState().activeGenerators[0].level).toBe(2);
+    expect(screen.getByTestId('level-gen-1').textContent).toBe('Lv 2/10');
   });
 });
