@@ -17,7 +17,7 @@ export default function EnergyDisplay() {
     () => getEnergyBreakdown({ activeGenerators: generators, completedResearch: completed }),
     [generators, completed],
   );
-  const boost = breakdown.modifiers.reduce((sum, m) => sum + m.percent, 0);
+  const boost = breakdown.modifiers.reduce((sum, m) => sum + (m.percent ?? 0), 0);
   return (
     <div className="flex items-center gap-3 rounded-lg bg-slate-800 px-4 py-3 shadow" data-testid="energy-display">
       <img src={sprites.energy_icon} alt="Energy" width={32} height={32} className="pixelated" />

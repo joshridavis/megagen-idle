@@ -1,4 +1,5 @@
 import { GENERATORS } from '../data/generators';
+import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { SIM_STEP_SECONDS } from '../data/time';
 import { getBonuses } from './bonuses';
 import { calculateEnergyRate } from './energyGeneration';
@@ -73,7 +74,9 @@ function finishResearch(s: GameState, now: number, report: TimeReport): GameStat
  */
 export function deriveRates(state: GameState): GameState {
   const energyPerSecond = calculateEnergyRate(state.activeGenerators, getBonuses(state.completedResearch));
-  const roomUsed = state.activeGenerators.reduce((sum, g) => sum + (GENERATORS[g.type]?.roomCost ?? 0), 0);
+  const roomUsed =
+    state.activeGenerators.reduce((sum, g) => sum + (GENERATORS[g.type]?.roomCost ?? 0), 0) +
+    PRODUCER_IDS.reduce((sum, id) => sum + (state.producers[id] ?? 0) * PRODUCERS[id].roomCost, 0);
   if (energyPerSecond === state.energyPerSecond && roomUsed === state.roomUsed) return state;
   return { ...state, energyPerSecond, roomUsed };
 }

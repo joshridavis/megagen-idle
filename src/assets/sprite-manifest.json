@@ -19,6 +19,7 @@
   "producer_quarry": { "file": "producers/quarry.png", "width": 48, "height": 48 },
   "producer_mine": { "file": "producers/mine.png", "width": 48, "height": 48 },
   "producer_coal_mine": { "file": "producers/coal_mine.png", "width": 48, "height": 48 },
+  "producer_gas_well": { "file": "producers/gas_well.png", "width": 48, "height": 48 },
   "room_expansion": { "file": "ui/room_expansion.png", "width": 96, "height": 96 },
   "capacity_empty": { "file": "ui/capacity_empty.png", "width": 16, "height": 16 },
   "capacity_filled": { "file": "ui/capacity_filled.png", "width": 16, "height": 16 },

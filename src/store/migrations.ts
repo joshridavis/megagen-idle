@@ -4,7 +4,7 @@ import { STARTING_RESOURCES } from '../data/resources';
 import type { GameState } from '../types/state';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 type AnySave = Record<string, unknown>;
 
@@ -30,6 +30,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   2: (save) => ({ ...save, currentResearch: null, completedResearch: [], researchLevel: 1 }),
   // 0.20: gas well producer (filled from defaults) and the expansion animation timestamp.
   3: (save) => ({ ...save, lastExpansionAt: null }),
+  // 0.31: producers take room; base room grew by 3 to cover the starting three.
+  4: (save) => ({ ...save, roomCapacity: (Number(save.roomCapacity) || 10) + 3 }),
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */

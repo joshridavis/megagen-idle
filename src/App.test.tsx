@@ -22,9 +22,8 @@ describe('App smoke test', () => {
     expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0 });
     expect(s.researchLevel).toBe(1);
     expect(s.activeGenerators).toEqual([]);
-    expect(s.roomCapacity).toBe(10);
-    expect(s.roomUsed).toBe(0);
-    expect(useStore.getState().roomCapacity).toBe(10);
+    expect(s.roomCapacity).toBe(13); // 10 for generators + 3 for the starting producers
+    expect(s.roomUsed).toBe(3);
   });
 });
 
@@ -158,12 +157,12 @@ describe('Room UI', () => {
     });
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
-    expect(useStore.getState().roomCapacity).toBe(20);
-    expect(screen.getByTestId('room-usage').textContent).toBe('0/20');
+    expect(useStore.getState().roomCapacity).toBe(23);
+    expect(screen.getByTestId('room-usage').textContent).toBe('3/23');
   });
 
   it('warns when room is 90% used', () => {
-    useStore.setState({ ...createInitialState(Date.now()), roomUsed: 9 });
+    useStore.setState({ ...createInitialState(Date.now()), roomUsed: 12 });
     render(<App />);
     expect(screen.getByRole('status').textContent).toContain('nearly full');
   });
@@ -213,10 +212,10 @@ describe('Mid-tier generators UI', () => {
     const meter = () => screen.getByRole('meter', { name: 'Room used' });
     expect(meter().querySelectorAll('[data-phase="building"]').length).toBe(0);
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
-    expect(meter().querySelectorAll('img').length).toBe(20);
-    // right after expanding: the first new segment is scaffolding, the old ten are untouched
-    expect(meter().querySelectorAll('img')[10].getAttribute('data-phase')).toBe('building');
-    expect(meter().querySelectorAll('img')[9].getAttribute('data-phase')).toBe('done');
+    expect(meter().querySelectorAll('img').length).toBe(23);
+    // right after expanding: the first new segment is scaffolding, the old 13 are untouched
+    expect(meter().querySelectorAll('img')[13].getAttribute('data-phase')).toBe('building');
+    expect(meter().querySelectorAll('img')[12].getAttribute('data-phase')).toBe('done');
   });
 });
 
@@ -243,7 +242,7 @@ describe('Scrap', () => {
     expect(useStore.getState().activeGenerators).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Solar Panel #1' }));
     expect(useStore.getState().activeGenerators).toHaveLength(0);
-    expect(useStore.getState().roomUsed).toBe(0);
+    expect(useStore.getState().roomUsed).toBe(3); // only the starting producers
   });
 });
 
@@ -274,5 +273,28 @@ describe('Research level label (playtest 4)', () => {
     expect(screen.getByTestId('research-level-label').textContent).toBe('Your research level: 2');
     expect(screen.getByTestId('research-level-next').textContent).toBe('Rises to 3 when Wind Power Fundamentals finishes');
     expect(screen.getByTestId('research-node-hydropower').textContent).toContain('Needs level 4');
+  });
+});
+
+describe('Producers (0.31)', () => {
+  it('buys a quarry from the Producers tab: count, room and stone rate go up', () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 1000, resources: { metal: 20, stone: 10, coal: 0, naturalGas: 0 } });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
+    expect(screen.getByTestId('producer-owned-quarry').textContent).toBe('1');
+    fireEvent.click(screen.getByRole('button', { name: 'Build Stone Quarry' }));
+    expect(screen.getByTestId('producer-owned-quarry').textContent).toBe('2');
+    expect(useStore.getState().roomUsed).toBe(4);
+    expect(screen.getByTestId('resource-stone').textContent).toContain('+0.20/s');
+    expect(screen.getByTestId('producer-card-gasWell').textContent).toContain('Needs research: Natural Gas Extraction');
+  });
+
+  it('resource rates have a breakdown tooltip', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    const tip = document.getElementById('resource-breakdown-metal')!;
+    expect(tip.getAttribute('role')).toBe('tooltip');
+    expect(tip.textContent).toContain('Producers (1)');
+    expect(tip.textContent).toContain('Total');
   });
 });

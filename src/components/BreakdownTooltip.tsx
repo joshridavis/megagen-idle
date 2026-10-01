@@ -14,6 +14,8 @@ export default function BreakdownTooltip({
   unit,
   breakdown,
   digits = 2,
+  emptyHint = 'No boosts yet. Research can add them.',
+  align = 'center',
   children,
 }: {
   id: string;
@@ -22,6 +24,9 @@ export default function BreakdownTooltip({
   unit: string;
   breakdown: RateBreakdown;
   digits?: number;
+  /** Shown when there are no modifiers; empty string hides it. */
+  emptyHint?: string;
+  align?: 'center' | 'left';
   children: ReactNode;
 }) {
   return (
@@ -36,7 +41,7 @@ export default function BreakdownTooltip({
       <span
         id={id}
         role="tooltip"
-        className="pointer-events-none absolute left-1/2 top-full z-30 mt-2 hidden w-64 -translate-x-1/2 rounded bg-slate-950 p-3 text-left text-xs text-slate-200 shadow-lg group-hover:block group-has-focus-visible:block"
+        className={`pointer-events-none absolute top-full z-30 mt-2 hidden w-64 rounded ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'left-0'} bg-slate-950 p-3 text-left text-xs text-slate-200 shadow-lg group-hover:block group-has-focus-visible:block`}
       >
         <span className="mb-1 block font-semibold text-slate-100">{title}</span>
         <span className="flex justify-between gap-2">
@@ -46,15 +51,20 @@ export default function BreakdownTooltip({
           </span>
         </span>
         {breakdown.modifiers.length === 0 ? (
-          <span className="mt-1 block text-slate-400">No boosts yet. Research can add them.</span>
+          emptyHint && <span className="mt-1 block text-slate-400">{emptyHint}</span>
         ) : (
           breakdown.modifiers.map((m, i) => (
-            <span key={`${m.source}-${i}`} className="flex justify-between gap-2 text-emerald-300">
+            <span
+              key={`${m.source}-${i}`}
+              className={`flex justify-between gap-2 ${m.amount < 0 ? 'text-amber-300' : 'text-emerald-300'}`}
+            >
               <span>
-                {m.source} (+{Math.round(m.percent * 100)}%)
+                {m.source}
+                {m.percent !== undefined && ` (${m.percent >= 0 ? '+' : ''}${Math.round(m.percent * 100)}%)`}
               </span>
               <span className="font-mono">
-                +{fmt(m.amount, digits)} {unit}
+                {m.amount < 0 ? '−' : '+'}
+                {fmt(Math.abs(m.amount), digits)} {unit}
               </span>
             </span>
           ))

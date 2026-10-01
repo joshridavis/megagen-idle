@@ -17,7 +17,7 @@ export const createInitialState = (now = Date.now()): GameState => ({
   currentResearch: null,
   completedResearch: [],
   roomCapacity: BASE_ROOM_CAPACITY,
-  roomUsed: 0,
+  roomUsed: 3, // the three starting producers
   expansionLevel: 0,
   lastExpansionAt: null,
   settings: { notation: 'short' },

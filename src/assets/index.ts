@@ -21,6 +21,7 @@ import resourceNaturalGas from './sprites/resources/natural_gas.png';
 import producerQuarry from './sprites/producers/quarry.png';
 import producerMine from './sprites/producers/mine.png';
 import producerCoalMine from './sprites/producers/coal_mine.png';
+import producerGasWell from './sprites/producers/gas_well.png';
 import roomExpansion from './sprites/ui/room_expansion.png';
 import capacityEmpty from './sprites/ui/capacity_empty.png';
 import capacityFilled from './sprites/ui/capacity_filled.png';
@@ -56,6 +57,7 @@ export const sprites = {
   producer_quarry: producerQuarry,
   producer_mine: producerMine,
   producer_coal_mine: producerCoalMine,
+  producer_gas_well: producerGasWell,
   room_expansion: roomExpansion,
   capacity_empty: capacityEmpty,
   capacity_filled: capacityFilled,

@@ -1,0 +1,47 @@
+import { PRODUCER_COST_GROWTH, PRODUCERS } from '../data/producers';
+import { NO_BONUSES, type Bonuses } from '../types/bonus';
+import type { ProducerId, ResourceAmounts } from '../types/resource';
+import type { GameState } from '../types/state';
+import { canAfford, consumeResource } from './resourceSystem';
+import { deriveRates } from './simulation';
+
+export interface ProducerCost {
+  energy: number;
+  resources: ResourceAmounts;
+}
+
+/**
+ * Cost of buying one more producer when `owned` are already owned:
+ * base x growth^owned, build discount applied, rounded up.
+ */
+export function getProducerCost(id: ProducerId, owned: number, bonuses: Bonuses = NO_BONUSES): ProducerCost {
+  const def = PRODUCERS[id];
+  const f = PRODUCER_COST_GROWTH ** Math.max(0, owned) * (1 - bonuses.buildDiscount);
+  const resources: ResourceAmounts = {};
+  for (const [r, n] of Object.entries(def.baseCost.resources)) resources[r as keyof ResourceAmounts] = Math.ceil((n ?? 0) * f);
+  return { energy: Math.ceil(def.baseCost.energy * f), resources };
+}
+
+export type ProducerBlock = 'locked' | 'room' | 'resources' | 'energy';
+
+export function getProducerBlock(state: GameState, id: ProducerId, bonuses: Bonuses = NO_BONUSES): ProducerBlock | null {
+  const def = PRODUCERS[id];
+  if (def.requiresResearch && !state.completedResearch.includes(def.requiresResearch)) return 'locked';
+  if (state.roomUsed + def.roomCost > state.roomCapacity) return 'room';
+  const cost = getProducerCost(id, state.producers[id] ?? 0, bonuses);
+  if (!canAfford(state.resources, cost.resources)) return 'resources';
+  if (state.energy < cost.energy) return 'energy';
+  return null;
+}
+
+/** Buys one producer. Returns the state unchanged if blocked. */
+export function buildProducer(state: GameState, id: ProducerId, bonuses: Bonuses = NO_BONUSES): GameState {
+  if (getProducerBlock(state, id, bonuses) !== null) return state;
+  const cost = getProducerCost(id, state.producers[id] ?? 0, bonuses);
+  return deriveRates({
+    ...state,
+    energy: state.energy - cost.energy,
+    resources: consumeResource(state.resources, cost.resources).resources,
+    producers: { ...state.producers, [id]: (state.producers[id] ?? 0) + 1 },
+  });
+}

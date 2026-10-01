@@ -4,15 +4,17 @@ import ClickButton from './components/ClickButton';
 import DepletionWarning from './components/DepletionWarning';
 import EnergyDisplay from './components/EnergyDisplay';
 import GeneratorGrid from './components/GeneratorGrid';
+import ProducerPanel from './components/ProducerPanel';
 import ResearchTree from './components/ResearchTree';
 import ResourceDisplay from './components/ResourceDisplay';
 import RoomPanel from './components/RoomPanel';
 import VersionFooter from './components/VersionFooter';
 import { useIdleEngine } from './utils/idleEngine';
 
-type Tab = 'generators' | 'research';
+type Tab = 'generators' | 'producers' | 'research';
 const TABS: { id: Tab; label: string }[] = [
   { id: 'generators', label: 'Generators' },
+  { id: 'producers', label: 'Producers' },
   { id: 'research', label: 'Research' },
 ];
 
@@ -52,6 +54,11 @@ export default function App() {
               <RoomPanel />
               <ActiveGenerators />
             </div>
+          </div>
+        ) : tab === 'producers' ? (
+          <div className="grid gap-6 lg:grid-cols-[3fr_1fr]">
+            <ProducerPanel />
+            <RoomPanel />
           </div>
         ) : (
           <ResearchTree />

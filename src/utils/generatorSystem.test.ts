@@ -53,7 +53,7 @@ describe('building', () => {
     const after = buildGenerator(s, GeneratorType.SOLAR, ALL);
     expect(after.activeGenerators).toHaveLength(1);
     expect(after.resources.metal).toBe(5);
-    expect(after.roomUsed).toBe(2);
+    expect(after.roomUsed).toBe(3 + 2);
     expect(after.energyPerSecond).toBeCloseTo(0.5);
   });
 
@@ -64,7 +64,7 @@ describe('building', () => {
   });
 
   it('is blocked without room', () => {
-    const s = fresh({ resources: { metal: 999, stone: 999, coal: 0, naturalGas: 0 }, roomUsed: 9 });
+    const s = fresh({ resources: { metal: 999, stone: 999, coal: 0, naturalGas: 0 }, roomUsed: 12 });
     expect(getBuildBlock(s, GeneratorType.SOLAR, ALL)).toBe('room');
     expect(buildGenerator(s, GeneratorType.SOLAR, ALL)).toBe(s);
   });
@@ -76,7 +76,7 @@ describe('building', () => {
   it('fills room exactly to capacity, then blocks', () => {
     let s = fresh({ energy: 99_999, resources: { metal: 999, stone: 999, coal: 0, naturalGas: 0 } });
     for (let i = 0; i < 5; i++) s = buildGenerator(s, GeneratorType.SOLAR, ALL);
-    expect(s.roomUsed).toBe(10);
+    expect(s.roomUsed).toBe(13);
     expect(s.activeGenerators).toHaveLength(5);
     expect(canBuildGenerator(s, GeneratorType.SOLAR, ALL)).toBe(false);
   });
@@ -94,7 +94,7 @@ describe('toggling', () => {
     s = toggleGenerator(s, id);
     expect(s.activeGenerators[0].isActive).toBe(false);
     expect(s.energyPerSecond).toBe(0);
-    expect(s.roomUsed).toBe(2); // still takes room while off
+    expect(s.roomUsed).toBe(5); // still takes room while off
     s = toggleGenerator(s, id);
     expect(s.energyPerSecond).toBeCloseTo(0.5);
   });
@@ -168,7 +168,7 @@ describe('scrapping', () => {
     const metal = s.resources.metal;
     s = scrapGenerator(s, s.activeGenerators[0].id);
     expect(s.activeGenerators).toEqual([]);
-    expect(s.roomUsed).toBe(0);
+    expect(s.roomUsed).toBe(3); // the starting producers remain
     expect(s.energyPerSecond).toBe(0);
     expect(s.resources.metal).toBe(metal);
   });

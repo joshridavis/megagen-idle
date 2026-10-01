@@ -9,6 +9,12 @@ export interface ProducerDef {
   /** Units produced every `intervalSeconds`. */
   amount: number;
   intervalSeconds: number;
+  /** Room each one takes. */
+  roomCost: number;
+  /** Cost of the first one bought; each further one costs PRODUCER_COST_GROWTH times more. */
+  baseCost: { energy: number; resources: ResourceAmounts };
+  /** Research needed before more can be bought. */
+  requiresResearch?: string;
 }
 
 /** A cost or amount in any subset of resources. */

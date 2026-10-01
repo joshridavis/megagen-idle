@@ -14,6 +14,7 @@
     "sprites/generators/wind_turbine.png",
     "sprites/generators/wind_turbine_inactive.png",
     "sprites/producers/coal_mine.png",
+    "sprites/producers/gas_well.png",
     "sprites/producers/mine.png",
     "sprites/producers/quarry.png",
     "sprites/research/check.png",

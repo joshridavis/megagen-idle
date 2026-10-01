@@ -2,13 +2,14 @@ import { GENERATORS } from '../data/generators';
 import { BASE_CLICK_VALUE } from '../data/player';
 import { RESEARCH_BY_ID } from '../data/research';
 import type { BonusType } from '../types/research';
-import type { GameState } from '../types/state';
+import type { GameState, ResourceId } from '../types/state';
+import { getFuelUseRates, getProductionRates } from './resourceSystem';
 
 export interface RateModifier {
   /** Where the boost comes from, e.g. a research name. */
   source: string;
-  /** Fraction, 0.1 = +10%. */
-  percent: number;
+  /** Fraction, 0.1 = +10%. Absent for flat changes such as fuel use. */
+  percent?: number;
   /** What this boost adds, in the breakdown's unit. */
   amount: number;
 }
@@ -46,4 +47,22 @@ export function getEnergyBreakdown(state: Pick<GameState, 'activeGenerators' | '
 /** Energy per click: base click value, then click power boosts. */
 export function getClickBreakdown(completedResearch: string[]): RateBreakdown {
   return breakdownFromResearch(BASE_CLICK_VALUE, completedResearch, 'clickPower');
+}
+
+/**
+ * Net per-second change of one resource: production from producers, then
+ * fuel burned by running generators (a negative modifier).
+ */
+export function getResourceBreakdown(
+  state: Pick<GameState, 'producers' | 'activeGenerators'>,
+  id: ResourceId,
+): RateBreakdown {
+  const base = getProductionRates(state.producers)[id];
+  const burn = getFuelUseRates(state.activeGenerators)[id];
+  const modifiers: RateModifier[] = [];
+  if (burn > 0) {
+    const burners = state.activeGenerators.filter((g) => g.isActive && (GENERATORS[g.type]?.maintenanceCost?.[id] ?? 0) > 0);
+    modifiers.push({ source: `Fuel for ${burners.length} running generator${burners.length === 1 ? '' : 's'}`, amount: -burn });
+  }
+  return { base, modifiers, total: base - burn };
 }
