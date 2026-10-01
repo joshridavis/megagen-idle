@@ -1,32 +1,47 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import { createInitialState } from '../data/initialState';
-import { BASE_CLICK_VALUE } from '../data/player';
-import type { GameState } from '../types/state';
+import { migrateSave, pickSaved, SAVE_VERSION } from './migrations';
+import { createEnergySlice } from './slices/energySlice';
+import { createGeneratorSlice } from './slices/generatorSlice';
+import { createResearchSlice } from './slices/researchSlice';
+import { createResourceSlice } from './slices/resourceSlice';
+import { createRoomSlice } from './slices/roomSlice';
+import { createSettingsSlice } from './slices/settingsSlice';
+import { deriveRates } from '../utils/simulation';
 import { gameStorage } from './storage';
+import type { GameStore } from './types';
 
-export interface GameStore extends GameState {
-  /** Adds production for `deltaSeconds` and stamps `now` as the last save time. */
-  applyIdleGains: (deltaSeconds: number, now?: number) => void;
-  /** Manual click: adds the click value (research can boost it later). */
-  clickEnergy: () => void;
-  resetGame: () => void;
-}
+export type { GameStore } from './types';
 
 export const SAVE_KEY = 'megagen-idle-save';
 
 export const useStore = create<GameStore>()(
-  persist(
-    (set) => ({
-      ...createInitialState(),
-      applyIdleGains: (deltaSeconds, now = Date.now()) =>
-        set((s) => ({
-          energy: s.energy + s.totalProductionPerSecond * Math.max(0, deltaSeconds),
-          lastSavedTimestamp: now,
-        })),
-      clickEnergy: () => set((s) => ({ energy: s.energy + BASE_CLICK_VALUE })),
-      resetGame: () => set(createInitialState()),
-    }),
-    { name: SAVE_KEY, storage: gameStorage },
+  devtools(
+    persist(
+      (...a) => {
+        const init = createInitialState();
+        const [set] = a;
+        return {
+          ...createEnergySlice(init)(...a),
+          ...createResourceSlice(init)(...a),
+          ...createGeneratorSlice(init)(...a),
+          ...createResearchSlice(init)(...a),
+          ...createRoomSlice(init)(...a),
+          ...createSettingsSlice(init)(...a),
+          resetGame: () => set(createInitialState(), undefined, 'core/reset'),
+        };
+      },
+      {
+        name: SAVE_KEY,
+        storage: gameStorage,
+        version: SAVE_VERSION,
+        partialize: (s: GameStore) => pickSaved(s),
+        migrate: migrateSave,
+        // Derived values are always recomputed from the loaded data.
+        merge: (persisted, current) => ({ ...current, ...deriveRates({ ...pickSaved(current), ...(persisted as object) }) }),
+      },
+    ),
+    { name: 'MegaGen Idle', enabled: import.meta.env.DEV },
   ),
 );

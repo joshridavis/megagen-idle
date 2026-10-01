@@ -55,3 +55,19 @@ export function hexToRgba(hex, alpha = 255) {
   if (!AAP64.includes(hex)) throw new Error(`Color ${hex} is not in AAP-64`);
   return [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16), alpha];
 }
+
+const RGB = AAP64.map((h) => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]);
+
+/** Nearest AAP-64 colour to an arbitrary RGB triple. */
+export function nearestPaletteRgb([r, g, b]) {
+  let best = RGB[0];
+  let bestD = Infinity;
+  for (const c of RGB) {
+    const d = (c[0] - r) ** 2 + (c[1] - g) ** 2 + (c[2] - b) ** 2;
+    if (d < bestD) {
+      bestD = d;
+      best = c;
+    }
+  }
+  return best;
+}

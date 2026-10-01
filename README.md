@@ -2,7 +2,7 @@
 
 An idle/incremental game about generating energy. You start with almost nothing and clumsy, inefficient methods, then reinvest energy into resources, research, room and better machines: from solar panels up to nuclear fission and a few fictional methods. Machines keep producing while the game is closed.
 
-**Play it:** https://joshridavis.github.io/megagen-idle/ (live once the repo's Pages source is set to "GitHub Actions"; see `GETTING_STARTED.md`, step 5).
+**Play it:** https://joshridavis.github.io/megagen-idle/ (live once the repo's Pages source is set to "GitHub Actions"; see `GETTING_STARTED.md`, step 5). Until then the deploy workflow skips publishing with a warning instead of failing; after enabling Pages, re-run it from Actions → Deploy to GitHub Pages → Run workflow, or push to `main`.
 
 ## Run locally
 
@@ -17,6 +17,8 @@ An idle/incremental game about generating energy. You start with almost nothing 
 | `npm run build` | Type-checks and builds the static site into `dist/` (served under `/megagen-idle/`). |
 | `npm run preview` | Serves the built `dist/` locally, at `http://localhost:4173/megagen-idle/`. |
 | `npm test` | Runs the Vitest unit tests once. |
+| `npm run check:assets` | Checks every sprite in the manifest exists as a PNG of the right size, and lists which are still generic stand-ins. |
+| `npm run generate:assets` | Draws any missing generic stand-in sprites. Add `-- --force` to redraw the generic ones; files not listed in `src/assets/generic-assets.json` (real art) are never touched. |
 
 ## Project layout
 
@@ -30,11 +32,11 @@ An idle/incremental game about generating energy. You start with almost nothing 
 
 ## Balancing
 
-All game numbers live in `src/data/` (for example `src/data/player.ts` for click value and `src/data/time.ts` for the offline-gain cap). Change them there, not in logic.
+All game numbers live in `src/data/`: `generators.ts` (output, room, build cost, fuel use), `producers.ts` and `resources.ts` (production rates, starting stock), `player.ts` (click value) and `time.ts` (offline-gain cap). Change them there, not in logic.
 
 ## Replacing a stand-in sprite with real art
 
-Every sprite is a generated placeholder. To use real art, save your PNG at the same path and size (see the Asset manifest in `BACKLOG.md`), then remove its line from `src/assets/generic-assets.json` so the generator never overwrites it. No code change is needed.
+Every sprite is a generated placeholder. To use real art, save your PNG at the same path and size (see the Asset manifest in `BACKLOG.md`, or `src/assets/sprite-manifest.json`), then remove its line from `src/assets/generic-assets.json` so the generator never overwrites it. Run `npm run check:assets` to confirm the size. No code change is needed.
 
 ## Resetting a save
 
