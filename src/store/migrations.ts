@@ -1,10 +1,12 @@
 import { createInitialState } from '../data/initialState';
 import { STARTING_PRODUCERS } from '../data/producers';
 import { STARTING_RESOURCES } from '../data/resources';
+import type { Generator } from '../types/generator';
 import type { GameState } from '../types/state';
+import { recordsFromGenerators } from '../utils/records';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 type AnySave = Record<string, unknown>;
 
@@ -32,6 +34,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   3: (save) => ({ ...save, lastExpansionAt: null }),
   // 0.31: producers take room; base room grew by 3 to cover the starting three.
   4: (save) => ({ ...save, roomCapacity: (Number(save.roomCapacity) || 10) + 3 }),
+  // 0.82: permanent completion records, filled from the generators the save has now.
+  5: (save) => ({ ...save, records: recordsFromGenerators((save.activeGenerators as Generator[] | undefined) ?? []) }),
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */
@@ -60,6 +64,7 @@ export function pickSaved(s: GameState): GameState {
     producers: s.producers,
     depletedResources: s.depletedResources,
     activeGenerators: s.activeGenerators,
+    records: s.records,
     researchLevel: s.researchLevel,
     currentResearch: s.currentResearch,
     completedResearch: s.completedResearch,

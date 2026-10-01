@@ -13,6 +13,7 @@ export const createInitialState = (now = Date.now()): GameState => ({
   producers: { ...STARTING_PRODUCERS },
   depletedResources: [],
   activeGenerators: [],
+  records: { builtTypes: [], bestLevel: {} },
   researchLevel: 1,
   currentResearch: null,
   completedResearch: [],

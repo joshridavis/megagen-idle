@@ -285,10 +285,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** the layout groups each research under the root it descends from (through its first prerequisite) and stacks the branches as horizontal bands, each with a label and a divider; within a band, columns by depth. Lines inside a band stay short; the few cross-branch prerequisites are drawn fainter.
 **Acceptance:** layout tests: every node is in its root's band, bands do not overlap, prerequisites are to the left; a 30-node tree still lays out without overlaps.
 
-### 0.82 — 100% completion includes max upgrades — CODE — Not started
+### 0.82 — 100% completion includes max upgrades — CODE — Done
 **Goal:** apply playtest 9 answer: perfection means every generator type built and upgraded to its max level.
 **Details:** permanent records in the save (`records.builtTypes`, `records.bestLevel` per type) updated by building and upgrading, so scrapping never lowers completion. Completion gains a "Generator types at max level" part. Save migration fills the records from current generators. Re-run the simulator and record hours to 100% in the report.
 **Acceptance:** tests for the records (build, upgrade, scrap keeps them, migration) and for completion; report updated.
+**Notes:** save version 6. The simulator now raises every type to max level after research and room are done; 100% completion moved from about 25 h to about 52 h, no stalls (see BALANCE_REPORT.md). Each new best level counts as a simulator milestone for stall detection.
 
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.

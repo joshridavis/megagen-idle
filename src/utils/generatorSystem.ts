@@ -5,6 +5,7 @@ import type { Generator, GeneratorType } from '../types/generator';
 import type { ResourceAmounts } from '../types/resource';
 import type { GameState } from '../types/state';
 import { canAfford, consumeResource } from './resourceSystem';
+import { noteGenerator } from './records';
 import { deriveRates } from './simulation';
 
 export interface GeneratorStats {
@@ -81,6 +82,7 @@ export function buildGenerator(
     energy: state.energy - stats.energyCost,
     resources: paid.resources,
     activeGenerators: [...state.activeGenerators, generator],
+    records: noteGenerator(state.records, generator),
   });
 }
 
@@ -161,5 +163,6 @@ export function upgradeGenerator(state: GameState, id: string, bonuses: Bonuses 
     energy: state.energy - cost.energy,
     resources: consumeResource(state.resources, cost.resources).resources,
     activeGenerators: state.activeGenerators.map((x) => (x.id === id ? { ...x, level: x.level + 1 } : x)),
+    records: noteGenerator(state.records, { type: g.type, level: g.level + 1 }),
   });
 }
