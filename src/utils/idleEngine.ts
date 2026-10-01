@@ -20,10 +20,10 @@ export function computeIdleGain(ratePerSecond: number, deltaSeconds: number): nu
 }
 
 /** Applies gains since the last save; called on load and on every tick. */
-export function tick(now = Date.now(), maxSeconds = MAX_OFFLINE_SECONDS): number {
+export function tick(now = Date.now(), maxSeconds = MAX_OFFLINE_SECONDS, catchUp = false): number {
   const { lastSavedTimestamp, applyIdleGains } = useStore.getState();
   const delta = computeDeltaSeconds(lastSavedTimestamp, now, maxSeconds);
-  applyIdleGains(delta, now);
+  applyIdleGains(delta, now, { catchUp });
   return delta;
 }
 
@@ -36,14 +36,28 @@ export const useIdleEngine = (): void => {
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
     const start = () => {
-      tick();
+      tick(Date.now(), MAX_OFFLINE_SECONDS, true);
       interval = setInterval(() => tick(), TICK_INTERVAL_MS);
     };
+    // Background tabs throttle the heartbeat to about once a minute; summarise
+    // the whole hidden period once, on return (0.79).
+    const onVisibility = () => {
+      const store = useStore.getState();
+      if (document.visibilityState === 'hidden') {
+        tick();
+        store.markHidden(Date.now());
+      } else {
+        tick();
+        useStore.getState().markVisible(Date.now());
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
     const persistApi = useStore.persist;
     let unsub: (() => void) | undefined;
     if (!persistApi || persistApi.hasHydrated()) start();
     else unsub = persistApi.onFinishHydration(start);
     return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
       unsub?.();
       if (interval) clearInterval(interval);
     };

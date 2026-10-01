@@ -50,6 +50,10 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.76 Save-on-close safeguard (playtest 8 feedback)
 0. 0.77 Floating research chip (playtest 8 feedback)
 0. 0.78 Third starting research: Basic Mining (playtest 8 feedback)
+0. 0.79 Fix: welcome back after switching tabs (playtest 9 bug)
+0. 0.80 Fix: build-card tooltip unreadable over the card above (playtest 9 bug)
+0. 0.81 Research tree in branches (playtest 9 feedback)
+0. 0.82 100% completion includes max upgrades (playtest 9 feedback)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -265,6 +269,26 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Goal:** apply playtest 8 feedback: the tree should start from three basic research, one of them starting the resource upgrades.
 **Details:** new level-1 root "Basic Mining" (+10% output from all producers, needs a Solar Panel built like Basic Solar, so starting energy cannot be stranded). Better Pickaxes, Controlled Blasting and Modular Mines now require Basic Mining instead of Standard Parts. Duration follows the rule (level 1, shorter than every level-2 research).
 **Acceptance:** the tree has three roots (Basic Solar, Basic Mining, Fossil Fuels 101); data tests (duration rule, reachability) pass; pacing probe has no stall.
+
+### 0.79 — Fix: welcome back after switching tabs — CODE — Done
+**Goal:** fix playtest 9 bug: after switching to another browser tab and coming back, the summary always says "You were away for 1m 1s".
+**Details:** cause: background tabs throttle the 1 s heartbeat to about once a minute, so every throttled tick looked like a return and replaced the summary. Fix: the summary after a page load comes only from the first catch-up tick; while the tab is hidden, the engine snapshots the state when it was hidden and, on return (if hidden for at least `WELCOME_BACK_MIN_SECONDS`), shows one summary covering the whole time away (energy, resources, research done, generators out of fuel). Hidden-tab ticks never create summaries.
+**Acceptance:** tests: a hidden period of 10 minutes made of 61 s ticks gives one summary of about 10 minutes; short hides give none; load catch-up still works.
+
+### 0.80 — Fix: build-card tooltip unreadable — CODE — Not started
+**Goal:** fix playtest 9 bug: hovering a lower build card shows its tooltip over the card above, see-through and hard to read.
+**Details:** locked cards fade with `opacity`, which also faded their tooltip and trapped it below neighbouring cards. Fade the card's content instead of the card, give tooltips a solid background, a border and a stacking order above every card.
+**Acceptance:** tooltip of a locked card is fully opaque and above other cards (UI test checks the tooltip is outside the faded wrapper; screenshot in the PR).
+
+### 0.81 — Research tree in branches — CODE — Not started
+**Goal:** apply playtest 9 feedback: the lines in the tree are hard to follow; split the tree so each of the three starting research leads its own branch.
+**Details:** the layout groups each research under the root it descends from (through its first prerequisite) and stacks the branches as horizontal bands, each with a label and a divider; within a band, columns by depth. Lines inside a band stay short; the few cross-branch prerequisites are drawn fainter.
+**Acceptance:** layout tests: every node is in its root's band, bands do not overlap, prerequisites are to the left; a 30-node tree still lays out without overlaps.
+
+### 0.82 — 100% completion includes max upgrades — CODE — Not started
+**Goal:** apply playtest 9 answer: perfection means every generator type built and upgraded to its max level.
+**Details:** permanent records in the save (`records.builtTypes`, `records.bestLevel` per type) updated by building and upgrading, so scrapping never lowers completion. Completion gains a "Generator types at max level" part. Save migration fills the records from current generators. Re-run the simulator and record hours to 100% in the report.
+**Acceptance:** tests for the records (build, upgrade, scrap keeps them, migration) and for completion; report updated.
 
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.
@@ -526,4 +550,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 6 (v0.6.0) | 0.64 | 2026-10-01 | Celebration and room animation not seen yet. Perfection tracker = 100% completion (confirmed). Accounts are for both cloud saves and leaderboards. Add manual ordering of generators. Scrapping producers should ask how many. Asked whether the sprites can be used legally (yes: drawn by our own script from shapes and AAP-64 colours; add LICENSE and credits before going public, see 0.67). | 0.69, 0.70; 0.66 and 0.67 updated |
 | 7 (v0.7.0) | 0.30 | 2026-10-01 | List order as fuel priority is intuitive. Welcome-back detail fine; must mention completed research (it already does). Short notation as default (already). Boost research worth it: add ones for other resources (production and discounts). Say "24 hours" not "1d". Show running research on every tab with time left; running node should blink. Research celebration looks great. Room upgrade animation still looks weird (video not received); add more room tiers. | 0.71-0.75 |
 | 8 (v0.8.0) | 0.75 | 2026-10-01 | Add the save-on-close safeguard. Room bar looks good (animation not seen yet). Research chip location odd: make it float at the bottom without hiding the version. 8 room tiers fine for now. +15% all-producer output sounds useful. The tree should start from 3 basic research, one starting resource upgrades. Long-term target: at least 200 hours of play for 100% completion. | 0.76-0.78; 200 h target added to 0.35 and 0.47 |
-| 9 (v0.9.0) | 0.32 | 2026-10-01 | (waiting for owner) | |
+| 9 (v0.9.0) | 0.32 | 2026-10-01 | Research tree lines hard to follow: split into the three starting branches. Bug: "You were away for 1m 1s" after switching tabs. Bug: build-card tooltip shows over the card above and is unreadable. 100% completion must include building every generator type and upgrading each to max level. | 0.79-0.82 |
