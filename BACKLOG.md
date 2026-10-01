@@ -25,6 +25,9 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.48 Offline cap to 24 hours (playtest 1 feedback)
 0. 0.49 Distinct colour for fuel use (playtest 2 feedback)
 0. 0.50 Generators cost energy (playtest 2 feedback)
+0. 0.51 Higher energy costs for building and research (playtest 3 feedback)
+0. 0.52 Longer research times that grow with level (playtest 3 feedback)
+0. 0.53 Boost breakdown on hover (playtest 3 feedback)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -100,6 +103,21 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 ---
 
 ## Items
+
+### 0.51 — Higher energy costs for building and research — CODE — Done
+**Goal:** apply playtest 3 feedback: energy costs for building and research are reached too easily.
+**Details:** raise `GENERATOR_ENERGY_COST_SECONDS` from 600 (10 minutes of output) to 1800 (30 minutes): Solar 900, Wind 1,440, Coal 3,600. Keep the first Solar Panel buildable at once by setting `STARTING_ENERGY` to its cost (900). Raise research energy costs about 5×: Basic Solar 250, Wind Power Fundamentals 1,000, Fossil Fuels 101 1,500 energy + 10 coal. Room expansion prices stay (owner: "good"). All numbers stay in data files.
+**Acceptance:** tests for the new costs; a fresh save can still build a Solar Panel at once; a pacing probe shows no stall (idle player still reaches every current unlock).
+
+### 0.52 — Longer research times that grow with level — CODE — Not started
+**Goal:** apply playtest 3 feedback: research must take much longer, and each research level must take longer than the one before.
+**Details:** new durations: Basic Solar (level 1) 10 minutes, Wind Power Fundamentals (level 2) 30 minutes, Fossil Fuels 101 (level 2) 45 minutes. Rule, enforced by a data test for all current and future research: a research takes longer than every research with a lower level requirement, and longer than each of its prerequisites. Later items that add research (0.20, 0.30, 0.33, 0.45) must follow it.
+**Acceptance:** the data test passes and fails if the rule is broken; durations shown in the panel match.
+
+### 0.53 — Boost breakdown on hover — CODE — Not started
+**Goal:** apply playtest 3 feedback: when a research or other non-building boost changes how much is gained, the player can see it. Hovering (or focusing) the energy rate shows the base rate from generators, each active boost with its source and effect, and the total.
+**Details:** pure `getEnergyBreakdown(state)` in `src/utils/` returning base, a list of modifiers (source name, percent, energy per second it adds) and total; boosts come from research effects, so future boosts appear automatically. Built as a reusable rate-breakdown shape and tooltip so resources can use it later. Keyboard accessible (tooltip on focus too). Also shows the click value and its boost when click power is boosted.
+**Acceptance:** tooltip lists Basic Solar's +10% with its energy/s once it is completed, and shows only the base without boosts; unit tests for the breakdown; total matches the displayed rate.
 
 ### 0.49 — Distinct colour for fuel use — CODE — Done
 **Goal:** apply playtest 2 feedback: the "Burns" line on a generator card must not look like the red "cannot afford" colour.
@@ -337,4 +355,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 |---|---|---|---|---|
 | 1 | 0.37 | 2026-10-01 | Works. Click value and click feedback feel right; colours suit the game. Offline cap should be 24 h, not 8 h. | 0.48 |
 | 2 | 0.09 | 2026-10-01 | Works; layout readable; first Solar buildable at once is right; early metal pace fine for now. Fuel "Burns" line should not share the red of "not enough". Energy needs a use: building should cost energy equal to 10 minutes of the generator's output. | 0.49, 0.50 |
-| 3 | 0.16 | 2026-10-01 | (waiting for owner) | |
+| 3 | 0.16 | 2026-10-01 | Starting research is clear; first room expansion price good; tree background looks great. Energy costs (build and research) reached too easily: raise them. Research times far too short; each level must take longer than the previous. Show boosts (e.g. Basic Solar) and their effect when hovering the energy rate, later for resources too. | 0.51, 0.52, 0.53 |

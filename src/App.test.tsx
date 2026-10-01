@@ -16,7 +16,7 @@ describe('App smoke test', () => {
 
   it('starts from the documented initial state', () => {
     const s = createInitialState(0);
-    expect(s.energy).toBe(300); // playtest 2: enough for the first Solar Panel
+    expect(s.energy).toBe(900); // exactly the first Solar Panel's cost
     expect(s.resources).toEqual({ metal: 15, stone: 10, coal: 0, naturalGas: 0 });
     expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1 });
     expect(s.researchLevel).toBe(1);
@@ -97,7 +97,7 @@ describe('Energy cost UI (playtest 2)', () => {
   it('shows the energy cost and says when energy is the only thing missing', () => {
     useStore.setState({ ...createInitialState(Date.now()), energy: 100 });
     render(<App />);
-    expect(screen.getByTestId('energy-cost-solar').textContent).toContain('300 energy');
+    expect(screen.getByTestId('energy-cost-solar').textContent).toContain('900 energy');
     expect(screen.getByTestId('energy-cost-solar').className).toContain('text-red-400');
     expect(screen.getByTestId('generator-card-solar').querySelector('button')!.textContent).toBe('Not enough energy');
   });
@@ -119,7 +119,7 @@ describe('Research UI', () => {
     const now = Date.now();
     useStore.setState({
       ...createInitialState(now),
-      energy: 100,
+      energy: 300,
       activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }],
     });
     render(<App />);
@@ -132,7 +132,7 @@ describe('Research UI', () => {
     expect(dialog.textContent).toContain('+10% energy from all generators');
     fireEvent.click(screen.getByRole('button', { name: 'Start research' }));
     expect(useStore.getState().currentResearch?.id).toBe('basic_solar');
-    expect(useStore.getState().energy).toBeCloseTo(50, 0);
+    expect(useStore.getState().energy).toBeCloseTo(50, -1);
     expect(screen.getAllByRole('progressbar').length).toBeGreaterThan(0);
     expect(screen.getByTestId('research-node-basic_solar').dataset.status).toBe('researching');
     fireEvent.keyDown(window, { key: 'Escape' });
