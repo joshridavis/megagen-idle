@@ -114,7 +114,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** new durations: Basic Solar (level 1) 10 minutes, Wind Power Fundamentals (level 2) 30 minutes, Fossil Fuels 101 (level 2) 45 minutes. Rule, enforced by a data test for all current and future research: a research takes longer than every research with a lower level requirement, and longer than each of its prerequisites. Later items that add research (0.20, 0.30, 0.33, 0.45) must follow it.
 **Acceptance:** the data test passes and fails if the rule is broken; durations shown in the panel match.
 
-### 0.53 — Boost breakdown on hover — CODE — Not started
+### 0.53 — Boost breakdown on hover — CODE — Done
 **Goal:** apply playtest 3 feedback: when a research or other non-building boost changes how much is gained, the player can see it. Hovering (or focusing) the energy rate shows the base rate from generators, each active boost with its source and effect, and the total.
 **Details:** pure `getEnergyBreakdown(state)` in `src/utils/` returning base, a list of modifiers (source name, percent, energy per second it adds) and total; boosts come from research effects, so future boosts appear automatically. Built as a reusable rate-breakdown shape and tooltip so resources can use it later. Keyboard accessible (tooltip on focus too). Also shows the click value and its boost when click power is boosted.
 **Acceptance:** tooltip lists Basic Solar's +10% with its energy/s once it is completed, and shows only the base without boosts; unit tests for the breakdown; total matches the displayed rate.

@@ -63,7 +63,7 @@ describe('Generator UI loop', () => {
     const s = useStore.getState();
     expect(s.activeGenerators).toHaveLength(1);
     expect(s.resources.metal).toBeCloseTo(5, 0);
-    expect(screen.getByLabelText('Energy rate').textContent).toBe('+0.5/s');
+    expect(screen.getByLabelText('Energy rate').textContent).toBe('+0.50/s');
     expect(screen.getByText('Running')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Turn off Solar Panel #1' }));
@@ -165,5 +165,27 @@ describe('Room UI', () => {
     useStore.setState({ ...createInitialState(Date.now()), roomUsed: 9 });
     render(<App />);
     expect(screen.getByRole('status').textContent).toContain('nearly full');
+  });
+});
+
+describe('Boost breakdown (playtest 3)', () => {
+  const solar = { id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 };
+
+  it('the energy-rate tooltip lists Basic Solar and its effect', () => {
+    useStore.setState({ ...createInitialState(Date.now()), activeGenerators: [solar], completedResearch: ['basic_solar'], energyPerSecond: 0.55 });
+    render(<App />);
+    const tip = document.getElementById('energy-breakdown')!;
+    expect(tip.getAttribute('role')).toBe('tooltip');
+    expect(tip.textContent).toContain('Generators0.50 /s');
+    expect(tip.textContent).toContain('Basic Solar (+10%)+0.05 /s');
+    expect(tip.textContent).toContain('Total0.55 /s');
+    expect(screen.getByTestId('energy-boost').textContent).toBe('▲10%');
+  });
+
+  it('shows only the base and a hint when nothing is boosted', () => {
+    useStore.setState({ ...createInitialState(Date.now()), activeGenerators: [solar], energyPerSecond: 0.5 });
+    render(<App />);
+    expect(document.getElementById('energy-breakdown')!.textContent).toContain('No boosts yet');
+    expect(screen.queryByTestId('energy-boost')).toBeNull();
   });
 });

@@ -1,9 +1,13 @@
-import { useState } from 'react';
-import { BASE_CLICK_VALUE } from '../data/player';
+import { useMemo, useState } from 'react';
 import { useStore } from '../store';
+import { getClickBreakdown } from '../utils/breakdown';
+import BreakdownTooltip from './BreakdownTooltip';
 
 export default function ClickButton() {
   const clickEnergy = useStore((s) => s.clickEnergy);
+  const completed = useStore((s) => s.completedResearch);
+  const click = useMemo(() => getClickBreakdown(completed), [completed]);
+  const clickText = click.total.toLocaleString('en-US', { maximumFractionDigits: 2 });
   const [pops, setPops] = useState<number[]>([]);
 
   const onClick = () => {
@@ -28,9 +32,14 @@ export default function ClickButton() {
           aria-hidden="true"
           className="click-pop pointer-events-none absolute left-1/2 top-0 font-mono font-bold text-yellow-300"
         >
-          +{BASE_CLICK_VALUE}
+          +{clickText}
         </span>
       ))}
+      <div className="mt-2 text-center text-xs text-slate-400">
+        <BreakdownTooltip id="click-breakdown" title="Energy per click" baseLabel="Base click" unit="" breakdown={click} digits={0}>
+          +{clickText} per click
+        </BreakdownTooltip>
+      </div>
     </div>
   );
 }
