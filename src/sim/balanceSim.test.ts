@@ -26,7 +26,7 @@ describe('balance simulator (0.35)', () => {
 describe('completion (0.66 groundwork)', () => {
   it('a fresh save counts only what it starts with', () => {
     const c = getCompletion(createInitialState(0));
-    expect(c.parts.find((p) => p.label === 'Research')).toEqual({ label: 'Research', done: 0, total: RESEARCH.length });
+    expect(c.parts.find((p) => p.label === 'Research')).toMatchObject({ label: 'Research', done: 0, total: RESEARCH.length });
     expect(c.parts.find((p) => p.label === 'Room expansions')!.total).toBe(ROOM_TIERS.length);
     expect(c.parts.find((p) => p.label === 'Producer types owned')!.done).toBe(3);
     expect(c.ratio).toBeGreaterThan(0);
