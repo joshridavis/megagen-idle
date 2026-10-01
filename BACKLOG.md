@@ -145,7 +145,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** when Scrap is clicked, show "Confirm" and "Cancel" buttons plus a short inline message "No refund: the generator is removed for good." The Scrap button also has a tooltip (hover and keyboard focus) saying there is no refund. Cancel restores the normal row.
 **Acceptance:** UI tests: Scrap → Cancel leaves the generator; Scrap → Confirm removes it; the no-refund text is visible while confirming and in the tooltip.
 
-### 0.55 — Visible release version — CODE — Not started
+### 0.55 — Visible release version — CODE — Done
 **Goal:** apply playtest 4 feedback: the game shows its release version, small, at the bottom of the screen.
 **Details:** version comes from `package.json` (injected at build time by Vite `define`), shown as e.g. `v0.5.0` in a small footer, with the short commit hash when built in CI. From now on bump the minor version in `package.json` in each playtest PR (playtest 5 is `0.5.0`), and note it in the PR and the Playtest log. Document the rule in `CLAUDE.md` and `README.md`.
 **Acceptance:** footer shows the version from `package.json`; a test checks it matches; the rule is documented.

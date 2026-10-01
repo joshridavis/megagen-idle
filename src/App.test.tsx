@@ -1,6 +1,7 @@
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import App from './App';
+import pkg from '../package.json';
 import { useStore } from './store';
 import { createInitialState } from './data/initialState';
 import { GeneratorType } from './types/generator';
@@ -239,5 +240,13 @@ describe('Scrap', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Solar Panel #1' }));
     expect(useStore.getState().activeGenerators).toHaveLength(0);
     expect(useStore.getState().roomUsed).toBe(0);
+  });
+});
+
+describe('Version footer (playtest 4)', () => {
+  it('shows the package.json version', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    expect(screen.getByTestId('version').textContent).toContain(`v${pkg.version}`);
   });
 });
