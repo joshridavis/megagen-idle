@@ -308,3 +308,20 @@ describe('Producer rates', () => {
     expect(screen.getByTestId('producer-card-quarry').textContent).toContain('+0.100 stone/s each');
   });
 });
+
+describe('Scrap producers (playtest 5)', () => {
+  it('scraps one producer after confirming; Cancel keeps it', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Scrap one Metal Mine' }));
+    expect(screen.getByRole('alert').textContent).toContain('No refund');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap one Metal Mine' }));
+    expect(useStore.getState().producers.mine).toBe(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Scrap one Metal Mine' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap one Metal Mine' }));
+    expect(useStore.getState().producers.mine).toBe(0);
+    expect(useStore.getState().roomUsed).toBe(2);
+    expect(screen.queryByRole('button', { name: 'Scrap one Metal Mine' })).toBeNull();
+  });
+});

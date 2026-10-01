@@ -3,7 +3,7 @@ import { createInitialState } from '../data/initialState';
 import { PRODUCER_COST_GROWTH } from '../data/producers';
 import { NO_BONUSES } from '../types/bonus';
 import type { GameState } from '../types/state';
-import { buildProducer, getProducerBlock, getProducerCost } from './producerSystem';
+import { buildProducer, getProducerBlock, getProducerCost, scrapProducer } from './producerSystem';
 import { getProductionRates } from './resourceSystem';
 import { advanceTime, deriveRates } from './simulation';
 
@@ -76,5 +76,25 @@ describe('rates and room scale with count', () => {
   it('a fresh save stays playable: first Solar Panel still fits and is affordable', () => {
     const s = createInitialState(0);
     expect(s.roomCapacity - s.roomUsed).toBe(10);
+  });
+});
+
+describe('scrapping producers (playtest 5)', () => {
+  it('lowers the count and frees room, with no refund', () => {
+    const s0 = rich();
+    const s = scrapProducer(s0, 'quarry');
+    expect(s.producers.quarry).toBe(0);
+    expect(s.roomUsed).toBe(2);
+    expect(s.resources).toEqual(s0.resources);
+    expect(s.energy).toBe(s0.energy);
+  });
+  it('never goes below zero', () => {
+    const s = rich();
+    expect(scrapProducer(s, 'gasWell')).toBe(s);
+  });
+  it('the next one costs what the new count implies', () => {
+    const s = scrapProducer(buildProducer(rich(), 'mine'), 'mine');
+    expect(s.producers.mine).toBe(1);
+    expect(getProducerCost('mine', s.producers.mine)).toEqual(getProducerCost('mine', 1));
   });
 });

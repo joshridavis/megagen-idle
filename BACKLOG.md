@@ -177,7 +177,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** `PRODUCER_COST_GROWTH` 1.15 → 1.20 in `src/data/producers.ts`.
 **Acceptance:** cost tests use the new factor; pacing probe shows no stall.
 
-### 0.60 — Scrap producers — CODE — Not started
+### 0.60 — Scrap producers — CODE — Done
 **Goal:** apply playtest 5 feedback: producers can be scrapped like generators.
 **Details:** pure `scrapProducer(state, id)` lowers the count by one (never below 0) and frees its room; no refund. Producer cards get the same Scrap flow as generators: tooltip saying there is no refund, then a confirm row with the notice, Confirm and Cancel. Scrapping does not lower the price of the next one below what the new count implies (price follows the count).
 **Acceptance:** tests: count and room drop, no refund, cannot go below 0, Cancel keeps it; UI test for the flow.

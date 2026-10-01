@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { sprites } from '../assets';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { RESEARCH_BY_ID } from '../data/research';
@@ -8,6 +9,7 @@ import { getBonuses } from '../utils/bonuses';
 import { getProducerBlock, getProducerCost, type ProducerBlock } from '../utils/producerSystem';
 import CostList from './CostList';
 import { PRODUCER_SPRITES } from './producerSprites';
+import { ScrapButton, ScrapConfirm } from './Scrap';
 
 const BLOCK_TEXT: Record<ProducerBlock, string> = {
   locked: 'Locked',
@@ -19,6 +21,8 @@ const BLOCK_TEXT: Record<ProducerBlock, string> = {
 function ProducerCard({ id }: { id: ProducerId }) {
   const state = useStore((s) => s);
   const buy = useStore((s) => s.buildProducer);
+  const scrap = useStore((s) => s.scrapProducer);
+  const [confirming, setConfirming] = useState(false);
   const def = PRODUCERS[id];
   const bonuses = getBonuses(state.completedResearch);
   const owned = state.producers[id] ?? 0;
@@ -64,6 +68,22 @@ function ProducerCard({ id }: { id: ProducerId }) {
       >
         {block ? BLOCK_TEXT[block] : `Build ${def.name}`}
       </button>
+      {owned > 0 &&
+        (confirming ? (
+          <ScrapConfirm
+            name={`one ${def.name}`}
+            what="producer"
+            onConfirm={() => {
+              scrap(id);
+              setConfirming(false);
+            }}
+            onCancel={() => setConfirming(false)}
+          />
+        ) : (
+          <div className="flex justify-end">
+            <ScrapButton id={`producer-${id}`} name={`one ${def.name}`} what="producer" onClick={() => setConfirming(true)} />
+          </div>
+        ))}
     </article>
   );
 }
