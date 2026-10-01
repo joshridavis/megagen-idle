@@ -73,3 +73,22 @@ test('load, click, build, research, reload: state persists', async ({ page }) =>
 
   expect(errors).toEqual([]);
 });
+
+// Save-on-close safeguard (0.76): simulate a tab that closes before the
+// asynchronous IndexedDB save lands by dropping every IndexedDB write after
+// the game has loaded. Only the synchronous backup can carry the action over
+// the reload. Deterministic: no timing involved.
+test('actions just before closing the tab are not lost', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toHaveText('900');
+  await page.evaluate(() => {
+    const noop = function (this: IDBObjectStore) {
+      return {} as IDBRequest;
+    };
+    IDBObjectStore.prototype.put = noop;
+    IDBObjectStore.prototype.add = noop;
+  });
+  await page.getByRole('button', { name: 'Build Solar Panel' }).click();
+  await page.reload();
+  await expect(page.getByText('Solar Panel #1')).toBeVisible();
+});
