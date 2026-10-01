@@ -124,7 +124,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **One-time owner step (does not block anything):** set the repo's Pages source to "GitHub Actions". Until then, workflows still pass and this item counts as done.
 **Acceptance:** `npm run build && npm run preview` serves a working game under the base path; both workflow files are valid; the PR states the expected Pages URL.
 
-### 0.37 — README and local-run instructions — CODE — Not started
+### 0.37 — README and local-run instructions — CODE — Done
 **Goal:** anyone can clone the repo and run the game without asking questions.
 **Details:** create or update `README.md` with: what the game is (3 to 5 lines); the live GitHub Pages URL; **Run locally** (install Node.js 20 or newer, `npm install`, `npm run dev`, then open the printed `http://localhost:5173` address); **Other commands** (`npm run build`, `npm run preview`, `npm test`, and later `npm run check:assets` and `npm run simulate`) each with one line of explanation; project layout (one line per top-level `src/` folder); where the game numbers live (`src/data/`); how to replace a stand-in sprite with real art; how to reset a save (clear site data, or the in-game reset once 0.29 exists); a pointer to `BACKLOG.md`, `CLAUDE.md` and `PLAYTEST.md`. Keep it short and accurate: do not document commands that do not exist.
 **Acceptance:** every command in the README runs successfully from a clean clone; no broken links.
@@ -316,4 +316,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 
 | Checkpoint | After item | Date | Owner feedback | Items created |
 |---|---|---|---|---|
-| (none yet) | | | | |
+| 1 | 0.37 | 2026-10-01 | (waiting for owner) | |
