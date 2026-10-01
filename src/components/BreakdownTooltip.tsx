@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { RateBreakdown } from '../utils/breakdown';
+import { useNumberFormat } from './useNumberFormat';
 
-const fmt = (n: number, digits: number) => n.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
 /**
  * Wraps a value; on hover or keyboard focus shows how it is built up:
@@ -29,6 +29,8 @@ export default function BreakdownTooltip({
   align?: 'center' | 'left';
   children: ReactNode;
 }) {
+  const f = useNumberFormat();
+  const fmt = (n: number, d: number) => (d === 0 ? f.num(n) : f.rate(n));
   return (
     <span className="group relative inline-block">
       <span

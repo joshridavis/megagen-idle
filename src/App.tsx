@@ -10,14 +10,17 @@ import ResearchCelebration from './components/ResearchCelebration';
 import ResearchTree from './components/ResearchTree';
 import ResourceDisplay from './components/ResourceDisplay';
 import RoomPanel from './components/RoomPanel';
+import SettingsPanel from './components/SettingsPanel';
 import VersionFooter from './components/VersionFooter';
+import WelcomeBack from './components/WelcomeBack';
 import { useIdleEngine } from './utils/idleEngine';
 
-type Tab = 'generators' | 'producers' | 'research';
+type Tab = 'generators' | 'producers' | 'research' | 'settings';
 const TABS: { id: Tab; label: string; icon: SpriteId }[] = [
   { id: 'generators', label: 'Generators', icon: 'solar_panel' },
   { id: 'producers', label: 'Producers', icon: 'producer_mine' },
   { id: 'research', label: 'Research', icon: 'research_advanced' },
+  { id: 'settings', label: 'Settings', icon: 'research_materials' },
 ];
 
 export default function App() {
@@ -42,11 +45,12 @@ export default function App() {
             aria-selected={tab === t.id}
             aria-controls={`panel-${t.id}`}
             onClick={() => setTab(t.id)}
-            className={`min-h-11 shrink-0 rounded-t px-2 py-2 text-sm font-semibold sm:px-4 sm:text-base ${tab === t.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`min-h-11 min-w-11 shrink-0 rounded-t px-3 py-2 text-sm font-semibold sm:px-4 sm:text-base ${tab === t.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
           >
             <span className="flex items-center gap-1 sm:gap-1.5">
-              <img src={sprites[t.icon]} alt="" width={20} height={20} className="pixelated h-4 w-4 object-contain sm:h-5 sm:w-5" data-testid={`tab-icon-${t.id}`} />
-              {t.label}
+              <img src={sprites[t.icon]} alt="" width={20} height={20} className="pixelated h-5 w-5 object-contain" data-testid={`tab-icon-${t.id}`} />
+              {/* On phones only the active tab shows its label; the rest show their icon. */}
+              <span className={tab === t.id ? undefined : 'sr-only sm:not-sr-only'}>{t.label}</span>
             </span>
           </button>
         ))}
@@ -65,12 +69,15 @@ export default function App() {
             <ProducerPanel />
             <RoomPanel />
           </div>
-        ) : (
+        ) : tab === 'research' ? (
           <ResearchTree />
+        ) : (
+          <SettingsPanel />
         )}
       </div>
       <VersionFooter />
       <ResearchCelebration />
+      <WelcomeBack />
     </main>
   );
 }

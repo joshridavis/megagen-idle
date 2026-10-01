@@ -44,9 +44,9 @@ Every sprite is a generated placeholder. To use real art, save your PNG at the s
 
 The game shows its release version (from `package.json`) at the bottom of the screen. The minor version goes up with each playtest release (`0.5.0`, `0.6.0`, ...).
 
-## Resetting a save
+## Saves
 
-The save lives in your browser's IndexedDB. To start over, clear the site data for the page (browser settings → site data, or DevTools → Application → Clear storage).
+The game saves automatically in your browser (IndexedDB). In the **Settings** tab you can **export** the save to a JSON file and **import** it again, for backups or to move to another device; a damaged or wrong file is rejected without touching your current game. To start over, use **Reset game** in the Settings tab (it asks twice). Settings also has the number notation choice (short 1.23M, scientific 1.23e6, or full).
 
 ## More
 

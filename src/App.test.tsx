@@ -1,6 +1,7 @@
 import { act, render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import { pickSaved } from './store/migrations';
 import pkg from '../package.json';
 import { useStore } from './store';
 import { createInitialState } from './data/initialState';
@@ -309,20 +310,44 @@ describe('Producer rates', () => {
   });
 });
 
-describe('Scrap producers (playtest 5)', () => {
-  it('scraps one producer after confirming; Cancel keeps it', () => {
-    useStore.setState(createInitialState(Date.now()));
+describe('Scrap producers (playtest 5/6)', () => {
+  const setup = (mines: number) => {
+    useStore.setState({
+      ...createInitialState(Date.now()),
+      producers: { quarry: 1, mine: mines, coalMine: 1, gasWell: 0 },
+      roomCapacity: 20,
+      roomUsed: 2 + mines,
+    });
     render(<App />);
     fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Scrap one Metal Mine' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Scrap Metal Mines' }));
+  };
+
+  it('Cancel changes nothing', () => {
+    setup(3);
     expect(screen.getByRole('alert').textContent).toContain('No refund');
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap one Metal Mine' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap Metal Mines' }));
+    expect(useStore.getState().producers.mine).toBe(3);
+  });
+
+  it('asks how many and scraps that many', () => {
+    setup(4);
+    fireEvent.click(screen.getByRole('button', { name: 'One more' }));
+    fireEvent.click(screen.getByRole('button', { name: 'One more' }));
+    expect(screen.getByTestId('scrap-summary').textContent).toContain('removes 3 Metal Mines');
+    expect(screen.getByTestId('scrap-summary').textContent).toContain('frees 3 room');
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Metal Mines' }));
     expect(useStore.getState().producers.mine).toBe(1);
-    fireEvent.click(screen.getByRole('button', { name: 'Scrap one Metal Mine' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap one Metal Mine' }));
+  });
+
+  it('All scraps every one, and the field never exceeds the owned count', () => {
+    setup(2);
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Number of Metal Mines to scrap' }), { target: { value: '50' } });
+    expect((screen.getByRole('spinbutton', { name: 'Number of Metal Mines to scrap' }) as HTMLInputElement).value).toBe('2');
+    fireEvent.click(screen.getByRole('button', { name: 'All (2)' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Metal Mines' }));
     expect(useStore.getState().producers.mine).toBe(0);
-    expect(useStore.getState().roomUsed).toBe(2);
-    expect(screen.queryByRole('button', { name: 'Scrap one Metal Mine' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Scrap Metal Mines' })).toBeNull();
   });
 });
 
@@ -390,5 +415,113 @@ describe('Tab icons (playtest 5)', () => {
       expect(screen.getByTestId(`tab-icon-${id}`).getAttribute('alt')).toBe('');
     }
     expect(screen.getByRole('tab', { name: 'Research' })).toBeTruthy();
+  });
+});
+
+describe('Generator ordering UI (playtest 6)', () => {
+  it('moves a generator up and down with the arrow buttons; names stay stable', () => {
+    useStore.setState({
+      ...createInitialState(Date.now()),
+      activeGenerators: [
+        { id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 },
+        { id: 'gen-2', type: GeneratorType.SOLAR, isActive: true, level: 1 },
+      ],
+    });
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Move Solar Panel #2 up' }));
+    expect(useStore.getState().activeGenerators.map((g) => g.id)).toEqual(['gen-2', 'gen-1']);
+    expect(screen.getByRole('button', { name: 'Move Solar Panel #2 down' })).toBeTruthy();
+    expect((screen.getByRole('button', { name: 'Move Solar Panel #2 up' }) as HTMLButtonElement).disabled).toBe(true);
+  });
+});
+
+describe('Welcome back and settings (0.28)', () => {
+  it('shows the welcome-back summary and closes it', () => {
+    useStore.setState({
+      ...createInitialState(Date.now()),
+      welcomeBack: {
+        awaySeconds: 3 * 86400,
+        creditedSeconds: 86400,
+        energyGained: 4321,
+        resourcesGained: { metal: 10, stone: 20, coal: -2, naturalGas: 0 },
+        completedResearch: ['basic_solar'],
+        outOfFuel: [],
+      },
+    });
+    render(<App />);
+    const d = screen.getByTestId('welcome-back');
+    expect(d.textContent).toContain('3d');
+    expect(d.textContent).toContain('Only the first 1d count');
+    expect(d.textContent).toContain('+4.32K');
+    expect(d.textContent).toContain('Research complete: Basic Solar');
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.queryByTestId('welcome-back')).toBeNull();
+  });
+
+  it('rejects a bad import file without touching the current game', async () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 777 });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+    const file = new File(['not json'], 'save.json', { type: 'application/json' });
+    fireEvent.change(screen.getByLabelText('Import save file'), { target: { files: [file] } });
+    expect(await screen.findByRole('status')).toBeTruthy();
+    expect(screen.getByRole('status').textContent).toContain('not changed');
+    expect(useStore.getState().energy).toBe(777);
+  });
+
+  it('imports a valid file after confirmation', async () => {
+    const { exportSave } = await import('./utils/saveFile');
+    const text = exportSave({ ...createInitialState(1), energy: 4242 });
+    useStore.setState({ ...createInitialState(Date.now()), energy: 1 });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+    fireEvent.change(screen.getByLabelText('Import save file'), { target: { files: [new File([text], 's.json')] } });
+    fireEvent.click(await screen.findByRole('button', { name: 'Load this save' }));
+    expect(useStore.getState().energy).toBe(4242);
+  });
+});
+
+describe('Settings (0.29)', () => {
+  it('number notation preference changes the display and is part of the save', () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 1_234_567 });
+    render(<App />);
+    expect(screen.getByLabelText('Energy total').textContent).toBe('1.23M');
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+    fireEvent.click(screen.getByRole('radio', { name: /Scientific/ }));
+    expect(screen.getByLabelText('Energy total').textContent).toBe('1.23e6');
+    expect(pickSaved(useStore.getState()).settings.notation).toBe('scientific');
+  });
+
+  it('reset needs two confirmations; Cancel keeps the game', () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 50_000, researchLevel: 4 });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Reset game…' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(useStore.getState().energy).toBe(50_000);
+    fireEvent.click(screen.getByRole('button', { name: 'Reset game…' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Yes, reset' }));
+    expect(useStore.getState().energy).toBe(50_000);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete everything' }));
+    expect(useStore.getState().energy).toBe(900);
+    expect(useStore.getState().researchLevel).toBe(1);
+  });
+
+  it('notes the offline cap', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+    expect(screen.getByRole('region', { name: 'Settings' }).textContent).toContain('for up to 1d');
+  });
+});
+
+describe('Bonuses panel (0.30)', () => {
+  it('shows active bonuses with their sources', () => {
+    useStore.setState({ ...createInitialState(Date.now()), completedResearch: ['basic_solar', 'standard_parts', 'bulk_purchasing'] });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    expect(screen.getByTestId('bonus-buildDiscount').textContent).toContain('+10%');
+    expect(screen.getByTestId('bonus-buildDiscount').textContent).toContain('Standard Parts +5%');
+    expect(screen.getByTestId('bonus-globalEnergy').textContent).toContain('+10%');
   });
 });

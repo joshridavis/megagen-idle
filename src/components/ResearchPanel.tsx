@@ -11,10 +11,12 @@ import {
   researchProgress,
   type ResearchBlock,
 } from '../utils/researchSystem';
+import { formatDuration } from '../utils/format';
 import CostList from './CostList';
 import ProgressBar from './ProgressBar';
 import { getResearchRewards } from './researchRewards';
 import { RESEARCH_ICONS } from './researchSprites';
+import { useNumberFormat } from './useNumberFormat';
 
 
 const BLOCK_TEXT: Record<ResearchBlock, string> = {
@@ -27,15 +29,6 @@ const BLOCK_TEXT: Record<ResearchBlock, string> = {
   cost: 'Not enough energy or resources',
 };
 
-export function formatDuration(seconds: number): string {
-  const s = Math.max(0, Math.ceil(seconds));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const r = s % 60;
-  if (h) return `${h}h ${m}m`;
-  if (m) return `${m}m ${r ? `${r}s` : ''}`.trim();
-  return `${r}s`;
-}
 
 export default function ResearchPanel({ id, onClose }: { id: string; onClose: () => void }) {
   const state = useStore((s) => s);
@@ -44,6 +37,7 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const def = RESEARCH_BY_ID[id];
+  const fmt = useNumberFormat();
 
   // Focus once on open; Escape closes. Runs only on mount so ticks never steal focus.
   useEffect(() => {
@@ -95,7 +89,7 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
           <dt className="text-slate-400">Cost</dt>
           <dd className="flex flex-wrap gap-x-2">
             <span className={state.energy < cost.energy && !done && !running ? 'text-red-400' : ''}>
-              {cost.energy.toLocaleString('en-US')} energy
+              {fmt.num(cost.energy)} energy
             </span>
             {cost.resources && Object.keys(cost.resources).length > 0 && (
               <CostList cost={cost.resources} have={done || running ? undefined : state.resources} />

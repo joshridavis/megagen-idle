@@ -8,14 +8,14 @@ import type { ResourceId } from '../types/state';
 import { getResourceBreakdown, type RateBreakdown } from '../utils/breakdown';
 import BreakdownTooltip from './BreakdownTooltip';
 import { FUEL_CLASS, RESOURCE_ICONS } from './CostList';
+import { useNumberFormat } from './useNumberFormat';
 
-const formatRate = (perSecond: number) => {
-  const sign = perSecond > 0 ? '+' : perSecond < 0 ? '−' : '';
-  return `${sign}${Math.abs(perSecond).toFixed(2)}/s`;
-};
 
 export default function ResourceDisplay() {
   const resources = useStore(selectResources);
+  const fmt = useNumberFormat();
+  const formatRate = (perSecond: number) =>
+    `${perSecond > 0 ? '+' : perSecond < 0 ? '−' : ''}${fmt.rate(Math.abs(perSecond))}/s`;
   const producers = useStore((s) => s.producers);
   const generators = useStore((s) => s.activeGenerators);
   const breakdowns = useMemo(
@@ -38,7 +38,7 @@ export default function ResourceDisplay() {
             <div className="leading-tight">
               <div className="text-xs text-slate-400">{RESOURCE_NAMES[id]}</div>
               <div className="font-mono">
-                <span aria-label={`${RESOURCE_NAMES[id]} amount`}>{Math.floor(resources[id]).toLocaleString('en-US')}</span>{' '}
+                <span aria-label={`${RESOURCE_NAMES[id]} amount`}>{fmt.num(resources[id])}</span>{' '}
                 <BreakdownTooltip
                   id={`resource-breakdown-${id}`}
                   title={`${RESOURCE_NAMES[id]} per second`}

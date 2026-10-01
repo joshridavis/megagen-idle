@@ -40,6 +40,8 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.62 Scrollbars in game colours (playtest 5 feedback)
 0. 0.63 Research-complete celebration (playtest 5 feedback)
 0. 0.64 Tab icons (playtest 5 feedback) → CHECKPOINT
+0. 0.69 Manual generator ordering (playtest 6 feedback)
+0. 0.70 Scrap several producers at once (playtest 6 feedback)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -203,6 +205,17 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** 20 px icon from the sprite index next to each tab label: Generators → solar panel, Producers → metal mine, Research → research (atom) icon. Icons are decorative (`alt=""`); labels stay for accessibility. Must still fit at 360 px.
 **Acceptance:** each tab renders its icon; no horizontal scroll at 360 px.
 
+### 0.69 — Manual generator ordering — CODE — Done
+**Goal:** apply playtest 6 feedback: the player can arrange the "Your generators" list by hand.
+**Details:** each row gets "Move up" and "Move down" buttons (keyboard accessible, 44 px targets), plus "to top" and "to bottom". Pure `moveGenerator(state, id, toIndex)` reorders `activeGenerators`; the order is saved. The order is also the fuel priority: when fuel runs short, generators higher in the list burn first (already how `burnFuel` works); the list header says so.
+**Acceptance:** tests: moving changes order and persists through save/load; out-of-range moves are clamped; fuel goes to the top generator first.
+**Done notes:** ▲/▼ buttons (Shift+click moves to top/bottom) plus drag-and-drop on desktop. Generator names now use their stable ID number, so reordering never renames them.
+
+### 0.70 — Scrap several producers at once — CODE — Done
+**Goal:** apply playtest 6 feedback: scrapping producers asks how many.
+**Details:** the producer confirm row gets a number field (1 to owned, default 1) with − / + buttons and an "All" button; the notice states the number and the room freed. Pure `scrapProducer(state, id, count)` clamps to 0..owned.
+**Acceptance:** tests: scrapping N lowers the count by N and frees N × room; values outside the range are clamped; Cancel changes nothing.
+
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.
 **Details:** set `MAX_OFFLINE_SECONDS` in `src/data/time.ts` to 24 hours. Update the offline-cap mention in `PLAYTEST.md` and any test that relies on the old value. Keep click value and click feedback unchanged (owner is happy with them).
@@ -314,20 +327,23 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** end-to-end smoke test: load the game, click for energy, build a generator, start research, reload, verify state persisted. Use Playwright if its browsers install in the cloud environment; if not, use React Testing Library with jsdom for the same flow and note the limitation in the PR. Add the smoke test to the CI workflow from 0.22.
 **Acceptance:** CI runs unit tests, smoke test and build on pull requests; no real-time waits (use fake timers or injected time).
 
-### 0.28 — Save safety and offline summary — CODE — Not started
+### 0.28 — Save safety and offline summary — CODE — Done
 **Goal:** progress is safe and understandable.
 **Details:** export the save as a JSON file; import with validation (reject corrupt or wrong-version files with a clear message, without touching the current save). Save schema version and migration functions (started in 0.19), tested against an old-version fixture. "Welcome back" modal after offline time: time away, energy gained, research completed, generators that ran out of fuel.
 **Acceptance:** export, reset, import restores the exact state; corrupt file rejected safely; migration test passes.
+**Done notes:** export/import live in a new Settings tab (0.29 adds reset and preferences there). Importing sets the save time to the moment of import, so no offline gains are credited for the time between export and import. The welcome-back summary appears after at least 60 s away (`WELCOME_BACK_MIN_SECONDS`) and says when the 24 h cap applied. On phones, inactive tabs show only their icon so four tabs fit at 360 px.
 
-### 0.29 — Number formatting and settings screen — CODE — Not started
+### 0.29 — Number formatting and settings screen — CODE — Done
 **Goal:** big numbers stay readable and the player has basic controls.
 **Details:** `formatNumber` (999, 1.2K, 3.4M, up to a scientific-notation threshold) used everywhere energy, resources and rates appear. Settings screen: reset save with two-step confirmation, export and import buttons from 0.28, number notation preference, and a note on the offline gain cap. No audio settings.
 **Acceptance:** unit tests at boundaries (0, 999, 1000, 1e6, 1e15, negative, NaN); reset works; preference persists.
+**Done notes:** three notations: short (default, 3 significant digits, K/M/B/T, scientific from `SCIENTIFIC_THRESHOLD` = 1e15), scientific, and full. Values are cut off, never rounded up, so the display never shows more than the player has. NaN shows "—".
 
-### 0.30 — Permanent-boost research — CODE — Not started
+### 0.30 — Permanent-boost research — CODE — Done
 **Goal:** research that improves the whole game, as the design describes.
 **Details:** about 8 research entries in the Efficiency and Materials categories using the bonus types from 0.10. Each has a level requirement and prerequisites. Bonuses of one type add together, with a named cap for discounts. A "Bonuses" panel shows what is active. Numbers are first guesses, tuned in 0.35.
 **Acceptance:** tests for stacking and the cap; bonuses visibly change costs and rates; panel correct.
+**Done notes:** eight entries: Hand-Crank Dynamo (+100% click), Standard Parts (−5% build), Lab Notebooks (+10% research speed), Grant Funding (−10% research cost), Smart Grid (+10% energy), Bulk Purchasing (−5% build), Automated Labs (+15% research speed), Superconductors (+15% energy); levels 3–7, durations follow the "higher level takes longer" rule. Active bonuses panel on the Research tab. Pacing probe: all 16 research done within 24 h of idle play, no stalls.
 
 ### 0.31 — Resource producers use room — CODE — Done
 **Goal:** room constrains resource production too.
@@ -417,13 +433,13 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** unlocks fire once, persist, survive migration; tests for each condition type.
 
 ### 0.66 — Perfection (completion) tracker — CODE — Not started
-**Goal:** owner request (playtest 5): a tracker showing how close the player is to "perfection", read here as 100% completion. Confirm the meaning with the owner at the next playtest.
+**Goal:** owner request (playtest 5): a tracker showing how close the player is to "perfection", meaning 100% completion (confirmed in playtest 6).
 **Details:** pure `getCompletion(state)` combining: research completed / total, generator types built / total, room expansions bought / total, achievements unlocked / total (once 0.65 exists), producer types owned. Shows an overall % in the top bar and a breakdown panel listing what is left.
 **Acceptance:** 0% on a fresh save (except what starts owned), 100% only when everything is done; tests for the aggregation.
 
 ### 0.67 — Public release plan: accounts and cloud saves — CODE — Not started
-**Goal:** owner request (playtest 5): make the game available to the public with sign-up, usernames, passwords, log-in and a per-account save.
-**Details:** GitHub Pages hosts static files only, so accounts need a hosted backend. This item writes `docs/PUBLIC_RELEASE.md`: options compared (e.g. Supabase, Firebase, a small server), recommended choice, data model (user, save blob, version), security (hashed passwords handled by the provider, no secrets in the repo, rate limits), privacy (what is stored, deleting an account), cheating considerations for an idle game, cost estimate, and the exact one-time steps the owner must do (create the project, add the public keys as GitHub repository variables). Also adds a save-sync abstraction in code (`SaveBackend` interface with the current IndexedDB implementation) so a cloud backend can plug in later without touching game logic.
+**Goal:** owner request (playtest 5): make the game available to the public with sign-up, usernames, passwords, log-in and a per-account save. Accounts are for both cloud saves and leaderboards (playtest 6).
+**Details:** GitHub Pages hosts static files only, so accounts need a hosted backend. This item writes `docs/PUBLIC_RELEASE.md`: options compared (e.g. Supabase, Firebase, a small server), recommended choice, data model (user, save blob, version), security (hashed passwords handled by the provider, no secrets in the repo, rate limits), privacy (what is stored, deleting an account), cheating considerations for an idle game (matters for leaderboards: server-side plausibility checks on submitted scores), leaderboard design, a LICENSE file and an in-game credits screen (AAP-64 palette by Adigun A. Polack, open-source libraries), cost estimate, and the exact one-time steps the owner must do (create the project, add the public keys as GitHub repository variables). Also adds a save-sync abstraction in code (`SaveBackend` interface with the current IndexedDB implementation) so a cloud backend can plug in later without touching game logic.
 **Acceptance:** plan document reviewed in the PR; the abstraction is in place with the local backend and tests; nothing requires secrets.
 
 ### 0.68 — Accounts and cloud saves — CODE — Not started (needs owner setup)
@@ -455,4 +471,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 3 | 0.16 | 2026-10-01 | Starting research is clear; first room expansion price good; tree background looks great. Energy costs (build and research) reached too easily: raise them. Research times far too short; each level must take longer than the previous. Show boosts (e.g. Basic Solar) and their effect when hovering the energy rate, later for resources too. | 0.51, 0.52, 0.53 |
 | 4 | 0.36 | 2026-10-01 | Costs and research times fine for now (longer playtests later). Tooltip good. Mid-tier generators feel like upgrades. Scrap: no refund, but add Cancel and a no-refund notice. Show a small release version. "Research level 2" looked like it rose before research finished. Construction animation looks odd: try another approach. Add ways to raise metal, stone, coal and gas income. Raise stone prices a bit. | 0.58, 0.54, 0.55, 0.56, 0.57; 0.31 moved up |
 | 5 (v0.5.0) | 0.31 | 2026-10-01 | Producer cost growth should be 20%. Producers should be scrappable. Research labels clear now. Room animation not seen yet. Make research rewards ("Gives") stand out. Scrollbar not in game colours. Celebrate research completion with an animation on any tab. Small images on tab buttons. Add to backlog: achievements, perfection tracker, public release with accounts. | 0.59-0.64; later 0.65-0.68 |
-| 6 (v0.6.0) | 0.64 | 2026-10-01 | (waiting for owner) | |
+| 6 (v0.6.0) | 0.64 | 2026-10-01 | Celebration and room animation not seen yet. Perfection tracker = 100% completion (confirmed). Accounts are for both cloud saves and leaderboards. Add manual ordering of generators. Scrapping producers should ask how many. Asked whether the sprites can be used legally (yes: drawn by our own script from shapes and AAP-64 colours; add LICENSE and credits before going public, see 0.67). | 0.69, 0.70; 0.66 and 0.67 updated |
+| 7 (v0.7.0) | 0.30 | 2026-10-01 | (waiting for owner) | |

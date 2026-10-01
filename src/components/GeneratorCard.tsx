@@ -7,6 +7,7 @@ import { getGeneratorStats, type BuildBlock } from '../utils/generatorSystem';
 import { findUnlockingResearch } from '../utils/researchSystem';
 import CostList, { FUEL_CLASS } from './CostList';
 import { GENERATOR_SPRITES } from './generatorSprites';
+import { useNumberFormat } from './useNumberFormat';
 
 const BLOCK_TEXT: Record<BuildBlock, string> = {
   locked: 'Locked',
@@ -29,6 +30,7 @@ export default function GeneratorCard({
   const energy = useStore((s) => s.energy);
   const build = useStore((s) => s.buildGenerator);
   const def = GENERATORS[type];
+  const fmt = useNumberFormat();
   const stats = getGeneratorStats(type, bonuses);
   const unlockedBy = findUnlockingResearch(type);
   const locked = block === 'locked' || block === 'level';
@@ -48,7 +50,7 @@ export default function GeneratorCard({
         />
         <div>
           <h3 className="font-semibold">{def.name}</h3>
-          <div className="text-sm text-yellow-300">+{stats.energyPerSecond.toFixed(1)} energy/s</div>
+          <div className="text-sm text-yellow-300">+{fmt.rate(stats.energyPerSecond)} energy/s</div>
           <div className="text-xs text-slate-400">{stats.roomCost} room</div>
         </div>
       </div>
@@ -57,7 +59,7 @@ export default function GeneratorCard({
         <span className="inline-flex flex-wrap gap-x-2 gap-y-1">
           <span className={`inline-flex items-center gap-1 ${energy < stats.energyCost ? 'text-red-400' : ''}`} data-testid={`energy-cost-${type}`}>
             <img src={sprites.energy_icon} alt="" width={16} height={16} className="pixelated" />
-            {stats.energyCost.toLocaleString('en-US')} energy
+            {fmt.num(stats.energyCost)} energy
           </span>
           <CostList cost={stats.buildCost} have={resources} />
         </span>

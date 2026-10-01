@@ -10,6 +10,9 @@ export const TICK_INTERVAL_MS = 1000;
  */
 export const LIVE_TICK_MAX_SECONDS = 5;
 
+/** Time away (seconds) needed before the welcome-back summary is shown. */
+export const WELCOME_BACK_MIN_SECONDS = 60;
+
 /** How long the research-complete celebration stays on screen (ms). */
 export const CELEBRATION_MS = 3500;
 

@@ -7,6 +7,7 @@ import { getBonuses } from '../utils/bonuses';
 import { getGeneratorOutput } from '../utils/energyGeneration';
 import { GENERATOR_SPRITES } from './generatorSprites';
 import { ScrapButton, ScrapConfirm } from './Scrap';
+import { useNumberFormat } from './useNumberFormat';
 
 function statusOf(g: Generator) {
   if (g.isActive) return { text: 'Running', className: 'text-emerald-400' };
@@ -18,14 +19,22 @@ export default function ActiveGenerators() {
   const generators = useStore((s) => s.activeGenerators);
   const toggle = useStore((s) => s.toggleGenerator);
   const scrap = useStore((s) => s.scrapGenerator);
+  const move = useStore((s) => s.moveGenerator);
+  const [dragId, setDragId] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const completed = useStore((s) => s.completedResearch);
   const bonuses = useMemo(() => getBonuses(completed), [completed]);
+  const fmt = useNumberFormat();
   return (
     <section aria-label="Your generators" className="w-full">
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
         Your generators ({generators.length})
       </h2>
+      {generators.length > 1 && (
+        <p className="mb-2 text-xs text-slate-400">
+          Drag or use ▲▼ to reorder (Shift for top/bottom). When fuel runs short, generators higher up get it first.
+        </p>
+      )}
       {generators.length === 0 ? (
         <p className="rounded-lg bg-slate-800 p-3 text-sm text-slate-400">
           None yet. Build one above: a Solar Panel costs 10 metal.
@@ -35,10 +44,50 @@ export default function ActiveGenerators() {
           {generators.map((g, i) => {
             const def = GENERATORS[g.type];
             const status = statusOf(g);
-            const name = `${def.name} #${i + 1}`;
+            const name = `${def.name} #${g.id.split('-')[1] ?? i + 1}`;
             return (
-              <li key={g.id} className="rounded-lg bg-slate-800 p-2" data-testid={`generator-${g.id}`}>
-                <div className="flex items-center gap-3">
+              <li
+                key={g.id}
+                className={`rounded-lg bg-slate-800 p-2 ${dragId === g.id ? 'opacity-50' : ''}`}
+                data-testid={`generator-${g.id}`}
+                draggable
+                onDragStart={(e) => {
+                  setDragId(g.id);
+                  e.dataTransfer.effectAllowed = 'move';
+                }}
+                onDragEnd={() => setDragId(null)}
+                onDragOver={(e) => {
+                  if (dragId) e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (dragId && dragId !== g.id) move(dragId, i);
+                  setDragId(null);
+                }}
+              >
+                <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex flex-col">
+                  <button
+                    type="button"
+                    disabled={i === 0}
+                    onClick={(e) => move(g.id, e.shiftKey ? 0 : i - 1)}
+                    aria-label={`Move ${name} up`}
+                    title="Move up (Shift: to top)"
+                    className="h-6 w-8 rounded text-xs text-slate-400 hover:bg-slate-700 hover:text-white disabled:opacity-30"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    disabled={i === generators.length - 1}
+                    onClick={(e) => move(g.id, e.shiftKey ? generators.length - 1 : i + 1)}
+                    aria-label={`Move ${name} down`}
+                    title="Move down (Shift: to bottom)"
+                    className="h-6 w-8 rounded text-xs text-slate-400 hover:bg-slate-700 hover:text-white disabled:opacity-30"
+                  >
+                    ▼
+                  </button>
+                </div>
                 <img
                   src={sprites[g.isActive ? GENERATOR_SPRITES[g.type].active : GENERATOR_SPRITES[g.type].inactive]}
                   alt=""
@@ -48,7 +97,7 @@ export default function ActiveGenerators() {
                   <div className="font-medium">{name}</div>
                   <div className="text-xs">
                     <span className={status.className}>{status.text}</span>
-                    <span className="text-slate-400"> · +{getGeneratorOutput(g, bonuses).toFixed(1)} energy/s · {def.roomCost} room</span>
+                    <span className="text-slate-400"> · +{fmt.rate(getGeneratorOutput(g, bonuses))} energy/s · {def.roomCost} room</span>
                   </div>
                 </div>
                 <button

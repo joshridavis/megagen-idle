@@ -9,7 +9,8 @@ import { getBonuses } from '../utils/bonuses';
 import { getProducerBlock, getProducerCost, type ProducerBlock } from '../utils/producerSystem';
 import CostList from './CostList';
 import { PRODUCER_SPRITES } from './producerSprites';
-import { ScrapButton, ScrapConfirm } from './Scrap';
+import { ScrapButton, ScrapQuantityConfirm } from './Scrap';
+import { useNumberFormat } from './useNumberFormat';
 
 const BLOCK_TEXT: Record<ProducerBlock, string> = {
   locked: 'Locked',
@@ -24,6 +25,7 @@ function ProducerCard({ id }: { id: ProducerId }) {
   const scrap = useStore((s) => s.scrapProducer);
   const [confirming, setConfirming] = useState(false);
   const def = PRODUCERS[id];
+  const fmt = useNumberFormat();
   const bonuses = getBonuses(state.completedResearch);
   const owned = state.producers[id] ?? 0;
   const cost = getProducerCost(id, owned, bonuses);
@@ -53,7 +55,7 @@ function ProducerCard({ id }: { id: ProducerId }) {
       <div className="text-sm">
         <span className="text-slate-400">Next costs: </span>
         <span className="inline-flex flex-wrap gap-x-2">
-          <span className={state.energy < cost.energy ? 'text-red-400' : ''}>{cost.energy.toLocaleString('en-US')} energy</span>
+          <span className={state.energy < cost.energy ? 'text-red-400' : ''}>{fmt.num(cost.energy)} energy</span>
           <CostList cost={cost.resources} have={state.resources} />
         </span>
       </div>
@@ -70,18 +72,20 @@ function ProducerCard({ id }: { id: ProducerId }) {
       </button>
       {owned > 0 &&
         (confirming ? (
-          <ScrapConfirm
-            name={`one ${def.name}`}
-            what="producer"
-            onConfirm={() => {
-              scrap(id);
+          <ScrapQuantityConfirm
+            name={def.name}
+            plural={`${def.name}s`}
+            max={owned}
+            roomEach={def.roomCost}
+            onConfirm={(n) => {
+              scrap(id, n);
               setConfirming(false);
             }}
             onCancel={() => setConfirming(false)}
           />
         ) : (
           <div className="flex justify-end">
-            <ScrapButton id={`producer-${id}`} name={`one ${def.name}`} what="producer" onClick={() => setConfirming(true)} />
+            <ScrapButton id={`producer-${id}`} name={`${def.name}s`} what="producer" onClick={() => setConfirming(true)} />
           </div>
         ))}
     </article>

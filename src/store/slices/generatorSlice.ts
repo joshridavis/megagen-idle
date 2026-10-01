@@ -1,7 +1,7 @@
 import type { GeneratorType } from '../../types/generator';
 import type { GeneratorState } from '../../types/state';
 import { getBonuses } from '../../utils/bonuses';
-import { buildGenerator, scrapGenerator, toggleGenerator } from '../../utils/generatorSystem';
+import { buildGenerator, moveGenerator, scrapGenerator, toggleGenerator } from '../../utils/generatorSystem';
 import { getUnlockedGenerators } from '../selectors';
 import type { SliceCreator } from '../types';
 
@@ -11,6 +11,8 @@ export interface GeneratorActions {
   toggleGenerator: (id: string) => void;
   /** Removes a generator to free its room (no refund). */
   scrapGenerator: (id: string) => void;
+  /** Moves a generator in the list (also its fuel priority). */
+  moveGenerator: (id: string, toIndex: number) => void;
 }
 
 export const createGeneratorSlice =
@@ -26,4 +28,5 @@ export const createGeneratorSlice =
     },
     toggleGenerator: (id) => set((s) => toggleGenerator(s, id), undefined, 'generator/toggle'),
     scrapGenerator: (id) => set((s) => scrapGenerator(s, id), undefined, 'generator/scrap'),
+    moveGenerator: (id, toIndex) => set((s) => moveGenerator(s, id, toIndex), undefined, 'generator/move'),
   });

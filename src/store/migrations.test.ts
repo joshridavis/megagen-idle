@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { GameState } from '../types/state';
 import { createInitialState } from '../data/initialState';
 import { STARTING_ENERGY } from '../data/player';
 import { migrateSave, pickSaved, SAVE_VERSION } from './migrations';
@@ -56,5 +57,16 @@ describe('selectors', () => {
   });
   it('total energy rate reads the energy slice', () => {
     expect(getTotalEnergyRate({ ...createInitialState(0), energyPerSecond: 3 })).toBe(3);
+  });
+});
+
+describe('generator order is saved', () => {
+  it('pickSaved keeps the list order', () => {
+    const order = [
+      { id: 'gen-2', type: 'wind', isActive: true, level: 1 },
+      { id: 'gen-1', type: 'solar', isActive: true, level: 1 },
+    ] as GameState['activeGenerators'];
+    const saved = pickSaved({ ...createInitialState(0), activeGenerators: order });
+    expect(migrateSave(JSON.parse(JSON.stringify(saved)), SAVE_VERSION).activeGenerators.map((g) => g.id)).toEqual(['gen-2', 'gen-1']);
   });
 });
