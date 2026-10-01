@@ -9,6 +9,7 @@ import { createResourceSlice } from './slices/resourceSlice';
 import { createRoomSlice } from './slices/roomSlice';
 import { createSettingsSlice } from './slices/settingsSlice';
 import { createLogSlice } from './slices/logSlice';
+import { createEventSlice } from './slices/eventSlice';
 import { deriveEvents } from '../utils/eventLog';
 import { deriveRates } from '../utils/simulation';
 import { gameStorage } from './storage';
@@ -32,15 +33,16 @@ export const useStore = create<GameStore>()(
           ...createRoomSlice(init)(...a),
           ...createSettingsSlice(init)(...a),
           ...createLogSlice()(...a),
+          ...createEventSlice(init)(...a),
           welcomeBack: null,
           resetGame: () =>
             set(
-              (s) => ({ ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], eventEpoch: s.eventEpoch + 1 }),
+              (s) => ({ ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], activeSighting: null, eventEpoch: s.eventEpoch + 1 }),
               undefined,
               'core/reset',
             ),
           loadSave: (state) =>
-            set((s) => ({ ...pickSaved(state), celebrations: [], welcomeBack: null, toasts: [], eventEpoch: s.eventEpoch + 1 }), undefined, 'core/loadSave'),
+            set((s) => ({ ...pickSaved(state), celebrations: [], welcomeBack: null, toasts: [], activeSighting: null, eventEpoch: s.eventEpoch + 1 }), undefined, 'core/loadSave'),
           dismissWelcomeBack: () => set({ welcomeBack: null }, undefined, 'core/dismissWelcomeBack'),
         };
       },

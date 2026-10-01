@@ -22,5 +22,6 @@ export const createInitialState = (now = Date.now()): GameState => ({
   roomUsed: 3, // the three starting producers
   expansionLevel: 0,
   lastExpansionAt: null,
-  settings: { notation: 'short' },
+  settings: { notation: 'short', reduceMotion: false },
+  seenEvents: {},
 });

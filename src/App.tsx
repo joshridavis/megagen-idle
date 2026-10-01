@@ -14,6 +14,7 @@ import ResearchTree from './components/ResearchTree';
 import ResourceDisplay from './components/ResourceDisplay';
 import RoomPanel from './components/RoomPanel';
 import SettingsPanel from './components/SettingsPanel';
+import Sightings from './components/Sightings';
 import Toasts from './components/Toasts';
 import VersionFooter from './components/VersionFooter';
 import WelcomeBack from './components/WelcomeBack';
@@ -112,6 +113,7 @@ export default function App() {
       )}
       <ResearchCelebration />
       <Toasts />
+      <Sightings />
       <WelcomeBack />
     </main>
   );

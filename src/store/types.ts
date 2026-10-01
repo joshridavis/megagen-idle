@@ -3,6 +3,7 @@ import type { GameState, Resources } from '../types/state';
 import type { AwaySnapshot } from '../utils/awayReport';
 import type { LogEntry } from '../utils/eventLog';
 import type { LogActions } from './slices/logSlice';
+import type { EventActions } from './slices/eventSlice';
 import type { EnergyActions } from './slices/energySlice';
 import type { ResourceActions } from './slices/resourceSlice';
 import type { GeneratorActions } from './slices/generatorSlice';
@@ -44,6 +45,8 @@ export interface TransientState {
   toasts: LogEntry[];
   /** Bumped when the whole game is replaced (load, reset), so that change is not logged as events. */
   eventEpoch: number;
+  /** The random-event sighting on screen (0.84). */
+  activeSighting: { id: string; at: number } | null;
 }
 
 export type GameStore = GameState &
@@ -55,6 +58,7 @@ export type GameStore = GameState &
   RoomActions &
   SettingsActions &
   LogActions &
+  EventActions &
   CoreActions;
 
 /** Slice creator typed for the combined store with devtools + persist. */
