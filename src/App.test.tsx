@@ -112,3 +112,33 @@ describe('Research gating in the build grid', () => {
     expect(screen.getByTestId('generator-card-solar').querySelector('button')!.disabled).toBe(false);
   });
 });
+
+describe('Research UI', () => {
+  it('opens a node, starts research, and shows progress', () => {
+    const now = Date.now();
+    useStore.setState({ ...createInitialState(now), energy: 100 });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    const node = screen.getByTestId('research-node-basic_solar');
+    expect(node.dataset.status).toBe('available');
+    expect(screen.getByTestId('research-node-wind_power').dataset.status).toBe('locked');
+    fireEvent.click(node);
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.textContent).toContain('+10% energy from all generators');
+    fireEvent.click(screen.getByRole('button', { name: 'Start research' }));
+    expect(useStore.getState().currentResearch?.id).toBe('basic_solar');
+    expect(useStore.getState().energy).toBeCloseTo(50, 0);
+    expect(screen.getAllByRole('progressbar').length).toBeGreaterThan(0);
+    expect(screen.getByTestId('research-node-basic_solar').dataset.status).toBe('researching');
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('shows completed research and the research level', () => {
+    useStore.setState({ ...createInitialState(Date.now()), completedResearch: ['basic_solar'], researchLevel: 2 });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    expect(screen.getByTestId('research-node-basic_solar').dataset.status).toBe('completed');
+    expect(screen.getByTestId('research-level').textContent).toBe('2');
+  });
+});

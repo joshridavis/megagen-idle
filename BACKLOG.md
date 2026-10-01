@@ -200,7 +200,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** prerequisites and level gates enforced; research completes offline; a fresh save can reach the first unlock without a stall; unit tests for gating, completion, level increase and bonus application.
 **Note (playtest 2):** the owner wants the Solar Panel buildable at once, so Solar is unlocked from the start and Basic Solar gives +10% energy from all generators instead of unlocking it. It is still the first research and Wind's prerequisite.
 
-### 0.13 — Research tree UI — CODE — Not started
+### 0.13 — Research tree UI — CODE — Done
 **Goal:** interactive skill tree.
 **Details:** `ResearchTree.tsx` (SVG or Canvas connection lines), `ResearchNode.tsx` (category icon, name, level requirement, cost, lock and complete states), `ResearchPanel.tsx` modal (description, costs, duration, start button disabled when unaffordable or locked, progress bar while researching). Visual states: pulse when available, grayed when locked, green when completed. Sprites from the asset index. The layout must stay readable as the tree grows (0.33, 0.45): use a computed layout, not hard-coded coordinates.
 **Acceptance:** starting research from the panel updates state and shows progress; a tree with 30 nodes still renders readably.
