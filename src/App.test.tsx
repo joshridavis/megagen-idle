@@ -16,7 +16,8 @@ describe('App smoke test', () => {
   it('starts from the documented initial state', () => {
     const s = createInitialState(0);
     expect(s.energy).toBe(0);
-    expect(s.resources).toEqual({ coal: 0, stone: 0, metal: 0, naturalGas: 0 });
+    expect(s.resources).toEqual({ metal: 15, stone: 10, coal: 0, naturalGas: 0 });
+    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1 });
     expect(s.researchLevel).toBe(1);
     expect(s.activeGenerators).toEqual([]);
     expect(s.roomCapacity).toBe(10);
@@ -33,5 +34,22 @@ describe('Clicker UI', () => {
     fireEvent.click(screen.getByRole('button', { name: /generate energy/i }));
     fireEvent.click(screen.getByRole('button', { name: /generate energy/i }));
     expect(useStore.getState().energy).toBeCloseTo(before + 2, 1);
+  });
+});
+
+describe('Resource UI', () => {
+  it('shows inventory with amounts and rates', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    expect(screen.getByLabelText('Metal amount').textContent).toBe('15');
+    expect(screen.getByTestId('resource-stone').textContent).toContain('+0.10/s');
+  });
+
+  it('shows and dismisses the fuel warning', () => {
+    useStore.setState({ ...createInitialState(Date.now()), depletedResources: ['coal'] });
+    render(<App />);
+    expect(screen.getByRole('alert').textContent).toContain('Coal ran out');
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 });

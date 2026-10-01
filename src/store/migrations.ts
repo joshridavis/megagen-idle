@@ -1,8 +1,10 @@
 import { createInitialState } from '../data/initialState';
+import { STARTING_PRODUCERS } from '../data/producers';
+import { STARTING_RESOURCES } from '../data/resources';
 import type { GameState } from '../types/state';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 type AnySave = Record<string, unknown>;
 
@@ -14,6 +16,15 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   0: (save) => {
     const { totalProductionPerSecond, ...rest } = save;
     return { ...rest, energyPerSecond: totalProductionPerSecond };
+  },
+  // 0.11: resources and producers arrive. Older saves could not have built
+  // anything, so they get the starting resources and producers.
+  1: (save) => {
+    const old = (save.resources ?? {}) as Record<string, number>;
+    const resources = Object.fromEntries(
+      Object.entries(STARTING_RESOURCES).map(([id, n]) => [id, Math.max(n, old[id] ?? 0)]),
+    );
+    return { ...save, resources, producers: { ...STARTING_PRODUCERS }, activeGenerators: [], depletedResources: [] };
   },
 };
 
@@ -29,6 +40,7 @@ export function migrateSave(persisted: unknown, fromVersion: number): GameState 
   const merged = { ...defaults, ...save } as GameState;
   merged.resources = { ...defaults.resources, ...(save.resources as object | undefined) };
   merged.settings = { ...defaults.settings, ...(save.settings as object | undefined) };
+  merged.producers = { ...defaults.producers, ...(save.producers as object | undefined) };
   return merged;
 }
 
@@ -39,6 +51,8 @@ export function pickSaved(s: GameState): GameState {
     energyPerSecond: s.energyPerSecond,
     lastSavedTimestamp: s.lastSavedTimestamp,
     resources: s.resources,
+    producers: s.producers,
+    depletedResources: s.depletedResources,
     activeGenerators: s.activeGenerators,
     researchLevel: s.researchLevel,
     roomCapacity: s.roomCapacity,

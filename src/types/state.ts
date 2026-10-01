@@ -1,3 +1,6 @@
+import type { Generator } from './generator';
+import type { ProducerId } from './resource';
+
 export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas';
 
 export type Resources = Record<ResourceId, number>;
@@ -19,11 +22,15 @@ export interface EnergyState {
 
 export interface ResourceState {
   resources: Resources;
+  /** Number of each producer the player owns. */
+  producers: Record<ProducerId, number>;
+  /** Resources that ran out and switched generators off (shown as a warning until dismissed). */
+  depletedResources: ResourceId[];
 }
 
 export interface GeneratorState {
-  /** Built generators (filled in by the generator system, item 0.07). */
-  activeGenerators: string[];
+  /** Every built generator, active or not. */
+  activeGenerators: Generator[];
 }
 
 export interface ResearchState {

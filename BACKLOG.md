@@ -150,7 +150,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** slices in `src/store/slices/`: `energySlice` (energy, energyPerSecond), `resourceSlice` (resources, producers), `generatorSlice` (activeGenerators, availableGenerators), `researchSlice` (currentResearch, completedResearch, researchLevel), `roomSlice` (roomCapacity, roomUsed, expansionLevel), `settingsSlice` (preferences; no audio). Combine in `src/store/index.ts` with `persist` and `devtools`. Typed selectors in `src/store/selectors.ts` (`getTotalEnergyRate`, `getAvailableRoom`, `getUnlockedGenerators`). Types in `src/types/state.ts`. Components use selectors, not direct store access. Add a persisted-state version number and a migration hook so later changes do not break saves.
 **Acceptance:** build and tests pass; no behavior change; no duplicated calculations.
 
-### 0.11 — Resource system — CODE — Not started
+### 0.11 — Resource system — CODE — Done
 **Goal:** resources are produced, stored and consumed. Comes before generators, since generators cost resources.
 **Details:**
 - `src/utils/resourceSystem.ts`: `gatherResource`, `consumeResource` (returns success boolean), `canAfford`.

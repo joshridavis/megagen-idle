@@ -1,5 +1,7 @@
 import { BASE_CLICK_VALUE } from '../../data/player';
 import type { EnergyState } from '../../types/state';
+import { advanceTime } from '../../utils/simulation';
+import { pickSaved } from '../migrations';
 import type { SliceCreator } from '../types';
 
 export interface EnergyActions {
@@ -15,10 +17,7 @@ export const createEnergySlice =
     ...initial,
     applyIdleGains: (deltaSeconds, now = Date.now()) =>
       set(
-        (s) => ({
-          energy: s.energy + s.energyPerSecond * Math.max(0, deltaSeconds),
-          lastSavedTimestamp: now,
-        }),
+        (s) => ({ ...pickSaved(advanceTime(s, deltaSeconds).state), lastSavedTimestamp: now }),
         undefined,
         'energy/applyIdleGains',
       ),
