@@ -35,3 +35,16 @@ describe('research durations (playtest 3)', () => {
     expect(RESEARCH_BY_ID.fossil_fuels.duration).toBe(45 * 60);
   });
 });
+
+describe('three starting research (playtest 8)', () => {
+  it('the tree has three roots: Basic Solar, Basic Mining, Fossil Fuels 101', () => {
+    const roots = RESEARCH.filter((r) => r.prerequisites.length === 0).map((r) => r.id);
+    expect(roots.sort()).toEqual(['basic_mining', 'basic_solar', 'fossil_fuels']);
+  });
+  it('Basic Mining starts the resource upgrades', () => {
+    for (const id of ['better_picks', 'controlled_blasting', 'modular_mines']) {
+      expect(RESEARCH_BY_ID[id].prerequisites).toEqual(['basic_mining']);
+    }
+    expect(RESEARCH_BY_ID.basic_mining.effects).toEqual([{ type: 'resourceProduction', value: 0.1 }]);
+  });
+});

@@ -261,7 +261,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** the chip becomes `position: fixed` at the bottom centre (with safe-area padding on phones); while it shows, the page gets matching bottom padding so scrolling to the end reveals the footer above it. Same content and click behaviour as before.
 **Acceptance:** UI test that the chip is rendered in the floating container and the page gets bottom padding only while research runs; browser check that the footer is visible at the bottom of the scroll with the chip shown.
 
-### 0.78 — Third starting research: Basic Mining — CODE — Not started
+### 0.78 — Third starting research: Basic Mining — CODE — Done
 **Goal:** apply playtest 8 feedback: the tree should start from three basic research, one of them starting the resource upgrades.
 **Details:** new level-1 root "Basic Mining" (+10% output from all producers, needs a Solar Panel built like Basic Solar, so starting energy cannot be stranded). Better Pickaxes, Controlled Blasting and Modular Mines now require Basic Mining instead of Standard Parts. Duration follows the rule (level 1, shorter than every level-2 research).
 **Acceptance:** the tree has three roots (Basic Solar, Basic Mining, Fossil Fuels 101); data tests (duration rule, reachability) pass; pacing probe has no stall.
