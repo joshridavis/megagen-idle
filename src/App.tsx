@@ -7,6 +7,7 @@ import EnergyDisplay from './components/EnergyDisplay';
 import GeneratorGrid from './components/GeneratorGrid';
 import ProducerPanel from './components/ProducerPanel';
 import ResearchCelebration from './components/ResearchCelebration';
+import ResearchChip from './components/ResearchChip';
 import ResearchTree from './components/ResearchTree';
 import ResourceDisplay from './components/ResourceDisplay';
 import RoomPanel from './components/RoomPanel';
@@ -31,6 +32,7 @@ export default function App() {
       <header className="flex flex-col items-center gap-4">
         <h1 className="text-3xl font-bold tracking-tight">MegaGen Idle</h1>
         <EnergyDisplay />
+        <ResearchChip onOpen={() => setTab('research')} />
         <ClickButton />
         <DepletionWarning />
       </header>

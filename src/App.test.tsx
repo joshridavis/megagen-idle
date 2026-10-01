@@ -525,3 +525,28 @@ describe('Bonuses panel (0.30)', () => {
     expect(screen.getByTestId('bonus-globalEnergy').textContent).toContain('+10%');
   });
 });
+
+describe('Research visible on every tab (playtest 7)', () => {
+  it('shows the running research and time left on the Generators tab; click opens Research', () => {
+    const now = Date.now();
+    useStore.setState({
+      ...createInitialState(now),
+      currentResearch: { id: 'wind_power', startTime: now - 600_000, duration: 1800 },
+      completedResearch: ['basic_solar'],
+      researchLevel: 2,
+    });
+    render(<App />);
+    const chip = screen.getByTestId('research-chip');
+    expect(chip.textContent).toContain('Wind Power Fundamentals');
+    expect(chip.textContent).toContain('20m left');
+    fireEvent.click(chip);
+    expect(screen.getByRole('tab', { name: 'Research' }).getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByTestId('research-node-wind_power').className).toContain('research-running');
+  });
+
+  it('is hidden when no research runs', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    expect(screen.queryByTestId('research-chip')).toBeNull();
+  });
+});

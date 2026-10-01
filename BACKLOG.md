@@ -226,7 +226,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** a `formatHours` helper for whole-hour limits ("24 hours", "1 hour"); used by the Settings note and the welcome-back "only the first … count" line.
 **Acceptance:** UI tests check both texts say "24 hours".
 
-### 0.72 — Research progress visible on every tab — CODE — Not started
+### 0.72 — Research progress visible on every tab — CODE — Done
 **Goal:** apply playtest 7 feedback: while research runs, the player sees it on any tab with the time left; the running node in the tree blinks to show it is in progress.
 **Details:** a compact chip under the top bar ("🔬 Wind Power Fundamentals · 12m 30s left" with a thin progress bar), visible on every tab; clicking it opens the Research tab. Hidden when nothing runs. The running research node gets a blinking (pulsing glow) border; `prefers-reduced-motion` gets a steady highlight instead.
 **Acceptance:** UI tests: chip on the Generators tab shows name and time left; click switches to Research; node has the running animation class.

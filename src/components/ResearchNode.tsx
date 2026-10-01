@@ -10,7 +10,7 @@ export const NODE_H = 84;
 
 const STYLE: Record<NodeStatus, string> = {
   completed: 'border-emerald-500 bg-emerald-950/80',
-  researching: 'border-sky-400 bg-sky-950/80',
+  researching: 'border-sky-400 bg-sky-950/80 research-running',
   available: 'border-yellow-400 bg-slate-800 animate-pulse motion-reduce:animate-none',
   unaffordable: 'border-slate-500 bg-slate-800',
   locked: 'border-slate-700 bg-slate-900/80 opacity-60 grayscale',
