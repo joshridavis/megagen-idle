@@ -1,0 +1,68 @@
+import { sprites } from '../assets';
+import { GENERATORS } from '../data/generators';
+import { useStore } from '../store';
+import type { GeneratorType } from '../types/generator';
+import { getGeneratorStats, type BuildBlock } from '../utils/generatorSystem';
+import CostList from './CostList';
+import { GENERATOR_SPRITES } from './generatorSprites';
+
+const BLOCK_TEXT: Record<BuildBlock, string> = {
+  locked: 'Locked',
+  resources: 'Not enough resources',
+  room: 'Not enough room',
+};
+
+export default function GeneratorCard({ type, block }: { type: GeneratorType; block: BuildBlock | null }) {
+  const resources = useStore((s) => s.resources);
+  const build = useStore((s) => s.buildGenerator);
+  const def = GENERATORS[type];
+  const stats = getGeneratorStats(type);
+  const locked = block === 'locked';
+  const tooltipId = `gen-tip-${type}`;
+
+  return (
+    <article
+      className={`group relative flex flex-col gap-2 rounded-lg border p-3 ${locked ? 'border-slate-700 bg-slate-800/50 opacity-60' : 'border-slate-600 bg-slate-800'}`}
+      data-testid={`generator-card-${type}`}
+    >
+      <div className="flex items-center gap-3">
+        <img
+          src={sprites[locked ? GENERATOR_SPRITES[type].inactive : GENERATOR_SPRITES[type].active]}
+          alt=""
+          className="pixelated h-16 w-16 object-contain"
+        />
+        <div>
+          <h3 className="font-semibold">{def.name}</h3>
+          <div className="text-sm text-yellow-300">+{stats.energyPerSecond.toFixed(1)} energy/s</div>
+          <div className="text-xs text-slate-400">{stats.roomCost} room</div>
+        </div>
+      </div>
+      <div className="text-sm">
+        <span className="text-slate-400">Cost: </span>
+        <CostList cost={stats.buildCost} have={resources} />
+      </div>
+      {def.maintenanceCost && (
+        <div className="text-sm">
+          <span className="text-slate-400">Burns: </span>
+          <CostList cost={def.maintenanceCost} suffix="/h" />
+        </div>
+      )}
+      <button
+        type="button"
+        disabled={block !== null}
+        onClick={() => build(type)}
+        aria-describedby={tooltipId}
+        className="mt-auto min-h-11 rounded bg-emerald-600 px-3 py-2 font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+      >
+        {block ? BLOCK_TEXT[block] : `Build ${def.name}`}
+      </button>
+      <div
+        id={tooltipId}
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-56 -translate-x-1/2 rounded bg-slate-950 p-2 text-xs text-slate-200 shadow-lg group-hover:block group-has-focus-visible:block"
+      >
+        {def.description} {(stats.energyPerSecond / stats.roomCost).toFixed(2)} energy/s per room.
+      </div>
+    </article>
+  );
+}

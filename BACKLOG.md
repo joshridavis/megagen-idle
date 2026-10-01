@@ -170,7 +170,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Replace the temporary `totalProductionPerSecond` default from 0.04** with the value computed from active generators. Keep the clicker as the only income at zero generators.
 **Acceptance:** building deducts resources and adds room use; blocked without resources or room; inactive generators produce nothing; starting from a fresh save the player can build their first generator; unit tests for each function.
 
-### 0.09 — Generator building UI — CODE — Not started
+### 0.09 — Generator building UI — CODE — Done
 **Goal:** UI for browsing, building and managing generators.
 **Details:** `GeneratorCard.tsx` (sprite, name, energy/s, room cost, build cost, build button disabled when unaffordable or out of room), `GeneratorGrid.tsx`, `ActiveGenerators.tsx` (list with sprite, stats, toggle, status). Active/inactive sprite variants by `isActive`. Hover tooltips. Tailwind grid. Sprites only from `src/assets/index.ts`.
 **Unlocking:** the grid filters by unlocked research. Until the research system (0.10) exists, all first-tier generators count as unlocked, so the game stays playable.

@@ -53,3 +53,29 @@ describe('Resource UI', () => {
     expect(screen.queryByRole('alert')).toBeNull();
   });
 });
+
+describe('Generator UI loop', () => {
+  it('builds a generator, shows it running, and toggles it off', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Build Solar Panel' }));
+    const s = useStore.getState();
+    expect(s.activeGenerators).toHaveLength(1);
+    expect(s.resources.metal).toBeCloseTo(5, 0);
+    expect(screen.getByLabelText('Energy rate').textContent).toBe('+0.5/s');
+    expect(screen.getByText('Running')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Turn off Solar Panel #1' }));
+    expect(useStore.getState().energyPerSecond).toBe(0);
+    expect(screen.getByText('Off')).toBeTruthy();
+  });
+
+  it('disables building with the reason when short of resources', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    const coal = screen.getByTestId('generator-card-coal');
+    const btn = coal.querySelector('button')!;
+    expect(btn.disabled).toBe(true);
+    expect(btn.textContent).toBe('Not enough resources');
+  });
+});

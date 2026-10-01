@@ -1,16 +1,11 @@
 import { useMemo } from 'react';
-import { sprites, type SpriteId } from '../assets';
+import { sprites } from '../assets';
 import { RESOURCE_IDS, RESOURCE_NAMES } from '../data/resources';
 import { useStore } from '../store';
 import { selectFuelUseRates, selectProductionRates, selectResources } from '../store/selectors';
 import type { ResourceId } from '../types/state';
+import { RESOURCE_ICONS } from './CostList';
 
-const ICONS: Record<ResourceId, SpriteId> = {
-  coal: 'resource_coal',
-  stone: 'resource_stone',
-  metal: 'resource_metal',
-  naturalGas: 'resource_natural_gas',
-};
 
 const formatRate = (perSecond: number) => {
   const sign = perSecond > 0 ? '+' : perSecond < 0 ? '−' : '';
@@ -33,7 +28,7 @@ export default function ResourceDisplay() {
       <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {RESOURCE_IDS.map((id) => (
           <li key={id} className="flex items-center gap-2 rounded bg-slate-900/60 px-2 py-1" data-testid={`resource-${id}`}>
-            <img src={sprites[ICONS[id]]} alt="" width={24} height={24} className="pixelated" />
+            <img src={sprites[RESOURCE_ICONS[id]]} alt="" width={24} height={24} className="pixelated" />
             <div className="leading-tight">
               <div className="text-xs text-slate-400">{RESOURCE_NAMES[id]}</div>
               <div className="font-mono">
