@@ -392,3 +392,20 @@ describe('Tab icons (playtest 5)', () => {
     expect(screen.getByRole('tab', { name: 'Research' })).toBeTruthy();
   });
 });
+
+describe('Generator ordering UI (playtest 6)', () => {
+  it('moves a generator up and down with the arrow buttons; names stay stable', () => {
+    useStore.setState({
+      ...createInitialState(Date.now()),
+      activeGenerators: [
+        { id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 },
+        { id: 'gen-2', type: GeneratorType.SOLAR, isActive: true, level: 1 },
+      ],
+    });
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Move Solar Panel #2 up' }));
+    expect(useStore.getState().activeGenerators.map((g) => g.id)).toEqual(['gen-2', 'gen-1']);
+    expect(screen.getByRole('button', { name: 'Move Solar Panel #2 down' })).toBeTruthy();
+    expect((screen.getByRole('button', { name: 'Move Solar Panel #2 up' }) as HTMLButtonElement).disabled).toBe(true);
+  });
+});

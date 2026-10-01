@@ -11,6 +11,7 @@ import {
   getBuildBlock,
   getGeneratorStats,
   nextGeneratorId,
+  moveGenerator,
   scrapGenerator,
   toggleGenerator,
 } from './generatorSystem';
@@ -175,5 +176,38 @@ describe('scrapping', () => {
   it('unknown IDs change nothing', () => {
     const s = fresh();
     expect(scrapGenerator(s, 'nope')).toBe(s);
+  });
+});
+
+describe('manual ordering (playtest 6)', () => {
+  const three = () =>
+    fresh({
+      activeGenerators: [gen(GeneratorType.SOLAR, true, 'gen-1'), gen(GeneratorType.WIND, true, 'gen-2'), gen(GeneratorType.COAL, true, 'gen-3')],
+    });
+  const ids = (s: GameState) => s.activeGenerators.map((g) => g.id);
+
+  it('moves a generator to a new position', () => {
+    expect(ids(moveGenerator(three(), 'gen-3', 0))).toEqual(['gen-3', 'gen-1', 'gen-2']);
+    expect(ids(moveGenerator(three(), 'gen-1', 2))).toEqual(['gen-2', 'gen-3', 'gen-1']);
+  });
+
+  it('clamps out-of-range targets and ignores unknown IDs', () => {
+    expect(ids(moveGenerator(three(), 'gen-1', 99))).toEqual(['gen-2', 'gen-3', 'gen-1']);
+    expect(ids(moveGenerator(three(), 'gen-3', -5))).toEqual(['gen-3', 'gen-1', 'gen-2']);
+    const s = three();
+    expect(moveGenerator(s, 'nope', 0)).toBe(s);
+    expect(moveGenerator(s, 'gen-1', 0)).toBe(s);
+  });
+
+  it('order is fuel priority: the top coal plant keeps running when coal is short', () => {
+    let s = fresh({
+      producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0 },
+      resources: { metal: 0, stone: 0, coal: 1.5, naturalGas: 0 },
+      activeGenerators: [gen(GeneratorType.COAL, true, 'gen-1'), gen(GeneratorType.COAL, true, 'gen-2')],
+    });
+    s = moveGenerator(s, 'gen-2', 0);
+    const after = advanceTime(s, 60).state;
+    expect(after.activeGenerators.find((g) => g.id === 'gen-2')!.isActive).toBe(true);
+    expect(after.activeGenerators.find((g) => g.id === 'gen-1')!.isActive).toBe(false);
   });
 });

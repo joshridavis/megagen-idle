@@ -97,3 +97,18 @@ export function scrapGenerator(state: GameState, id: string): GameState {
   if (!state.activeGenerators.some((g) => g.id === id)) return state;
   return deriveRates({ ...state, activeGenerators: state.activeGenerators.filter((g) => g.id !== id) });
 }
+
+/**
+ * Moves a generator to `toIndex` (clamped to the list). The list order is
+ * saved and is also the fuel priority: higher generators burn fuel first.
+ */
+export function moveGenerator(state: GameState, id: string, toIndex: number): GameState {
+  const from = state.activeGenerators.findIndex((g) => g.id === id);
+  if (from < 0) return state;
+  const to = Math.max(0, Math.min(state.activeGenerators.length - 1, Math.trunc(toIndex)));
+  if (to === from) return state;
+  const list = [...state.activeGenerators];
+  const [g] = list.splice(from, 1);
+  list.splice(to, 0, g);
+  return { ...state, activeGenerators: list };
+}
