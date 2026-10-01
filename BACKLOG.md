@@ -237,7 +237,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** tests for the new segment phase logic; no layout shift (bar width fixed); screenshots in the PR.
 **Done notes:** the owner's video did not come through, so the fix assumes the problem was segments wrapping and shifting. Stripes are CSS (AAP-64 amber and dark brown); the `capacity_*` sprites are no longer used by the bar but stay in the manifest.
 
-### 0.74 — More room expansion tiers — CODE — Not started
+### 0.74 — More room expansion tiers — CODE — Done
 **Goal:** apply playtest 7 feedback: more room tiers (finite).
 **Details:** add tiers 4 to 8 in `src/data/rooms.ts` with growing size and cost (energy, metal, stone, later coal). Total stays finite. Room panel shows "Expansion N of 8".
 **Acceptance:** tests that tiers go in order, costs grow, and the last tier ends expansion; pacing probe still has no stall.

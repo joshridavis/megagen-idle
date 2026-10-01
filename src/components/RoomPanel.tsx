@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ROOM_TIERS } from '../data/rooms';
 import { useStore } from '../store';
 import {
   expansionBarPhase,
@@ -129,7 +130,9 @@ export default function RoomPanel() {
       {next ? (
         <div className="mt-3 space-y-2 text-sm">
           <div>
-            <span className="text-slate-400">Expansion {next.tier}: </span>
+            <span className="text-slate-400">
+              Expansion {next.tier} of {ROOM_TIERS.length}:{' '}
+            </span>
             <strong>+{next.capacity} room</strong>
           </div>
           <div>

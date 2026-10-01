@@ -9,8 +9,8 @@ import { canExpandRoom, expandRoom, expansionBarPhase, getExpandBlock, getNextRo
 
 const rich = (over: Partial<GameState> = {}): GameState => ({
   ...createInitialState(0),
-  energy: 1e6,
-  resources: { metal: 1e4, stone: 1e4, coal: 0, naturalGas: 0 },
+  energy: 1e8,
+  resources: { metal: 1e6, stone: 1e6, coal: 1e5, naturalGas: 1e4 },
   ...over,
 });
 
@@ -25,15 +25,15 @@ describe('room expansion', () => {
     const s = expandRoom(rich());
     expect(s.roomCapacity).toBe(23);
     expect(s.expansionLevel).toBe(1);
-    expect(s.energy).toBe(1e6 - 500);
-    expect(s.resources.metal).toBe(1e4 - 50);
-    expect(s.resources.stone).toBe(1e4 - 20);
+    expect(s.energy).toBe(1e8 - 500);
+    expect(s.resources.metal).toBe(1e6 - 50);
+    expect(s.resources.stone).toBe(1e6 - 20);
   });
 
   it('tiers go in order and stop at the last', () => {
     let s = rich();
     for (const t of ROOM_TIERS) s = expandRoom(s, t.tier);
-    expect(s.roomCapacity).toBe(13 + 10 + 15 + 25);
+    expect(s.roomCapacity).toBe(13 + ROOM_TIERS.reduce((sum, t) => sum + t.capacity, 0));
     expect(getNextRoomTier(s.expansionLevel)).toBeNull();
     expect(getExpandBlock(s)).toBe('maxed');
     expect(expandRoom(s)).toBe(s);
@@ -89,5 +89,19 @@ describe('expansion animation: room bar (playtest 7 redesign, absorbs 0.21)', ()
     const s = expandRoom(rich({ energy: 0 }), undefined, 5_000);
     expect(s.lastExpansionAt).toBeNull();
     expect(isExpansionAnimating(s.lastExpansionAt, 5_500)).toBe(false);
+  });
+});
+
+describe('room tiers (playtest 7: more, finite)', () => {
+  it('there are 8 tiers, in order, each bigger and dearer than the last', () => {
+    expect(ROOM_TIERS).toHaveLength(8);
+    ROOM_TIERS.forEach((t, i) => {
+      expect(t.tier).toBe(i + 1);
+      if (i > 0) {
+        expect(t.capacity).toBeGreaterThan(ROOM_TIERS[i - 1].capacity);
+        expect(t.energy).toBeGreaterThan(ROOM_TIERS[i - 1].energy);
+        expect(t.resources.metal!).toBeGreaterThan(ROOM_TIERS[i - 1].resources.metal!);
+      }
+    });
   });
 });
