@@ -10,7 +10,7 @@ export interface ResearchActions {
 }
 
 export const createResearchSlice =
-  (initial: ResearchState): SliceCreator<ResearchState & TransientState & ResearchActions> =>
+  (initial: ResearchState): SliceCreator<ResearchState & Pick<TransientState, 'celebrations'> & ResearchActions> =>
   (set, get) => ({
     ...initial,
     celebrations: [],

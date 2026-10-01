@@ -327,10 +327,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** end-to-end smoke test: load the game, click for energy, build a generator, start research, reload, verify state persisted. Use Playwright if its browsers install in the cloud environment; if not, use React Testing Library with jsdom for the same flow and note the limitation in the PR. Add the smoke test to the CI workflow from 0.22.
 **Acceptance:** CI runs unit tests, smoke test and build on pull requests; no real-time waits (use fake timers or injected time).
 
-### 0.28 — Save safety and offline summary — CODE — Not started
+### 0.28 — Save safety and offline summary — CODE — Done
 **Goal:** progress is safe and understandable.
 **Details:** export the save as a JSON file; import with validation (reject corrupt or wrong-version files with a clear message, without touching the current save). Save schema version and migration functions (started in 0.19), tested against an old-version fixture. "Welcome back" modal after offline time: time away, energy gained, research completed, generators that ran out of fuel.
 **Acceptance:** export, reset, import restores the exact state; corrupt file rejected safely; migration test passes.
+**Done notes:** export/import live in a new Settings tab (0.29 adds reset and preferences there). Importing sets the save time to the moment of import, so no offline gains are credited for the time between export and import. The welcome-back summary appears after at least 60 s away (`WELCOME_BACK_MIN_SECONDS`) and says when the 24 h cap applied. On phones, inactive tabs show only their icon so four tabs fit at 360 px.
 
 ### 0.29 — Number formatting and settings screen — CODE — Not started
 **Goal:** big numbers stay readable and the player has basic controls.

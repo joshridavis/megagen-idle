@@ -433,3 +433,49 @@ describe('Generator ordering UI (playtest 6)', () => {
     expect((screen.getByRole('button', { name: 'Move Solar Panel #2 up' }) as HTMLButtonElement).disabled).toBe(true);
   });
 });
+
+describe('Welcome back and settings (0.28)', () => {
+  it('shows the welcome-back summary and closes it', () => {
+    useStore.setState({
+      ...createInitialState(Date.now()),
+      welcomeBack: {
+        awaySeconds: 3 * 86400,
+        creditedSeconds: 86400,
+        energyGained: 4321,
+        resourcesGained: { metal: 10, stone: 20, coal: -2, naturalGas: 0 },
+        completedResearch: ['basic_solar'],
+        outOfFuel: [],
+      },
+    });
+    render(<App />);
+    const d = screen.getByTestId('welcome-back');
+    expect(d.textContent).toContain('3d 0h');
+    expect(d.textContent).toContain('Only the first 1d 0h count');
+    expect(d.textContent).toContain('+4,321');
+    expect(d.textContent).toContain('Research complete: Basic Solar');
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.queryByTestId('welcome-back')).toBeNull();
+  });
+
+  it('rejects a bad import file without touching the current game', async () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 777 });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+    const file = new File(['not json'], 'save.json', { type: 'application/json' });
+    fireEvent.change(screen.getByLabelText('Import save file'), { target: { files: [file] } });
+    expect(await screen.findByRole('status')).toBeTruthy();
+    expect(screen.getByRole('status').textContent).toContain('not changed');
+    expect(useStore.getState().energy).toBe(777);
+  });
+
+  it('imports a valid file after confirmation', async () => {
+    const { exportSave } = await import('./utils/saveFile');
+    const text = exportSave({ ...createInitialState(1), energy: 4242 });
+    useStore.setState({ ...createInitialState(Date.now()), energy: 1 });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+    fireEvent.change(screen.getByLabelText('Import save file'), { target: { files: [new File([text], 's.json')] } });
+    fireEvent.click(await screen.findByRole('button', { name: 'Load this save' }));
+    expect(useStore.getState().energy).toBe(4242);
+  });
+});

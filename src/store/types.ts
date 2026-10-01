@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import type { GameState } from '../types/state';
+import type { GameState, Resources } from '../types/state';
 import type { EnergyActions } from './slices/energySlice';
 import type { ResourceActions } from './slices/resourceSlice';
 import type { GeneratorActions } from './slices/generatorSlice';
@@ -9,12 +9,30 @@ import type { SettingsActions } from './slices/settingsSlice';
 
 export interface CoreActions {
   resetGame: () => void;
+  /** Replaces the whole game with an already validated save. */
+  loadSave: (state: GameState) => void;
+  dismissWelcomeBack: () => void;
+}
+
+/** What happened while the player was away (shown once on return). */
+export interface WelcomeBackReport {
+  /** Real time away. */
+  awaySeconds: number;
+  /** Time actually credited (capped by MAX_OFFLINE_SECONDS). */
+  creditedSeconds: number;
+  energyGained: number;
+  /** Net change of each resource. */
+  resourcesGained: Resources;
+  completedResearch: string[];
+  /** IDs of generators switched off for lack of fuel. */
+  outOfFuel: string[];
 }
 
 /** Transient UI events: never saved. */
 export interface TransientState {
   /** Research completed during live play, waiting to be celebrated (oldest first). */
   celebrations: { id: string; at: number }[];
+  welcomeBack: WelcomeBackReport | null;
 }
 
 export type GameStore = GameState &
