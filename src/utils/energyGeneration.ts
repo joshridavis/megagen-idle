@@ -1,4 +1,4 @@
-import { GENERATORS } from '../data/generators';
+import { GENERATORS, UPGRADES } from '../data/generators';
 import { NO_BONUSES, type Bonuses } from '../types/bonus';
 import type { Generator, GeneratorType } from '../types/generator';
 
@@ -7,7 +7,17 @@ export function getGeneratorOutput(generator: Generator, bonuses: Bonuses = NO_B
   if (!generator.isActive) return 0;
   const def = GENERATORS[generator.type];
   if (!def) return 0;
-  return def.energyPerSecond * (1 + bonuses.globalEnergy);
+  return baseOutput(generator) * (1 + bonuses.globalEnergy);
+}
+
+/** Output multiplier from upgrade level: 1 at level 1, +outputPerLevel per level. */
+export function levelMultiplier(level: number): number {
+  return 1 + UPGRADES.outputPerLevel * (Math.max(1, level) - 1);
+}
+
+/** A generator's output before research bonuses (base x upgrade level). */
+export function baseOutput(generator: Generator): number {
+  return (GENERATORS[generator.type]?.energyPerSecond ?? 0) * levelMultiplier(generator.level);
 }
 
 /** Total energy per second of all active generators. */

@@ -8,7 +8,16 @@ import type { ProducerId } from '../types/resource';
 import type { GameState, ResourceId } from '../types/state';
 import { getBonuses, getClickValue } from '../utils/bonuses';
 import { getCompletion } from '../utils/completion';
-import { buildGenerator, getBuildBlock, getGeneratorStats, scrapGenerator } from '../utils/generatorSystem';
+import {
+  buildGenerator,
+  getBuildBlock,
+  getGeneratorStats,
+  getUpgradeBlock,
+  getUpgradeCost,
+  scrapGenerator,
+  upgradeGain,
+  upgradeGenerator,
+} from '../utils/generatorSystem';
 import { buildProducer, getProducerBlock } from '../utils/producerSystem';
 import { canStartResearch, getResearchDuration, getUnlockedGeneratorTypes, startResearch } from '../utils/researchSystem';
 import { getFuelUseRates, getProductionRates } from '../utils/resourceSystem';
@@ -65,7 +74,8 @@ const PRODUCER_FOR: Record<ResourceId, ProducerId> = { metal: 'mine', stone: 'qu
  * 2. builds the unlocked generator with the best energy per room that it can
  *    afford and fuel (scrapping the weakest generator for it when room is short);
  * 3. buys a producer for whatever resource blocks its next build;
- * 4. expands room when it is nearly full.
+ * 4. upgrades the generator with the best gain per energy when energy is plentiful;
+ * 5. expands room when it is nearly full.
  */
 function act(s: GameState, now: number): GameState {
   const bonuses = () => getBonuses(s.completedResearch);
@@ -123,7 +133,30 @@ function act(s: GameState, now: number): GameState {
   }
   // gas wells once available (completion and fuel)
   if (s.producers.gasWell < 2 && getProducerBlock(s, 'gasWell', bonuses()) === null) s = buildProducer(s, 'gasWell', bonuses());
-  // 4. room
+  // Saving for room: when room is nearly full and another tier exists, buy
+  // producers for what the tier lacks and keep energy for it.
+  const nextTier = getNextRoomTier(s.expansionLevel);
+  const savingForRoom = !!nextTier && s.roomCapacity - s.roomUsed < 10;
+  if (savingForRoom && nextTier) {
+    const short = (Object.keys(nextTier.resources) as ResourceId[]).find((id) => s.resources[id] < (nextTier.resources[id] ?? 0));
+    if (short && getProducerBlock(s, PRODUCER_FOR[short], bonuses()) === null) s = buildProducer(s, PRODUCER_FOR[short], bonuses());
+  }
+  // 4. upgrades: best energy gain per energy spent, only with a comfortable surplus
+  // (and never with energy set aside for the next room tier)
+  const reserve = savingForRoom && nextTier ? nextTier.energy : 0;
+  const upgradable = s.activeGenerators
+    .filter((g) => getUpgradeBlock(s, g.id, bonuses()) === null)
+    .map((g) => ({ g, cost: getUpgradeCost(g.type, g.level, bonuses()).energy, gain: upgradeGain(g.type, g.level) }))
+    .sort((a, b) => b.gain / b.cost - a.gain / a.cost)[0];
+  const keepsTierResources =
+    !savingForRoom ||
+    !nextTier ||
+    !upgradable ||
+    Object.entries(getUpgradeCost(upgradable.g.type, upgradable.g.level, bonuses()).resources).every(
+      ([id, n]) => s.resources[id as ResourceId] - (n ?? 0) >= (nextTier.resources[id as ResourceId] ?? 0),
+    );
+  if (upgradable && keepsTierResources && s.energy - reserve > upgradable.cost * 2) s = upgradeGenerator(s, upgradable.g.id, bonuses());
+  // 5. room
   const tier = getNextRoomTier(s.expansionLevel);
   if (tier && s.roomCapacity - s.roomUsed < 10 && canExpandRoom(s)) s = expandRoom(s, undefined, now);
   else if (tier && canExpandRoom(s) && s.energy > tier.energy * 3) s = expandRoom(s, undefined, now);

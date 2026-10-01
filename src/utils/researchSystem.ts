@@ -102,3 +102,17 @@ export function getUnlockedGeneratorTypes(completedResearch: string[]): Generato
   for (const id of completedResearch) for (const g of RESEARCH_BY_ID[id]?.unlocks.generators ?? []) set.add(g);
   return [...set];
 }
+
+/**
+ * Producers granted by completed research. They take no room (the player did
+ * not choose to place them, and room may be full when the research finishes).
+ */
+export function getGrantedProducers(completedResearch: string[]): Partial<Record<ProducerId, number>> {
+  const out: Partial<Record<ProducerId, number>> = {};
+  for (const id of completedResearch) {
+    for (const [p, n] of Object.entries(RESEARCH_BY_ID[id]?.unlocks.producers ?? {})) {
+      out[p as ProducerId] = (out[p as ProducerId] ?? 0) + (n ?? 0);
+    }
+  }
+  return out;
+}

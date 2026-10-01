@@ -6,6 +6,15 @@ import { GeneratorType, type GeneratorDef } from '../types/generator';
  */
 export const GENERATOR_ENERGY_COST_SECONDS = 1800;
 
+/**
+ * Generator upgrades (0.32): each level adds `outputPerLevel` of the base
+ * output (level 1 = base). Upgrading from level L costs the build energy
+ * x costGrowth^L and the build resources x resourceGrowth^L (resources grow
+ * slower so upgrades are mainly an energy sink). Upgrades never take more room.
+ * Tuned with the balance simulator (BALANCE_REPORT.md).
+ */
+export const UPGRADES = { maxLevel: 10, outputPerLevel: 0.25, costGrowth: 1.6, resourceGrowth: 1.3 };
+
 /** Generators, cheapest first. Costs in resources; maintenance in resources per hour. */
 export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
   [GeneratorType.SOLAR]: {

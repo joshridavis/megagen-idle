@@ -407,10 +407,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** deterministic; finishes in under 60 seconds; report generated; targets met or deviations explained.
 **Done notes:** `src/sim/balanceSim.ts` (pure, tested), `scripts/simulate.ts` via `tsx`. It runs until 100% completion (cap 400 h) rather than 24 h, so the owner's 200 h target can be tracked. First run: all near-term targets met with no stalls; 100% completion at about 25 h, explained in the report's tuning log (content-limited; tuned in 0.47). Adds `src/utils/completion.ts`, the groundwork for 0.66.
 
-### 0.32 — Generator upgrades — CODE — Not started
+### 0.32 — Generator upgrades — CODE — Done
 **Goal:** machines improve without taking more room.
 **Details:** use the `level` field. Upgrade cost and output growth formulas in the data file; max level per generator. Upgrade button and level display on cards. Research bonuses apply on top.
 **Acceptance:** tests for cost growth, output growth and max level; room cost unchanged by upgrades.
+**Done notes:** `UPGRADES` in `src/data/generators.ts`: max level 10, +25% base output per level, energy cost ×1.6 and resources ×1.3 per level. Each row in the generator list shows the level and an Upgrade button (cost and gain in a tooltip). The simulator found and this item fixed a room bug: producers granted by research now take no room. Late room tiers were re-costed; see the tuning log in `BALANCE_REPORT.md`.
 
 ### 0.33 — Tier 3 generators and wider tree — CODE — Not started
 **Goal:** more energy sources and a fuller research tree.

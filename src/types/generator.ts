@@ -18,6 +18,8 @@ export interface GeneratorDef {
   /** Research level needed to build, on top of the research that unlocks it. */
   requiredLevel: number;
   buildCost: ResourceAmounts;
+  /** Highest upgrade level (defaults to UPGRADES.maxLevel). */
+  maxLevel?: number;
   /** Resources burned per hour while active. */
   maintenanceCost?: ResourceAmounts;
 }

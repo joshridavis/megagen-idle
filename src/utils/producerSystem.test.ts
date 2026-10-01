@@ -112,3 +112,22 @@ describe('scrapping several producers (playtest 6)', () => {
     expect(scrapProducer(base, 'quarry', -3)).toBe(base);
   });
 });
+
+describe('research-granted producers take no room', () => {
+  it('the Gas Well from Natural Gas Extraction is free; bought ones take room', () => {
+    const base = { ...createInitialState(0), completedResearch: ['gas_extraction'], producers: { quarry: 1, mine: 1, coalMine: 1, gasWell: 1 } };
+    expect(deriveRates(base).roomUsed).toBe(3);
+    expect(deriveRates({ ...base, producers: { ...base.producers, gasWell: 3 } }).roomUsed).toBe(3 + 2 * 2);
+  });
+  it('finishing the research when room is full never puts room over capacity', () => {
+    const full = deriveRates({
+      ...createInitialState(0),
+      roomCapacity: 3,
+      currentResearch: { id: 'gas_extraction', startTime: 0, duration: 1 },
+      lastSavedTimestamp: 0,
+    });
+    const s = advanceTime(full, 60, 60_000).state;
+    expect(s.producers.gasWell).toBe(1);
+    expect(s.roomUsed).toBeLessThanOrEqual(s.roomCapacity);
+  });
+});

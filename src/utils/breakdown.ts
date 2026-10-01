@@ -4,6 +4,7 @@ import { RESEARCH_BY_ID } from '../data/research';
 import type { BonusType } from '../types/research';
 import type { GameState, ResourceId } from '../types/state';
 import { getBonuses } from './bonuses';
+import { baseOutput } from './energyGeneration';
 import { getFuelUseRates, getProductionRates } from './resourceSystem';
 
 export interface RateModifier {
@@ -41,7 +42,7 @@ export function breakdownFromResearch(base: number, completedResearch: string[],
 export function getEnergyBreakdown(state: Pick<GameState, 'activeGenerators' | 'completedResearch'>): RateBreakdown {
   const base = state.activeGenerators
     .filter((g) => g.isActive)
-    .reduce((sum, g) => sum + (GENERATORS[g.type]?.energyPerSecond ?? 0), 0);
+    .reduce((sum, g) => sum + baseOutput(g), 0);
   return breakdownFromResearch(base, state.completedResearch, 'globalEnergy');
 }
 
