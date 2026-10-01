@@ -60,7 +60,7 @@ export const RESEARCH: ResearchDef[] = [
     description: 'Unlocks the Hydropower Dam (needs research level 5).',
     category: 'energy',
     requiredLevel: 4,
-    cost: { energy: 5000, resources: { stone: 50 } },
+    cost: { energy: 5000, resources: { stone: 75 } },
     duration: 60 * 60,
     prerequisites: ['wind_power'],
     unlocks: { generators: [GeneratorType.HYDRO] },

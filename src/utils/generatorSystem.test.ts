@@ -39,10 +39,10 @@ describe('energyGeneration', () => {
 
 describe('getGeneratorStats', () => {
   it('returns data-file values without bonuses', () => {
-    expect(getGeneratorStats(GeneratorType.WIND)).toMatchObject({ energyPerSecond: 0.8, roomCost: 3, buildCost: { metal: 15, stone: 5 } });
+    expect(getGeneratorStats(GeneratorType.WIND)).toMatchObject({ energyPerSecond: 0.8, roomCost: 3, buildCost: { metal: 15, stone: 8 } });
   });
   it('applies build discount, rounding costs up', () => {
-    expect(getGeneratorStats(GeneratorType.WIND, { ...NO_BONUSES, buildDiscount: 0.1 }).buildCost).toEqual({ metal: 14, stone: 5 });
+    expect(getGeneratorStats(GeneratorType.WIND, { ...NO_BONUSES, buildDiscount: 0.1 }).buildCost).toEqual({ metal: 14, stone: 8 });
   });
 });
 
@@ -115,7 +115,7 @@ describe('energy over time', () => {
     let s = fresh({
       energy: 3600,
       producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0 },
-      resources: { metal: 20, stone: 10, coal: 5, naturalGas: 0 },
+      resources: { metal: 20, stone: 15, coal: 5, naturalGas: 0 },
     });
     s = buildGenerator(s, GeneratorType.COAL, ALL);
     const { state } = advanceTime(s, 3600);

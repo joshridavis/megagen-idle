@@ -28,6 +28,12 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.51 Higher energy costs for building and research (playtest 3 feedback)
 0. 0.52 Longer research times that grow with level (playtest 3 feedback)
 0. 0.53 Boost breakdown on hover (playtest 3 feedback)
+0. 0.58 Higher stone prices (playtest 4 feedback)
+0. 0.54 Scrap: cancel button and no-refund notice (playtest 4 feedback)
+0. 0.55 Visible release version (playtest 4 feedback)
+0. 0.56 Research level shown clearly (playtest 4 feedback)
+0. 0.57 New room construction animation (playtest 4 feedback)
+0. 0.31 Resource producers use room (moved up: playtest 4 feedback)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -46,7 +52,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 16. 0.28 Save safety and offline summary
 17. 0.29 Number formatting and settings screen
 18. 0.30 Permanent-boost research
-19. 0.31 Resource producers use room
+19. (0.31 moved to the top, playtest 4)
 20. 0.35 Balance simulator → CHECKPOINT 4
 21. 0.32 Generator upgrades
 22. 0.33 Tier 3 generators and wider tree
@@ -128,6 +134,31 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Goal:** apply playtest 2 feedback: give energy a use. Building a generator also costs energy, equal to what it produces in 10 minutes.
 **Details:** energy cost = base `energyPerSecond` × `GENERATOR_ENERGY_COST_SECONDS` (600, a named constant in `src/data/generators.ts`), rounded up; the build discount applies to it like other build costs. Cards show the energy cost (red when short); the build button says "Not enough energy" when that is the only thing missing. The owner wants the first Solar Panel buildable straight away, so new saves start with enough energy for one (300). Later generators (0.20, 0.33, 0.34, 0.44) follow the same rule automatically. Producers (0.31) and room expansion (0.16) already have their own energy costs.
 **Acceptance:** Solar costs 300 energy, Wind 480, Coal 1200; building deducts energy; blocked without energy; a fresh save can still build a Solar Panel at once; tests cover the cost formula, the discount and the block.
+
+### 0.58 — Higher stone prices — CODE — Done
+**Goal:** apply playtest 4 feedback: stone is too cheap (players pile up thousands).
+**Details:** stone costs on generators and research raised about 1.5×: Wind 5→8, Coal 10→15, Hydro 80→120, Tidal 60→90, Gas 50→75; Hydropower research 50→75. Room expansion prices unchanged (owner said they are good).
+**Acceptance:** tests pass with the new numbers; a fresh save can still build its first Wind Turbine without a stall.
+
+### 0.54 — Scrap: cancel button and no-refund notice — CODE — Not started
+**Goal:** apply playtest 4 feedback: scrapping stays refund-free, but the player can back out, and is told there is no refund before confirming.
+**Details:** when Scrap is clicked, show "Confirm" and "Cancel" buttons plus a short inline message "No refund: the generator is removed for good." The Scrap button also has a tooltip (hover and keyboard focus) saying there is no refund. Cancel restores the normal row.
+**Acceptance:** UI tests: Scrap → Cancel leaves the generator; Scrap → Confirm removes it; the no-refund text is visible while confirming and in the tooltip.
+
+### 0.55 — Visible release version — CODE — Not started
+**Goal:** apply playtest 4 feedback: the game shows its release version, small, at the bottom of the screen.
+**Details:** version comes from `package.json` (injected at build time by Vite `define`), shown as e.g. `v0.5.0` in a small footer, with the short commit hash when built in CI. From now on bump the minor version in `package.json` in each playtest PR (playtest 5 is `0.5.0`), and note it in the PR and the Playtest log. Document the rule in `CLAUDE.md` and `README.md`.
+**Acceptance:** footer shows the version from `package.json`; a test checks it matches; the rule is documented.
+
+### 0.56 — Research level shown clearly — CODE — Not started
+**Goal:** apply playtest 4 feedback: the owner saw "Research level 2" next to RESEARCH while a level-2 research was still running and read it as the level going up early.
+**Details:** verify the level only rises when research completes (add a test that starting research never changes it, including through the store and the idle tick). Make the label unambiguous: "Your research level: N", and while a research runs, "Rises to N+1 when <name> finishes". Research nodes say "Needs level N" rather than "Lv N".
+**Acceptance:** tests prove the level changes only on completion; the label text is unambiguous.
+
+### 0.57 — New room construction animation — CODE — Not started
+**Goal:** apply playtest 4 feedback: the fading scaffolding overlay looks odd; try a different approach.
+**Details:** replace the overlay with the capacity meter itself growing: after an expansion, the new room segments appear one after another as scaffolding (amber) and settle into normal empty segments, over about 2 seconds. Still derived only from `lastExpansionAt` (no separate timer state), so it cannot desync. Respects `prefers-reduced-motion` (segments appear at once). Remove the overlay.
+**Acceptance:** test that segments added by the last expansion are the animated ones and that animation stops after the duration; reduced motion shows the final state.
 
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.
@@ -357,4 +388,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 1 | 0.37 | 2026-10-01 | Works. Click value and click feedback feel right; colours suit the game. Offline cap should be 24 h, not 8 h. | 0.48 |
 | 2 | 0.09 | 2026-10-01 | Works; layout readable; first Solar buildable at once is right; early metal pace fine for now. Fuel "Burns" line should not share the red of "not enough". Energy needs a use: building should cost energy equal to 10 minutes of the generator's output. | 0.49, 0.50 |
 | 3 | 0.16 | 2026-10-01 | Starting research is clear; first room expansion price good; tree background looks great. Energy costs (build and research) reached too easily: raise them. Research times far too short; each level must take longer than the previous. Show boosts (e.g. Basic Solar) and their effect when hovering the energy rate, later for resources too. | 0.51, 0.52, 0.53 |
-| 4 | 0.36 | 2026-10-01 | (waiting for owner) | |
+| 4 | 0.36 | 2026-10-01 | Costs and research times fine for now (longer playtests later). Tooltip good. Mid-tier generators feel like upgrades. Scrap: no refund, but add Cancel and a no-refund notice. Show a small release version. "Research level 2" looked like it rose before research finished. Construction animation looks odd: try another approach. Add ways to raise metal, stone, coal and gas income. Raise stone prices a bit. | 0.58, 0.54, 0.55, 0.56, 0.57; 0.31 moved up |
