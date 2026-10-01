@@ -10,6 +10,7 @@ import { GENERATOR_SPRITES } from './generatorSprites';
 
 const BLOCK_TEXT: Record<BuildBlock, string> = {
   locked: 'Locked',
+  level: 'Research level too low',
   resources: 'Not enough resources',
   energy: 'Not enough energy',
   room: 'Not enough room',
@@ -30,7 +31,8 @@ export default function GeneratorCard({
   const def = GENERATORS[type];
   const stats = getGeneratorStats(type, bonuses);
   const unlockedBy = findUnlockingResearch(type);
-  const locked = block === 'locked';
+  const locked = block === 'locked' || block === 'level';
+  const level = useStore((s) => s.researchLevel);
   const tooltipId = `gen-tip-${type}`;
 
   return (
@@ -66,8 +68,13 @@ export default function GeneratorCard({
           <CostList cost={def.maintenanceCost} suffix="/h" className={FUEL_CLASS} />
         </div>
       )}
-      {locked && unlockedBy && (
+      {block === 'locked' && unlockedBy && (
         <div className="text-xs text-sky-300">Needs research: {unlockedBy.name}</div>
+      )}
+      {def.requiredLevel > 1 && (
+        <div className={`text-xs ${level >= def.requiredLevel ? 'text-slate-400' : 'text-sky-300'}`} data-testid={`level-req-${type}`}>
+          Requires research level {def.requiredLevel} (you have {level})
+        </div>
       )}
       <button
         type="button"

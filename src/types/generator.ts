@@ -4,6 +4,9 @@ export enum GeneratorType {
   SOLAR = 'solar',
   WIND = 'wind',
   COAL = 'coal',
+  HYDRO = 'hydro',
+  TIDAL = 'tidal',
+  GAS = 'gas',
 }
 
 export interface GeneratorDef {
@@ -12,6 +15,8 @@ export interface GeneratorDef {
   description: string;
   energyPerSecond: number;
   roomCost: number;
+  /** Research level needed to build, on top of the research that unlocks it. */
+  requiredLevel: number;
   buildCost: ResourceAmounts;
   /** Resources burned per hour while active. */
   maintenanceCost?: ResourceAmounts;

@@ -1,6 +1,6 @@
 import type { ResourceId, Resources } from './state';
 
-export type ProducerId = 'quarry' | 'mine' | 'coalMine';
+export type ProducerId = 'quarry' | 'mine' | 'coalMine' | 'gasWell';
 
 export interface ProducerDef {
   id: ProducerId;

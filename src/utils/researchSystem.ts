@@ -1,6 +1,7 @@
 import { RESEARCH, RESEARCH_BY_ID, STARTING_GENERATORS } from '../data/research';
 import type { Bonuses } from '../types/bonus';
 import type { GeneratorType } from '../types/generator';
+import type { ProducerId } from '../types/resource';
 import type { ResearchCost, ResearchDef } from '../types/research';
 import type { GameState } from '../types/state';
 import { getBonuses } from './bonuses';
@@ -77,8 +78,13 @@ export function researchProgress(state: GameState, now: number): number {
 export function completeResearch(state: GameState): GameState {
   const r = state.currentResearch;
   if (!r) return state;
+  const producers = { ...state.producers };
+  for (const [id, n] of Object.entries(RESEARCH_BY_ID[r.id]?.unlocks.producers ?? {})) {
+    producers[id as ProducerId] = (producers[id as ProducerId] ?? 0) + (n ?? 0);
+  }
   return {
     ...state,
+    producers,
     currentResearch: null,
     completedResearch: [...state.completedResearch, r.id],
     researchLevel: state.researchLevel + 1,

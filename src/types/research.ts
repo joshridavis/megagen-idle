@@ -1,6 +1,6 @@
 import type { Bonuses } from './bonus';
 import type { GeneratorType } from './generator';
-import type { ResourceAmounts } from './resource';
+import type { ProducerId, ResourceAmounts } from './resource';
 
 export type ResearchCategory = 'energy' | 'materials' | 'efficiency' | 'advanced';
 
@@ -30,7 +30,8 @@ export interface ResearchDef {
   prerequisites: string[];
   /** Generator types the player must own at least one of each (built, on or off). */
   requiresBuilt?: GeneratorType[];
-  unlocks: { generators?: GeneratorType[] };
+  /** Generators it unlocks, and producers it grants (added to the player's count). */
+  unlocks: { generators?: GeneratorType[]; producers?: Partial<Record<ProducerId, number>> };
   effects?: ResearchEffect[];
 }
 

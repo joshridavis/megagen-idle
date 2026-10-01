@@ -18,7 +18,7 @@ describe('App smoke test', () => {
     const s = createInitialState(0);
     expect(s.energy).toBe(900); // exactly the first Solar Panel's cost
     expect(s.resources).toEqual({ metal: 15, stone: 10, coal: 0, naturalGas: 0 });
-    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1 });
+    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0 });
     expect(s.researchLevel).toBe(1);
     expect(s.activeGenerators).toEqual([]);
     expect(s.roomCapacity).toBe(10);
@@ -187,5 +187,43 @@ describe('Boost breakdown (playtest 3)', () => {
     render(<App />);
     expect(document.getElementById('energy-breakdown')!.textContent).toContain('No boosts yet');
     expect(screen.queryByTestId('energy-boost')).toBeNull();
+  });
+});
+
+describe('Mid-tier generators UI', () => {
+  it('shows locked mid-tier cards with their level requirement', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    const gas = screen.getByTestId('generator-card-gas');
+    expect(gas.querySelector('button')!.textContent).toBe('Locked');
+    expect(gas.textContent).toContain('Needs research: Gas Turbines');
+    expect(screen.getByTestId('level-req-gas').textContent).toBe('Requires research level 7 (you have 1)');
+  });
+
+  it('says the level is too low when researched but under level', () => {
+    useStore.setState({ ...createInitialState(Date.now()), completedResearch: ['hydropower'], researchLevel: 4 });
+    render(<App />);
+    expect(screen.getByTestId('generator-card-hydro').querySelector('button')!.textContent).toBe('Research level too low');
+  });
+
+  it('plays the construction animation after expanding', () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0 } });
+    render(<App />);
+    expect(screen.queryByTestId('expansion-animation')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
+    expect(useStore.getState().lastExpansionAt).not.toBeNull();
+  });
+});
+
+describe('Scrap', () => {
+  it('needs a confirm click, then frees the room', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Build Solar Panel' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Scrap Solar Panel #1' }));
+    expect(useStore.getState().activeGenerators).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Solar Panel #1' }));
+    expect(useStore.getState().activeGenerators).toHaveLength(0);
+    expect(useStore.getState().roomUsed).toBe(0);
   });
 });

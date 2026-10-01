@@ -228,11 +228,12 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** `src/utils/roomSystem.ts`: `canExpandRoom`, `expandRoom(tier)`. Tiers in `src/data/rooms.ts`: Tier 1 (+10 room; 500 energy + 50 metal + 20 stone), Tier 2 (+15; 2000 energy + 150 metal + 80 stone), Tier 3 (+25; 8000 energy + 400 metal + 200 stone). State: `expansionLevel` 0, `roomCapacity` 10. `RoomPanel.tsx`: usage bar, expansion button with costs, next-tier benefits. Block building when `roomUsed + roomCost > roomCapacity`. Warning at 90% or more.
 **Acceptance:** expansion deducts costs and raises capacity; building blocked over capacity; unit tests.
 
-### 0.20 — Mid-tier generators and room expansion UI — CODE — Not started
+### 0.20 — Mid-tier generators and room expansion UI — CODE — Done
 **Goal:** more generators, plus visuals for room expansion.
 **Details:** add to `src/data/generators.ts`: Hydropower Dam (5 energy/s, 8 room, 100 metal + 80 stone, level 5), Natural Gas Plant (8 energy/s, 10 room, 150 metal + 50 stone, 2 natural gas/hour, level 7), Tidal Power Station (6 energy/s, 9 room, 120 metal + 60 stone, level 6). **Natural gas needs a source:** add a gas well producer, or make natural gas a research-unlocked output of an existing producer. Cards show level requirements and a locked state. Add research entries so levels 5 to 7 are reachable. Room expansion: construction sprite fades in and out over 2 seconds; capacity meter from the segment sprites; tooltips on room mechanics.
 **Absorbs old bug item 0.21:** the expansion animation is driven by the expansion state in `roomSystem` so it cannot desynchronize. Add a test for this.
 **Acceptance:** every fuel-burning generator has a reachable fuel source; animation starts and ends with the expansion; locked generators display correctly.
+**Done notes:** natural gas comes from a Gas Well granted by the Natural Gas Extraction research (1 gas / 10 min, fuels 3 gas plants). Research nodes Hydropower, Natural Gas Extraction, Tidal Power and Gas Turbines make levels 5 to 8 reachable. Generators gained a `requiredLevel` gate. Also added **Scrap** (remove a generator, no refund) because a pacing probe showed room fills with Solar Panels before mid-tier unlocks, which made them unbuildable.
 
 ### 0.36 — Smoke tests and CI — CODE — Not started
 **Goal:** catch regressions on every PR.

@@ -5,7 +5,7 @@ import { ROOM_TIERS } from '../data/rooms';
 import { GeneratorType } from '../types/generator';
 import type { GameState } from '../types/state';
 import { buildGenerator, getBuildBlock } from './generatorSystem';
-import { canExpandRoom, expandRoom, getExpandBlock, getNextRoomTier, isRoomNearlyFull } from './roomSystem';
+import { canExpandRoom, expandRoom, getExpandBlock, getExpansionAnimation, getNextRoomTier, isRoomNearlyFull } from './roomSystem';
 
 const rich = (over: Partial<GameState> = {}): GameState => ({
   ...createInitialState(0),
@@ -62,5 +62,23 @@ describe('room expansion', () => {
     expect(isRoomNearlyFull({ roomUsed: 8, roomCapacity: 10 })).toBe(false);
     expect(isRoomNearlyFull({ roomUsed: 9, roomCapacity: 10 })).toBe(true);
     expect(isRoomNearlyFull({ roomUsed: 10, roomCapacity: 10 })).toBe(true);
+  });
+});
+
+describe('expansion animation (absorbs 0.21)', () => {
+  it('starts with the expansion and ends 2 seconds later', () => {
+    const s = expandRoom(rich(), undefined, 5_000);
+    expect(s.lastExpansionAt).toBe(5_000);
+    expect(getExpansionAnimation(s.lastExpansionAt, 4_999).active).toBe(false);
+    expect(getExpansionAnimation(s.lastExpansionAt, 5_000)).toEqual({ active: true, opacity: 0 });
+    expect(getExpansionAnimation(s.lastExpansionAt, 6_000)).toEqual({ active: true, opacity: 1 });
+    expect(getExpansionAnimation(s.lastExpansionAt, 6_500).opacity).toBeCloseTo(0.5);
+    expect(getExpansionAnimation(s.lastExpansionAt, 7_000).active).toBe(false);
+  });
+
+  it('a blocked expansion starts no animation', () => {
+    const s = expandRoom(rich({ energy: 0 }), undefined, 5_000);
+    expect(s.lastExpansionAt).toBeNull();
+    expect(getExpansionAnimation(s.lastExpansionAt, 5_500).active).toBe(false);
   });
 });

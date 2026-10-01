@@ -31,7 +31,7 @@ export function getGeneratorStats(type: GeneratorType, bonuses: Bonuses = NO_BON
   };
 }
 
-export type BuildBlock = 'locked' | 'room' | 'resources' | 'energy';
+export type BuildBlock = 'locked' | 'level' | 'room' | 'resources' | 'energy';
 
 /** Why a generator cannot be built right now, or null if it can. */
 export function getBuildBlock(
@@ -41,6 +41,7 @@ export function getBuildBlock(
   bonuses: Bonuses = NO_BONUSES,
 ): BuildBlock | null {
   if (!unlocked.includes(type)) return 'locked';
+  if (state.researchLevel < GENERATORS[type].requiredLevel) return 'level';
   const stats = getGeneratorStats(type, bonuses);
   if (state.roomUsed + stats.roomCost > state.roomCapacity) return 'room';
   if (!canAfford(state.resources, stats.buildCost)) return 'resources';
@@ -89,4 +90,10 @@ export function toggleGenerator(state: GameState, id: string): GameState {
     g.id === id ? { ...g, isActive: !g.isActive, outOfFuel: false } : g,
   );
   return deriveRates({ ...state, activeGenerators });
+}
+
+/** Removes a generator for good, freeing its room. No refund. */
+export function scrapGenerator(state: GameState, id: string): GameState {
+  if (!state.activeGenerators.some((g) => g.id === id)) return state;
+  return deriveRates({ ...state, activeGenerators: state.activeGenerators.filter((g) => g.id !== id) });
 }

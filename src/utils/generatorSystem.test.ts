@@ -11,6 +11,7 @@ import {
   getBuildBlock,
   getGeneratorStats,
   nextGeneratorId,
+  scrapGenerator,
   toggleGenerator,
 } from './generatorSystem';
 import { advanceTime } from './simulation';
@@ -113,7 +114,7 @@ describe('energy over time', () => {
   it('a coal plant stops adding energy once its fuel is gone', () => {
     let s = fresh({
       energy: 3600,
-      producers: { quarry: 0, mine: 0, coalMine: 0 },
+      producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0 },
       resources: { metal: 20, stone: 10, coal: 5, naturalGas: 0 },
     });
     s = buildGenerator(s, GeneratorType.COAL, ALL);
@@ -158,5 +159,21 @@ describe('energy cost (playtest 3: 30 minutes of output)', () => {
 
   it('a fresh save can still build a Solar Panel at once', () => {
     expect(canBuildGenerator(fresh(), GeneratorType.SOLAR, ALL)).toBe(true);
+  });
+});
+
+describe('scrapping', () => {
+  it('removes the generator and frees its room, with no refund', () => {
+    let s = buildGenerator(fresh(), GeneratorType.SOLAR, ALL);
+    const metal = s.resources.metal;
+    s = scrapGenerator(s, s.activeGenerators[0].id);
+    expect(s.activeGenerators).toEqual([]);
+    expect(s.roomUsed).toBe(0);
+    expect(s.energyPerSecond).toBe(0);
+    expect(s.resources.metal).toBe(metal);
+  });
+  it('unknown IDs change nothing', () => {
+    const s = fresh();
+    expect(scrapGenerator(s, 'nope')).toBe(s);
   });
 });

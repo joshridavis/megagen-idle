@@ -25,7 +25,7 @@ describe('save migrations', () => {
     expect('totalProductionPerSecond' in s).toBe(false);
     // pre-0.11 saves get at least the starting resources and producers
     expect(s.resources).toEqual({ coal: 1, stone: 10, metal: 15, naturalGas: 0 });
-    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1 });
+    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0 });
     expect(s.lastSavedTimestamp).toBe(1_700_000_000_000);
     // fields added later get fresh-save defaults
     expect(s.expansionLevel).toBe(0);

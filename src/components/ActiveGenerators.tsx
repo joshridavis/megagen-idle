@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { sprites } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { useStore } from '../store';
@@ -16,6 +16,8 @@ function statusOf(g: Generator) {
 export default function ActiveGenerators() {
   const generators = useStore((s) => s.activeGenerators);
   const toggle = useStore((s) => s.toggleGenerator);
+  const scrap = useStore((s) => s.scrapGenerator);
+  const [confirming, setConfirming] = useState<string | null>(null);
   const completed = useStore((s) => s.completedResearch);
   const bonuses = useMemo(() => getBonuses(completed), [completed]);
   return (
@@ -56,6 +58,30 @@ export default function ActiveGenerators() {
                 >
                   {g.isActive ? 'Turn off' : 'Turn on'}
                 </button>
+                {confirming === g.id ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      scrap(g.id);
+                      setConfirming(null);
+                    }}
+                    onBlur={() => setConfirming(null)}
+                    aria-label={`Confirm scrap ${name}`}
+                    className="min-h-11 rounded bg-red-700 px-3 py-2 text-sm font-semibold hover:bg-red-600"
+                  >
+                    Confirm
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirming(g.id)}
+                    aria-label={`Scrap ${name}`}
+                    title="Remove for good to free its room. No refund."
+                    className="min-h-11 rounded px-2 py-2 text-sm text-slate-400 hover:bg-slate-700 hover:text-red-300"
+                  >
+                    Scrap
+                  </button>
+                )}
               </li>
             );
           })}
