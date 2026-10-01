@@ -280,7 +280,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** locked cards fade with `opacity`, which also faded their tooltip and trapped it below neighbouring cards. Fade the card's content instead of the card, give tooltips a solid background, a border and a stacking order above every card.
 **Acceptance:** tooltip of a locked card is fully opaque and above other cards (UI test checks the tooltip is outside the faded wrapper; screenshot in the PR).
 
-### 0.81 — Research tree in branches — CODE — Not started
+### 0.81 — Research tree in branches — CODE — Done
 **Goal:** apply playtest 9 feedback: the lines in the tree are hard to follow; split the tree so each of the three starting research leads its own branch.
 **Details:** the layout groups each research under the root it descends from (through its first prerequisite) and stacks the branches as horizontal bands, each with a label and a divider; within a band, columns by depth. Lines inside a band stay short; the few cross-branch prerequisites are drawn fainter.
 **Acceptance:** layout tests: every node is in its root's band, bands do not overlap, prerequisites are to the left; a 30-node tree still lays out without overlaps.

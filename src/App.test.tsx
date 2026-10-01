@@ -617,3 +617,14 @@ describe('Build card tooltip (0.80 fix)', () => {
     expect(tip.className).toContain('z-50');
   });
 });
+
+describe('Research tree branches (0.81)', () => {
+  it('shows the three branch bands', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    expect(screen.getByTestId('research-band-basic_solar').textContent).toContain('Energy & research branch');
+    expect(screen.getByTestId('research-band-basic_mining').textContent).toContain('Resources branch');
+    expect(screen.getByTestId('research-band-fossil_fuels').textContent).toContain('Fuels branch');
+  });
+});

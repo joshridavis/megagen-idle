@@ -13,6 +13,13 @@ import { getNodeStatus } from './researchStatus';
 const GAP_X = 56;
 const GAP_Y = 20;
 const PAD = 16;
+/** Space above each branch band for its label and divider. */
+const BAND_HEAD = 30;
+const BRANCH_LABELS: Record<string, string> = {
+  basic_solar: 'Energy & research',
+  basic_mining: 'Resources',
+  fossil_fuels: 'Fuels',
+};
 
 export default function ResearchTree() {
   const state = useStore((s) => s);
@@ -20,10 +27,15 @@ export default function ResearchTree() {
   const layout = useMemo(() => computeResearchLayout(RESEARCH), []);
   const pos = (id: string) => {
     const p = layout.positions[id];
-    return { x: PAD + p.col * (NODE_W + GAP_X), y: PAD + p.row * (NODE_H + GAP_Y) };
+    return { x: PAD + p.col * (NODE_W + GAP_X), y: bandTop(p.band) + (p.row - layout.bands[p.band].startRow) * (NODE_H + GAP_Y) };
   };
+  /** Top of a band's first row of nodes (below its label). */
+  function bandTop(band: number) {
+    const b = layout.bands[band];
+    return PAD + (band + 1) * BAND_HEAD + b.startRow * (NODE_H + GAP_Y);
+  }
   const width = PAD * 2 + layout.cols * NODE_W + Math.max(0, layout.cols - 1) * GAP_X;
-  const height = PAD * 2 + layout.rows * NODE_H + Math.max(0, layout.rows - 1) * GAP_Y;
+  const height = PAD * 2 + layout.bands.length * BAND_HEAD + layout.rows * NODE_H + Math.max(0, layout.rows - 1) * GAP_Y;
   const current = state.currentResearch;
 
   return (
@@ -53,8 +65,18 @@ export default function ResearchTree() {
         style={{ backgroundImage: `url(${sprites.research_panel_bg})` }}
       >
         <div className="relative" style={{ width, height }}>
+          {layout.bands.map((b, i) => (
+            <div
+              key={b.root}
+              data-testid={`research-band-${b.root}`}
+              className={`absolute left-0 right-0 flex items-end px-4 pb-1 text-xs font-semibold uppercase tracking-wide text-sky-200 ${i > 0 ? 'border-t-2 border-sky-300/40' : ''}`}
+              style={{ top: bandTop(i) - BAND_HEAD, height: BAND_HEAD - 4 }}
+            >
+              {BRANCH_LABELS[b.root] ?? RESEARCH_BY_ID[b.root]?.name} branch
+            </div>
+          ))}
           <svg className="pointer-events-none absolute inset-0" width={width} height={height} aria-hidden="true">
-            {layout.edges.map(({ from, to }) => {
+            {layout.edges.map(({ from, to, crossBranch }) => {
               const a = pos(from);
               const b = pos(to);
               const x1 = a.x + NODE_W;
@@ -69,7 +91,8 @@ export default function ResearchTree() {
                   d={`M${x1},${y1} C${mid},${y1} ${mid},${y2} ${x2},${y2}`}
                   fill="none"
                   stroke={done ? '#59c135' : '#8b93af'}
-                  strokeWidth={3}
+                  strokeOpacity={crossBranch ? 0.45 : 1}
+                  strokeWidth={crossBranch ? 2 : 3}
                   strokeDasharray={done ? undefined : '6 4'}
                 />
               );
