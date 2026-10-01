@@ -79,3 +79,15 @@ describe('Generator UI loop', () => {
     expect(btn.textContent).toBe('Not enough resources');
   });
 });
+
+describe('Fuel colour (playtest 2)', () => {
+  it('the Burns line is amber, not the red used for unaffordable costs', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    const fuel = screen.getByTestId('fuel-coal');
+    expect(fuel.innerHTML).toContain('text-amber-300');
+    expect(fuel.innerHTML).not.toContain('text-red-400');
+    // the unaffordable metal cost on the same card is red
+    expect(screen.getByTestId('generator-card-coal').innerHTML).toContain('text-red-400');
+  });
+});

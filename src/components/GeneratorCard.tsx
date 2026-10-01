@@ -3,7 +3,7 @@ import { GENERATORS } from '../data/generators';
 import { useStore } from '../store';
 import type { GeneratorType } from '../types/generator';
 import { getGeneratorStats, type BuildBlock } from '../utils/generatorSystem';
-import CostList from './CostList';
+import CostList, { FUEL_CLASS } from './CostList';
 import { GENERATOR_SPRITES } from './generatorSprites';
 
 const BLOCK_TEXT: Record<BuildBlock, string> = {
@@ -42,9 +42,9 @@ export default function GeneratorCard({ type, block }: { type: GeneratorType; bl
         <CostList cost={stats.buildCost} have={resources} />
       </div>
       {def.maintenanceCost && (
-        <div className="text-sm">
-          <span className="text-slate-400">Burns: </span>
-          <CostList cost={def.maintenanceCost} suffix="/h" />
+        <div className="text-sm" data-testid={`fuel-${type}`}>
+          <span className={FUEL_CLASS}>🔥 Burns: </span>
+          <CostList cost={def.maintenanceCost} suffix="/h" className={FUEL_CLASS} />
         </div>
       )}
       <button

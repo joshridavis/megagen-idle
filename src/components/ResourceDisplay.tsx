@@ -4,7 +4,7 @@ import { RESOURCE_IDS, RESOURCE_NAMES } from '../data/resources';
 import { useStore } from '../store';
 import { selectFuelUseRates, selectProductionRates, selectResources } from '../store/selectors';
 import type { ResourceId } from '../types/state';
-import { RESOURCE_ICONS } from './CostList';
+import { FUEL_CLASS, RESOURCE_ICONS } from './CostList';
 
 
 const formatRate = (perSecond: number) => {
@@ -33,7 +33,7 @@ export default function ResourceDisplay() {
               <div className="text-xs text-slate-400">{RESOURCE_NAMES[id]}</div>
               <div className="font-mono">
                 <span aria-label={`${RESOURCE_NAMES[id]} amount`}>{Math.floor(resources[id]).toLocaleString('en-US')}</span>{' '}
-                <span className={`text-xs ${rates[id] < 0 ? 'text-red-400' : 'text-slate-400'}`}>{formatRate(rates[id])}</span>
+                <span className={`text-xs ${rates[id] < 0 ? FUEL_CLASS : 'text-slate-400'}`}>{formatRate(rates[id])}</span>
               </div>
             </div>
           </li>
