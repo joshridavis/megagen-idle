@@ -235,7 +235,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** every fuel-burning generator has a reachable fuel source; animation starts and ends with the expansion; locked generators display correctly.
 **Done notes:** natural gas comes from a Gas Well granted by the Natural Gas Extraction research (1 gas / 10 min, fuels 3 gas plants). Research nodes Hydropower, Natural Gas Extraction, Tidal Power and Gas Turbines make levels 5 to 8 reachable. Generators gained a `requiredLevel` gate. Also added **Scrap** (remove a generator, no refund) because a pacing probe showed room fills with Solar Panels before mid-tier unlocks, which made them unbuildable.
 
-### 0.36 — Smoke tests and CI — CODE — Not started
+### 0.36 — Smoke tests and CI — CODE — Done
 **Goal:** catch regressions on every PR.
 **Details:** end-to-end smoke test: load the game, click for energy, build a generator, start research, reload, verify state persisted. Use Playwright if its browsers install in the cloud environment; if not, use React Testing Library with jsdom for the same flow and note the limitation in the PR. Add the smoke test to the CI workflow from 0.22.
 **Acceptance:** CI runs unit tests, smoke test and build on pull requests; no real-time waits (use fake timers or injected time).

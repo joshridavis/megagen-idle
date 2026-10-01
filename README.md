@@ -17,6 +17,7 @@ An idle/incremental game about generating energy. You start with almost nothing 
 | `npm run build` | Type-checks and builds the static site into `dist/` (served under `/megagen-idle/`). |
 | `npm run preview` | Serves the built `dist/` locally, at `http://localhost:4173/megagen-idle/`. |
 | `npm test` | Runs the Vitest unit tests once. |
+| `npm run test:e2e` | Builds the game and runs the Playwright browser smoke test against it. First run `npx playwright install chromium` (or set `PW_CHROMIUM_PATH` to an existing Chromium). |
 | `npm run check:assets` | Checks every sprite in the manifest exists as a PNG of the right size, and lists which are still generic stand-ins. |
 | `npm run generate:assets` | Draws any missing generic stand-in sprites. Add `-- --force` to redraw the generic ones; files not listed in `src/assets/generic-assets.json` (real art) are never touched. |
 
@@ -29,6 +30,7 @@ An idle/incremental game about generating energy. You start with almost nothing 
 - `src/types/` — shared TypeScript types.
 - `src/assets/` — sprites and `generic-assets.json` (the list of generated stand-ins).
 - `scripts/` — Node scripts, such as the sprite generator.
+- `e2e/` — Playwright browser smoke tests.
 
 ## Balancing
 
