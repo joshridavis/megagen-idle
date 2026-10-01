@@ -20,8 +20,10 @@ import {
 import { advanceTime } from './simulation';
 
 const T0 = 1_700_000_000_000;
+const solar = { id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 };
 const rich = (over: Partial<GameState> = {}): GameState => ({
   ...createInitialState(T0),
+  activeGenerators: [solar],
   energy: 100_000,
   resources: { metal: 999, stone: 999, coal: 999, naturalGas: 0 },
   ...over,
@@ -30,6 +32,10 @@ const rich = (over: Partial<GameState> = {}): GameState => ({
 describe('research gating', () => {
   it('Basic Solar can start on a fresh-ish save with enough energy', () => {
     expect(getResearchBlock(rich(), 'basic_solar')).toBeNull();
+  });
+
+  it('Basic Solar needs a Solar Panel built (no research-before-income stall)', () => {
+    expect(getResearchBlock(rich({ activeGenerators: [] }), 'basic_solar')).toBe('building');
   });
 
   it('enforces prerequisites', () => {
@@ -107,7 +113,7 @@ describe('offline completion', () => {
   });
 
   it('the bonus applies to energy only after completion', () => {
-    let s = rich();
+    let s = rich({ activeGenerators: [] });
     s = buildGenerator(s, GeneratorType.SOLAR, [GeneratorType.SOLAR]); // 0.5/s
     s = startResearch({ ...s, lastSavedTimestamp: T0 }, 'basic_solar', T0);
     const before = s.energy;

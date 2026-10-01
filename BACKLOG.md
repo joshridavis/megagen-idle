@@ -198,7 +198,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - Bonus effect types from the start: build discount %, research cost reduction %, research speed %, global energy %, click power %.
 - Turning on research gating removes the temporary "all first-tier unlocked" rule from 0.09. Set starting state so the first research is affordable within a few minutes of play.
 **Acceptance:** prerequisites and level gates enforced; research completes offline; a fresh save can reach the first unlock without a stall; unit tests for gating, completion, level increase and bonus application.
-**Note (playtest 2):** the owner wants the Solar Panel buildable at once, so Solar is unlocked from the start and Basic Solar gives +10% energy from all generators instead of unlocking it. It is still the first research and Wind's prerequisite.
+**Note (playtest 2):** the owner wants the Solar Panel buildable at once, so Solar is unlocked from the start and Basic Solar gives +10% energy from all generators instead of unlocking it. It is still the first research and Wind's prerequisite. It also requires owning a Solar Panel (`requiresBuilt`), so the starting energy cannot be spent on research before the first generator; a pacing probe showed that left an idle player with no income.
 
 ### 0.13 — Research tree UI — CODE — Done
 **Goal:** interactive skill tree.

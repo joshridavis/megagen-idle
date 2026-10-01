@@ -29,6 +29,7 @@ const BLOCK_TEXT: Record<ResearchBlock, string> = {
   done: 'Completed',
   busy: 'Another research is running',
   prerequisites: 'Needs earlier research',
+  building: 'Build the required generator first',
   level: 'Research level too low',
   cost: 'Not enough energy or resources',
 };
@@ -115,6 +116,18 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
                 {def.prerequisites.map((p) => (
                   <span key={p} className={state.completedResearch.includes(p) ? 'text-emerald-400' : 'text-red-400'}>
                     {RESEARCH_BY_ID[p]?.name ?? p}{' '}
+                  </span>
+                ))}
+              </dd>
+            </>
+          )}
+          {def.requiresBuilt && def.requiresBuilt.length > 0 && (
+            <>
+              <dt className="text-slate-400">Needs built</dt>
+              <dd>
+                {def.requiresBuilt.map((t) => (
+                  <span key={t} className={state.activeGenerators.some((g) => g.type === t) ? 'text-emerald-400' : 'text-red-400'}>
+                    {GENERATORS[t].name}{' '}
                   </span>
                 ))}
               </dd>

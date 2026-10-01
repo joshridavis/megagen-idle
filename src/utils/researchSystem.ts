@@ -21,7 +21,7 @@ export function getResearchDuration(def: ResearchDef, bonuses: Bonuses): number 
   return def.duration / (1 + bonuses.researchSpeed);
 }
 
-export type ResearchBlock = 'unknown' | 'done' | 'busy' | 'prerequisites' | 'level' | 'cost';
+export type ResearchBlock = 'unknown' | 'done' | 'busy' | 'prerequisites' | 'building' | 'level' | 'cost';
 
 /** Why research cannot start now, or null if it can. */
 export function getResearchBlock(state: GameState, id: string): ResearchBlock | null {
@@ -30,6 +30,7 @@ export function getResearchBlock(state: GameState, id: string): ResearchBlock | 
   if (state.completedResearch.includes(id)) return 'done';
   if (state.currentResearch) return 'busy';
   if (!def.prerequisites.every((p) => state.completedResearch.includes(p))) return 'prerequisites';
+  if (!(def.requiresBuilt ?? []).every((t) => state.activeGenerators.some((g) => g.type === t))) return 'building';
   if (state.researchLevel < def.requiredLevel) return 'level';
   const cost = getResearchCost(def, getBonuses(state.completedResearch));
   if (state.energy < cost.energy || !canAfford(state.resources, cost.resources ?? {})) return 'cost';

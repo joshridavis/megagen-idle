@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import App from './App';
 import { useStore } from './store';
 import { createInitialState } from './data/initialState';
+import { GeneratorType } from './types/generator';
 
 afterEach(cleanup);
 
@@ -116,7 +117,11 @@ describe('Research gating in the build grid', () => {
 describe('Research UI', () => {
   it('opens a node, starts research, and shows progress', () => {
     const now = Date.now();
-    useStore.setState({ ...createInitialState(now), energy: 100 });
+    useStore.setState({
+      ...createInitialState(now),
+      energy: 100,
+      activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }],
+    });
     render(<App />);
     fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
     const node = screen.getByTestId('research-node-basic_solar');

@@ -21,6 +21,9 @@ export const RESEARCH: ResearchDef[] = [
     cost: { energy: 50 },
     duration: 60,
     prerequisites: [],
+    // Needs a panel to improve; also stops the starting energy being spent
+    // on research before the first generator, which would leave no income.
+    requiresBuilt: [GeneratorType.SOLAR],
     unlocks: {},
     effects: [{ type: 'globalEnergy', value: 0.1 }],
   },

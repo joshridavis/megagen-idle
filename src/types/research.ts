@@ -28,6 +28,8 @@ export interface ResearchDef {
   /** Seconds, before research speed bonuses. */
   duration: number;
   prerequisites: string[];
+  /** Generator types the player must own at least one of each (built, on or off). */
+  requiresBuilt?: GeneratorType[];
   unlocks: { generators?: GeneratorType[] };
   effects?: ResearchEffect[];
 }
