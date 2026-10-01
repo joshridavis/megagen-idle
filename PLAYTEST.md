@@ -1,57 +1,50 @@
-# Playtest 5 (v0.5.0): producers, clearer research level, Scrap cancel (after item 0.31)
+# Playtest 6 (v0.6.0): celebrations, clearer rewards, scrappable producers (after item 0.64)
 
-The version is shown at the bottom of the screen. It should read **v0.5.0**.
+The version at the bottom of the screen should read **v0.6.0**.
 
 ## How to play
 
 - **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
 - **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
 
-Your save carries over. Your room capacity goes up by 3 to make space for the three producers you already own. Producers now take room.
+Your save carries over.
 
-## New since last playtest
+## New since last playtest (all from your feedback)
 
-- **Your feedback:**
-  - **Producers** (new Producers tab). Buy more Stone Quarries, Metal Mines, Coal Mines and, after Natural Gas Extraction, Gas Wells.
-    - Each one takes room, and output grows with how many you own.
-    - Each one you buy costs 15% more than the last.
-    - Hover over a resource's rate (for example "+0.07/s" under Metal) to see your producers, fuel burned and the net rate.
-  - **Scrap** now asks you to Confirm or Cancel, and says there's no refund. The Scrap button also shows this in a tooltip on hover.
-  - **Version number** at the bottom of the screen. It goes up with each playtest release.
-  - **Research level.** It wasn't actually rising early: "Research level 2" was your current level, earned by Basic Solar, shown while a level-2 research ran. The labels are now clearer:
-    - "Your research level: 2";
-    - "Rises to 3 when Wind Power Fundamentals finishes";
-    - research nodes say "Needs level N".
-    
-    A test now proves the level only rises when research completes.
-  - **New construction animation.** After a room expansion, the room meter itself grows. The new boxes appear one after another as scaffolding, then settle. The corner overlay is gone.
-  - **Stone prices up about 1.5×:** Wind 8, Coal 15, Hydro 120, Tidal 90 and Gas 75 stone, and Hydropower research 75. Room expansions are unchanged.
-- The tab bar now fits on a 360 px phone screen.
-
-## Pacing I measured (idle player who also buys mines and quarries)
-
-- Same research milestones as before: Basic Solar at about 18 minutes, Wind at about 2 hours, Hydro at about 4.5 hours.
-- With producers, metal and stone income grows steadily (16 mines and 14 quarries after 9 hours). Nothing stalls.
+- **Producer prices** now rise by 20% for each one you own (was 15%).
+- **Scrap producers.** Each producer card has a Scrap button with the same no-refund tooltip, Confirm and Cancel as generators. The next one you buy costs what your new count implies.
+- **Research rewards stand out.** The research panel has a green **🎁 You get:** box with one line per reward:
+  - ⚡ unlocks a generator;
+  - ⛏️ grants a producer;
+  - 📈 a % boost;
+  - ⬆️ Research level +1.
+  
+  Each research node also shows a 🎁 hint.
+- **Game-coloured scrollbars** on long lists (Your generators, the research tree, the page).
+- **Research-complete celebration.** When a research finishes while you're playing, a "Research complete!" banner with a sparkle burst appears over whatever tab you're on. It shows for about 3.5 seconds; click to dismiss it. It doesn't play for research that finished while you were away.
+- **Tab icons:** a solar panel for Generators, a mine for Producers, an atom for Research.
+- **Backlog:** Achievements, a perfection (completion) tracker, and a plan for making the game public with accounts are now in the backlog.
 
 ## Things to try
 
-1. Check the version at the bottom of the screen.
-2. Producers tab: buy a Metal Mine. Does the metal rate go up, and does the next one cost more?
-3. Hover over each resource's rate. Is the breakdown clear?
-4. Scrap a generator, then press Cancel. Then Scrap and Confirm.
-5. Expand your room and watch the meter build in.
-6. Start a research and read the research level labels. Is it clear now?
-7. Once you have Natural Gas Extraction, buy a second Gas Well and run more gas plants.
+1. Buy two more of a producer and check that each costs 20% more than the last.
+2. Scrap a producer: hover over Scrap, click it, press Cancel. Then do it again and press Confirm.
+3. Open a few research nodes. Is the "You get:" box clear?
+4. Start a short research and stay on the Generators tab until it finishes. Did the celebration play?
+5. Build enough generators that the list scrolls. Does the scrollbar fit the game's look?
+6. Check the tab icons, also on your phone.
+7. You haven't seen the room animation yet: expand your room and watch the meter build in.
 
 ## Known issues
 
-- No "welcome back" summary after time away (0.28), and no in-game reset or short number format (0.29) yet.
-- Late-game resources can pile up once you own many producers. The balance simulator (0.35) will tune this.
+- No "welcome back" summary after time away yet (0.28). Research that completes while you're away isn't celebrated, by design.
+- No in-game reset or short number format yet (0.29).
 - Placeholder art.
 
 ## Questions for you
 
-1. Are producer prices (and the 15% increase each time) about right?
-2. Should producers be scrappable too, like generators?
-3. Is the new room animation better?
-4. Are the research level labels clear now?
+1. Is the celebration the right size and length, or is it too much?
+2. Is the reward box clear? Should completed research also show what it gave you?
+3. "Perfection tracker": I read this as a 100% completion tracker (research, generator types, expansions, achievements). Is that what you meant?
+4. For the public version: do you want accounts mainly for cloud saves across devices, for leaderboards, or both?
+5. How did the room animation look, once you've seen it?
