@@ -323,3 +323,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | Checkpoint | After item | Date | Owner feedback | Items created |
 |---|---|---|---|---|
 | 1 | 0.37 | 2026-10-01 | Works. Click value and click feedback feel right; colours suit the game. Offline cap should be 24 h, not 8 h. | 0.48 |
+| 2 | 0.09 | 2026-10-01 | (waiting for owner) | |
