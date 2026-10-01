@@ -401,10 +401,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** building a producer deducts costs and room; a fresh save is still playable; tests for rate scaling and room checks.
 **Done notes:** new Producers tab. Each producer costs energy + resources, growing ×1.15 per one owned (`PRODUCER_COST_GROWTH`); quarry, mine and coal mine take 1 room, the gas well 2 and needs Natural Gas Extraction. Base room raised 10 → 13 so the three starting producers do not shrink the room for generators (save migration adds 3 to existing saves). Resource rates got the hover breakdown (producers, fuel burned, net), as asked in playtest 3. New generic sprite `producers/gas_well.png`.
 
-### 0.35 — Balance simulator — CODE — Not started
+### 0.35 — Balance simulator — CODE — Done
 **Goal:** tune pacing with numbers, since Claude cannot feel the game.
 **Details:** `npm run simulate` runs a headless simulation using the pure game functions and a simple greedy player (occasional clicks; buys the best affordable item by payback time; researches when affordable) for 24 simulated hours. It writes `BALANCE_REPORT.md`: time to the first generator, time to each unlock, room and resource stalls. Targets in `src/data/pacingTargets.ts`. Owner targets so far: research much slower than first guesses (playtest 3), and **at least 200 hours of play for 100% completion once the game is finished** (playtest 8); the simulator must report hours to 100% completion so this can be tracked as content grows. Tune data files until targets are met within about 30% and record changes in the report. Owner playtest feedback overrides these targets.
 **Acceptance:** deterministic; finishes in under 60 seconds; report generated; targets met or deviations explained.
+**Done notes:** `src/sim/balanceSim.ts` (pure, tested), `scripts/simulate.ts` via `tsx`. It runs until 100% completion (cap 400 h) rather than 24 h, so the owner's 200 h target can be tracked. First run: all near-term targets met with no stalls; 100% completion at about 25 h, explained in the report's tuning log (content-limited; tuned in 0.47). Adds `src/utils/completion.ts`, the groundwork for 0.66.
 
 ### 0.32 — Generator upgrades — CODE — Not started
 **Goal:** machines improve without taking more room.

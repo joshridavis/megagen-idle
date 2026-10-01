@@ -18,6 +18,7 @@ An idle/incremental game about generating energy. You start with almost nothing 
 | `npm run preview` | Serves the built `dist/` locally, at `http://localhost:4173/megagen-idle/`. |
 | `npm test` | Runs the Vitest unit tests once. |
 | `npm run test:e2e` | Builds the game and runs the Playwright browser smoke test against it. First run `npx playwright install chromium` (or set `PW_CHROMIUM_PATH` to an existing Chromium). |
+| `npm run simulate` | Runs the balance simulator (a greedy idle player) and writes `BALANCE_REPORT.md`: milestone times, pacing targets from `src/data/pacingTargets.ts`, stalls and hours to 100% completion. |
 | `npm run check:assets` | Checks every sprite in the manifest exists as a PNG of the right size, and lists which are still generic stand-ins. |
 | `npm run generate:assets` | Draws any missing generic stand-in sprites. Add `-- --force` to redraw the generic ones; files not listed in `src/assets/generic-assets.json` (real art) are never touched. |
 
@@ -34,7 +35,7 @@ An idle/incremental game about generating energy. You start with almost nothing 
 
 ## Balancing
 
-All game numbers live in `src/data/`: `generators.ts` (output, room, build cost, fuel use), `producers.ts` and `resources.ts` (production rates, starting stock), `player.ts` (click value, starting energy), `research.ts` (research tree, bonus caps), `rooms.ts` (room expansions) and `time.ts` (offline-gain cap). Change them there, not in logic.
+All game numbers live in `src/data/`: `generators.ts` (output, room, build cost, fuel use), `producers.ts` and `resources.ts` (production rates, starting stock), `player.ts` (click value, starting energy), `research.ts` (research tree, bonus caps), `rooms.ts` (room expansions), `time.ts` (offline-gain cap) and `pacingTargets.ts` (what `npm run simulate` checks). Change them there, not in logic.
 
 ## Replacing a stand-in sprite with real art
 
