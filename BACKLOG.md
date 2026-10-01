@@ -188,7 +188,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Unlocking:** the grid filters by unlocked research. Until the research system (0.10) exists, all first-tier generators count as unlocked, so the game stays playable.
 **Acceptance:** the full loop works in a browser (click for energy, gather resources, build a generator, watch energy rise, toggle it off); real art added later needs no code change.
 
-### 0.10 — Research system and skill tree foundation — CODE — Not started
+### 0.10 — Research system and skill tree foundation — CODE — Done
 **Goal:** timed research that unlocks generators and bonuses.
 **Details:**
 - `src/types/research.ts`: `id`, `name`, `description`, `requiredLevel`, `cost` (energy + resources), `duration` (seconds), `prerequisites`, `unlocks`.
@@ -198,6 +198,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - Bonus effect types from the start: build discount %, research cost reduction %, research speed %, global energy %, click power %.
 - Turning on research gating removes the temporary "all first-tier unlocked" rule from 0.09. Set starting state so the first research is affordable within a few minutes of play.
 **Acceptance:** prerequisites and level gates enforced; research completes offline; a fresh save can reach the first unlock without a stall; unit tests for gating, completion, level increase and bonus application.
+**Note (playtest 2):** the owner wants the Solar Panel buildable at once, so Solar is unlocked from the start and Basic Solar gives +10% energy from all generators instead of unlocking it. It is still the first research and Wind's prerequisite.
 
 ### 0.13 — Research tree UI — CODE — Not started
 **Goal:** interactive skill tree.

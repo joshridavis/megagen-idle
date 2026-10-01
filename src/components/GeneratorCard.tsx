@@ -1,8 +1,10 @@
 import { sprites } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { useStore } from '../store';
+import type { Bonuses } from '../types/bonus';
 import type { GeneratorType } from '../types/generator';
 import { getGeneratorStats, type BuildBlock } from '../utils/generatorSystem';
+import { findUnlockingResearch } from '../utils/researchSystem';
 import CostList, { FUEL_CLASS } from './CostList';
 import { GENERATOR_SPRITES } from './generatorSprites';
 
@@ -13,12 +15,21 @@ const BLOCK_TEXT: Record<BuildBlock, string> = {
   room: 'Not enough room',
 };
 
-export default function GeneratorCard({ type, block }: { type: GeneratorType; block: BuildBlock | null }) {
+export default function GeneratorCard({
+  type,
+  block,
+  bonuses,
+}: {
+  type: GeneratorType;
+  block: BuildBlock | null;
+  bonuses: Bonuses;
+}) {
   const resources = useStore((s) => s.resources);
   const energy = useStore((s) => s.energy);
   const build = useStore((s) => s.buildGenerator);
   const def = GENERATORS[type];
-  const stats = getGeneratorStats(type);
+  const stats = getGeneratorStats(type, bonuses);
+  const unlockedBy = findUnlockingResearch(type);
   const locked = block === 'locked';
   const tooltipId = `gen-tip-${type}`;
 
@@ -54,6 +65,9 @@ export default function GeneratorCard({ type, block }: { type: GeneratorType; bl
           <span className={FUEL_CLASS}>🔥 Burns: </span>
           <CostList cost={def.maintenanceCost} suffix="/h" className={FUEL_CLASS} />
         </div>
+      )}
+      {locked && unlockedBy && (
+        <div className="text-xs text-sky-300">Needs research: {unlockedBy.name}</div>
       )}
       <button
         type="button"

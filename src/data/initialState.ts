@@ -13,6 +13,8 @@ export const createInitialState = (now = Date.now()): GameState => ({
   depletedResources: [],
   activeGenerators: [],
   researchLevel: 1,
+  currentResearch: null,
+  completedResearch: [],
   roomCapacity: 10,
   roomUsed: 0,
   expansionLevel: 0,

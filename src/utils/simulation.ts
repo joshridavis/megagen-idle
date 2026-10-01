@@ -1,6 +1,8 @@
 import { GENERATORS } from '../data/generators';
 import { SIM_STEP_SECONDS } from '../data/time';
+import { getBonuses } from './bonuses';
 import { calculateEnergyRate } from './energyGeneration';
+import { completeResearch, researchFinishTime } from './researchSystem';
 import type { ResourceId, GameState } from '../types/state';
 import { accrueResources, burnFuel } from './resourceSystem';
 
@@ -11,17 +13,28 @@ export interface TimeReport {
   depleted: ResourceId[];
   /** Generators switched off for lack of fuel. */
   deactivated: string[];
+  /** Research finished during this time. */
+  completedResearch: string[];
 }
 
 /**
- * Pure: advances the game by `seconds`. Gaps are split into SIM_STEP_SECONDS
- * steps; each step runs producers, then burns fuel (switching off generators
- * that run dry), then adds energy from whatever is still running.
+ * Pure: advances the game by `seconds`, ending at epoch ms `endTime`. Gaps are
+ * split into SIM_STEP_SECONDS steps; each step runs producers, then burns
+ * fuel (switching off generators that run dry), then adds energy from
+ * whatever is still running, then finishes research whose time has come.
+ * Research is timestamp-based, so it completes even beyond the offline cap.
  */
-export function advanceTime(state: GameState, seconds: number): { state: GameState; report: TimeReport } {
-  const report: TimeReport = { seconds: 0, energyGained: 0, depleted: [], deactivated: [] };
-  if (!(seconds > 0)) return { state, report };
+export function advanceTime(
+  state: GameState,
+  seconds: number,
+  endTime = state.lastSavedTimestamp + Math.max(0, seconds) * 1000,
+): { state: GameState; report: TimeReport } {
+  const report: TimeReport = { seconds: 0, energyGained: 0, depleted: [], deactivated: [], completedResearch: [] };
   let s = state;
+  if (!(seconds > 0)) {
+    s = finishResearch(s, endTime, report);
+    return { state: s, report };
+  }
   let left = seconds;
   while (left > 0) {
     const dt = Math.min(SIM_STEP_SECONDS, left);
@@ -38,6 +51,7 @@ export function advanceTime(state: GameState, seconds: number): { state: GameSta
     s = { ...s, energy: s.energy + gained };
     report.energyGained += gained;
     report.seconds += dt;
+    s = finishResearch(s, endTime - left * 1000, report);
   }
   if (report.depleted.length) {
     const merged = [...new Set([...state.depletedResources, ...report.depleted])];
@@ -46,12 +60,19 @@ export function advanceTime(state: GameState, seconds: number): { state: GameSta
   return { state: s, report };
 }
 
+function finishResearch(s: GameState, now: number, report: TimeReport): GameState {
+  const finish = researchFinishTime(s);
+  if (finish === null || now < finish) return s;
+  report.completedResearch.push(s.currentResearch!.id);
+  return deriveRates(completeResearch(s));
+}
+
 /**
  * Recomputes the cached derived values (energy rate, room used) from built
- * generators. The single place these are calculated.
+ * generators and research bonuses. The single place these are calculated.
  */
 export function deriveRates(state: GameState): GameState {
-  const energyPerSecond = calculateEnergyRate(state.activeGenerators);
+  const energyPerSecond = calculateEnergyRate(state.activeGenerators, getBonuses(state.completedResearch));
   const roomUsed = state.activeGenerators.reduce((sum, g) => sum + (GENERATORS[g.type]?.roomCost ?? 0), 0);
   if (energyPerSecond === state.energyPerSecond && roomUsed === state.roomUsed) return state;
   return { ...state, energyPerSecond, roomUsed };

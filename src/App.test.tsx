@@ -71,7 +71,7 @@ describe('Generator UI loop', () => {
   });
 
   it('disables building with the reason when short of resources', () => {
-    useStore.setState(createInitialState(Date.now()));
+    useStore.setState({ ...createInitialState(Date.now()), completedResearch: ['fossil_fuels'] });
     render(<App />);
     const coal = screen.getByTestId('generator-card-coal');
     const btn = coal.querySelector('button')!;
@@ -99,5 +99,16 @@ describe('Energy cost UI (playtest 2)', () => {
     expect(screen.getByTestId('energy-cost-solar').textContent).toContain('300 energy');
     expect(screen.getByTestId('energy-cost-solar').className).toContain('text-red-400');
     expect(screen.getByTestId('generator-card-solar').querySelector('button')!.textContent).toBe('Not enough energy');
+  });
+});
+
+describe('Research gating in the build grid', () => {
+  it('locks Wind and Coal on a fresh save and names the research that unlocks them', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    const wind = screen.getByTestId('generator-card-wind');
+    expect(wind.querySelector('button')!.textContent).toBe('Locked');
+    expect(wind.textContent).toContain('Wind Power Fundamentals');
+    expect(screen.getByTestId('generator-card-solar').querySelector('button')!.disabled).toBe(false);
   });
 });

@@ -1,5 +1,6 @@
 import type { Generator } from './generator';
 import type { ProducerId } from './resource';
+import type { CurrentResearch } from './research';
 
 export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas';
 
@@ -34,7 +35,11 @@ export interface GeneratorState {
 }
 
 export interface ResearchState {
+  /** Rises by one each time a research completes. */
   researchLevel: number;
+  currentResearch: CurrentResearch | null;
+  /** IDs of finished research, in completion order. */
+  completedResearch: string[];
 }
 
 export interface RoomState {
