@@ -73,7 +73,7 @@ If an item cannot be finished, mark it `Partial`, explain why in the PR, and go 
 `PLAYTEST_EVERY` is set at the top of `BACKLOG.md` (default 5). After that many completed items since the last checkpoint:
 
 1. Check that the game is **playable**: `npm run build` and `npm test` pass, the app loads, and the features finished since the last checkpoint can be reached from the UI. If not, keep working and check again after each next item.
-2. If playable, write or update `PLAYTEST.md` in the repo root with: how to play it (the GitHub Pages URL once item 0.22 is merged and Pages is enabled; otherwise `npm install` then `npm run dev`), what is new since the last playtest, 5 to 10 concrete things to try, known issues, and specific questions about feel and pacing.
+2. If playable, write or update `PLAYTEST.md` in the repo root with: how to play it (the GitHub Pages URL once item 0.22 is merged and Pages is enabled; otherwise `npm install` then `npm run dev`), what is new since the last playtest, 5 to 10 concrete things to try, known issues, and specific questions about feel and pacing. Always run `npm run simulate` first and state the **estimated hours to 100% completion** (and the key milestone times) in `PLAYTEST.md` and in the message to the owner (owner request, playtest 10).
 3. Add a row to the Playtest log in `BACKLOG.md`.
 4. Bump the minor version in `package.json` (`0.5.0` → `0.6.0`; patch for a hotfix). The game footer shows it; mention it in `PLAYTEST.md`, the Playtest log and the PR.
 5. **Stop and tell the owner it is ready to test.** This is the only planned pause.
