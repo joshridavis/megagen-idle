@@ -12,7 +12,7 @@ This first build is tiny on purpose: it checks that the game runs, saves, and ke
 Everything (this is the first one):
 - Energy counter with a lightning-bolt icon, rising by 1 per second.
 - "Generate energy" button: +1 energy per click, with a small "+1" pop.
-- Autosave to your browser (IndexedDB) and offline gains, capped at 8 hours.
+- Autosave to your browser (IndexedDB) and offline gains, capped at 24 hours.
 - Live site deploy and CI checks on pull requests.
 
 ## Things to try

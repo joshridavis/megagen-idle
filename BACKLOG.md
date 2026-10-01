@@ -22,6 +22,7 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
+0. 0.48 Offline cap to 24 hours (playtest 1 feedback)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -97,6 +98,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 ---
 
 ## Items
+
+### 0.48 — Offline cap to 24 hours — CODE — Done
+**Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.
+**Details:** set `MAX_OFFLINE_SECONDS` in `src/data/time.ts` to 24 hours. Update the offline-cap mention in `PLAYTEST.md` and any test that relies on the old value. Keep click value and click feedback unchanged (owner is happy with them).
+**Acceptance:** a gap longer than 24 h credits exactly 24 h of production; a 12 h gap is credited in full; tests pass.
 
 ### 0.00 — Create the project from scratch — CODE — Done
 **Goal:** a working, buildable game skeleton that shows something on screen.
@@ -316,4 +322,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 
 | Checkpoint | After item | Date | Owner feedback | Items created |
 |---|---|---|---|---|
-| 1 | 0.37 | 2026-10-01 | (waiting for owner) | |
+| 1 | 0.37 | 2026-10-01 | Works. Click value and click feedback feel right; colours suit the game. Offline cap should be 24 h, not 8 h. | 0.48 |

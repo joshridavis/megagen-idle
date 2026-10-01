@@ -61,3 +61,17 @@ describe('tick', () => {
     expect(useStore.getState().lastSavedTimestamp).toBe(T0 - 5000);
   });
 });
+
+describe('offline cap (playtest 1: 24 hours)', () => {
+  it('is 24 hours', () => {
+    expect(MAX_OFFLINE_SECONDS).toBe(24 * 3600);
+  });
+  it('credits a 12 hour gap in full', () => {
+    tick(T0 + 12 * 3600 * 1000);
+    expect(useStore.getState().energy).toBeCloseTo(12 * 3600);
+  });
+  it('credits exactly 24 hours for a 30 hour gap', () => {
+    tick(T0 + 30 * 3600 * 1000);
+    expect(useStore.getState().energy).toBeCloseTo(24 * 3600);
+  });
+});

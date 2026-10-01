@@ -1,5 +1,5 @@
 /** Longest stretch of offline time credited on load (seconds). Tune here. */
-export const MAX_OFFLINE_SECONDS = 8 * 60 * 60;
+export const MAX_OFFLINE_SECONDS = 24 * 60 * 60;
 
 /** Heartbeat interval for the idle engine (milliseconds). */
 export const TICK_INTERVAL_MS = 1000;
