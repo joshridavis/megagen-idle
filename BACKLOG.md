@@ -118,7 +118,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** `clickEnergy` action; click value in `src/data/player.ts` so research can boost it later; click button with press feedback.
 **Acceptance:** each click adds the configured amount; rapid clicking works; unit test for the action.
 
-### 0.22 — Web build and GitHub Pages deploy — CODE — Not started
+### 0.22 — Web build and GitHub Pages deploy — CODE — Done
 **Goal:** the game is live at a URL, so playtests need only a browser.
 **Details:** Vite only (no Webpack). Set `base` in `vite.config.ts` to `/<repo-name>/`, taking the repo name from the git remote rather than guessing. Do not add lossy image compression (it damages pixel art). Add `.github/workflows/deploy.yml` that builds and deploys with the official GitHub Pages actions on pushes to `main`, and `.github/workflows/ci.yml` that runs `npm test` and `npm run build` on pull requests. No script that pushes to `main`.
 **One-time owner step (does not block anything):** set the repo's Pages source to "GitHub Actions". Until then, workflows still pass and this item counts as done.
