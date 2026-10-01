@@ -1,7 +1,7 @@
 import type { ProducerDef, ProducerId } from '../types/resource';
 
 /** Each producer bought costs this many times more than the previous one. */
-export const PRODUCER_COST_GROWTH = 1.15;
+export const PRODUCER_COST_GROWTH = 1.2;
 
 export const PRODUCERS: Record<ProducerId, ProducerDef> = {
   quarry: {

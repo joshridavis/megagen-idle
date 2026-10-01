@@ -15,6 +15,10 @@ const rich = (over: Partial<GameState> = {}): GameState => ({
 });
 
 describe('producer costs', () => {
+  it('grow 20% per owned producer (playtest 5)', () => {
+    expect(PRODUCER_COST_GROWTH).toBe(1.2);
+    expect(getProducerCost('quarry', 1)).toEqual({ energy: 720, resources: { metal: 18 } });
+  });
   it('grow by the growth factor per owned producer', () => {
     expect(getProducerCost('quarry', 0)).toEqual({ energy: 600, resources: { metal: 15 } });
     const third = getProducerCost('quarry', 2);
