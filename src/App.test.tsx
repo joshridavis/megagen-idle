@@ -298,3 +298,13 @@ describe('Producers (0.31)', () => {
     expect(tip.textContent).toContain('Total');
   });
 });
+
+describe('Producer rates', () => {
+  it('shows slow producers per hour', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
+    expect(screen.getByTestId('producer-card-gasWell').textContent).toContain('+6 natural gas/h each');
+    expect(screen.getByTestId('producer-card-quarry').textContent).toContain('+0.100 stone/s each');
+  });
+});

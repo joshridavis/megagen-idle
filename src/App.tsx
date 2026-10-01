@@ -30,7 +30,7 @@ export default function App() {
         <DepletionWarning />
       </header>
       <ResourceDisplay />
-      <nav role="tablist" aria-label="Sections" className="flex gap-2 border-b border-slate-700">
+      <nav role="tablist" aria-label="Sections" className="flex gap-1 border-b border-slate-700 sm:gap-2">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -40,7 +40,7 @@ export default function App() {
             aria-selected={tab === t.id}
             aria-controls={`panel-${t.id}`}
             onClick={() => setTab(t.id)}
-            className={`min-h-11 rounded-t px-4 py-2 font-semibold ${tab === t.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`min-h-11 rounded-t px-3 py-2 text-sm font-semibold sm:px-4 sm:text-base ${tab === t.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
           >
             {t.label}
           </button>

@@ -37,7 +37,9 @@ function ProducerCard({ id }: { id: ProducerId }) {
         <div>
           <h3 className="font-semibold">{def.name}</h3>
           <div className="text-sm text-slate-300">
-            +{perSecond.toFixed(3)} {resource}/s each
+            {perSecond >= 0.01
+              ? `+${perSecond.toFixed(3)} ${resource}/s each`
+              : `+${(perSecond * 3600).toLocaleString('en-US', { maximumFractionDigits: 1 })} ${resource}/h each`}
           </div>
           <div className="text-xs text-slate-400">
             Owned: <strong data-testid={`producer-owned-${id}`}>{owned}</strong> · {def.roomCost} room each
