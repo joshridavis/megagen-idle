@@ -113,7 +113,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - `src/App.tsx` calls `useIdleEngine()` at the top and renders `EnergyDisplay`.
 **Acceptance:** build passes; counter rises about 1 per second; after a refresh it includes time passed; tests cover delta calculation, negative delta, very large gap, and the cap.
 
-### 0.26 — Clicker — CODE — Not started
+### 0.26 — Clicker — CODE — Done
 **Goal:** the player can click to gain energy manually.
 **Details:** `clickEnergy` action; click value in `src/data/player.ts` so research can boost it later; click button with press feedback.
 **Acceptance:** each click adds the configured amount; rapid clicking works; unit test for the action.

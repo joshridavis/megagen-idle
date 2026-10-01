@@ -1,4 +1,4 @@
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import App from './App';
 import { useStore } from './store';
@@ -22,5 +22,16 @@ describe('App smoke test', () => {
     expect(s.roomCapacity).toBe(10);
     expect(s.roomUsed).toBe(0);
     expect(useStore.getState().roomCapacity).toBe(10);
+  });
+});
+
+describe('Clicker UI', () => {
+  it('adds energy when the button is clicked', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    const before = useStore.getState().energy;
+    fireEvent.click(screen.getByRole('button', { name: /generate energy/i }));
+    fireEvent.click(screen.getByRole('button', { name: /generate energy/i }));
+    expect(useStore.getState().energy).toBeCloseTo(before + 2, 1);
   });
 });
