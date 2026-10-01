@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { sprites, type SpriteId } from './assets';
 import ActiveGenerators from './components/ActiveGenerators';
 import ClickButton from './components/ClickButton';
 import DepletionWarning from './components/DepletionWarning';
@@ -13,10 +14,10 @@ import VersionFooter from './components/VersionFooter';
 import { useIdleEngine } from './utils/idleEngine';
 
 type Tab = 'generators' | 'producers' | 'research';
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'generators', label: 'Generators' },
-  { id: 'producers', label: 'Producers' },
-  { id: 'research', label: 'Research' },
+const TABS: { id: Tab; label: string; icon: SpriteId }[] = [
+  { id: 'generators', label: 'Generators', icon: 'solar_panel' },
+  { id: 'producers', label: 'Producers', icon: 'producer_mine' },
+  { id: 'research', label: 'Research', icon: 'research_advanced' },
 ];
 
 export default function App() {
@@ -41,9 +42,12 @@ export default function App() {
             aria-selected={tab === t.id}
             aria-controls={`panel-${t.id}`}
             onClick={() => setTab(t.id)}
-            className={`min-h-11 rounded-t px-3 py-2 text-sm font-semibold sm:px-4 sm:text-base ${tab === t.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`min-h-11 shrink-0 rounded-t px-2 py-2 text-sm font-semibold sm:px-4 sm:text-base ${tab === t.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
           >
-            {t.label}
+            <span className="flex items-center gap-1 sm:gap-1.5">
+              <img src={sprites[t.icon]} alt="" width={20} height={20} className="pixelated h-4 w-4 object-contain sm:h-5 sm:w-5" data-testid={`tab-icon-${t.id}`} />
+              {t.label}
+            </span>
           </button>
         ))}
       </nav>

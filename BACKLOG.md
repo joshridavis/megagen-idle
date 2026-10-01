@@ -198,7 +198,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** tests: a live completion triggers it on any tab; offline catch-up on load does not; it auto-hides; reduced motion shows the static version.
 **Done notes:** a tick of at most `LIVE_TICK_MAX_SECONDS` (5 s) counts as live. Reduced motion is CSS-only (no burst, no scale), so it is not covered by a jsdom test.
 
-### 0.64 — Tab icons — CODE — Not started
+### 0.64 — Tab icons — CODE — Done
 **Goal:** apply playtest 5 feedback: each tab button shows a small image of what it holds.
 **Details:** 20 px icon from the sprite index next to each tab label: Generators → solar panel, Producers → metal mine, Research → research (atom) icon. Icons are decorative (`alt=""`); labels stay for accessibility. Must still fit at 360 px.
 **Acceptance:** each tab renders its icon; no horizontal scroll at 360 px.

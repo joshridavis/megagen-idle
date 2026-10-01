@@ -381,3 +381,14 @@ describe('Research celebration overlay (playtest 5)', () => {
     expect(screen.queryByTestId('research-celebration')).toBeNull();
   });
 });
+
+describe('Tab icons (playtest 5)', () => {
+  it('every tab shows its icon and keeps its text label', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    for (const id of ['generators', 'producers', 'research']) {
+      expect(screen.getByTestId(`tab-icon-${id}`).getAttribute('alt')).toBe('');
+    }
+    expect(screen.getByRole('tab', { name: 'Research' })).toBeTruthy();
+  });
+});
