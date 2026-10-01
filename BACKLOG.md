@@ -357,3 +357,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 1 | 0.37 | 2026-10-01 | Works. Click value and click feedback feel right; colours suit the game. Offline cap should be 24 h, not 8 h. | 0.48 |
 | 2 | 0.09 | 2026-10-01 | Works; layout readable; first Solar buildable at once is right; early metal pace fine for now. Fuel "Burns" line should not share the red of "not enough". Energy needs a use: building should cost energy equal to 10 minutes of the generator's output. | 0.49, 0.50 |
 | 3 | 0.16 | 2026-10-01 | Starting research is clear; first room expansion price good; tree background looks great. Energy costs (build and research) reached too easily: raise them. Research times far too short; each level must take longer than the previous. Show boosts (e.g. Basic Solar) and their effect when hovering the energy rate, later for resources too. | 0.51, 0.52, 0.53 |
+| 4 | 0.36 | 2026-10-01 | (waiting for owner) | |
