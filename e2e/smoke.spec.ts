@@ -1,4 +1,37 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+/**
+ * Waits until the game's IndexedDB save (written asynchronously by
+ * localforage) satisfies `check`, so a reload cannot race the save.
+ * Polls the real stored value; no fixed sleeps.
+ */
+async function waitForSaved(page: Page, check: string) {
+  await page.waitForFunction(
+    async (body) =>
+      new Promise<boolean>((resolve) => {
+        const req = indexedDB.open('megagen-idle');
+        req.onerror = () => resolve(false);
+        req.onsuccess = () => {
+          const db = req.result;
+          try {
+            const get = db.transaction('saves', 'readonly').objectStore('saves').get('megagen-idle-save');
+            get.onsuccess = () => {
+              db.close();
+              const raw = get.result;
+              if (typeof raw !== 'string') return resolve(false);
+              const state = JSON.parse(raw).state;
+              resolve(Boolean(new Function('state', `return (${body});`)(state)));
+            };
+            get.onerror = () => resolve(false);
+          } catch {
+            db.close();
+            resolve(false);
+          }
+        };
+      }),
+    check,
+  );
+}
+
 
 // End-to-end smoke test: no real-time waits. Playwright's auto-waiting
 // assertions poll the UI; nothing depends on the idle clock advancing.
@@ -31,7 +64,8 @@ test('load, click, build, research, reload: state persists', async ({ page }) =>
   await page.keyboard.press('Escape');
   await expect(page.getByText('Researching: Basic Solar')).toBeVisible();
 
-  // reload: generator and research survive
+  // reload: generator and research survive (wait for the async save first)
+  await waitForSaved(page, "state.currentResearch?.id === 'basic_solar' && state.activeGenerators.length === 1");
   await page.reload();
   await expect(page.getByText('Solar Panel #1')).toBeVisible();
   await page.getByRole('tab', { name: 'Research' }).click();
