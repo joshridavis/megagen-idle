@@ -207,16 +207,15 @@ describe('Mid-tier generators UI', () => {
     expect(screen.getByTestId('generator-card-hydro').querySelector('button')!.textContent).toBe('Research level too low');
   });
 
-  it('builds the new meter segments in after expanding', () => {
+  it('shows the new room under construction after expanding, in a fixed-width bar', () => {
     useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0 } });
     render(<App />);
-    const meter = () => screen.getByRole('meter', { name: 'Room used' });
-    expect(meter().querySelectorAll('[data-phase="building"]').length).toBe(0);
+    expect(screen.queryByTestId('room-building')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
-    expect(meter().querySelectorAll('img').length).toBe(23);
-    // right after expanding: the first new segment is scaffolding, the old 13 are untouched
-    expect(meter().querySelectorAll('img')[13].getAttribute('data-phase')).toBe('building');
-    expect(meter().querySelectorAll('img')[12].getAttribute('data-phase')).toBe('done');
+    const building = screen.getByTestId('room-building');
+    // new room is the last 10 of 23
+    expect(building.style.left).toBe(`${(13 / 23) * 100}%`);
+    expect(screen.getByRole('meter', { name: 'Room used' }).getAttribute('aria-valuemax')).toBe('23');
   });
 });
 

@@ -5,7 +5,7 @@ import { ROOM_TIERS } from '../data/rooms';
 import { GeneratorType } from '../types/generator';
 import type { GameState } from '../types/state';
 import { buildGenerator, getBuildBlock } from './generatorSystem';
-import { canExpandRoom, expandRoom, expansionSegmentPhase, getExpandBlock, getNextRoomTier, isExpansionAnimating, lastExpansionSize, isRoomNearlyFull } from './roomSystem';
+import { canExpandRoom, expandRoom, expansionBarPhase, getExpandBlock, getNextRoomTier, isExpansionAnimating, lastExpansionSize, isRoomNearlyFull } from './roomSystem';
 
 const rich = (over: Partial<GameState> = {}): GameState => ({
   ...createInitialState(0),
@@ -65,15 +65,15 @@ describe('room expansion', () => {
   });
 });
 
-describe('expansion animation: meter grows (playtest 4, absorbs 0.21)', () => {
-  it('new segments appear one by one as scaffolding, then settle', () => {
-    // 10 old segments, 10 new (indices 10..19), 2000 ms
-    expect(expansionSegmentPhase(5, 10, 20, 0)).toBe('done'); // old segment untouched
-    expect(expansionSegmentPhase(10, 10, 20, 0)).toBe('building'); // first new appears at once
-    expect(expansionSegmentPhase(19, 10, 20, 0)).toBe('hidden'); // last not yet
-    expect(expansionSegmentPhase(19, 10, 20, 1200)).toBe('building'); // all shown by 60%
-    expect(expansionSegmentPhase(19, 10, 20, 2000)).toBe('done'); // settled at the end
-    expect(expansionSegmentPhase(19, 10, 20, null)).toBe('done'); // no expansion yet
+describe('expansion animation: room bar (playtest 7 redesign, absorbs 0.21)', () => {
+  it('the new room slides in over the first half, holds, then settles', () => {
+    expect(expansionBarPhase(null)).toEqual({ building: false, reveal: 1 });
+    expect(expansionBarPhase(0)).toEqual({ building: true, reveal: 0 });
+    expect(expansionBarPhase(500)).toEqual({ building: true, reveal: 0.5 });
+    expect(expansionBarPhase(1000)).toEqual({ building: true, reveal: 1 });
+    expect(expansionBarPhase(1999)).toEqual({ building: true, reveal: 1 });
+    expect(expansionBarPhase(2000)).toEqual({ building: false, reveal: 1 });
+    expect(expansionBarPhase(-1)).toEqual({ building: false, reveal: 1 });
   });
 
   it('is driven only by the expansion timestamp', () => {

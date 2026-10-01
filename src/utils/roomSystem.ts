@@ -51,25 +51,18 @@ export function lastExpansionSize(expansionLevel: number): number {
   return ROOM_TIERS[expansionLevel - 1]?.capacity ?? 0;
 }
 
-export type SegmentPhase = 'hidden' | 'building' | 'done';
-
 /**
- * Phase of one capacity-meter segment during the expansion animation, derived
- * only from the elapsed time since `lastExpansionAt` so it cannot desync.
- * New segments (index >= firstNew) appear one after another as scaffolding
- * over the first 60% of the animation, then all settle when it ends.
+ * Room-bar expansion animation (playtest 7 redesign), derived only from the
+ * time since `lastExpansionAt` so it cannot desync. For the first half the
+ * new room's share of the bar slides in (reveal 0 -> 1) as "under
+ * construction"; it holds until the end, then becomes normal free room.
  */
-export function expansionSegmentPhase(
-  index: number,
-  firstNew: number,
-  totalSegments: number,
+export function expansionBarPhase(
   elapsedMs: number | null,
   durationMs = EXPANSION_ANIMATION_MS,
-): SegmentPhase {
-  if (elapsedMs === null || elapsedMs < 0 || elapsedMs >= durationMs || index < firstNew) return 'done';
-  const n = Math.max(1, totalSegments - firstNew);
-  const appearAt = ((index - firstNew) * (durationMs * 0.6)) / n;
-  return elapsedMs < appearAt ? 'hidden' : 'building';
+): { building: boolean; reveal: number } {
+  if (elapsedMs === null || elapsedMs < 0 || elapsedMs >= durationMs) return { building: false, reveal: 1 };
+  return { building: true, reveal: Math.min(1, elapsedMs / (durationMs / 2)) };
 }
 
 /** True while the expansion animation is running. */

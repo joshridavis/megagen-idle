@@ -231,10 +231,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** a compact chip under the top bar ("🔬 Wind Power Fundamentals · 12m 30s left" with a thin progress bar), visible on every tab; clicking it opens the Research tab. Hidden when nothing runs. The running research node gets a blinking (pulsing glow) border; `prefers-reduced-motion` gets a steady highlight instead.
 **Acceptance:** UI tests: chip on the Generators tab shows name and time left; click switches to Research; node has the running animation class.
 
-### 0.73 — Room meter redesign and expansion animation — CODE — Not started
+### 0.73 — Room meter redesign and expansion animation — CODE — Done
 **Goal:** apply playtest 7 feedback: the segment build-in still looks odd (segments wrap onto new lines and shift).
 **Details:** replace the segment grid with one fixed-width bar: used room (green, red at 90%+) and free room. After an expansion, the newly added share of the bar appears as an amber striped "under construction" section that slides in over about 1 s, holds, then turns into normal free room by 2 s. Still derived only from `lastExpansionAt`; reduced motion shows the final state. Tick marks every 10 room keep scale readable.
 **Acceptance:** tests for the new segment phase logic; no layout shift (bar width fixed); screenshots in the PR.
+**Done notes:** the owner's video did not come through, so the fix assumes the problem was segments wrapping and shifting. Stripes are CSS (AAP-64 amber and dark brown); the `capacity_*` sprites are no longer used by the bar but stay in the manifest.
 
 ### 0.74 — More room expansion tiers — CODE — Not started
 **Goal:** apply playtest 7 feedback: more room tiers (finite).
