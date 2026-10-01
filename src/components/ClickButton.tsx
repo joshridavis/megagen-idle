@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react';
 import { useStore } from '../store';
 import { getClickBreakdown } from '../utils/breakdown';
 import BreakdownTooltip from './BreakdownTooltip';
+import { useNumberFormat } from './useNumberFormat';
 
 export default function ClickButton() {
   const clickEnergy = useStore((s) => s.clickEnergy);
   const completed = useStore((s) => s.completedResearch);
   const click = useMemo(() => getClickBreakdown(completed), [completed]);
-  const clickText = click.total.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  const fmt = useNumberFormat();
+  const clickText = click.total < 10 && click.total % 1 ? fmt.rate(click.total) : fmt.num(click.total);
   const [pops, setPops] = useState<number[]>([]);
 
   const onClick = () => {

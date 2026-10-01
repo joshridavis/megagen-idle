@@ -6,7 +6,7 @@ export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas';
 
 export type Resources = Record<ResourceId, number>;
 
-export type NumberNotation = 'short' | 'scientific';
+export type NumberNotation = 'short' | 'scientific' | 'full';
 
 /** Player preferences. No audio settings: audio is out of scope. */
 export interface Settings {

@@ -10,6 +10,7 @@ import {
   lastExpansionSize,
 } from '../utils/roomSystem';
 import CostList from './CostList';
+import { useNumberFormat } from './useNumberFormat';
 
 /** Milliseconds since the last expansion while its animation runs, else null. Frame-driven. */
 function useExpansionElapsed(lastExpansionAt: number | null): number | null {
@@ -96,6 +97,7 @@ export default function RoomPanel() {
   const block = getExpandBlock(state);
   const warn = isRoomNearlyFull(state);
   const elapsed = useExpansionElapsed(state.lastExpansionAt);
+  const fmt = useNumberFormat();
 
   return (
     <section aria-label="Room" className="w-full rounded-lg bg-slate-800 p-3">
@@ -141,7 +143,7 @@ export default function RoomPanel() {
           <div>
             <span className="text-slate-400">Cost: </span>
             <span className="inline-flex flex-wrap gap-x-2">
-              <span className={state.energy < next.energy ? 'text-red-400' : ''}>{next.energy.toLocaleString('en-US')} energy</span>
+              <span className={state.energy < next.energy ? 'text-red-400' : ''}>{fmt.num(next.energy)} energy</span>
               <CostList cost={next.resources} have={state.resources} />
             </span>
           </div>

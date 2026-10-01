@@ -10,6 +10,7 @@ import { getProducerBlock, getProducerCost, type ProducerBlock } from '../utils/
 import CostList from './CostList';
 import { PRODUCER_SPRITES } from './producerSprites';
 import { ScrapButton, ScrapQuantityConfirm } from './Scrap';
+import { useNumberFormat } from './useNumberFormat';
 
 const BLOCK_TEXT: Record<ProducerBlock, string> = {
   locked: 'Locked',
@@ -24,6 +25,7 @@ function ProducerCard({ id }: { id: ProducerId }) {
   const scrap = useStore((s) => s.scrapProducer);
   const [confirming, setConfirming] = useState(false);
   const def = PRODUCERS[id];
+  const fmt = useNumberFormat();
   const bonuses = getBonuses(state.completedResearch);
   const owned = state.producers[id] ?? 0;
   const cost = getProducerCost(id, owned, bonuses);
@@ -53,7 +55,7 @@ function ProducerCard({ id }: { id: ProducerId }) {
       <div className="text-sm">
         <span className="text-slate-400">Next costs: </span>
         <span className="inline-flex flex-wrap gap-x-2">
-          <span className={state.energy < cost.energy ? 'text-red-400' : ''}>{cost.energy.toLocaleString('en-US')} energy</span>
+          <span className={state.energy < cost.energy ? 'text-red-400' : ''}>{fmt.num(cost.energy)} energy</span>
           <CostList cost={cost.resources} have={state.resources} />
         </span>
       </div>

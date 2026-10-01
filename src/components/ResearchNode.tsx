@@ -3,6 +3,7 @@ import type { ResearchDef } from '../types/research';
 import type { NodeStatus } from './researchStatus';
 import { getResearchRewards } from './researchRewards';
 import { RESEARCH_ICONS } from './researchSprites';
+import { useNumberFormat } from './useNumberFormat';
 
 export const NODE_W = 184;
 export const NODE_H = 84;
@@ -37,6 +38,7 @@ export default function ResearchNode({
   onOpen: () => void;
 }) {
   const reward = getResearchRewards(def)[0];
+  const fmt = useNumberFormat();
   return (
     <button
       type="button"
@@ -52,7 +54,7 @@ export default function ResearchNode({
       <span className="min-w-0 flex-1 leading-tight">
         <span className="block truncate text-sm font-semibold">{def.name}</span>
         <span className="block text-xs text-slate-400">
-          Needs level {def.requiredLevel} · {def.cost.energy.toLocaleString('en-US')} energy
+          Needs level {def.requiredLevel} · {fmt.num(def.cost.energy)} energy
         </span>
         {reward && <span className="block truncate text-xs text-emerald-300">🎁 {reward.short}</span>}
       </span>

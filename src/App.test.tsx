@@ -1,6 +1,7 @@
 import { act, render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import { pickSaved } from './store/migrations';
 import pkg from '../package.json';
 import { useStore } from './store';
 import { createInitialState } from './data/initialState';
@@ -449,9 +450,9 @@ describe('Welcome back and settings (0.28)', () => {
     });
     render(<App />);
     const d = screen.getByTestId('welcome-back');
-    expect(d.textContent).toContain('3d 0h');
-    expect(d.textContent).toContain('Only the first 1d 0h count');
-    expect(d.textContent).toContain('+4,321');
+    expect(d.textContent).toContain('3d');
+    expect(d.textContent).toContain('Only the first 1d count');
+    expect(d.textContent).toContain('+4.32K');
     expect(d.textContent).toContain('Research complete: Basic Solar');
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(screen.queryByTestId('welcome-back')).toBeNull();
@@ -477,5 +478,39 @@ describe('Welcome back and settings (0.28)', () => {
     fireEvent.change(screen.getByLabelText('Import save file'), { target: { files: [new File([text], 's.json')] } });
     fireEvent.click(await screen.findByRole('button', { name: 'Load this save' }));
     expect(useStore.getState().energy).toBe(4242);
+  });
+});
+
+describe('Settings (0.29)', () => {
+  it('number notation preference changes the display and is part of the save', () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 1_234_567 });
+    render(<App />);
+    expect(screen.getByLabelText('Energy total').textContent).toBe('1.23M');
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+    fireEvent.click(screen.getByRole('radio', { name: /Scientific/ }));
+    expect(screen.getByLabelText('Energy total').textContent).toBe('1.23e6');
+    expect(pickSaved(useStore.getState()).settings.notation).toBe('scientific');
+  });
+
+  it('reset needs two confirmations; Cancel keeps the game', () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 50_000, researchLevel: 4 });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Reset game…' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(useStore.getState().energy).toBe(50_000);
+    fireEvent.click(screen.getByRole('button', { name: 'Reset game…' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Yes, reset' }));
+    expect(useStore.getState().energy).toBe(50_000);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete everything' }));
+    expect(useStore.getState().energy).toBe(900);
+    expect(useStore.getState().researchLevel).toBe(1);
+  });
+
+  it('notes the offline cap', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+    expect(screen.getByRole('region', { name: 'Settings' }).textContent).toContain('for up to 1d');
   });
 });

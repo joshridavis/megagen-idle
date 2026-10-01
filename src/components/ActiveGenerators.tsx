@@ -7,6 +7,7 @@ import { getBonuses } from '../utils/bonuses';
 import { getGeneratorOutput } from '../utils/energyGeneration';
 import { GENERATOR_SPRITES } from './generatorSprites';
 import { ScrapButton, ScrapConfirm } from './Scrap';
+import { useNumberFormat } from './useNumberFormat';
 
 function statusOf(g: Generator) {
   if (g.isActive) return { text: 'Running', className: 'text-emerald-400' };
@@ -23,6 +24,7 @@ export default function ActiveGenerators() {
   const [confirming, setConfirming] = useState<string | null>(null);
   const completed = useStore((s) => s.completedResearch);
   const bonuses = useMemo(() => getBonuses(completed), [completed]);
+  const fmt = useNumberFormat();
   return (
     <section aria-label="Your generators" className="w-full">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
@@ -95,7 +97,7 @@ export default function ActiveGenerators() {
                   <div className="font-medium">{name}</div>
                   <div className="text-xs">
                     <span className={status.className}>{status.text}</span>
-                    <span className="text-slate-400"> · +{getGeneratorOutput(g, bonuses).toFixed(1)} energy/s · {def.roomCost} room</span>
+                    <span className="text-slate-400"> · +{fmt.rate(getGeneratorOutput(g, bonuses))} energy/s · {def.roomCost} room</span>
                   </div>
                 </div>
                 <button

@@ -5,8 +5,7 @@ import { RESOURCE_IDS, RESOURCE_NAMES } from '../data/resources';
 import { MAX_OFFLINE_SECONDS } from '../data/time';
 import { useStore } from '../store';
 import { formatDuration } from '../utils/format';
-
-const fmt = (n: number) => Math.floor(n).toLocaleString('en-US');
+import { useNumberFormat } from './useNumberFormat';
 
 /** "Welcome back" summary of what happened while the game was closed. */
 export default function WelcomeBack() {
@@ -14,6 +13,7 @@ export default function WelcomeBack() {
   const generators = useStore((s) => s.activeGenerators);
   const dismiss = useStore((s) => s.dismissWelcomeBack);
   const btn = useRef<HTMLButtonElement>(null);
+  const { num: fmt } = useNumberFormat();
 
   useEffect(() => {
     if (!report) return;

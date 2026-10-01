@@ -46,7 +46,7 @@ The game shows its release version (from `package.json`) at the bottom of the sc
 
 ## Saves
 
-The game saves automatically in your browser (IndexedDB). In the **Settings** tab you can **export** the save to a JSON file and **import** it again, for backups or to move to another device; a damaged or wrong file is rejected without touching your current game. To start over, clear the site data for the page (browser settings → site data). An in-game reset button arrives with item 0.29.
+The game saves automatically in your browser (IndexedDB). In the **Settings** tab you can **export** the save to a JSON file and **import** it again, for backups or to move to another device; a damaged or wrong file is rejected without touching your current game. To start over, use **Reset game** in the Settings tab (it asks twice). Settings also has the number notation choice (short 1.23M, scientific 1.23e6, or full).
 
 ## More
 

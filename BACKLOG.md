@@ -333,10 +333,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** export, reset, import restores the exact state; corrupt file rejected safely; migration test passes.
 **Done notes:** export/import live in a new Settings tab (0.29 adds reset and preferences there). Importing sets the save time to the moment of import, so no offline gains are credited for the time between export and import. The welcome-back summary appears after at least 60 s away (`WELCOME_BACK_MIN_SECONDS`) and says when the 24 h cap applied. On phones, inactive tabs show only their icon so four tabs fit at 360 px.
 
-### 0.29 — Number formatting and settings screen — CODE — Not started
+### 0.29 — Number formatting and settings screen — CODE — Done
 **Goal:** big numbers stay readable and the player has basic controls.
 **Details:** `formatNumber` (999, 1.2K, 3.4M, up to a scientific-notation threshold) used everywhere energy, resources and rates appear. Settings screen: reset save with two-step confirmation, export and import buttons from 0.28, number notation preference, and a note on the offline gain cap. No audio settings.
 **Acceptance:** unit tests at boundaries (0, 999, 1000, 1e6, 1e15, negative, NaN); reset works; preference persists.
+**Done notes:** three notations: short (default, 3 significant digits, K/M/B/T, scientific from `SCIENTIFIC_THRESHOLD` = 1e15), scientific, and full. Values are cut off, never rounded up, so the display never shows more than the player has. NaN shows "—".
 
 ### 0.30 — Permanent-boost research — CODE — Not started
 **Goal:** research that improves the whole game, as the design describes.
