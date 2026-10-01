@@ -297,6 +297,16 @@ function roomExpansion() {
   return c;
 }
 
+/** Room segment under construction: amber scaffold cross-bracing. */
+function capacityBuilding() {
+  const c = new Canvas(16, 16);
+  c.box(1, 1, 14, 14, C.brown5, C.amber);
+  c.line(2, 2, 13, 13, C.amber);
+  c.line(13, 2, 2, 13, C.amber);
+  c.rect(1, 7, 14, 2, C.yellow);
+  return c;
+}
+
 function capacity(fill, light, border) {
   const c = new Canvas(16, 16);
   c.box(1, 1, 14, 14, fill, border);
@@ -443,6 +453,7 @@ const DRAW = {
   capacity_empty: () => capacity(C.grey6, null, C.grey4),
   capacity_filled: () => capacity(C.green, C.lime, C.forest),
   capacity_critical: () => capacity(C.red, C.orange, C.darkRed),
+  capacity_building: capacityBuilding,
   research_energy: researchEnergy,
   research_materials: researchMaterials,
   research_efficiency: researchEfficiency,

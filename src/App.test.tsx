@@ -207,12 +207,16 @@ describe('Mid-tier generators UI', () => {
     expect(screen.getByTestId('generator-card-hydro').querySelector('button')!.textContent).toBe('Research level too low');
   });
 
-  it('plays the construction animation after expanding', () => {
+  it('builds the new meter segments in after expanding', () => {
     useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0 } });
     render(<App />);
-    expect(screen.queryByTestId('expansion-animation')).toBeNull();
+    const meter = () => screen.getByRole('meter', { name: 'Room used' });
+    expect(meter().querySelectorAll('[data-phase="building"]').length).toBe(0);
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
-    expect(useStore.getState().lastExpansionAt).not.toBeNull();
+    expect(meter().querySelectorAll('img').length).toBe(20);
+    // right after expanding: the first new segment is scaffolding, the old ten are untouched
+    expect(meter().querySelectorAll('img')[10].getAttribute('data-phase')).toBe('building');
+    expect(meter().querySelectorAll('img')[9].getAttribute('data-phase')).toBe('done');
   });
 });
 

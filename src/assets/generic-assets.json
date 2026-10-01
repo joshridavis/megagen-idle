@@ -28,6 +28,7 @@
     "sprites/resources/metal.png",
     "sprites/resources/natural_gas.png",
     "sprites/resources/stone.png",
+    "sprites/ui/capacity_building.png",
     "sprites/ui/capacity_critical.png",
     "sprites/ui/capacity_empty.png",
     "sprites/ui/capacity_filled.png",

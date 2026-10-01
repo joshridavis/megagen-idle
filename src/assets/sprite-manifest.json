@@ -23,6 +23,7 @@
   "capacity_empty": { "file": "ui/capacity_empty.png", "width": 16, "height": 16 },
   "capacity_filled": { "file": "ui/capacity_filled.png", "width": 16, "height": 16 },
   "capacity_critical": { "file": "ui/capacity_critical.png", "width": 16, "height": 16 },
+  "capacity_building": { "file": "ui/capacity_building.png", "width": 16, "height": 16 },
   "research_energy": { "file": "research/icon_energy.png", "width": 32, "height": 32 },
   "research_materials": { "file": "research/icon_materials.png", "width": 32, "height": 32 },
   "research_efficiency": { "file": "research/icon_efficiency.png", "width": 32, "height": 32 },

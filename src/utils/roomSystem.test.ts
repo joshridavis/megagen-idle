@@ -5,7 +5,7 @@ import { ROOM_TIERS } from '../data/rooms';
 import { GeneratorType } from '../types/generator';
 import type { GameState } from '../types/state';
 import { buildGenerator, getBuildBlock } from './generatorSystem';
-import { canExpandRoom, expandRoom, getExpandBlock, getExpansionAnimation, getNextRoomTier, isRoomNearlyFull } from './roomSystem';
+import { canExpandRoom, expandRoom, expansionSegmentPhase, getExpandBlock, getNextRoomTier, isExpansionAnimating, lastExpansionSize, isRoomNearlyFull } from './roomSystem';
 
 const rich = (over: Partial<GameState> = {}): GameState => ({
   ...createInitialState(0),
@@ -65,20 +65,29 @@ describe('room expansion', () => {
   });
 });
 
-describe('expansion animation (absorbs 0.21)', () => {
-  it('starts with the expansion and ends 2 seconds later', () => {
+describe('expansion animation: meter grows (playtest 4, absorbs 0.21)', () => {
+  it('new segments appear one by one as scaffolding, then settle', () => {
+    // 10 old segments, 10 new (indices 10..19), 2000 ms
+    expect(expansionSegmentPhase(5, 10, 20, 0)).toBe('done'); // old segment untouched
+    expect(expansionSegmentPhase(10, 10, 20, 0)).toBe('building'); // first new appears at once
+    expect(expansionSegmentPhase(19, 10, 20, 0)).toBe('hidden'); // last not yet
+    expect(expansionSegmentPhase(19, 10, 20, 1200)).toBe('building'); // all shown by 60%
+    expect(expansionSegmentPhase(19, 10, 20, 2000)).toBe('done'); // settled at the end
+    expect(expansionSegmentPhase(19, 10, 20, null)).toBe('done'); // no expansion yet
+  });
+
+  it('is driven only by the expansion timestamp', () => {
     const s = expandRoom(rich(), undefined, 5_000);
     expect(s.lastExpansionAt).toBe(5_000);
-    expect(getExpansionAnimation(s.lastExpansionAt, 4_999).active).toBe(false);
-    expect(getExpansionAnimation(s.lastExpansionAt, 5_000)).toEqual({ active: true, opacity: 0 });
-    expect(getExpansionAnimation(s.lastExpansionAt, 6_000)).toEqual({ active: true, opacity: 1 });
-    expect(getExpansionAnimation(s.lastExpansionAt, 6_500).opacity).toBeCloseTo(0.5);
-    expect(getExpansionAnimation(s.lastExpansionAt, 7_000).active).toBe(false);
+    expect(lastExpansionSize(s.expansionLevel)).toBe(10);
+    expect(isExpansionAnimating(s.lastExpansionAt, 4_999)).toBe(false);
+    expect(isExpansionAnimating(s.lastExpansionAt, 5_000)).toBe(true);
+    expect(isExpansionAnimating(s.lastExpansionAt, 7_000)).toBe(false);
   });
 
   it('a blocked expansion starts no animation', () => {
     const s = expandRoom(rich({ energy: 0 }), undefined, 5_000);
     expect(s.lastExpansionAt).toBeNull();
-    expect(getExpansionAnimation(s.lastExpansionAt, 5_500).active).toBe(false);
+    expect(isExpansionAnimating(s.lastExpansionAt, 5_500)).toBe(false);
   });
 });
