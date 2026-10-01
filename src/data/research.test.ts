@@ -1,0 +1,37 @@
+import { describe, expect, it } from 'vitest';
+import type { ResearchDef } from '../types/research';
+import { RESEARCH, RESEARCH_BY_ID } from './research';
+
+/** Returns every pair that breaks the "higher level takes longer" rule. */
+export function durationRuleViolations(tree: ResearchDef[]): string[] {
+  const byId = Object.fromEntries(tree.map((r) => [r.id, r]));
+  const out: string[] = [];
+  for (const a of tree) {
+    for (const b of tree) {
+      if (a.requiredLevel < b.requiredLevel && b.duration <= a.duration) {
+        out.push(`${b.id} (level ${b.requiredLevel}) must take longer than ${a.id} (level ${a.requiredLevel})`);
+      }
+    }
+    for (const p of a.prerequisites) {
+      if (byId[p] && a.duration <= byId[p].duration) out.push(`${a.id} must take longer than its prerequisite ${p}`);
+    }
+  }
+  return out;
+}
+
+describe('research durations (playtest 3)', () => {
+  it('every research takes longer than all lower-level research and its prerequisites', () => {
+    expect(durationRuleViolations(RESEARCH)).toEqual([]);
+  });
+
+  it('the rule check catches a violation', () => {
+    const bad = RESEARCH.map((r) => (r.id === 'wind_power' ? { ...r, duration: 60 } : r));
+    expect(durationRuleViolations(bad).length).toBeGreaterThan(0);
+  });
+
+  it('uses the playtest 3 durations', () => {
+    expect(RESEARCH_BY_ID.basic_solar.duration).toBe(10 * 60);
+    expect(RESEARCH_BY_ID.wind_power.duration).toBe(30 * 60);
+    expect(RESEARCH_BY_ID.fossil_fuels.duration).toBe(45 * 60);
+  });
+});

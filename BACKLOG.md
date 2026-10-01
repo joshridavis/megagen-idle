@@ -109,7 +109,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** raise `GENERATOR_ENERGY_COST_SECONDS` from 600 (10 minutes of output) to 1800 (30 minutes): Solar 900, Wind 1,440, Coal 3,600. Keep the first Solar Panel buildable at once by setting `STARTING_ENERGY` to its cost (900). Raise research energy costs about 5×: Basic Solar 250, Wind Power Fundamentals 1,000, Fossil Fuels 101 1,500 energy + 10 coal. Room expansion prices stay (owner: "good"). All numbers stay in data files.
 **Acceptance:** tests for the new costs; a fresh save can still build a Solar Panel at once; a pacing probe shows no stall (idle player still reaches every current unlock).
 
-### 0.52 — Longer research times that grow with level — CODE — Not started
+### 0.52 — Longer research times that grow with level — CODE — Done
 **Goal:** apply playtest 3 feedback: research must take much longer, and each research level must take longer than the one before.
 **Details:** new durations: Basic Solar (level 1) 10 minutes, Wind Power Fundamentals (level 2) 30 minutes, Fossil Fuels 101 (level 2) 45 minutes. Rule, enforced by a data test for all current and future research: a research takes longer than every research with a lower level requirement, and longer than each of its prerequisites. Later items that add research (0.20, 0.30, 0.33, 0.45) must follow it.
 **Acceptance:** the data test passes and fails if the rule is broken; durations shown in the panel match.

@@ -11,6 +11,11 @@ export const BONUS_CAPS = {
   researchSpeed: 4,
 };
 
+/**
+ * Rule (playtest 3): a research takes longer than every research with a lower
+ * level requirement, and longer than each of its prerequisites. Durations are
+ * in seconds. Checked by src/data/research.test.ts.
+ */
 export const RESEARCH: ResearchDef[] = [
   {
     id: 'basic_solar',
@@ -19,7 +24,7 @@ export const RESEARCH: ResearchDef[] = [
     category: 'energy',
     requiredLevel: 1,
     cost: { energy: 250 },
-    duration: 60,
+    duration: 10 * 60,
     prerequisites: [],
     // Needs a panel to improve; also stops the starting energy being spent
     // on research before the first generator, which would leave no income.
@@ -34,7 +39,7 @@ export const RESEARCH: ResearchDef[] = [
     category: 'energy',
     requiredLevel: 2,
     cost: { energy: 1000 },
-    duration: 120,
+    duration: 30 * 60,
     prerequisites: ['basic_solar'],
     unlocks: { generators: [GeneratorType.WIND] },
   },
@@ -45,7 +50,7 @@ export const RESEARCH: ResearchDef[] = [
     category: 'energy',
     requiredLevel: 2,
     cost: { energy: 1500, resources: { coal: 10 } },
-    duration: 180,
+    duration: 45 * 60,
     prerequisites: [],
     unlocks: { generators: [GeneratorType.COAL] },
   },
