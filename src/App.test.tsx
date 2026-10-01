@@ -1,6 +1,7 @@
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import App from './App';
+import pkg from '../package.json';
 import { useStore } from './store';
 import { createInitialState } from './data/initialState';
 import { GeneratorType } from './types/generator';
@@ -21,9 +22,8 @@ describe('App smoke test', () => {
     expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0 });
     expect(s.researchLevel).toBe(1);
     expect(s.activeGenerators).toEqual([]);
-    expect(s.roomCapacity).toBe(10);
-    expect(s.roomUsed).toBe(0);
-    expect(useStore.getState().roomCapacity).toBe(10);
+    expect(s.roomCapacity).toBe(13); // 10 for generators + 3 for the starting producers
+    expect(s.roomUsed).toBe(3);
   });
 });
 
@@ -157,12 +157,12 @@ describe('Room UI', () => {
     });
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
-    expect(useStore.getState().roomCapacity).toBe(20);
-    expect(screen.getByTestId('room-usage').textContent).toBe('0/20');
+    expect(useStore.getState().roomCapacity).toBe(23);
+    expect(screen.getByTestId('room-usage').textContent).toBe('3/23');
   });
 
   it('warns when room is 90% used', () => {
-    useStore.setState({ ...createInitialState(Date.now()), roomUsed: 9 });
+    useStore.setState({ ...createInitialState(Date.now()), roomUsed: 12 });
     render(<App />);
     expect(screen.getByRole('status').textContent).toContain('nearly full');
   });
@@ -206,16 +206,34 @@ describe('Mid-tier generators UI', () => {
     expect(screen.getByTestId('generator-card-hydro').querySelector('button')!.textContent).toBe('Research level too low');
   });
 
-  it('plays the construction animation after expanding', () => {
+  it('builds the new meter segments in after expanding', () => {
     useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0 } });
     render(<App />);
-    expect(screen.queryByTestId('expansion-animation')).toBeNull();
+    const meter = () => screen.getByRole('meter', { name: 'Room used' });
+    expect(meter().querySelectorAll('[data-phase="building"]').length).toBe(0);
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
-    expect(useStore.getState().lastExpansionAt).not.toBeNull();
+    expect(meter().querySelectorAll('img').length).toBe(23);
+    // right after expanding: the first new segment is scaffolding, the old 13 are untouched
+    expect(meter().querySelectorAll('img')[13].getAttribute('data-phase')).toBe('building');
+    expect(meter().querySelectorAll('img')[12].getAttribute('data-phase')).toBe('done');
   });
 });
 
 describe('Scrap', () => {
+  it('tells the player there is no refund, and Cancel keeps the generator', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Build Solar Panel' }));
+    const scrapBtn = screen.getByRole('button', { name: 'Scrap Solar Panel #1' });
+    expect(document.getElementById(scrapBtn.getAttribute('aria-describedby')!)!.textContent).toContain('No refund');
+    fireEvent.click(scrapBtn);
+    expect(screen.getByRole('alert').textContent).toContain('No refund');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap Solar Panel #1' }));
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(useStore.getState().activeGenerators).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Scrap Solar Panel #1' })).toBeTruthy();
+  });
+
   it('needs a confirm click, then frees the room', () => {
     useStore.setState(createInitialState(Date.now()));
     render(<App />);
@@ -224,6 +242,69 @@ describe('Scrap', () => {
     expect(useStore.getState().activeGenerators).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Solar Panel #1' }));
     expect(useStore.getState().activeGenerators).toHaveLength(0);
-    expect(useStore.getState().roomUsed).toBe(0);
+    expect(useStore.getState().roomUsed).toBe(3); // only the starting producers
+  });
+});
+
+describe('Version footer (playtest 4)', () => {
+  it('shows the package.json version', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    expect(screen.getByTestId('version').textContent).toContain(`v${pkg.version}`);
+  });
+});
+
+describe('Research level label (playtest 4)', () => {
+  it('says what the level is now and when it rises', () => {
+    const now = Date.now();
+    useStore.setState({
+      ...createInitialState(now),
+      energy: 5000,
+      researchLevel: 2,
+      completedResearch: ['basic_solar'],
+      activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }],
+    });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    fireEvent.click(screen.getByTestId('research-node-wind_power'));
+    fireEvent.click(screen.getByRole('button', { name: 'Start research' }));
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(useStore.getState().researchLevel).toBe(2);
+    expect(screen.getByTestId('research-level-label').textContent).toBe('Your research level: 2');
+    expect(screen.getByTestId('research-level-next').textContent).toBe('Rises to 3 when Wind Power Fundamentals finishes');
+    expect(screen.getByTestId('research-node-hydropower').textContent).toContain('Needs level 4');
+  });
+});
+
+describe('Producers (0.31)', () => {
+  it('buys a quarry from the Producers tab: count, room and stone rate go up', () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 1000, resources: { metal: 20, stone: 10, coal: 0, naturalGas: 0 } });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
+    expect(screen.getByTestId('producer-owned-quarry').textContent).toBe('1');
+    fireEvent.click(screen.getByRole('button', { name: 'Build Stone Quarry' }));
+    expect(screen.getByTestId('producer-owned-quarry').textContent).toBe('2');
+    expect(useStore.getState().roomUsed).toBe(4);
+    expect(screen.getByTestId('resource-stone').textContent).toContain('+0.20/s');
+    expect(screen.getByTestId('producer-card-gasWell').textContent).toContain('Needs research: Natural Gas Extraction');
+  });
+
+  it('resource rates have a breakdown tooltip', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    const tip = document.getElementById('resource-breakdown-metal')!;
+    expect(tip.getAttribute('role')).toBe('tooltip');
+    expect(tip.textContent).toContain('Producers (1)');
+    expect(tip.textContent).toContain('Total');
+  });
+});
+
+describe('Producer rates', () => {
+  it('shows slow producers per hour', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
+    expect(screen.getByTestId('producer-card-gasWell').textContent).toContain('+6 natural gas/h each');
+    expect(screen.getByTestId('producer-card-quarry').textContent).toContain('+0.100 stone/s each');
   });
 });

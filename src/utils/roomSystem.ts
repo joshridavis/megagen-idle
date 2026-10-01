@@ -46,15 +46,33 @@ export function isRoomNearlyFull(state: Pick<GameState, 'roomUsed' | 'roomCapaci
   return roomUsageRatio(state) >= ROOM_WARNING_RATIO;
 }
 
+/** Room added by the most recent expansion (0 if none yet). */
+export function lastExpansionSize(expansionLevel: number): number {
+  return ROOM_TIERS[expansionLevel - 1]?.capacity ?? 0;
+}
+
+export type SegmentPhase = 'hidden' | 'building' | 'done';
+
 /**
- * Construction animation state, derived only from the expansion timestamp so
- * it cannot drift from the expansion itself: fades in over the first half,
- * out over the second, inactive outside [lastExpansionAt, +EXPANSION_ANIMATION_MS).
+ * Phase of one capacity-meter segment during the expansion animation, derived
+ * only from the elapsed time since `lastExpansionAt` so it cannot desync.
+ * New segments (index >= firstNew) appear one after another as scaffolding
+ * over the first 60% of the animation, then all settle when it ends.
  */
-export function getExpansionAnimation(lastExpansionAt: number | null, now: number): { active: boolean; opacity: number } {
-  if (lastExpansionAt === null) return { active: false, opacity: 0 };
-  const t = now - lastExpansionAt;
-  if (t < 0 || t >= EXPANSION_ANIMATION_MS) return { active: false, opacity: 0 };
-  const half = EXPANSION_ANIMATION_MS / 2;
-  return { active: true, opacity: t < half ? t / half : (EXPANSION_ANIMATION_MS - t) / half };
+export function expansionSegmentPhase(
+  index: number,
+  firstNew: number,
+  totalSegments: number,
+  elapsedMs: number | null,
+  durationMs = EXPANSION_ANIMATION_MS,
+): SegmentPhase {
+  if (elapsedMs === null || elapsedMs < 0 || elapsedMs >= durationMs || index < firstNew) return 'done';
+  const n = Math.max(1, totalSegments - firstNew);
+  const appearAt = ((index - firstNew) * (durationMs * 0.6)) / n;
+  return elapsedMs < appearAt ? 'hidden' : 'building';
+}
+
+/** True while the expansion animation is running. */
+export function isExpansionAnimating(lastExpansionAt: number | null, now: number): boolean {
+  return lastExpansionAt !== null && now >= lastExpansionAt && now - lastExpansionAt < EXPANSION_ANIMATION_MS;
 }

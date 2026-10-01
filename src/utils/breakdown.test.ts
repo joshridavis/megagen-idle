@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../data/initialState';
 import { GeneratorType, type Generator } from '../types/generator';
-import { getClickBreakdown, getEnergyBreakdown } from './breakdown';
+import { getClickBreakdown, getEnergyBreakdown, getResourceBreakdown } from './breakdown';
 import { calculateEnergyRate } from './energyGeneration';
 import { getBonuses } from './bonuses';
 import { getClickValue } from './bonuses';
@@ -35,5 +35,25 @@ describe('getEnergyBreakdown', () => {
 describe('getClickBreakdown', () => {
   it('matches the click value', () => {
     expect(getClickBreakdown([]).total).toBe(getClickValue([]));
+  });
+});
+
+describe('getResourceBreakdown', () => {
+  it('shows producer output, fuel burned, and the net rate', () => {
+    const b = getResourceBreakdown(
+      { producers: { quarry: 1, mine: 1, coalMine: 2, gasWell: 0 }, activeGenerators: [gen('a', GeneratorType.COAL), gen('b', GeneratorType.COAL, false)] },
+      'coal',
+    );
+    expect(b.base).toBeCloseTo(0.1);
+    expect(b.modifiers).toEqual([{ source: 'Fuel for 1 running generator', amount: expect.closeTo(-1 / 60) }]);
+    expect(b.total).toBeCloseTo(0.1 - 1 / 60);
+  });
+
+  it('has no modifiers when nothing burns the resource', () => {
+    expect(getResourceBreakdown({ producers: { quarry: 3, mine: 0, coalMine: 0, gasWell: 0 }, activeGenerators: [] }, 'stone')).toEqual({
+      base: expect.closeTo(0.3),
+      modifiers: [],
+      total: expect.closeTo(0.3),
+    });
   });
 });

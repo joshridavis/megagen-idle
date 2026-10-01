@@ -89,7 +89,7 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
               {def.name}
             </h3>
             <div className="text-xs text-slate-400">
-              Needs research level {def.requiredLevel} (you have {state.researchLevel})
+              Needs research level {def.requiredLevel} (yours: {state.researchLevel}). Completing it raises your level by 1.
             </div>
           </div>
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Close" className="min-h-11 min-w-11 rounded hover:bg-slate-700">

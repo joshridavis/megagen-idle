@@ -21,10 +21,12 @@ import resourceNaturalGas from './sprites/resources/natural_gas.png';
 import producerQuarry from './sprites/producers/quarry.png';
 import producerMine from './sprites/producers/mine.png';
 import producerCoalMine from './sprites/producers/coal_mine.png';
+import producerGasWell from './sprites/producers/gas_well.png';
 import roomExpansion from './sprites/ui/room_expansion.png';
 import capacityEmpty from './sprites/ui/capacity_empty.png';
 import capacityFilled from './sprites/ui/capacity_filled.png';
 import capacityCritical from './sprites/ui/capacity_critical.png';
+import capacityBuilding from './sprites/ui/capacity_building.png';
 import researchEnergy from './sprites/research/icon_energy.png';
 import researchMaterials from './sprites/research/icon_materials.png';
 import researchEfficiency from './sprites/research/icon_efficiency.png';
@@ -55,10 +57,12 @@ export const sprites = {
   producer_quarry: producerQuarry,
   producer_mine: producerMine,
   producer_coal_mine: producerCoalMine,
+  producer_gas_well: producerGasWell,
   room_expansion: roomExpansion,
   capacity_empty: capacityEmpty,
   capacity_filled: capacityFilled,
   capacity_critical: capacityCritical,
+  capacity_building: capacityBuilding,
   research_energy: researchEnergy,
   research_materials: researchMaterials,
   research_efficiency: researchEfficiency,

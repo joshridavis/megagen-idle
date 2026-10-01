@@ -1,55 +1,57 @@
-# Playtest 4: slower pacing, boost tooltip, mid-tier generators (after item 0.36)
+# Playtest 5 (v0.5.0): producers, clearer research level, Scrap cancel (after item 0.31)
+
+The version is shown at the bottom of the screen. It should read **v0.5.0**.
 
 ## How to play
 
 - **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
 - **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
 
-Your save carries over. Prices and research times change at once. Research already running keeps its old timer.
+Your save carries over. Your room capacity goes up by 3 to make space for the three producers you already own. Producers now take room.
 
 ## New since last playtest
 
 - **Your feedback:**
-  - **Higher energy costs.** Generators cost 30 minutes of their output: Solar 900, Wind 1,440, Coal 3,600. New games start with 900 energy, so the first Solar is still immediate. Research costs about 5× more: Basic Solar 250, Wind 1,000, Fossil Fuels 1,500 energy + 10 coal. Room expansion is unchanged.
-  - **Much longer research, growing with level.** Basic Solar takes 10 minutes, Wind 30, Fossil Fuels 45, then 1 h, 1 h 15, 1 h 30 and 2 h for the new research. A built-in check makes sure higher-level research always takes longer.
-  - **Boost breakdown.** Hover over (or Tab to) the energy rate under your energy total. It shows energy from generators, each boost (for example Basic Solar +10%) with what it adds, and the total. A green ▲% next to the rate means a boost is active. The "+1 per click" line under the button works the same way.
-- **Three mid-tier generators:**
-  - Hydropower Dam: 5/s, 8 room, needs research level 5.
-  - Tidal Power Station: 6/s, 9 room, needs level 6.
-  - Natural Gas Plant: 8/s, 10 room, needs level 7, and burns natural gas.
-- **New research:**
-  - Hydropower, Tidal Power and Gas Turbines unlock the three generators above.
-  - Natural Gas Extraction gives you a Gas Well: 1 gas every 10 minutes, enough for 3 gas plants.
-- **Scrap.** You can now scrap a generator to free its room. There's no refund, and it needs a confirm click. This lets you replace early Solar Panels with better machines once room is full.
-- **Room expansion animation.** A construction overlay fades in and out for 2 seconds. Hover "Room" for an explanation.
-- An automated browser smoke test now runs on every pull request.
+  - **Producers** (new Producers tab). Buy more Stone Quarries, Metal Mines, Coal Mines and, after Natural Gas Extraction, Gas Wells.
+    - Each one takes room, and output grows with how many you own.
+    - Each one you buy costs 15% more than the last.
+    - Hover over a resource's rate (for example "+0.07/s" under Metal) to see your producers, fuel burned and the net rate.
+  - **Scrap** now asks you to Confirm or Cancel, and says there's no refund. The Scrap button also shows this in a tooltip on hover.
+  - **Version number** at the bottom of the screen. It goes up with each playtest release.
+  - **Research level.** It wasn't actually rising early: "Research level 2" was your current level, earned by Basic Solar, shown while a level-2 research ran. The labels are now clearer:
+    - "Your research level: 2";
+    - "Rises to 3 when Wind Power Fundamentals finishes";
+    - research nodes say "Needs level N".
+    
+    A test now proves the level only rises when research completes.
+  - **New construction animation.** After a room expansion, the room meter itself grows. The new boxes appear one after another as scaffolding, then settle. The corner overlay is gone.
+  - **Stone prices up about 1.5×:** Wind 8, Coal 15, Hydro 120, Tidal 90 and Gas 75 stone, and Hydropower research 75. Room expansions are unchanged.
+- The tab bar now fits on a 360 px phone screen.
 
-## Pacing I measured (idle player, no clicking, scraps weak generators for better ones)
+## Pacing I measured (idle player who also buys mines and quarries)
 
-- Basic Solar done at about 18 minutes, Wind at about 2 hours, Coal at about 2 hours 50 minutes.
-- Hydropower at about 4 hours, Tidal at about 7 hours, Gas Plants at about 9 hours.
-- About 50 energy/s after 14 hours.
+- Same research milestones as before: Basic Solar at about 18 minutes, Wind at about 2 hours, Hydro at about 4.5 hours.
+- With producers, metal and stone income grows steadily (16 mines and 14 quarries after 9 hours). Nothing stalls.
 
 ## Things to try
 
-1. Hover over the energy rate before and after Basic Solar completes. Does the breakdown make the boost clear?
-2. Do the new research times feel right? Open a research node to see how long it takes.
-3. Fill your room, then scrap a Solar Panel to make space for something better.
-4. Expand your room and watch the construction overlay.
-5. Reach Hydropower and build a dam. Is it worth the room?
-6. Build gas plants after the Gas Well. With 4 or more plants, gas runs out and they switch off.
-7. Tab through the page with the keyboard. The rate tooltip should appear on focus.
+1. Check the version at the bottom of the screen.
+2. Producers tab: buy a Metal Mine. Does the metal rate go up, and does the next one cost more?
+3. Hover over each resource's rate. Is the breakdown clear?
+4. Scrap a generator, then press Cancel. Then Scrap and Confirm.
+5. Expand your room and watch the meter build in.
+6. Start a research and read the research level labels. Is it clear now?
+7. Once you have Natural Gas Extraction, buy a second Gas Well and run more gas plants.
 
 ## Known issues
 
-- Only one Gas Well (and one of each other producer) for now. Buying more producers is item 0.31.
-- Mid-tier cards make the page tall. A layout polish is planned (items 0.41 and 0.43).
-- No "welcome back" summary (0.28), no in-game reset or short number format (0.29) yet.
+- No "welcome back" summary after time away (0.28), and no in-game reset or short number format (0.29) yet.
+- Late-game resources can pile up once you own many producers. The balance simulator (0.35) will tune this.
 - Placeholder art.
 
 ## Questions for you
 
-1. Are the new energy costs and research times about right, or still too fast or too slow?
-2. Is the boost breakdown tooltip what you had in mind? Should resources get the same now, or later?
-3. Is Scrap with no refund fair, or should it give some resources back?
-4. Do Hydro, Tidal and Gas feel like meaningful upgrades over Solar, Wind and Coal?
+1. Are producer prices (and the 15% increase each time) about right?
+2. Should producers be scrappable too, like generators?
+3. Is the new room animation better?
+4. Are the research level labels clear now?

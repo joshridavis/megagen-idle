@@ -24,7 +24,7 @@ export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
     description: 'More output than solar, needs a stone foundation.',
     energyPerSecond: 0.8,
     roomCost: 3,
-    buildCost: { metal: 15, stone: 5 },
+    buildCost: { metal: 15, stone: 8 },
   },
   [GeneratorType.COAL]: {
     type: GeneratorType.COAL,
@@ -33,7 +33,7 @@ export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
     description: 'Strong output, burns 1 coal per minute.',
     energyPerSecond: 2,
     roomCost: 5,
-    buildCost: { metal: 20, stone: 10 },
+    buildCost: { metal: 20, stone: 15 },
     maintenanceCost: { coal: 60 },
   },
   [GeneratorType.HYDRO]: {
@@ -43,7 +43,7 @@ export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
     description: 'Big, fuel-free and steady. Needs lots of stone.',
     energyPerSecond: 5,
     roomCost: 8,
-    buildCost: { metal: 100, stone: 80 },
+    buildCost: { metal: 100, stone: 120 },
   },
   [GeneratorType.TIDAL]: {
     type: GeneratorType.TIDAL,
@@ -52,7 +52,7 @@ export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
     description: 'Harnesses the tides. Fuel-free, more output per room than a dam.',
     energyPerSecond: 6,
     roomCost: 9,
-    buildCost: { metal: 120, stone: 60 },
+    buildCost: { metal: 120, stone: 90 },
   },
   [GeneratorType.GAS]: {
     type: GeneratorType.GAS,
@@ -61,7 +61,7 @@ export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
     description: 'Highest output so far. Burns 2 natural gas per hour.',
     energyPerSecond: 8,
     roomCost: 10,
-    buildCost: { metal: 150, stone: 50 },
+    buildCost: { metal: 150, stone: 75 },
     maintenanceCost: { naturalGas: 2 },
   },
 };

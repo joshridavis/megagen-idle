@@ -252,6 +252,25 @@ function mine() {
   return c;
 }
 
+function gasWell() {
+  const c = new Canvas(48, 48);
+  c.rect(2, 40, 44, 5, C.mud); // ground
+  // pump jack: A-frame, walking beam, horse head, counterweight
+  c.line(18, 40, 24, 16, C.grey4);
+  c.line(30, 40, 24, 16, C.grey4);
+  c.line(19, 40, 25, 16, C.grey5);
+  c.polygon([[6, 14], [40, 10], [41, 14], [7, 18]], C.amber); // beam
+  c.polygon([[4, 10], [10, 10], [11, 24], [5, 24]], C.orange); // horse head
+  c.line(7, 24, 7, 38, C.grey3); // polished rod
+  c.circle(38, 26, 6, C.grey4); // crank weight
+  c.circle(38, 26, 3, C.grey5);
+  c.line(38, 26, 38, 14, C.grey3);
+  c.rect(3, 36, 9, 4, C.grey5); // wellhead
+  c.circle(44, 6, 2.5, C.sky); // gas flame
+  c.outline(C.ink);
+  return c;
+}
+
 function coalMine() {
   const c = new Canvas(48, 48);
   c.rect(2, 38, 44, 6, C.mud); // ground
@@ -294,6 +313,16 @@ function roomExpansion() {
   c.rect(33, 18, 7, 4, C.grey3);
   c.outline(C.ink);
   c.fade(170); // semi-transparent overlay
+  return c;
+}
+
+/** Room segment under construction: amber scaffold cross-bracing. */
+function capacityBuilding() {
+  const c = new Canvas(16, 16);
+  c.box(1, 1, 14, 14, C.brown5, C.amber);
+  c.line(2, 2, 13, 13, C.amber);
+  c.line(13, 2, 2, 13, C.amber);
+  c.rect(1, 7, 14, 2, C.yellow);
   return c;
 }
 
@@ -439,10 +468,12 @@ const DRAW = {
   producer_quarry: quarry,
   producer_mine: mine,
   producer_coal_mine: coalMine,
+  producer_gas_well: gasWell,
   room_expansion: roomExpansion,
   capacity_empty: () => capacity(C.grey6, null, C.grey4),
   capacity_filled: () => capacity(C.green, C.lime, C.forest),
   capacity_critical: () => capacity(C.red, C.orange, C.darkRed),
+  capacity_building: capacityBuilding,
   research_energy: researchEnergy,
   research_materials: researchMaterials,
   research_efficiency: researchEfficiency,

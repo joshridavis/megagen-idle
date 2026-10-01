@@ -1,15 +1,59 @@
 import { useEffect, useState } from 'react';
 import { sprites } from '../assets';
 import { useStore } from '../store';
-import { getExpandBlock, getExpansionAnimation, getNextRoomTier, isRoomNearlyFull } from '../utils/roomSystem';
+import {
+  expansionSegmentPhase,
+  getExpandBlock,
+  getNextRoomTier,
+  isExpansionAnimating,
+  isRoomNearlyFull,
+  lastExpansionSize,
+} from '../utils/roomSystem';
 import CostList from './CostList';
 
-/** Capacity meter: one segment per unit of room, up to a readable maximum. */
-function CapacityMeter({ used, capacity, critical }: { used: number; capacity: number; critical: boolean }) {
+/** Milliseconds since the last expansion while its animation runs, else null. Frame-driven. */
+function useExpansionElapsed(lastExpansionAt: number | null): number | null {
+  // The frame loop only triggers re-renders; the time is read fresh each render.
+  const [, setFrame] = useState(0);
+  useEffect(() => {
+    if (lastExpansionAt === null || !isExpansionAnimating(lastExpansionAt, Date.now())) return;
+    let frame = 0;
+    const loop = () => {
+      setFrame((f) => f + 1);
+      if (isExpansionAnimating(lastExpansionAt, Date.now())) frame = requestAnimationFrame(loop);
+    };
+    frame = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frame);
+  }, [lastExpansionAt]);
+  const now = Date.now();
+  const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (reduced || !isExpansionAnimating(lastExpansionAt, now)) return null;
+  return now - lastExpansionAt!;
+}
+
+/**
+ * Capacity meter: one segment per unit of room, up to a readable maximum.
+ * After an expansion the new segments build in one by one (scaffolding),
+ * then settle into empty room.
+ */
+function CapacityMeter({
+  used,
+  capacity,
+  critical,
+  added,
+  elapsed,
+}: {
+  used: number;
+  capacity: number;
+  critical: boolean;
+  added: number;
+  elapsed: number | null;
+}) {
   const MAX_SEGMENTS = 40;
   const scale = capacity > MAX_SEGMENTS ? capacity / MAX_SEGMENTS : 1;
   const total = Math.ceil(capacity / scale);
   const filled = Math.min(total, Math.ceil(used / scale));
+  const firstNew = Math.min(total, Math.ceil((capacity - added) / scale));
   return (
     <div
       className="flex flex-wrap gap-0.5"
@@ -19,44 +63,29 @@ function CapacityMeter({ used, capacity, critical }: { used: number; capacity: n
       aria-valuemax={capacity}
       aria-valuenow={used}
     >
-      {Array.from({ length: total }, (_, i) => (
-        <img
-          key={i}
-          src={i < filled ? (critical ? sprites.capacity_critical : sprites.capacity_filled) : sprites.capacity_empty}
-          alt=""
-          width={16}
-          height={16}
-          className="pixelated"
-        />
-      ))}
+      {Array.from({ length: total }, (_, i) => {
+        const phase = expansionSegmentPhase(i, firstNew, total, elapsed);
+        const src =
+          phase === 'building'
+            ? sprites.capacity_building
+            : i < filled
+              ? critical
+                ? sprites.capacity_critical
+                : sprites.capacity_filled
+              : sprites.capacity_empty;
+        return (
+          <img
+            key={i}
+            src={src}
+            alt=""
+            width={16}
+            height={16}
+            data-phase={phase}
+            className={`pixelated ${phase === 'hidden' ? 'invisible' : ''}`}
+          />
+        );
+      })}
     </div>
-  );
-}
-
-/** Construction sprite that fades in and out after an expansion (frame-driven from the state timestamp). */
-function ExpansionOverlay({ lastExpansionAt }: { lastExpansionAt: number | null }) {
-  const [now, setNow] = useState(() => Date.now());
-  const anim = getExpansionAnimation(lastExpansionAt, now);
-  useEffect(() => {
-    if (lastExpansionAt === null) return;
-    let frame = 0;
-    const loop = () => {
-      const t = Date.now();
-      setNow(t);
-      if (getExpansionAnimation(lastExpansionAt, t).active) frame = requestAnimationFrame(loop);
-    };
-    frame = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(frame);
-  }, [lastExpansionAt]);
-  if (!anim.active) return null;
-  return (
-    <img
-      src={sprites.room_expansion}
-      alt=""
-      data-testid="expansion-animation"
-      className="pixelated pointer-events-none absolute right-2 top-2 h-24 w-24 motion-reduce:opacity-60!"
-      style={{ opacity: anim.opacity }}
-    />
   );
 }
 
@@ -66,10 +95,10 @@ export default function RoomPanel() {
   const next = getNextRoomTier(state.expansionLevel);
   const block = getExpandBlock(state);
   const warn = isRoomNearlyFull(state);
+  const elapsed = useExpansionElapsed(state.lastExpansionAt);
 
   return (
-    <section aria-label="Room" className="relative w-full rounded-lg bg-slate-800 p-3">
-      <ExpansionOverlay lastExpansionAt={state.lastExpansionAt} />
+    <section aria-label="Room" className="w-full rounded-lg bg-slate-800 p-3">
       <div className="mb-2 flex items-baseline justify-between">
         <h2 className="group relative text-sm font-semibold uppercase tracking-wide text-slate-400">
           <span tabIndex={0} aria-describedby="room-help" className="cursor-help underline decoration-dotted underline-offset-2">
@@ -88,7 +117,13 @@ export default function RoomPanel() {
           {state.roomUsed}/{state.roomCapacity}
         </span>
       </div>
-      <CapacityMeter used={state.roomUsed} capacity={state.roomCapacity} critical={warn} />
+      <CapacityMeter
+        used={state.roomUsed}
+        capacity={state.roomCapacity}
+        critical={warn}
+        added={lastExpansionSize(state.expansionLevel)}
+        elapsed={elapsed}
+      />
       {warn && (
         <p role="status" className="mt-2 text-sm text-amber-300">
           Room is {state.roomUsed >= state.roomCapacity ? 'full' : 'nearly full'}. Expand to build more.

@@ -42,7 +42,7 @@ export default function ResearchNode({
       data-testid={`research-node-${def.id}`}
       data-status={status}
       title={def.name}
-      aria-label={`${def.name}, level ${def.requiredLevel}, ${STATUS_TEXT[status]}`}
+      aria-label={`${def.name}, needs research level ${def.requiredLevel}, ${STATUS_TEXT[status]}`}
       className={`absolute flex items-center gap-2 rounded-lg border-2 p-2 text-left hover:brightness-125 focus-visible:outline-4 focus-visible:outline-sky-400 ${STYLE[status]}`}
       style={{ left: x, top: y, width: NODE_W, height: NODE_H }}
     >
@@ -50,7 +50,7 @@ export default function ResearchNode({
       <span className="min-w-0 flex-1 leading-tight">
         <span className="block truncate text-sm font-semibold">{def.name}</span>
         <span className="block text-xs text-slate-400">
-          Lv {def.requiredLevel} · {def.cost.energy.toLocaleString('en-US')} energy
+          Needs level {def.requiredLevel} · {def.cost.energy.toLocaleString('en-US')} energy
         </span>
       </span>
       {status === 'completed' && <img src={sprites.research_check} alt="" width={16} height={16} className="pixelated" />}

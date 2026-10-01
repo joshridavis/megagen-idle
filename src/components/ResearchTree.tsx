@@ -29,8 +29,15 @@ export default function ResearchTree() {
     <section aria-label="Research" className="w-full">
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Research</h2>
-        <span className="text-sm">
-          Research level <strong data-testid="research-level">{state.researchLevel}</strong>
+        <span className="text-right text-sm">
+          <span data-testid="research-level-label" className="block">
+            Your research level: <strong data-testid="research-level">{state.researchLevel}</strong>
+          </span>
+          {current && (
+            <span data-testid="research-level-next" className="block text-xs text-slate-400">
+              Rises to {state.researchLevel + 1} when {RESEARCH_BY_ID[current.id]?.name} finishes
+            </span>
+          )}
         </span>
       </div>
       {current && (

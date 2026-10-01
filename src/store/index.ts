@@ -45,3 +45,8 @@ export const useStore = create<GameStore>()(
     { name: 'MegaGen Idle', enabled: import.meta.env.DEV },
   ),
 );
+
+// Development only: lets browser checks seed state (never in production builds).
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  (window as unknown as { __megagenStore?: typeof useStore }).__megagenStore = useStore;
+}

@@ -40,6 +40,10 @@ All game numbers live in `src/data/`: `generators.ts` (output, room, build cost,
 
 Every sprite is a generated placeholder. To use real art, save your PNG at the same path and size (see the Asset manifest in `BACKLOG.md`, or `src/assets/sprite-manifest.json`), then remove its line from `src/assets/generic-assets.json` so the generator never overwrites it. Run `npm run check:assets` to confirm the size. No code change is needed.
 
+## Versions
+
+The game shows its release version (from `package.json`) at the bottom of the screen. The minor version goes up with each playtest release (`0.5.0`, `0.6.0`, ...).
+
 ## Resetting a save
 
 The save lives in your browser's IndexedDB. To start over, clear the site data for the page (browser settings → site data, or DevTools → Application → Clear storage).

@@ -8,8 +8,11 @@ export interface RoomTier {
   resources: ResourceAmounts;
 }
 
-/** Room every save starts with. */
-export const BASE_ROOM_CAPACITY = 10;
+/**
+ * Room every save starts with. Producers take room since 0.31; the three
+ * starting producers use 3, leaving the same 10 for generators as before.
+ */
+export const BASE_ROOM_CAPACITY = 13;
 
 /** Share of room used at which the panel warns (0.9 = 90%). */
 export const ROOM_WARNING_RATIO = 0.9;
