@@ -24,7 +24,7 @@ export default function ResearchChip({ onOpen }: { onOpen: () => void }) {
       onClick={onOpen}
       data-testid="research-chip"
       aria-label={`Researching ${def.name}, ${formatDuration(left)} left. Open Research.`}
-      className="flex w-full max-w-md items-center gap-2 rounded-full border border-sky-500/70 bg-sky-950/70 px-3 py-1.5 text-left text-sm hover:bg-sky-900/70"
+      className="flex w-full items-center gap-2 rounded-full border border-sky-500/70 bg-sky-950 px-3 py-2 text-left text-sm hover:bg-sky-900"
     >
       <img src={sprites[RESEARCH_ICONS[def.category]]} alt="" width={20} height={20} className="pixelated research-running-icon" />
       <span className="min-w-0 flex-1">

@@ -256,7 +256,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** the save storage also writes every save synchronously to a `localStorage` backup (with a timestamp) at the moment zustand saves; the IndexedDB write stays the main save and records its own timestamp when it completes. On load, whichever copy is newer wins. Works if `localStorage` is unavailable (falls back to IndexedDB only). Reset clears both.
 **Acceptance:** unit tests for choosing the newer copy and for missing or corrupt copies; the e2e smoke test reloads right after an action under a 20× CPU slowdown and the action survives.
 
-### 0.77 — Floating research chip — CODE — Not started
+### 0.77 — Floating research chip — CODE — Done
 **Goal:** apply playtest 8 feedback: the research chip sits oddly between the energy display and the button; it should float at the bottom of the screen without ever covering the version footer.
 **Details:** the chip becomes `position: fixed` at the bottom centre (with safe-area padding on phones); while it shows, the page gets matching bottom padding so scrolling to the end reveals the footer above it. Same content and click behaviour as before.
 **Acceptance:** UI test that the chip is rendered in the floating container and the page gets bottom padding only while research runs; browser check that the footer is visible at the bottom of the scroll with the chip shown.

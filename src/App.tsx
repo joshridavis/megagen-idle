@@ -14,6 +14,7 @@ import RoomPanel from './components/RoomPanel';
 import SettingsPanel from './components/SettingsPanel';
 import VersionFooter from './components/VersionFooter';
 import WelcomeBack from './components/WelcomeBack';
+import { useStore } from './store';
 import { useIdleEngine } from './utils/idleEngine';
 
 type Tab = 'generators' | 'producers' | 'research' | 'settings';
@@ -27,12 +28,15 @@ const TABS: { id: Tab; label: string; icon: SpriteId }[] = [
 export default function App() {
   useIdleEngine();
   const [tab, setTab] = useState<Tab>('generators');
+  const researching = useStore((s) => s.currentResearch !== null);
   return (
-    <main className="mx-auto flex min-h-screen max-w-6xl flex-col gap-6 p-4 sm:p-6">
+    <main
+      className={`mx-auto flex min-h-screen max-w-6xl flex-col gap-6 p-4 sm:p-6 ${researching ? 'pb-28 sm:pb-28' : ''}`}
+      data-testid="main"
+    >
       <header className="flex flex-col items-center gap-4">
         <h1 className="text-3xl font-bold tracking-tight">MegaGen Idle</h1>
         <EnergyDisplay />
-        <ResearchChip onOpen={() => setTab('research')} />
         <ClickButton />
         <DepletionWarning />
       </header>
@@ -78,6 +82,16 @@ export default function App() {
         )}
       </div>
       <VersionFooter />
+      {researching && (
+        <div
+          data-testid="research-chip-dock"
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+        >
+          <div className="pointer-events-auto w-full max-w-md shadow-[0_8px_30px_rgba(0,0,0,0.6)]">
+            <ResearchChip onOpen={() => setTab('research')} />
+          </div>
+        </div>
+      )}
       <ResearchCelebration />
       <WelcomeBack />
     </main>

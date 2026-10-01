@@ -562,3 +562,24 @@ describe('Resource boosts in the UI (0.75)', () => {
     expect(screen.getByTestId('bonus-resourceProduction').textContent).toContain('+15%');
   });
 });
+
+describe('Floating research chip (playtest 8)', () => {
+  it('floats in a bottom dock and the page gets bottom padding only while research runs', () => {
+    const now = Date.now();
+    useStore.setState({
+      ...createInitialState(now),
+      currentResearch: { id: 'basic_solar', startTime: now, duration: 600 },
+    });
+    render(<App />);
+    const dock = screen.getByTestId('research-chip-dock');
+    expect(dock.className).toContain('fixed');
+    expect(dock.className).toContain('bottom-0');
+    expect(dock.contains(screen.getByTestId('research-chip'))).toBe(true);
+    expect(screen.getByTestId('main').className).toContain('pb-28');
+    cleanup();
+    useStore.setState(createInitialState(now));
+    render(<App />);
+    expect(screen.queryByTestId('research-chip-dock')).toBeNull();
+    expect(screen.getByTestId('main').className).not.toContain('pb-28');
+  });
+});
