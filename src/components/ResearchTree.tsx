@@ -4,6 +4,7 @@ import { RESEARCH, RESEARCH_BY_ID } from '../data/research';
 import { useStore } from '../store';
 import { computeResearchLayout } from '../utils/researchLayout';
 import { researchProgress } from '../utils/researchSystem';
+import BonusesPanel from './BonusesPanel';
 import ProgressBar from './ProgressBar';
 import ResearchNode, { NODE_H, NODE_W } from './ResearchNode';
 import ResearchPanel from './ResearchPanel';
@@ -40,6 +41,7 @@ export default function ResearchTree() {
           )}
         </span>
       </div>
+      <BonusesPanel />
       {current && (
         <div className="mb-3 rounded-lg bg-slate-800 p-3 text-sm">
           <div className="mb-1">Researching: {RESEARCH_BY_ID[current.id]?.name}</div>

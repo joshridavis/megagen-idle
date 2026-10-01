@@ -339,10 +339,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** unit tests at boundaries (0, 999, 1000, 1e6, 1e15, negative, NaN); reset works; preference persists.
 **Done notes:** three notations: short (default, 3 significant digits, K/M/B/T, scientific from `SCIENTIFIC_THRESHOLD` = 1e15), scientific, and full. Values are cut off, never rounded up, so the display never shows more than the player has. NaN shows "—".
 
-### 0.30 — Permanent-boost research — CODE — Not started
+### 0.30 — Permanent-boost research — CODE — Done
 **Goal:** research that improves the whole game, as the design describes.
 **Details:** about 8 research entries in the Efficiency and Materials categories using the bonus types from 0.10. Each has a level requirement and prerequisites. Bonuses of one type add together, with a named cap for discounts. A "Bonuses" panel shows what is active. Numbers are first guesses, tuned in 0.35.
 **Acceptance:** tests for stacking and the cap; bonuses visibly change costs and rates; panel correct.
+**Done notes:** eight entries: Hand-Crank Dynamo (+100% click), Standard Parts (−5% build), Lab Notebooks (+10% research speed), Grant Funding (−10% research cost), Smart Grid (+10% energy), Bulk Purchasing (−5% build), Automated Labs (+15% research speed), Superconductors (+15% energy); levels 3–7, durations follow the "higher level takes longer" rule. Active bonuses panel on the Research tab. Pacing probe: all 16 research done within 24 h of idle play, no stalls.
 
 ### 0.31 — Resource producers use room — CODE — Done
 **Goal:** room constrains resource production too.

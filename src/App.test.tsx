@@ -514,3 +514,14 @@ describe('Settings (0.29)', () => {
     expect(screen.getByRole('region', { name: 'Settings' }).textContent).toContain('for up to 1d');
   });
 });
+
+describe('Bonuses panel (0.30)', () => {
+  it('shows active bonuses with their sources', () => {
+    useStore.setState({ ...createInitialState(Date.now()), completedResearch: ['basic_solar', 'standard_parts', 'bulk_purchasing'] });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    expect(screen.getByTestId('bonus-buildDiscount').textContent).toContain('+10%');
+    expect(screen.getByTestId('bonus-buildDiscount').textContent).toContain('Standard Parts +5%');
+    expect(screen.getByTestId('bonus-globalEnergy').textContent).toContain('+10%');
+  });
+});
