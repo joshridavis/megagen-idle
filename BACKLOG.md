@@ -235,17 +235,18 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Goal:** apply playtest 7 feedback: the segment build-in still looks odd (segments wrap onto new lines and shift).
 **Details:** replace the segment grid with one fixed-width bar: used room (green, red at 90%+) and free room. After an expansion, the newly added share of the bar appears as an amber striped "under construction" section that slides in over about 1 s, holds, then turns into normal free room by 2 s. Still derived only from `lastExpansionAt`; reduced motion shows the final state. Tick marks every 10 room keep scale readable.
 **Acceptance:** tests for the new segment phase logic; no layout shift (bar width fixed); screenshots in the PR.
-**Done notes:** the owner's video did not come through, so the fix assumes the problem was segments wrapping and shifting. Stripes are CSS (AAP-64 amber and dark brown); the `capacity_*` sprites are no longer used by the bar but stay in the manifest.
+**Done notes:** the owner's video (received mid-item) showed the old segment meter wrapping onto a second row and scaffold segments jumping between rows, and at times reappearing. The new bar replaces it; a browser check sampling every 50 ms shows the animation starts once, grows, ends at about 2 s and never returns. Stripes are CSS (AAP-64 amber and dark brown); the `capacity_*` sprites are no longer used by the bar but stay in the manifest.
 
 ### 0.74 — More room expansion tiers — CODE — Done
 **Goal:** apply playtest 7 feedback: more room tiers (finite).
 **Details:** add tiers 4 to 8 in `src/data/rooms.ts` with growing size and cost (energy, metal, stone, later coal). Total stays finite. Room panel shows "Expansion N of 8".
 **Acceptance:** tests that tiers go in order, costs grow, and the last tier ends expansion; pacing probe still has no stall.
 
-### 0.75 — Resource boost research — CODE — Not started
+### 0.75 — Resource boost research — CODE — Done
 **Goal:** apply playtest 7 feedback: research that boosts the other resources and gives discounts there.
 **Details:** new bonus types: `resourceProduction` (all producers), per-resource production for metal and stone, `producerDiscount` (cheaper producers), `fuelEfficiency` (generators burn less fuel). About 6 research nodes in the Materials category, following the duration rule. Bonuses apply in the simulation, producer costs and fuel use; resource rate tooltips list the boosts like the energy tooltip does; the Bonuses panel shows them.
 **Acceptance:** tests for each new bonus type, stacking and caps; tooltips show boosts; pacing probe has no stall.
+**Done notes:** six nodes: Better Pickaxes (+25% metal), Controlled Blasting (+25% stone), Conveyor Belts (+15% all producers), Modular Mines (−15% producer cost, shares the build-discount cap), Efficient Boilers (−20% fuel), Deep Drilling (+20% all producers). 48 h probe: all 22 research done by about 25 h, room tiers 4–7 by about 20 h, no stalls; tier 8 stays a long-term goal.
 
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.

@@ -18,12 +18,13 @@ export default function ResourceDisplay() {
     `${perSecond > 0 ? '+' : perSecond < 0 ? '−' : ''}${fmt.rate(Math.abs(perSecond))}/s`;
   const producers = useStore((s) => s.producers);
   const generators = useStore((s) => s.activeGenerators);
+  const completed = useStore((s) => s.completedResearch);
   const breakdowns = useMemo(
     () =>
       Object.fromEntries(
-        RESOURCE_IDS.map((id) => [id, getResourceBreakdown({ producers, activeGenerators: generators }, id)]),
+        RESOURCE_IDS.map((id) => [id, getResourceBreakdown({ producers, activeGenerators: generators, completedResearch: completed }, id)]),
       ) as Record<ResourceId, RateBreakdown>,
-    [producers, generators],
+    [producers, generators, completed],
   );
   const producerCount = (id: ResourceId) =>
     PRODUCER_IDS.filter((p) => PRODUCERS[p].resource === id).reduce((n, p) => n + (producers[p] ?? 0), 0);
@@ -45,7 +46,7 @@ export default function ResourceDisplay() {
                   baseLabel={`Producers (${producerCount(id)})`}
                   unit="/s"
                   breakdown={breakdowns[id]}
-                  emptyHint=""
+                  emptyHint="No boosts yet. Materials research can add them."
                   align="left"
                 >
                   <span className={`text-xs ${breakdowns[id].total < 0 ? FUEL_CLASS : 'text-slate-400'}`}>

@@ -11,9 +11,9 @@ import { RESEARCH_BY_ID } from '../data/research';
 import { calculateEnergyRate } from './energyGeneration';
 
 describe('permanent-boost research (0.30)', () => {
-  it('there are 8 boost entries in the efficiency and materials categories', () => {
+  it('boost entries (8 from 0.30, 6 from 0.75) are in the efficiency and materials categories', () => {
     const boosts = RESEARCH.filter((r) => (r.effects ?? []).length > 0 && r.id !== 'basic_solar');
-    expect(boosts).toHaveLength(8);
+    expect(boosts).toHaveLength(14);
     for (const r of boosts) {
       expect(['efficiency', 'materials']).toContain(r.category);
       expect(r.prerequisites.length).toBeGreaterThan(0);

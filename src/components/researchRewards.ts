@@ -9,6 +9,11 @@ const BONUS_TEXT: Record<BonusType, string> = {
   researchSpeed: 'faster research',
   globalEnergy: 'energy from all generators',
   clickPower: 'energy per click',
+  resourceProduction: 'output from all producers',
+  metalProduction: 'metal from mines',
+  stoneProduction: 'stone from quarries',
+  producerDiscount: 'cheaper producers',
+  fuelEfficiency: 'less fuel burned',
 };
 
 export interface Reward {

@@ -549,3 +549,16 @@ describe('Research visible on every tab (playtest 7)', () => {
     expect(screen.queryByTestId('research-chip')).toBeNull();
   });
 });
+
+describe('Resource boosts in the UI (0.75)', () => {
+  it('the metal tooltip and Bonuses panel show resource boosts', () => {
+    useStore.setState({ ...createInitialState(Date.now()), completedResearch: ['standard_parts', 'better_picks', 'conveyor_belts'] });
+    render(<App />);
+    const tip = document.getElementById('resource-breakdown-metal')!;
+    expect(tip.textContent).toContain('Better Pickaxes (+25%)');
+    expect(tip.textContent).toContain('Conveyor Belts (+15%)');
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    expect(screen.getByTestId('bonus-metalProduction').textContent).toContain('+25%');
+    expect(screen.getByTestId('bonus-resourceProduction').textContent).toContain('+15%');
+  });
+});

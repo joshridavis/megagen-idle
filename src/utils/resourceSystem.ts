@@ -1,4 +1,5 @@
 import { GENERATORS } from '../data/generators';
+import { NO_BONUSES, type Bonuses } from '../types/bonus';
 import { PRODUCERS, PRODUCER_IDS } from '../data/producers';
 import type { Generator } from '../types/generator';
 import type { ProducerId, ResourceAmounts } from '../types/resource';
@@ -30,22 +31,28 @@ export function consumeResource(
 }
 
 /** Per-second production of each resource from producers. */
-export function getProductionRates(producers: Record<ProducerId, number>): Resources {
+export function getProductionRates(producers: Record<ProducerId, number>, bonuses: Bonuses = NO_BONUSES): Resources {
   const rates: Resources = { coal: 0, stone: 0, metal: 0, naturalGas: 0 };
   for (const id of PRODUCER_IDS) {
     const def = PRODUCERS[id];
     rates[def.resource] += ((producers[id] ?? 0) * def.amount) / def.intervalSeconds;
   }
+  for (const id of Object.keys(rates) as ResourceId[]) rates[id] *= 1 + productionBoost(id, bonuses);
   return rates;
 }
 
+/** Total production boost for one resource (all-resource plus resource-specific). */
+export function productionBoost(id: ResourceId, bonuses: Bonuses): number {
+  return bonuses.resourceProduction + (id === 'metal' ? bonuses.metalProduction : id === 'stone' ? bonuses.stoneProduction : 0);
+}
+
 /** Per-second fuel use of active generators. */
-export function getFuelUseRates(generators: Generator[]): Resources {
+export function getFuelUseRates(generators: Generator[], bonuses: Bonuses = NO_BONUSES): Resources {
   const rates: Resources = { coal: 0, stone: 0, metal: 0, naturalGas: 0 };
   for (const g of generators) {
     const upkeep = GENERATORS[g.type]?.maintenanceCost;
     if (!g.isActive || !upkeep) continue;
-    for (const [id, perHour] of entries(upkeep)) rates[id] += perHour / 3600;
+    for (const [id, perHour] of entries(upkeep)) rates[id] += (perHour / 3600) * (1 - bonuses.fuelEfficiency);
   }
   return rates;
 }
@@ -55,9 +62,10 @@ export function accrueResources(
   resources: Resources,
   producers: Record<ProducerId, number>,
   seconds: number,
+  bonuses: Bonuses = NO_BONUSES,
 ): Resources {
   if (!(seconds > 0)) return resources;
-  const rates = getProductionRates(producers);
+  const rates = getProductionRates(producers, bonuses);
   const next = { ...resources };
   for (const id of Object.keys(rates) as ResourceId[]) next[id] += rates[id] * seconds;
   return next;
@@ -77,7 +85,12 @@ export interface FuelResult {
  * whose fuel is not fully available for the step is switched off and flagged
  * `outOfFuel`; it burns nothing for that step.
  */
-export function burnFuel(resources: Resources, generators: Generator[], seconds: number): FuelResult {
+export function burnFuel(
+  resources: Resources,
+  generators: Generator[],
+  seconds: number,
+  bonuses: Bonuses = NO_BONUSES,
+): FuelResult {
   let res = resources;
   const depleted = new Set<ResourceId>();
   const deactivated: string[] = [];
@@ -86,7 +99,7 @@ export function burnFuel(resources: Resources, generators: Generator[], seconds:
     const upkeep = GENERATORS[g.type]?.maintenanceCost;
     if (!g.isActive || !upkeep) return g;
     const need: ResourceAmounts = {};
-    for (const [id, perHour] of entries(upkeep)) need[id] = (perHour / 3600) * seconds;
+    for (const [id, perHour] of entries(upkeep)) need[id] = (perHour / 3600) * seconds * (1 - bonuses.fuelEfficiency);
     const r = consumeResource(res, need);
     if (r.success) {
       res = r.resources;
