@@ -2,7 +2,7 @@
 
 An idle/incremental game about generating energy. You start with almost nothing and clumsy, inefficient methods, then reinvest energy into resources, research, room and better machines: from solar panels up to nuclear fission and a few fictional methods. Machines keep producing while the game is closed.
 
-**Play it:** https://joshridavis.github.io/megagen-idle/ (live once the repo's Pages source is set to "GitHub Actions"; see `GETTING_STARTED.md`, step 5).
+**Play it:** https://joshridavis.github.io/megagen-idle/ (live once the repo's Pages source is set to "GitHub Actions"; see `GETTING_STARTED.md`, step 5). Until then the deploy workflow skips publishing with a warning instead of failing; after enabling Pages, re-run it from Actions → Deploy to GitHub Pages → Run workflow, or push to `main`.
 
 ## Run locally
 

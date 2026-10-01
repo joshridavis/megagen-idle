@@ -17,6 +17,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      pages-enabled: ${{ steps.pages-check.outputs.enabled }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,13 +28,34 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      # On a fresh repo Pages is still off, and configure-pages would fail.
+      # Only a 404 means "not enabled": skip the deploy with a warning so the
+      # run stays green. Any other API error falls through and fails loudly
+      # in configure-pages.
+      - name: Check whether GitHub Pages is enabled
+        id: pages-check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if out=$(gh api "repos/${{ github.repository }}/pages" 2>&1); then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          elif echo "$out" | grep -q "HTTP 404"; then
+            echo "::warning title=GitHub Pages is not enabled::Deploy skipped. Set Settings > Pages > Source to 'GitHub Actions', then re-run this workflow (Actions > Deploy to GitHub Pages > Run workflow)."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Pages API check inconclusive, continuing: $out"
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.pages-check.outputs.enabled == 'true'
+        uses: actions/configure-pages@v5
+      - if: steps.pages-check.outputs.enabled == 'true'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
     needs: build
+    if: needs.build.outputs.pages-enabled == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
