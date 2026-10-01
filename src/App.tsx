@@ -5,6 +5,7 @@ import ClickButton from './components/ClickButton';
 import CompletionPanel from './components/CompletionPanel';
 import DepletionWarning from './components/DepletionWarning';
 import EnergyDisplay from './components/EnergyDisplay';
+import EventLog from './components/EventLog';
 import GeneratorGrid from './components/GeneratorGrid';
 import ProducerPanel from './components/ProducerPanel';
 import ResearchCelebration from './components/ResearchCelebration';
@@ -13,6 +14,7 @@ import ResearchTree from './components/ResearchTree';
 import ResourceDisplay from './components/ResourceDisplay';
 import RoomPanel from './components/RoomPanel';
 import SettingsPanel from './components/SettingsPanel';
+import Toasts from './components/Toasts';
 import VersionFooter from './components/VersionFooter';
 import WelcomeBack from './components/WelcomeBack';
 import { useStore } from './store';
@@ -96,6 +98,7 @@ export default function App() {
           <SettingsPanel />
         )}
       </div>
+      <EventLog />
       <VersionFooter />
       {researching && (
         <div
@@ -108,6 +111,7 @@ export default function App() {
         </div>
       )}
       <ResearchCelebration />
+      <Toasts />
       <WelcomeBack />
     </main>
   );

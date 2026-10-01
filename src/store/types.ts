@@ -1,6 +1,8 @@
 import type { StateCreator } from 'zustand';
 import type { GameState, Resources } from '../types/state';
 import type { AwaySnapshot } from '../utils/awayReport';
+import type { LogEntry } from '../utils/eventLog';
+import type { LogActions } from './slices/logSlice';
 import type { EnergyActions } from './slices/energySlice';
 import type { ResourceActions } from './slices/resourceSlice';
 import type { GeneratorActions } from './slices/generatorSlice';
@@ -36,6 +38,12 @@ export interface TransientState {
   welcomeBack: WelcomeBackReport | null;
   /** Set while the tab is hidden (0.79). */
   awaySnapshot: AwaySnapshot | null;
+  /** Event log, newest first (0.38). */
+  eventLog: LogEntry[];
+  /** Toasts on screen, oldest first. */
+  toasts: LogEntry[];
+  /** Bumped when the whole game is replaced (load, reset), so that change is not logged as events. */
+  eventEpoch: number;
 }
 
 export type GameStore = GameState &
@@ -46,6 +54,7 @@ export type GameStore = GameState &
   ResearchActions &
   RoomActions &
   SettingsActions &
+  LogActions &
   CoreActions;
 
 /** Slice creator typed for the combined store with devtools + persist. */
