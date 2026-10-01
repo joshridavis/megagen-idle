@@ -29,3 +29,34 @@ body {
     opacity: 0;
   }
 }
+
+/* Scrollbars in game colours (playtest 5). Firefox and current Chromium use
+   scrollbar-color; older WebKit uses the ::-webkit-scrollbar rules. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4a5462 #141013;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #141013;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4a5462;
+  border: 2px solid #141013;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #588dbe;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

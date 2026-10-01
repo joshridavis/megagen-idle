@@ -187,7 +187,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** the "Gives" row becomes a highlighted reward box (green tint, 🎁 icon, "You get:" label), each reward on its own line with its own icon (⚡ unlocks a generator, ⛏️ grants a producer, 📈 a percentage boost). Research nodes show a small reward hint too (e.g. "🎁 Wind Turbine").
 **Acceptance:** UI test that the reward box lists every unlock, producer grant and boost of a research.
 
-### 0.62 — Scrollbars in game colours — CODE — Not started
+### 0.62 — Scrollbars in game colours — CODE — Done
 **Goal:** apply playtest 5 feedback: the scrollbar on long lists (Your generators) uses browser default white and grey; it should match the game.
 **Details:** global scrollbar styling from the theme (slate track, sky/slate thumb, rounded) using `scrollbar-color`/`scrollbar-width` for Firefox and Chromium plus `::-webkit-scrollbar` rules for older WebKit. Applies to every scroll area (generator list, research tree, page).
 **Acceptance:** CSS present for both engines; screenshot check in the PR.
