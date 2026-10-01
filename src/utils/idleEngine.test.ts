@@ -2,12 +2,17 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { MAX_OFFLINE_SECONDS } from '../data/time';
 import { useStore } from '../store';
 import { createInitialState } from '../data/initialState';
+import { GeneratorType, type Generator } from '../types/generator';
 import { computeDeltaSeconds, computeIdleGain, tick } from './idleEngine';
+import { deriveRates } from './simulation';
 
 const T0 = 1_700_000_000_000;
 
+// Two solar panels (0.5/s each) give exactly 1 energy per second.
+const solar = (id: string): Generator => ({ id, type: GeneratorType.SOLAR, isActive: true, level: 1 });
+
 beforeEach(() => {
-  useStore.setState(createInitialState(T0));
+  useStore.setState(deriveRates({ ...createInitialState(T0), activeGenerators: [solar('gen-1'), solar('gen-2')] }));
 });
 
 describe('computeDeltaSeconds', () => {
@@ -37,7 +42,7 @@ describe('computeIdleGain', () => {
 });
 
 describe('tick', () => {
-  it('adds about 1 energy per second at the default rate', () => {
+  it('adds energy at the generator rate (1/s here)', () => {
     tick(T0 + 1000);
     expect(useStore.getState().energy).toBeCloseTo(1);
     tick(T0 + 2000);

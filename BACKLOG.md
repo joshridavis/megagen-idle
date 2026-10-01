@@ -160,7 +160,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Fuel consumption (absorbs old bug item 0.23):** generators with `maintenanceCost` consume their resource each minute. If there is not enough, the generator auto-deactivates, the store records a "resource depleted" state, and a warning is shown. This logic lives in `resourceSystem` / `generatorSystem`; there is no `coalPowerPlant.ts`.
 **Acceptance:** tests for affordability, consumption success and failure, passive rates, offline accrual, and the depletion-to-deactivation path including the warning.
 
-### 0.07 — Generator building and management system — CODE — Not started
+### 0.07 — Generator building and management system — CODE — Done
 **Goal:** the player can build, activate and deactivate generators within room limits.
 **Details:**
 - `src/types/generator.ts`: `Generator` with `id`, `type` (enum SOLAR, WIND, COAL, …), `energyPerSecond`, `roomCost`, `buildCost`, `maintenanceCost` (resources per hour), `isActive`, `level`.

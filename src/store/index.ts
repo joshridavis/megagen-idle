@@ -8,6 +8,7 @@ import { createResearchSlice } from './slices/researchSlice';
 import { createResourceSlice } from './slices/resourceSlice';
 import { createRoomSlice } from './slices/roomSlice';
 import { createSettingsSlice } from './slices/settingsSlice';
+import { deriveRates } from '../utils/simulation';
 import { gameStorage } from './storage';
 import type { GameStore } from './types';
 
@@ -37,6 +38,8 @@ export const useStore = create<GameStore>()(
         version: SAVE_VERSION,
         partialize: (s: GameStore) => pickSaved(s),
         migrate: migrateSave,
+        // Derived values are always recomputed from the loaded data.
+        merge: (persisted, current) => ({ ...current, ...deriveRates({ ...pickSaved(current), ...(persisted as object) }) }),
       },
     ),
     { name: 'MegaGen Idle', enabled: import.meta.env.DEV },

@@ -1,4 +1,6 @@
+import { GENERATORS } from '../data/generators';
 import { SIM_STEP_SECONDS } from '../data/time';
+import { calculateEnergyRate } from './energyGeneration';
 import type { ResourceId, GameState } from '../types/state';
 import { accrueResources, burnFuel } from './resourceSystem';
 
@@ -45,9 +47,12 @@ export function advanceTime(state: GameState, seconds: number): { state: GameSta
 }
 
 /**
- * Recomputes cached derived values. Item 0.07 extends this with the energy
- * rate from generators and room used.
+ * Recomputes the cached derived values (energy rate, room used) from built
+ * generators. The single place these are calculated.
  */
 export function deriveRates(state: GameState): GameState {
-  return state;
+  const energyPerSecond = calculateEnergyRate(state.activeGenerators);
+  const roomUsed = state.activeGenerators.reduce((sum, g) => sum + (GENERATORS[g.type]?.roomCost ?? 0), 0);
+  if (energyPerSecond === state.energyPerSecond && roomUsed === state.roomUsed) return state;
+  return { ...state, energyPerSecond, roomUsed };
 }
