@@ -1,4 +1,6 @@
-/** Shared scrap controls: a Scrap button with a no-refund tooltip, and a confirm row. */
+import { useState } from 'react';
+
+/** Shared scrap controls: a Scrap button with a no-refund tooltip, and confirm rows. */
 
 export function noRefundText(what: string) {
   return `No refund: scrapping removes the ${what} for good and frees its room.`;
@@ -58,6 +60,83 @@ export function ScrapConfirm({
       >
         Cancel
       </button>
+    </div>
+  );
+}
+
+/** Confirm row that asks how many to scrap (1..max), with -/+ and All. */
+export function ScrapQuantityConfirm({
+  name,
+  plural,
+  max,
+  roomEach,
+  onConfirm,
+  onCancel,
+}: {
+  name: string;
+  plural: string;
+  max: number;
+  roomEach: number;
+  onConfirm: (count: number) => void;
+  onCancel: () => void;
+}) {
+  const [count, setCount] = useState(1);
+  const clamp = (n: number) => Math.max(1, Math.min(max, Math.floor(Number.isFinite(n) ? n : 1)));
+  return (
+    <div role="alert" className="mt-2 flex flex-col gap-2 rounded bg-red-950/60 p-2 text-sm text-red-100">
+      <div className="flex flex-wrap items-center gap-2">
+        <span>How many?</span>
+        <button
+          type="button"
+          onClick={() => setCount((c) => clamp(c - 1))}
+          aria-label="One fewer"
+          className="h-9 w-9 rounded bg-slate-700 font-bold hover:bg-slate-600"
+        >
+          −
+        </button>
+        <input
+          type="number"
+          min={1}
+          max={max}
+          value={count}
+          onChange={(e) => setCount(clamp(e.target.valueAsNumber))}
+          aria-label={`Number of ${plural} to scrap`}
+          className="h-9 w-16 rounded border border-slate-600 bg-slate-900 text-center"
+        />
+        <button
+          type="button"
+          onClick={() => setCount((c) => clamp(c + 1))}
+          aria-label="One more"
+          className="h-9 w-9 rounded bg-slate-700 font-bold hover:bg-slate-600"
+        >
+          +
+        </button>
+        <button type="button" onClick={() => setCount(max)} className="h-9 rounded bg-slate-700 px-3 hover:bg-slate-600">
+          All ({max})
+        </button>
+      </div>
+      <span data-testid="scrap-summary">
+        No refund: removes {count} {count === 1 ? name : plural} for good and frees {count * roomEach} room.
+      </span>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => onConfirm(count)}
+          aria-label={`Confirm scrap ${plural}`}
+          className="min-h-11 rounded bg-red-700 px-3 py-2 font-semibold hover:bg-red-600"
+        >
+          Scrap {count}
+        </button>
+        <button
+          type="button"
+          autoFocus
+          onClick={onCancel}
+          aria-label={`Cancel scrap ${plural}`}
+          className="min-h-11 rounded bg-slate-600 px-3 py-2 font-semibold hover:bg-slate-500"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
   );
 }

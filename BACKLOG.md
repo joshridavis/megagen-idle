@@ -211,7 +211,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** tests: moving changes order and persists through save/load; out-of-range moves are clamped; fuel goes to the top generator first.
 **Done notes:** ▲/▼ buttons (Shift+click moves to top/bottom) plus drag-and-drop on desktop. Generator names now use their stable ID number, so reordering never renames them.
 
-### 0.70 — Scrap several producers at once — CODE — Not started
+### 0.70 — Scrap several producers at once — CODE — Done
 **Goal:** apply playtest 6 feedback: scrapping producers asks how many.
 **Details:** the producer confirm row gets a number field (1 to owned, default 1) with − / + buttons and an "All" button; the notice states the number and the room freed. Pure `scrapProducer(state, id, count)` clamps to 0..owned.
 **Acceptance:** tests: scrapping N lowers the count by N and frees N × room; values outside the range are clamped; Cancel changes nothing.

@@ -7,8 +7,8 @@ import type { SliceCreator } from '../types';
 export interface ResourceActions {
   /** Buys one more producer. Returns success. */
   buildProducer: (id: ProducerId) => boolean;
-  /** Removes one producer to free its room (no refund). */
-  scrapProducer: (id: ProducerId) => void;
+  /** Removes `count` producers (default 1) to free their room (no refund). */
+  scrapProducer: (id: ProducerId, count?: number) => void;
   /** Hides the "resource ran out" warning. */
   dismissDepletedWarning: () => void;
 }
@@ -24,6 +24,6 @@ export const createResourceSlice =
       set(after, undefined, 'resource/buildProducer');
       return true;
     },
-    scrapProducer: (id) => set((s) => scrapProducer(s, id), undefined, 'resource/scrapProducer'),
+    scrapProducer: (id, count = 1) => set((s) => scrapProducer(s, id, count), undefined, 'resource/scrapProducer'),
     dismissDepletedWarning: () => set({ depletedResources: [] }, undefined, 'resource/dismissWarning'),
   });

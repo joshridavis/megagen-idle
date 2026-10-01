@@ -309,20 +309,44 @@ describe('Producer rates', () => {
   });
 });
 
-describe('Scrap producers (playtest 5)', () => {
-  it('scraps one producer after confirming; Cancel keeps it', () => {
-    useStore.setState(createInitialState(Date.now()));
+describe('Scrap producers (playtest 5/6)', () => {
+  const setup = (mines: number) => {
+    useStore.setState({
+      ...createInitialState(Date.now()),
+      producers: { quarry: 1, mine: mines, coalMine: 1, gasWell: 0 },
+      roomCapacity: 20,
+      roomUsed: 2 + mines,
+    });
     render(<App />);
     fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Scrap one Metal Mine' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Scrap Metal Mines' }));
+  };
+
+  it('Cancel changes nothing', () => {
+    setup(3);
     expect(screen.getByRole('alert').textContent).toContain('No refund');
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap one Metal Mine' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap Metal Mines' }));
+    expect(useStore.getState().producers.mine).toBe(3);
+  });
+
+  it('asks how many and scraps that many', () => {
+    setup(4);
+    fireEvent.click(screen.getByRole('button', { name: 'One more' }));
+    fireEvent.click(screen.getByRole('button', { name: 'One more' }));
+    expect(screen.getByTestId('scrap-summary').textContent).toContain('removes 3 Metal Mines');
+    expect(screen.getByTestId('scrap-summary').textContent).toContain('frees 3 room');
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Metal Mines' }));
     expect(useStore.getState().producers.mine).toBe(1);
-    fireEvent.click(screen.getByRole('button', { name: 'Scrap one Metal Mine' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap one Metal Mine' }));
+  });
+
+  it('All scraps every one, and the field never exceeds the owned count', () => {
+    setup(2);
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Number of Metal Mines to scrap' }), { target: { value: '50' } });
+    expect((screen.getByRole('spinbutton', { name: 'Number of Metal Mines to scrap' }) as HTMLInputElement).value).toBe('2');
+    fireEvent.click(screen.getByRole('button', { name: 'All (2)' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Metal Mines' }));
     expect(useStore.getState().producers.mine).toBe(0);
-    expect(useStore.getState().roomUsed).toBe(2);
-    expect(screen.queryByRole('button', { name: 'Scrap one Metal Mine' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Scrap Metal Mines' })).toBeNull();
   });
 });
 

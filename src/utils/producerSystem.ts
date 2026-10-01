@@ -46,8 +46,10 @@ export function buildProducer(state: GameState, id: ProducerId, bonuses: Bonuses
   });
 }
 
-/** Removes one producer of a type, freeing its room. No refund; never below 0. */
-export function scrapProducer(state: GameState, id: ProducerId): GameState {
-  if (!((state.producers[id] ?? 0) > 0)) return state;
-  return deriveRates({ ...state, producers: { ...state.producers, [id]: state.producers[id] - 1 } });
+/** Removes `count` producers of a type (clamped to 0..owned), freeing their room. No refund. */
+export function scrapProducer(state: GameState, id: ProducerId, count = 1): GameState {
+  const owned = state.producers[id] ?? 0;
+  const n = Math.max(0, Math.min(owned, Math.floor(count)));
+  if (n === 0) return state;
+  return deriveRates({ ...state, producers: { ...state.producers, [id]: owned - n } });
 }

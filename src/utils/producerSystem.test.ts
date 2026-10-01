@@ -98,3 +98,17 @@ describe('scrapping producers (playtest 5)', () => {
     expect(getProducerCost('mine', s.producers.mine)).toEqual(getProducerCost('mine', 1));
   });
 });
+
+describe('scrapping several producers (playtest 6)', () => {
+  it('scraps N and frees N x room', () => {
+    const s = scrapProducer(rich({ producers: { quarry: 5, mine: 1, coalMine: 1, gasWell: 0 }, roomUsed: 7 }), 'quarry', 3);
+    expect(s.producers.quarry).toBe(2);
+    expect(s.roomUsed).toBe(4);
+  });
+  it('clamps to what is owned, and ignores zero or negative counts', () => {
+    const base = rich({ producers: { quarry: 2, mine: 1, coalMine: 1, gasWell: 0 } });
+    expect(scrapProducer(base, 'quarry', 99).producers.quarry).toBe(0);
+    expect(scrapProducer(base, 'quarry', 0)).toBe(base);
+    expect(scrapProducer(base, 'quarry', -3)).toBe(base);
+  });
+});
