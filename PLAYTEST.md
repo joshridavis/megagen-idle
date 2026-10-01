@@ -1,6 +1,6 @@
-# Playtest 8 (v0.8.0): research everywhere, new room bar, resource research (after item 0.75)
+# Playtest 9 (v0.9.0): upgrades, safe saves, floating research chip, balance simulator (after item 0.32)
 
-The version at the bottom of the screen should read **v0.8.0**.
+The version at the bottom of the screen should read **v0.9.0**.
 
 ## How to play
 
@@ -9,50 +9,40 @@ The version at the bottom of the screen should read **v0.8.0**.
 
 Your save carries over.
 
-## New since last playtest (all from your feedback)
+## New since last playtest
 
-- **Research on every tab.** While a research runs, a chip under the energy display shows its name, time left and a progress bar on any tab. Click it to jump to Research. The running node in the research tree blinks.
-- **New room bar.** Your video showed the old meter wrapping onto a second row, with scaffolding jumping between rows and sometimes coming back. The meter is now one fixed-width bar:
-  - used room in green (red at 90%+), with tick marks every 10 room;
-  - after an expansion, the new room slides in as an amber striped "under construction" section, then settles after about 2 seconds;
-  - I checked it in a browser: it plays once and never comes back.
-- **8 room tiers** (was 3): +35, +50, +70, +100 and +140 room after the first three. Later tiers also cost coal, and the last one costs natural gas. The panel shows "Expansion N of 8".
-- **Resource research** (six new nodes):
-  - Better Pickaxes: +25% metal.
-  - Controlled Blasting: +25% stone.
-  - Conveyor Belts: +15% from all producers.
-  - Modular Mines: 15% cheaper producers.
-  - Efficient Boilers: 20% less fuel burned.
-  - Deep Drilling: +20% from all producers.
-  
-  Hover over a resource's rate to see these boosts, and the Active bonuses panel lists them.
-- **"24 hours"** now replaces "1d" for the offline limit.
-- Already in place, as you asked: the welcome-back summary lists research that finished while you were away, and Short is the default number style.
+- **Your feedback:**
+  - **Save-on-close safeguard.** Every save is also copied instantly to a backup, so closing the tab right after an action no longer loses it. A test simulates a tab closing before the main save lands, and the action survives.
+  - **Floating research chip.** While a research runs, its chip floats at the bottom of the screen on every tab. The page leaves room beneath, so the version number is never hidden.
+  - **Three starting research.** New root **Basic Mining** (+10% output from all producers). It starts the resource upgrades (Better Pickaxes, Controlled Blasting, Modular Mines). Like Basic Solar, it needs a Solar Panel built first.
+  - **200 hours to 100% completion** is now the official long-term target. The balance simulator measures it (see below).
+- **Generator upgrades.** Each generator in your list shows its level (Lv 1/10) and an **⬆ Upgrade** button. Each level adds +25% of its base output, and upgrades never take extra room. Hover over the button for the cost and gain.
+- **Fix:** the free Gas Well from Natural Gas Extraction no longer takes room. It could push your room over capacity, for example 65/63.
+- **Re-costed:** room tiers 6–8 need less metal, stone and coal (energy costs unchanged).
+- **Balance simulator** (`npm run simulate`, for development): a simulated idle player plays the game and writes `BALANCE_REPORT.md` with milestone times, targets and stalls.
 
-## Pacing I measured (simple idle player, 48 hours)
+## What the simulator says now
 
-- All 22 research done by about 25 hours.
-- Room tiers 4 to 7 by about 20 hours. Tier 8 (100 natural gas) is a long-term goal.
-- No stalls.
+- First research about 12 minutes, Wind about 2.5 h, Coal about 2.7 h, Hydro about 4.4 h, Gas Plants about 15 h. No stalls.
+- **100% completion: about 25 hours.** Your target is 200+. The gap is mostly missing content, which the coming items add (tier 3 and fictional generators, more methods, a deeper tree, achievements). A final tuning pass (0.47) then aims for 200 hours.
 
 ## Things to try
 
-1. Start a research, then switch tabs. Is the chip clear? Click it.
-2. Look at the blinking node in the research tree.
-3. Expand your room and watch the new bar animation.
-4. Research Better Pickaxes or Conveyor Belts and hover over the metal rate.
-5. Run coal plants with Efficient Boilers: does the coal rate improve?
-6. Check the Settings note says "24 hours".
+1. Upgrade a generator a few times. Watch its level, its output and the energy rate.
+2. Start a research and scroll to the bottom on a phone and on a computer. Does the chip float nicely without covering the version?
+3. Build something, then close the tab right away and reopen it. Is it still there?
+4. Look at the three starting research in the tree. Research Basic Mining and check the resource tooltips.
+5. Once you have the resources, watch the room expansion animation.
 
 ## Known issues
 
-- Saves are written in the background, so an action in the last second before closing the tab may not be saved. Tell me if you want a save-on-close safeguard.
-- No balance simulator yet (0.35). All numbers are first guesses.
+- The research tree is getting tall, and some connecting lines run long. A layout pass is planned (0.41/0.43).
+- In the generator list, long names wrap on narrow screens.
 - Placeholder art.
 
 ## Questions for you
 
-1. Is the new room bar animation better?
-2. Is the research chip in the right place, or would you prefer it smaller or somewhere else?
-3. Are 8 room tiers enough, and do the later costs feel right?
-4. Which resource research felt most useful?
+1. Should **100% completion include upgrading every generator type to max level**? That would add many hours and fits "perfection".
+2. Do upgrades feel worth their cost compared with building new generators?
+3. Is +25% per level and a maximum of 10 levels a good shape?
+4. Is the floating chip better now?
