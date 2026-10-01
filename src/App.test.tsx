@@ -250,3 +250,25 @@ describe('Version footer (playtest 4)', () => {
     expect(screen.getByTestId('version').textContent).toContain(`v${pkg.version}`);
   });
 });
+
+describe('Research level label (playtest 4)', () => {
+  it('says what the level is now and when it rises', () => {
+    const now = Date.now();
+    useStore.setState({
+      ...createInitialState(now),
+      energy: 5000,
+      researchLevel: 2,
+      completedResearch: ['basic_solar'],
+      activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }],
+    });
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    fireEvent.click(screen.getByTestId('research-node-wind_power'));
+    fireEvent.click(screen.getByRole('button', { name: 'Start research' }));
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(useStore.getState().researchLevel).toBe(2);
+    expect(screen.getByTestId('research-level-label').textContent).toBe('Your research level: 2');
+    expect(screen.getByTestId('research-level-next').textContent).toBe('Rises to 3 when Wind Power Fundamentals finishes');
+    expect(screen.getByTestId('research-node-hydropower').textContent).toContain('Needs level 4');
+  });
+});

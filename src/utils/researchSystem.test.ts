@@ -171,3 +171,16 @@ describe('a fresh save reaches the first unlock without a stall', () => {
     expect(GENERATORS[GeneratorType.WIND]).toBeDefined();
   });
 });
+
+describe('research level only rises on completion (playtest 4)', () => {
+  it('starting research and ticking before it finishes leave the level alone', () => {
+    let s = startResearch(rich({ researchLevel: 2, completedResearch: ['basic_solar'] }), 'wind_power', T0);
+    expect(s.researchLevel).toBe(2);
+    const d = RESEARCH_BY_ID.wind_power.duration;
+    s = advanceTime(s, d - 1, T0 + (d - 1) * 1000).state;
+    expect(s.researchLevel).toBe(2);
+    expect(s.currentResearch?.id).toBe('wind_power');
+    s = advanceTime({ ...s, lastSavedTimestamp: T0 + (d - 1) * 1000 }, 1, T0 + d * 1000).state;
+    expect(s.researchLevel).toBe(3);
+  });
+});

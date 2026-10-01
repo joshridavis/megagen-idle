@@ -150,10 +150,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** version comes from `package.json` (injected at build time by Vite `define`), shown as e.g. `v0.5.0` in a small footer, with the short commit hash when built in CI. From now on bump the minor version in `package.json` in each playtest PR (playtest 5 is `0.5.0`), and note it in the PR and the Playtest log. Document the rule in `CLAUDE.md` and `README.md`.
 **Acceptance:** footer shows the version from `package.json`; a test checks it matches; the rule is documented.
 
-### 0.56 — Research level shown clearly — CODE — Not started
+### 0.56 — Research level shown clearly — CODE — Done
 **Goal:** apply playtest 4 feedback: the owner saw "Research level 2" next to RESEARCH while a level-2 research was still running and read it as the level going up early.
 **Details:** verify the level only rises when research completes (add a test that starting research never changes it, including through the store and the idle tick). Make the label unambiguous: "Your research level: N", and while a research runs, "Rises to N+1 when <name> finishes". Research nodes say "Needs level N" rather than "Lv N".
 **Acceptance:** tests prove the level changes only on completion; the label text is unambiguous.
+**Done notes:** the level was not rising early: "Research level 2" was the player's current level (earned by Basic Solar) shown while a level-2 research ran. Tests now prove the level rises only on completion; labels changed to "Your research level: N", "Rises to N+1 when X finishes" and "Needs level N" on nodes.
 
 ### 0.57 — New room construction animation — CODE — Not started
 **Goal:** apply playtest 4 feedback: the fading scaffolding overlay looks odd; try a different approach.
