@@ -182,7 +182,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** pure `scrapProducer(state, id)` lowers the count by one (never below 0) and frees its room; no refund. Producer cards get the same Scrap flow as generators: tooltip saying there is no refund, then a confirm row with the notice, Confirm and Cancel. Scrapping does not lower the price of the next one below what the new count implies (price follows the count).
 **Acceptance:** tests: count and room drop, no refund, cannot go below 0, Cancel keeps it; UI test for the flow.
 
-### 0.61 — Research rewards stand out — CODE — Not started
+### 0.61 — Research rewards stand out — CODE — Done
 **Goal:** apply playtest 5 feedback: in the research panel, what the player gets from a research must be obvious.
 **Details:** the "Gives" row becomes a highlighted reward box (green tint, 🎁 icon, "You get:" label), each reward on its own line with its own icon (⚡ unlocks a generator, ⛏️ grants a producer, 📈 a percentage boost). Research nodes show a small reward hint too (e.g. "🎁 Wind Turbine").
 **Acceptance:** UI test that the reward box lists every unlock, producer grant and boost of a research.

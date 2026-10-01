@@ -325,3 +325,31 @@ describe('Scrap producers (playtest 5)', () => {
     expect(screen.queryByRole('button', { name: 'Scrap one Metal Mine' })).toBeNull();
   });
 });
+
+describe('Research rewards stand out (playtest 5)', () => {
+  const open = (id: string) => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    fireEvent.click(screen.getByTestId(`research-node-${id}`));
+    return screen.getByTestId('research-rewards').textContent!;
+  };
+  it('lists a generator unlock', () => {
+    expect(open('wind_power')).toContain('Unlocks the Wind Turbine');
+  });
+  it('lists a percentage boost and the level gain', () => {
+    const t = open('basic_solar');
+    expect(t).toContain('You get:');
+    expect(t).toContain('+10% energy from all generators');
+    expect(t).toContain('Research level +1');
+  });
+  it('lists a producer grant', () => {
+    expect(open('gas_extraction')).toContain('1 free Gas Well');
+  });
+  it('nodes show a reward hint', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    expect(screen.getByTestId('research-node-hydropower').textContent).toContain('🎁 Hydropower Dam');
+  });
+});
