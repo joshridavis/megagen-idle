@@ -84,7 +84,7 @@ export default function SettingsPanel() {
           <button type="button" onClick={onExport} className="min-h-11 rounded bg-sky-600 px-4 py-2 font-semibold hover:bg-sky-500">
             Export save
           </button>
-          <label className="min-h-11 cursor-pointer rounded bg-slate-600 px-4 py-2 font-semibold hover:bg-slate-500 has-focus-visible:outline-2 has-focus-visible:outline-sky-400">
+          <label className="inline-flex min-h-11 cursor-pointer items-center rounded bg-slate-600 px-4 py-2 font-semibold hover:bg-slate-500 has-focus-visible:outline-2 has-focus-visible:outline-sky-400">
             Import save…
             <input
               ref={fileRef}

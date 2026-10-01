@@ -1,6 +1,6 @@
-# Playtest 6 (v0.6.0): celebrations, clearer rewards, scrappable producers (after item 0.64)
+# Playtest 7 (v0.7.0): settings, welcome back, boost research, ordering (after item 0.30)
 
-The version at the bottom of the screen should read **v0.6.0**.
+The version at the bottom of the screen should read **v0.7.0**.
 
 ## How to play
 
@@ -9,42 +9,55 @@ The version at the bottom of the screen should read **v0.6.0**.
 
 Your save carries over.
 
-## New since last playtest (all from your feedback)
+## New since last playtest
 
-- **Producer prices** now rise by 20% for each one you own (was 15%).
-- **Scrap producers.** Each producer card has a Scrap button with the same no-refund tooltip, Confirm and Cancel as generators. The next one you buy costs what your new count implies.
-- **Research rewards stand out.** The research panel has a green **🎁 You get:** box with one line per reward:
-  - ⚡ unlocks a generator;
-  - ⛏️ grants a producer;
-  - 📈 a % boost;
-  - ⬆️ Research level +1.
-  
-  Each research node also shows a 🎁 hint.
-- **Game-coloured scrollbars** on long lists (Your generators, the research tree, the page).
-- **Research-complete celebration.** When a research finishes while you're playing, a "Research complete!" banner with a sparkle burst appears over whatever tab you're on. It shows for about 3.5 seconds; click to dismiss it. It doesn't play for research that finished while you were away.
-- **Tab icons:** a solar panel for Generators, a mine for Producers, an atom for Research.
-- **Backlog:** Achievements, a perfection (completion) tracker, and a plan for making the game public with accounts are now in the backlog.
+- **Your feedback:**
+  - **Reorder generators.** Use ▲▼ on each row (Shift+click to send it to the top or bottom), or drag rows on a computer. The order is also the **fuel priority**: when coal or gas runs short, generators higher in the list get it first. Generator names (#1, #2…) no longer change when you reorder.
+  - **Scrap several producers at once.** Scrap asks how many, with − / + buttons, a number field and an "All" button, and shows how much room you'll free.
+- **Welcome back.** After at least a minute away, a summary shows:
+  - how long you were away, and whether only the first 24 hours counted;
+  - energy and resources gained;
+  - research completed;
+  - generators that ran out of fuel.
+- **Settings tab** (gear icon):
+  - number style: Short 1.23M, Scientific 1.23e6, or Full 1,234,567;
+  - **Export save / Import save** for backups or moving devices (a wrong or damaged file is rejected and your game is untouched);
+  - a note on the offline limit;
+  - **Reset game**, which asks twice.
+- **Short numbers everywhere:** 1.23K, 45.6M, 789B, 1.2T. They're never rounded up, so you never see more than you have.
+- **Eight boost research nodes** (levels 3 to 7):
+  - Hand-Crank Dynamo: double click energy.
+  - Standard Parts and Bulk Purchasing: cheaper building.
+  - Lab Notebooks and Automated Labs: faster research.
+  - Grant Funding: cheaper research.
+  - Smart Grid and Superconductors: more energy.
+  - The Research tab shows an **Active bonuses** panel listing each bonus and where it comes from.
+- **On phones,** tabs that aren't active show only their icon, so all four fit.
+
+## Pacing I measured (idle player who buys mines and quarries, no clicking)
+
+- All 16 research done within about 19 hours: Hydro at about 4 hours, Gas Plants at about 10 hours, Superconductors at about 19 hours.
+- No stalls.
 
 ## Things to try
 
-1. Buy two more of a producer and check that each costs 20% more than the last.
-2. Scrap a producer: hover over Scrap, click it, press Cancel. Then do it again and press Confirm.
-3. Open a few research nodes. Is the "You get:" box clear?
-4. Start a short research and stay on the Generators tab until it finishes. Did the celebration play?
-5. Build enough generators that the list scrolls. Does the scrollbar fit the game's look?
-6. Check the tab icons, also on your phone.
-7. You haven't seen the room animation yet: expand your room and watch the meter build in.
+1. Reorder your generators with ▲▼ and by dragging. Put a coal plant at the top and let coal run low: does the top one keep running?
+2. Scrap 3 of one producer at once.
+3. Close the game for a while, then come back. Is the welcome-back summary useful?
+4. Settings: switch the number style, export your save, then import it again.
+5. Try Reset game, but press Cancel (unless you want to start over).
+6. Research Hand-Crank Dynamo and check that clicks give 2.
+7. Look at Active bonuses after a few boost research.
 
 ## Known issues
 
-- No "welcome back" summary after time away yet (0.28). Research that completes while you're away isn't celebrated, by design.
-- No in-game reset or short number format yet (0.29).
+- No balance simulator yet (0.35); boost numbers are first guesses.
+- The room animation and research celebration are still waiting for your verdict.
 - Placeholder art.
 
 ## Questions for you
 
-1. Is the celebration the right size and length, or is it too much?
-2. Is the reward box clear? Should completed research also show what it gave you?
-3. "Perfection tracker": I read this as a 100% completion tracker (research, generator types, expansions, achievements). Is that what you meant?
-4. For the public version: do you want accounts mainly for cloud saves across devices, for leaderboards, or both?
-5. How did the room animation look, once you've seen it?
+1. Is using list order as fuel priority intuitive, or would you rather set priority separately?
+2. Is the welcome-back summary the right amount of detail?
+3. Which number style do you prefer as the default?
+4. Do the boost research feel worth their cost and time?
