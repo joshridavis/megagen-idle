@@ -307,7 +307,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** each research raises the click value as described (unit tests); the duration-by-level data test passes; the simulator still meets its targets.
 **Notes:** Ergonomic Handle, Flywheel and Geared Crank (click power); Kinetic Capture and Grid Tap (new `clickRateShare` bonus, a quarter second of energy/s per click each, capped at 0.5 s). The click tooltip shows the share.
 
-### 0.88 — Player level from lifetime energy — CODE — Not started
+### 0.88 — Player level from lifetime energy — CODE — Done
 **Goal:** apply playtest 10 feedback: the player has a level based on the total energy produced over all time.
 **Details:**
 - **Tracking:** the save tracks `lifetimeEnergy`, the total energy ever produced: generators, clicks and offline gains, never reduced by spending. Save migration starts it at the current energy.
@@ -316,6 +316,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Level-up:** a celebration, which reuses the research celebration style.
 - **Rewards:** none at first, like achievements. PLAYTEST asks the owner whether levels should give a small bonus, for example +1% energy per level with a cap.
 **Acceptance:** lifetime energy grows with production and clicks, online and offline, and never drops when spending (unit tests). Level thresholds are monotonic (data test). The save migrates.
+**Notes:** `lifetimeEnergy` in the save (version 8). The curve is in `src/data/playerLevel.ts`. The top bar shows the level with a progress bar, a tooltip and a "Level up!" badge. The simulator report has a Player level column. No gameplay reward yet; the owner is asked at the next playtest.
 
 ### 0.84 — Random events: framework and sightings — CODE — Not started
 **Goal:** apply playtest 10 feedback: random events make the game feel alive and unpredictable. This item adds the framework and harmless "sightings" that are fun to discover.

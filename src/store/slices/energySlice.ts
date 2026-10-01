@@ -71,5 +71,13 @@ export const createEnergySlice =
         undefined,
         'energy/applyIdleGains',
       ),
-    clickEnergy: () => set((s) => ({ energy: s.energy + getClickValue(s.completedResearch, s.energyPerSecond) }), undefined, 'energy/click'),
+    clickEnergy: () =>
+      set(
+        (s) => {
+          const gained = getClickValue(s.completedResearch, s.energyPerSecond);
+          return { energy: s.energy + gained, lifetimeEnergy: s.lifetimeEnergy + gained };
+        },
+        undefined,
+        'energy/click',
+      ),
   });

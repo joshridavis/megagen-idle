@@ -52,7 +52,7 @@ export interface SimResult {
   completion: number;
   /** Periods with no new milestone longer than the stall threshold: [fromHours, toHours]. */
   gaps: [number, number][];
-  samples: { hours: number; energyPerSecond: number; completion: number; room: string }[];
+  samples: { hours: number; energyPerSecond: number; completion: number; room: string; lifetimeEnergy: number }[];
   finalState: GameState;
 }
 
@@ -232,12 +232,15 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
     const c = getCompletion(s).ratio;
     for (const q of [25, 50, 75, 100]) if (c * 100 >= q) hit(`completion:${q}`, `${q}% completion`);
     if (step % Math.round(3600 / o.stepSeconds) === 0) {
-      samples.push({ hours: (t - T0) / 3_600_000, energyPerSecond: s.energyPerSecond, completion: c, room: `${s.roomUsed}/${s.roomCapacity}` });
+      samples.push({ hours: (t - T0) / 3_600_000, energyPerSecond: s.energyPerSecond, completion: c, room: `${s.roomUsed}/${s.roomCapacity}`, lifetimeEnergy: s.lifetimeEnergy });
     }
     if (o.stopAtCompletion && c >= 1) break;
     // time passes; the player clicks early on
     const clicking = (t - T0) / 60_000 < o.clickMinutes;
-    if (clicking) s = { ...s, energy: s.energy + o.clicksPerSecond * o.stepSeconds * getClickValue(s.completedResearch, s.energyPerSecond) };
+    if (clicking) {
+      const gained = o.clicksPerSecond * o.stepSeconds * getClickValue(s.completedResearch, s.energyPerSecond);
+      s = { ...s, energy: s.energy + gained, lifetimeEnergy: s.lifetimeEnergy + gained };
+    }
     t += o.stepSeconds * 1000;
     s = { ...advanceTime(s, o.stepSeconds, t).state, lastSavedTimestamp: t };
   }

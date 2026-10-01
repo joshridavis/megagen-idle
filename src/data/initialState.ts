@@ -9,6 +9,7 @@ export const createInitialState = (now = Date.now()): GameState => ({
   energy: STARTING_ENERGY,
   energyPerSecond: 0,
   lastSavedTimestamp: now,
+  lifetimeEnergy: 0,
   resources: { ...STARTING_RESOURCES },
   producers: { ...STARTING_PRODUCERS },
   depletedResources: [],

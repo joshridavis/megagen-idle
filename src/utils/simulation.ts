@@ -50,7 +50,7 @@ export function advanceTime(
       for (const id of fuel.depleted) if (!report.depleted.includes(id)) report.depleted.push(id);
     }
     const gained = s.energyPerSecond * dt;
-    s = { ...s, energy: s.energy + gained };
+    s = { ...s, energy: s.energy + gained, lifetimeEnergy: (s.lifetimeEnergy ?? 0) + gained };
     report.energyGained += gained;
     report.seconds += dt;
     s = finishResearch(s, endTime - left * 1000, report);

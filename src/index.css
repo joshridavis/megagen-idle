@@ -158,3 +158,27 @@ body {
     display: none;
   }
 }
+
+/* Player level-up badge (0.88). */
+@keyframes level-up {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.8);
+  }
+  15%,
+  80% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.level-up {
+  animation: level-up 4s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .level-up {
+    animation: none;
+  }
+}

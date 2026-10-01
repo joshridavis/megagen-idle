@@ -4,6 +4,7 @@ import { useStore } from '../store';
 import { getAvailableRoom, getTotalEnergyRate, selectEnergy } from '../store/selectors';
 import { getEnergyBreakdown } from '../utils/breakdown';
 import BreakdownTooltip from './BreakdownTooltip';
+import PlayerLevelBadge from './PlayerLevelBadge';
 import { useNumberFormat } from './useNumberFormat';
 
 export default function EnergyDisplay() {
@@ -40,12 +41,13 @@ export default function EnergyDisplay() {
           )}
         </div>
       </div>
-      <div className="ml-4 border-l border-slate-600 pl-4 text-sm" aria-label="Room">
+      <div className="ml-3 border-l border-slate-600 pl-3 text-sm sm:ml-4 sm:pl-4" aria-label="Room">
         <div className="text-slate-400">Room</div>
         <div className="font-mono">
           {room}/{capacity} <span className="text-xs text-slate-400">({free} free)</span>
         </div>
       </div>
+      <PlayerLevelBadge />
     </div>
   );
 }

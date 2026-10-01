@@ -19,6 +19,8 @@ export interface EnergyState {
   energyPerSecond: number;
   /** Epoch ms of the last time idle gains were applied. */
   lastSavedTimestamp: number;
+  /** All energy ever produced (generators, clicks, offline); never lowered by spending. Sets the player level (0.88). */
+  lifetimeEnergy: number;
 }
 
 export interface ResourceState {
