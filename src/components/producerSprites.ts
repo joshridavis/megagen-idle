@@ -6,4 +6,6 @@ export const PRODUCER_SPRITES: Record<ProducerId, SpriteId> = {
   mine: 'producer_mine',
   coalMine: 'producer_coal_mine',
   gasWell: 'producer_gas_well',
+  oilRig: 'producer_oil_rig',
+  uraniumMine: 'producer_uranium_mine',
 };

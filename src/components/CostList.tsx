@@ -9,6 +9,8 @@ export const RESOURCE_ICONS: Record<ResourceId, SpriteId> = {
   stone: 'resource_stone',
   metal: 'resource_metal',
   naturalGas: 'resource_natural_gas',
+  oil: 'resource_oil',
+  uranium: 'resource_uranium',
 };
 
 /** Resource amounts with icons; amounts the player cannot afford are red. */

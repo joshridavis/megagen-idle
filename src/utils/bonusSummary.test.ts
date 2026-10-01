@@ -11,11 +11,11 @@ import { RESEARCH_BY_ID } from '../data/research';
 import { calculateEnergyRate } from './energyGeneration';
 
 describe('permanent-boost research (0.30)', () => {
-  it('boost entries (8 from 0.30, 6 from 0.75) are in the efficiency and materials categories', () => {
+  it('boost entries (8 from 0.30, 6 from 0.75, 3 from 0.33) are in the efficiency, materials and advanced categories', () => {
     const boosts = RESEARCH.filter((r) => (r.effects ?? []).length > 0 && !['basic_solar', 'basic_mining'].includes(r.id));
-    expect(boosts).toHaveLength(14);
+    expect(boosts).toHaveLength(17);
     for (const r of boosts) {
-      expect(['efficiency', 'materials']).toContain(r.category);
+      expect(['efficiency', 'materials', 'advanced']).toContain(r.category);
       expect(r.prerequisites.length).toBeGreaterThan(0);
     }
   });

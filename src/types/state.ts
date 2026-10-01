@@ -2,7 +2,7 @@ import type { Generator, GeneratorType } from './generator';
 import type { ProducerId } from './resource';
 import type { CurrentResearch } from './research';
 
-export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas';
+export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas' | 'oil' | 'uranium';
 
 export type Resources = Record<ResourceId, number>;
 

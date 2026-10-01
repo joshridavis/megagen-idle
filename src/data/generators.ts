@@ -73,6 +73,27 @@ export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
     buildCost: { metal: 150, stone: 75 },
     maintenanceCost: { naturalGas: 2 },
   },
+  // ---- Tier 3 (0.33): about 2.5x the energy per room of the tier before, more fuel. ----
+  [GeneratorType.OIL]: {
+    type: GeneratorType.OIL,
+    requiredLevel: 9,
+    name: 'Oil Power Plant',
+    description: 'Burns 6 oil per hour for 2.5x the output per room of a gas plant.',
+    energyPerSecond: 20,
+    roomCost: 10,
+    buildCost: { metal: 300, stone: 150 },
+    maintenanceCost: { oil: 6 },
+  },
+  [GeneratorType.NUCLEAR]: {
+    type: GeneratorType.NUCLEAR,
+    requiredLevel: 10,
+    name: 'Nuclear Fission Plant',
+    description: 'Splits uranium: huge, steady output. Burns 1 uranium per hour.',
+    energyPerSecond: 60,
+    roomCost: 12,
+    buildCost: { metal: 800, stone: 600 },
+    maintenanceCost: { uranium: 1 },
+  },
 };
 
 export const GENERATOR_TYPES = Object.values(GeneratorType);

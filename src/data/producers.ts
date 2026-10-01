@@ -42,9 +42,31 @@ export const PRODUCERS: Record<ProducerId, ProducerDef> = {
     baseCost: { energy: 6000, resources: { metal: 60, stone: 30 } },
     requiresResearch: 'gas_extraction',
   },
+  // 0.33. The first one is granted by Oil Drilling. One rig fuels two oil plants.
+  oilRig: {
+    id: 'oilRig',
+    name: 'Oil Rig',
+    resource: 'oil',
+    amount: 1,
+    intervalSeconds: 300,
+    roomCost: 2,
+    baseCost: { energy: 20000, resources: { metal: 200, stone: 100 } },
+    requiresResearch: 'oil_drilling',
+  },
+  // 0.33. The first one is granted by Uranium Mining. One mine fuels two reactors.
+  uraniumMine: {
+    id: 'uraniumMine',
+    name: 'Uranium Mine',
+    resource: 'uranium',
+    amount: 1,
+    intervalSeconds: 1800,
+    roomCost: 2,
+    baseCost: { energy: 60000, resources: { metal: 400, stone: 300 } },
+    requiresResearch: 'uranium_mining',
+  },
 };
 
 export const PRODUCER_IDS = Object.keys(PRODUCERS) as ProducerId[];
 
 /** The player starts with one of each basic producer already running. */
-export const STARTING_PRODUCERS: Record<ProducerId, number> = { quarry: 1, mine: 1, coalMine: 1, gasWell: 0 };
+export const STARTING_PRODUCERS: Record<ProducerId, number> = { quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 };

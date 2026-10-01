@@ -7,6 +7,8 @@ export enum GeneratorType {
   HYDRO = 'hydro',
   TIDAL = 'tidal',
   GAS = 'gas',
+  OIL = 'oil',
+  NUCLEAR = 'nuclear',
 }
 
 export interface GeneratorDef {

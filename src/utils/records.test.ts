@@ -13,7 +13,7 @@ import { getUnlockedGeneratorTypes } from './researchSystem';
 const rich = (): GameState => ({
   ...createInitialState(0),
   energy: 1e12,
-  resources: { coal: 1e9, stone: 1e9, metal: 1e9, naturalGas: 1e9 },
+  resources: { coal: 1e9, stone: 1e9, metal: 1e9, naturalGas: 1e9, oil: 0, uranium: 0 },
   roomCapacity: 1000,
 });
 

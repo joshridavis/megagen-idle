@@ -13,7 +13,7 @@ import {
 } from './resourceSystem';
 import { advanceTime } from './simulation';
 
-const res = (r: Partial<Resources> = {}): Resources => ({ coal: 0, stone: 0, metal: 0, naturalGas: 0, ...r });
+const res = (r: Partial<Resources> = {}): Resources => ({ coal: 0, stone: 0, metal: 0, naturalGas: 0, oil: 0, uranium: 0, ...r });
 const coalPlant = (id = 'g1', isActive = true): Generator => ({ id, type: GeneratorType.COAL, isActive, level: 1 });
 
 describe('affordability and consumption', () => {
@@ -44,18 +44,18 @@ describe('affordability and consumption', () => {
 
 describe('passive production', () => {
   it('starting producers give the documented rates', () => {
-    const r = getProductionRates({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0 });
+    const r = getProductionRates({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 });
     expect(r.stone).toBeCloseTo(1 / 10);
     expect(r.metal).toBeCloseTo(1 / 15);
     expect(r.coal).toBeCloseTo(1 / 20);
   });
 
   it('rates scale with producer count', () => {
-    expect(getProductionRates({ quarry: 3, mine: 0, coalMine: 0, gasWell: 0 }).stone).toBeCloseTo(0.3);
+    expect(getProductionRates({ quarry: 3, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0 }).stone).toBeCloseTo(0.3);
   });
 
   it('accrues over time', () => {
-    const r = accrueResources(res(), { quarry: 1, mine: 1, coalMine: 1, gasWell: 0 }, 60);
+    const r = accrueResources(res(), { quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 }, 60);
     expect(r).toEqual(res({ stone: 6, metal: 4, coal: 3 }));
   });
 
@@ -92,7 +92,7 @@ describe('fuel consumption and depletion', () => {
   it('runs the plant until coal is gone offline, then sets the warning', () => {
     const s = {
       ...createInitialState(0),
-      producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0 },
+      producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0 },
       resources: res({ coal: 10 }),
       activeGenerators: [coalPlant()],
     };

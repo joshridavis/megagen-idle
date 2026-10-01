@@ -6,7 +6,7 @@ import type { GameState } from '../types/state';
 import { recordsFromGenerators } from '../utils/records';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 
 type AnySave = Record<string, unknown>;
 
@@ -36,6 +36,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   4: (save) => ({ ...save, roomCapacity: (Number(save.roomCapacity) || 10) + 3 }),
   // 0.82: permanent completion records, filled from the generators the save has now.
   5: (save) => ({ ...save, records: recordsFromGenerators((save.activeGenerators as Generator[] | undefined) ?? []) }),
+  // 0.33: oil and uranium, Oil Rig and Uranium Mine (filled from defaults below).
+  6: (save) => save,
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */

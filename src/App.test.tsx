@@ -20,8 +20,8 @@ describe('App smoke test', () => {
   it('starts from the documented initial state', () => {
     const s = createInitialState(0);
     expect(s.energy).toBe(900); // exactly the first Solar Panel's cost
-    expect(s.resources).toEqual({ metal: 15, stone: 10, coal: 0, naturalGas: 0 });
-    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0 });
+    expect(s.resources).toEqual({ metal: 15, stone: 10, coal: 0, naturalGas: 0, oil: 0, uranium: 0 });
+    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 });
     expect(s.researchLevel).toBe(1);
     expect(s.activeGenerators).toEqual([]);
     expect(s.roomCapacity).toBe(13); // 10 for generators + 3 for the starting producers
@@ -155,7 +155,7 @@ describe('Room UI', () => {
     useStore.setState({
       ...createInitialState(Date.now()),
       energy: 600,
-      resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0 },
+      resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0, oil: 0, uranium: 0 },
     });
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
@@ -209,7 +209,7 @@ describe('Mid-tier generators UI', () => {
   });
 
   it('shows the new room under construction after expanding, in a fixed-width bar', () => {
-    useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0 } });
+    useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0, oil: 0, uranium: 0 } });
     render(<App />);
     expect(screen.queryByTestId('room-building')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
@@ -279,7 +279,7 @@ describe('Research level label (playtest 4)', () => {
 
 describe('Producers (0.31)', () => {
   it('buys a quarry from the Producers tab: count, room and stone rate go up', () => {
-    useStore.setState({ ...createInitialState(Date.now()), energy: 1000, resources: { metal: 20, stone: 10, coal: 0, naturalGas: 0 } });
+    useStore.setState({ ...createInitialState(Date.now()), energy: 1000, resources: { metal: 20, stone: 10, coal: 0, naturalGas: 0, oil: 0, uranium: 0 } });
     render(<App />);
     fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
     expect(screen.getByTestId('producer-owned-quarry').textContent).toBe('1');
@@ -314,7 +314,7 @@ describe('Scrap producers (playtest 5/6)', () => {
   const setup = (mines: number) => {
     useStore.setState({
       ...createInitialState(Date.now()),
-      producers: { quarry: 1, mine: mines, coalMine: 1, gasWell: 0 },
+      producers: { quarry: 1, mine: mines, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 },
       roomCapacity: 20,
       roomUsed: 2 + mines,
     });
@@ -443,7 +443,7 @@ describe('Welcome back and settings (0.28)', () => {
         awaySeconds: 3 * 86400,
         creditedSeconds: 86400,
         energyGained: 4321,
-        resourcesGained: { metal: 10, stone: 20, coal: -2, naturalGas: 0 },
+        resourcesGained: { metal: 10, stone: 20, coal: -2, naturalGas: 0, oil: 0, uranium: 0 },
         completedResearch: ['basic_solar'],
         outOfFuel: [],
       },
@@ -591,7 +591,7 @@ describe('Generator upgrades UI (0.32)', () => {
       deriveRates({
         ...createInitialState(Date.now()),
         energy: 1e6,
-        resources: { metal: 1e4, stone: 1e4, coal: 0, naturalGas: 0 },
+        resources: { metal: 1e4, stone: 1e4, coal: 0, naturalGas: 0, oil: 0, uranium: 0 },
         activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }],
       }),
     );

@@ -67,7 +67,7 @@ function netRate(s: GameState, id: ResourceId): number {
   return getProductionRates(s.producers, b)[id] - getFuelUseRates(s.activeGenerators, b)[id];
 }
 
-const PRODUCER_FOR: Record<ResourceId, ProducerId> = { metal: 'mine', stone: 'quarry', coal: 'coalMine', naturalGas: 'gasWell' };
+const PRODUCER_FOR: Record<ResourceId, ProducerId> = { metal: 'mine', stone: 'quarry', coal: 'coalMine', naturalGas: 'gasWell', oil: 'oilRig', uranium: 'uraniumMine' };
 
 /**
  * Deterministic greedy player:
@@ -223,7 +223,7 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
       for (let lv = 2; lv < Math.min(best + 1, maxLevelOf(t)); lv++) hit(`level${lv}:${t}`, `${GENERATORS[t].name} at level ${lv}`);
       if (best >= maxLevelOf(t)) hit(`maxed:${t}`, `${GENERATORS[t].name} at max level`);
     }
-    for (const id of PRODUCER_IDS) if ((s.producers[id] ?? 0) > 0) hit(`producer:${id}`, `Has a ${PRODUCERS[id].name}`);
+    for (const id of PRODUCER_IDS) if ((s.producers[id] ?? 0) > 0) hit(`producer:${id}`, `Has ${/^[AEIOU]/.test(PRODUCERS[id].name) ? 'an' : 'a'} ${PRODUCERS[id].name}`);
     for (let i = 1; i <= s.expansionLevel; i++) hit(`room:${i}`, `Room expansion ${i} of ${ROOM_TIERS.length}`);
     s.completedResearch.forEach((id, i) => {
       if (i === 0) hit('firstResearch', 'First research completed');
