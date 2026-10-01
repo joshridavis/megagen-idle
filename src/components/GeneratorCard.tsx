@@ -9,11 +9,13 @@ import { GENERATOR_SPRITES } from './generatorSprites';
 const BLOCK_TEXT: Record<BuildBlock, string> = {
   locked: 'Locked',
   resources: 'Not enough resources',
+  energy: 'Not enough energy',
   room: 'Not enough room',
 };
 
 export default function GeneratorCard({ type, block }: { type: GeneratorType; block: BuildBlock | null }) {
   const resources = useStore((s) => s.resources);
+  const energy = useStore((s) => s.energy);
   const build = useStore((s) => s.buildGenerator);
   const def = GENERATORS[type];
   const stats = getGeneratorStats(type);
@@ -39,7 +41,13 @@ export default function GeneratorCard({ type, block }: { type: GeneratorType; bl
       </div>
       <div className="text-sm">
         <span className="text-slate-400">Cost: </span>
-        <CostList cost={stats.buildCost} have={resources} />
+        <span className="inline-flex flex-wrap gap-x-2 gap-y-1">
+          <span className={`inline-flex items-center gap-1 ${energy < stats.energyCost ? 'text-red-400' : ''}`} data-testid={`energy-cost-${type}`}>
+            <img src={sprites.energy_icon} alt="" width={16} height={16} className="pixelated" />
+            {stats.energyCost.toLocaleString('en-US')} energy
+          </span>
+          <CostList cost={stats.buildCost} have={resources} />
+        </span>
       </div>
       {def.maintenanceCost && (
         <div className="text-sm" data-testid={`fuel-${type}`}>

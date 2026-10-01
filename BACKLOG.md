@@ -106,7 +106,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** give fuel use (the card's "Burns" line, and negative resource rates caused by fuel) its own colour, such as amber, distinct from the red used for unaffordable costs. Keep red only for "you cannot afford this".
 **Acceptance:** the "Burns" text and the unaffordable-cost text use different colours; a UI test checks the fuel line does not use the red class.
 
-### 0.50 — Generators cost energy — CODE — Not started
+### 0.50 — Generators cost energy — CODE — Done
 **Goal:** apply playtest 2 feedback: give energy a use. Building a generator also costs energy, equal to what it produces in 10 minutes.
 **Details:** energy cost = base `energyPerSecond` × `GENERATOR_ENERGY_COST_SECONDS` (600, a named constant in `src/data/generators.ts`), rounded up; the build discount applies to it like other build costs. Cards show the energy cost (red when short); the build button says "Not enough energy" when that is the only thing missing. The owner wants the first Solar Panel buildable straight away, so new saves start with enough energy for one (300). Later generators (0.20, 0.33, 0.34, 0.44) follow the same rule automatically. Producers (0.31) and room expansion (0.16) already have their own energy costs.
 **Acceptance:** Solar costs 300 energy, Wind 480, Coal 1200; building deducts energy; blocked without energy; a fresh save can still build a Solar Panel at once; tests cover the cost formula, the discount and the block.

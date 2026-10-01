@@ -32,7 +32,7 @@ An idle/incremental game about generating energy. You start with almost nothing 
 
 ## Balancing
 
-All game numbers live in `src/data/`: `generators.ts` (output, room, build cost, fuel use), `producers.ts` and `resources.ts` (production rates, starting stock), `player.ts` (click value) and `time.ts` (offline-gain cap). Change them there, not in logic.
+All game numbers live in `src/data/`: `generators.ts` (output, room, build cost, fuel use), `producers.ts` and `resources.ts` (production rates, starting stock), `player.ts` (click value, starting energy) and `time.ts` (offline-gain cap). Change them there, not in logic.
 
 ## Replacing a stand-in sprite with real art
 

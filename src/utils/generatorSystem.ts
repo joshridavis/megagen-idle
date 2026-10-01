@@ -1,4 +1,4 @@
-import { GENERATORS } from '../data/generators';
+import { GENERATOR_ENERGY_COST_SECONDS, GENERATORS } from '../data/generators';
 import { NO_BONUSES, type Bonuses } from '../types/bonus';
 import type { Generator, GeneratorType } from '../types/generator';
 import type { ResourceAmounts } from '../types/resource';
@@ -10,6 +10,8 @@ export interface GeneratorStats {
   energyPerSecond: number;
   roomCost: number;
   buildCost: ResourceAmounts;
+  /** Energy paid to build: base output over GENERATOR_ENERGY_COST_SECONDS. */
+  energyCost: number;
   maintenanceCost: ResourceAmounts;
 }
 
@@ -24,11 +26,12 @@ export function getGeneratorStats(type: GeneratorType, bonuses: Bonuses = NO_BON
     energyPerSecond: def.energyPerSecond * (1 + bonuses.globalEnergy),
     roomCost: def.roomCost,
     buildCost,
+    energyCost: Math.ceil(def.energyPerSecond * GENERATOR_ENERGY_COST_SECONDS * (1 - bonuses.buildDiscount)),
     maintenanceCost: def.maintenanceCost ?? {},
   };
 }
 
-export type BuildBlock = 'locked' | 'resources' | 'room';
+export type BuildBlock = 'locked' | 'room' | 'resources' | 'energy';
 
 /** Why a generator cannot be built right now, or null if it can. */
 export function getBuildBlock(
@@ -41,6 +44,7 @@ export function getBuildBlock(
   const stats = getGeneratorStats(type, bonuses);
   if (state.roomUsed + stats.roomCost > state.roomCapacity) return 'room';
   if (!canAfford(state.resources, stats.buildCost)) return 'resources';
+  if (state.energy < stats.energyCost) return 'energy';
   return null;
 }
 
@@ -67,9 +71,15 @@ export function buildGenerator(
   bonuses: Bonuses = NO_BONUSES,
 ): GameState {
   if (!canBuildGenerator(state, type, unlocked, bonuses)) return state;
-  const paid = consumeResource(state.resources, getGeneratorStats(type, bonuses).buildCost);
+  const stats = getGeneratorStats(type, bonuses);
+  const paid = consumeResource(state.resources, stats.buildCost);
   const generator: Generator = { id: nextGeneratorId(state.activeGenerators), type, isActive: true, level: 1 };
-  return deriveRates({ ...state, resources: paid.resources, activeGenerators: [...state.activeGenerators, generator] });
+  return deriveRates({
+    ...state,
+    energy: state.energy - stats.energyCost,
+    resources: paid.resources,
+    activeGenerators: [...state.activeGenerators, generator],
+  });
 }
 
 /** Switches a generator on or off. Switching on clears its out-of-fuel flag. */

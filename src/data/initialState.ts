@@ -1,10 +1,11 @@
 import type { GameState } from '../types/state';
+import { STARTING_ENERGY } from './player';
 import { STARTING_PRODUCERS } from './producers';
 import { STARTING_RESOURCES } from './resources';
 
 /** Starting values for a fresh save. `lastSavedTimestamp` is set at creation. */
 export const createInitialState = (now = Date.now()): GameState => ({
-  energy: 0,
+  energy: STARTING_ENERGY,
   energyPerSecond: 0,
   lastSavedTimestamp: now,
   resources: { ...STARTING_RESOURCES },

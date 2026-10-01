@@ -15,7 +15,7 @@ describe('App smoke test', () => {
 
   it('starts from the documented initial state', () => {
     const s = createInitialState(0);
-    expect(s.energy).toBe(0);
+    expect(s.energy).toBe(300); // playtest 2: enough for the first Solar Panel
     expect(s.resources).toEqual({ metal: 15, stone: 10, coal: 0, naturalGas: 0 });
     expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1 });
     expect(s.researchLevel).toBe(1);
@@ -89,5 +89,15 @@ describe('Fuel colour (playtest 2)', () => {
     expect(fuel.innerHTML).not.toContain('text-red-400');
     // the unaffordable metal cost on the same card is red
     expect(screen.getByTestId('generator-card-coal').innerHTML).toContain('text-red-400');
+  });
+});
+
+describe('Energy cost UI (playtest 2)', () => {
+  it('shows the energy cost and says when energy is the only thing missing', () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 100 });
+    render(<App />);
+    expect(screen.getByTestId('energy-cost-solar').textContent).toContain('300 energy');
+    expect(screen.getByTestId('energy-cost-solar').className).toContain('text-red-400');
+    expect(screen.getByTestId('generator-card-solar').querySelector('button')!.textContent).toBe('Not enough energy');
   });
 });

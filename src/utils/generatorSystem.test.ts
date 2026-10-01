@@ -73,7 +73,7 @@ describe('building', () => {
   });
 
   it('fills room exactly to capacity, then blocks', () => {
-    let s = fresh({ resources: { metal: 999, stone: 999, coal: 0, naturalGas: 0 } });
+    let s = fresh({ energy: 99_999, resources: { metal: 999, stone: 999, coal: 0, naturalGas: 0 } });
     for (let i = 0; i < 5; i++) s = buildGenerator(s, GeneratorType.SOLAR, ALL);
     expect(s.roomUsed).toBe(10);
     expect(s.activeGenerators).toHaveLength(5);
@@ -112,6 +112,7 @@ describe('toggling', () => {
 describe('energy over time', () => {
   it('a coal plant stops adding energy once its fuel is gone', () => {
     let s = fresh({
+      energy: 1200,
       producers: { quarry: 0, mine: 0, coalMine: 0 },
       resources: { metal: 20, stone: 10, coal: 5, naturalGas: 0 },
     });
@@ -120,5 +121,42 @@ describe('energy over time', () => {
     // 5 coal = 5 minutes at 2/s
     expect(state.energy).toBeCloseTo(600);
     expect(state.energyPerSecond).toBe(0);
+  });
+});
+
+describe('energy cost (playtest 2: 10 minutes of output)', () => {
+  it('is base output times 600 s', () => {
+    expect(getGeneratorStats(GeneratorType.SOLAR).energyCost).toBe(300);
+    expect(getGeneratorStats(GeneratorType.WIND).energyCost).toBe(480);
+    expect(getGeneratorStats(GeneratorType.COAL).energyCost).toBe(1200);
+  });
+
+  it('the build discount applies, rounding up', () => {
+    expect(getGeneratorStats(GeneratorType.WIND, { ...NO_BONUSES, buildDiscount: 0.15 }).energyCost).toBe(408);
+    expect(getGeneratorStats(GeneratorType.SOLAR, { ...NO_BONUSES, buildDiscount: 0.333 }).energyCost).toBe(201);
+  });
+
+  it('a global energy bonus does not raise the cost', () => {
+    expect(getGeneratorStats(GeneratorType.SOLAR, { ...NO_BONUSES, globalEnergy: 1 }).energyCost).toBe(300);
+  });
+
+  it('building deducts the energy', () => {
+    const s = buildGenerator(fresh({ energy: 350 }), GeneratorType.SOLAR, ALL);
+    expect(s.energy).toBe(50);
+  });
+
+  it('is blocked without enough energy', () => {
+    const s = fresh({ energy: 299 });
+    expect(getBuildBlock(s, GeneratorType.SOLAR, ALL)).toBe('energy');
+    expect(buildGenerator(s, GeneratorType.SOLAR, ALL)).toBe(s);
+  });
+
+  it('reports missing resources before missing energy', () => {
+    const s = fresh({ energy: 0, resources: { metal: 0, stone: 0, coal: 0, naturalGas: 0 } });
+    expect(getBuildBlock(s, GeneratorType.SOLAR, ALL)).toBe('resources');
+  });
+
+  it('a fresh save can still build a Solar Panel at once', () => {
+    expect(canBuildGenerator(fresh(), GeneratorType.SOLAR, ALL)).toBe(true);
   });
 });

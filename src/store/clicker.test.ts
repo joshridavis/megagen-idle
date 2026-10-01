@@ -3,7 +3,7 @@ import { BASE_CLICK_VALUE } from '../data/player';
 import { createInitialState } from '../data/initialState';
 import { useStore } from '.';
 
-beforeEach(() => useStore.setState(createInitialState(0)));
+beforeEach(() => useStore.setState({ ...createInitialState(0), energy: 0 }));
 
 describe('clickEnergy', () => {
   it('adds the configured click value', () => {
