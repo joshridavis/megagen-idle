@@ -17,6 +17,8 @@ An idle/incremental game about generating energy. You start with almost nothing 
 | `npm run build` | Type-checks and builds the static site into `dist/` (served under `/megagen-idle/`). |
 | `npm run preview` | Serves the built `dist/` locally, at `http://localhost:4173/megagen-idle/`. |
 | `npm test` | Runs the Vitest unit tests once. |
+| `npm run check:assets` | Checks every sprite in the manifest exists as a PNG of the right size, and lists which are still generic stand-ins. |
+| `npm run generate:assets` | Draws any missing generic stand-in sprites. Add `-- --force` to redraw the generic ones; files not listed in `src/assets/generic-assets.json` (real art) are never touched. |
 
 ## Project layout
 
@@ -34,7 +36,7 @@ All game numbers live in `src/data/` (for example `src/data/player.ts` for click
 
 ## Replacing a stand-in sprite with real art
 
-Every sprite is a generated placeholder. To use real art, save your PNG at the same path and size (see the Asset manifest in `BACKLOG.md`), then remove its line from `src/assets/generic-assets.json` so the generator never overwrites it. No code change is needed.
+Every sprite is a generated placeholder. To use real art, save your PNG at the same path and size (see the Asset manifest in `BACKLOG.md`, or `src/assets/sprite-manifest.json`), then remove its line from `src/assets/generic-assets.json` so the generator never overwrites it. Run `npm run check:assets` to confirm the size. No code change is needed.
 
 ## Resetting a save
 

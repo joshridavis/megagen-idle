@@ -10,7 +10,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "generate:assets": "node scripts/generate-generic-assets.mjs",
+    "check:assets": "node scripts/check-assets.mjs"
   },
   "dependencies": {
     "localforage": "^1.10.0",

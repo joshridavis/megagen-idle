@@ -1,0 +1,502 @@
+// Generates the generic stand-in sprites listed in src/assets/sprite-manifest.json.
+//
+// Rules (see CLAUDE.md, "Assets"):
+// - An existing file is never overwritten unless run with --force.
+// - With --force, only files listed in src/assets/generic-assets.json are
+//   regenerated. A file that exists but is not listed is real art: never touched.
+// - energy_currency_icon_32.png is owned by generate-energy-icon.mjs and is
+//   never touched here.
+// - Every file created is recorded in src/assets/generic-assets.json.
+// Output is deterministic: no randomness, no timestamps.
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Canvas } from './lib/canvas.mjs';
+import { C, nearestPaletteRgb } from './lib/palette.mjs';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+// --assets-dir=<dir> targets another folder (used by tests).
+const dirArg = process.argv.find((a) => a.startsWith('--assets-dir='));
+const assetsDir = dirArg ? resolve(dirArg.slice('--assets-dir='.length)) : resolve(root, 'src/assets');
+const spritesDir = resolve(assetsDir, 'sprites');
+const genericListPath = resolve(assetsDir, 'generic-assets.json');
+const manifest = JSON.parse(readFileSync(resolve(assetsDir, 'sprite-manifest.json'), 'utf8'));
+const ENERGY_ICON = 'energy_currency_icon_32.png';
+
+// ---------- drawing helpers ----------
+
+/**
+ * Rough isometric block lit from the top left: light top face, mid front face,
+ * dark right side. (x, y) is the top-left of the front face.
+ */
+function isoBlock(c, x, y, w, h, d, top, front, side) {
+  c.polygon([[x, y], [x + d, y - d], [x + w + d, y - d], [x + w, y]], top);
+  c.rect(x, y, w, h, front);
+  c.polygon([[x + w, y], [x + w + d, y - d], [x + w + d, y + h - d], [x + w, y + h]], side);
+}
+
+/** Vertical cylinder with a lit left half. */
+function cylinder(c, cx, top, r, h, light, dark, cap) {
+  c.rect(cx - r, top, r, h, light);
+  c.rect(cx, top, r, h, dark);
+  c.circle(cx, top, r, cap);
+  for (let x = cx - r; x < cx + r; x++) {
+    const dy = Math.sqrt(Math.max(0, r * r - (x + 0.5 - cx) ** 2)) * 0.45;
+    c.set(x, top + h + Math.floor(dy), x < cx ? light : dark);
+  }
+}
+
+function waves(c, y, w, color, step = 8) {
+  for (let x = 0; x < w; x++) {
+    const phase = x % step;
+    c.set(x, y + (phase < step / 2 ? 0 : 1), color);
+  }
+}
+
+// ---------- generators ----------
+
+function solarPanel() {
+  const c = new Canvas(48, 48);
+  c.rect(22, 30, 4, 12, C.grey4); // post
+  c.rect(23, 30, 1, 12, C.grey2);
+  c.rect(14, 41, 20, 3, C.grey5); // foot
+  const frame = [[6, 30], [16, 8], [44, 8], [34, 30]];
+  c.polygon(frame, C.grey3);
+  c.polygon([[8, 28], [17, 10], [42, 10], [33, 28]], C.navy);
+  // cells: grid lines on the slanted panel
+  for (let i = 1; i < 4; i++) {
+    const t = i / 4;
+    c.line(8 + 9 * t, 28 - 18 * t, 33 + 9 * t, 28 - 18 * t, C.steel);
+  }
+  for (let i = 1; i < 4; i++) {
+    const x = 8 + (25 * i) / 4;
+    c.line(x, 28, x + 9, 10, C.steel);
+  }
+  c.line(17, 11, 25, 11, C.sky); // glare
+  c.line(16, 13, 21, 13, C.sky);
+  c.outline(C.ink);
+  return c;
+}
+
+function windTurbine() {
+  const c = new Canvas(64, 64);
+  c.polygon([[29, 20], [35, 20], [37, 60], [27, 60]], C.grey1); // tower
+  c.polygon([[32, 20], [35, 20], [37, 60], [32, 60]], C.grey2);
+  c.rect(24, 59, 16, 3, C.grey5);
+  c.rect(29, 15, 9, 6, C.grey2); // nacelle
+  c.rect(29, 15, 9, 2, C.white);
+  // three blades from the hub
+  c.polygon([[30, 17], [33, 16], [31, 2], [28, 3]], C.white);
+  c.polygon([[32, 19], [33, 17], [50, 26], [48, 29]], C.grey1);
+  c.polygon([[29, 17], [31, 19], [17, 31], [15, 29]], C.grey1);
+  c.circle(31, 18, 2.5, C.red); // hub
+  c.outline(C.ink);
+  return c;
+}
+
+function coalPlant() {
+  const c = new Canvas(64, 64);
+  isoBlock(c, 6, 34, 34, 24, 8, C.brown2, C.brown3, C.brown4); // hall
+  for (let i = 0; i < 4; i++) c.rect(10 + i * 8, 42, 4, 6, C.amber); // lit windows
+  c.rect(18, 50, 8, 8, C.brown5); // door
+  // smokestack
+  c.rect(44, 12, 10, 46, C.grey3);
+  c.rect(49, 12, 5, 46, C.grey4);
+  c.rect(44, 18, 10, 3, C.red);
+  c.rect(44, 28, 10, 3, C.red);
+  c.rect(43, 10, 12, 3, C.grey5);
+  // smoke
+  c.circle(50, 6, 4, C.grey2);
+  c.circle(56, 3, 3, C.grey2);
+  c.circle(45, 3, 2.5, C.grey1);
+  c.outline(C.ink);
+  return c;
+}
+
+function hydroDam() {
+  const c = new Canvas(80, 64);
+  c.rect(0, 14, 30, 26, C.blue); // reservoir
+  waves(c, 18, 30, C.sky);
+  waves(c, 26, 30, C.sky);
+  // concrete wall, trapezoid, lit from the left
+  c.polygon([[26, 10], [52, 10], [62, 58], [18, 58]], C.grey2);
+  c.polygon([[46, 10], [52, 10], [62, 58], [54, 58]], C.grey4);
+  c.rect(24, 8, 30, 3, C.grey1); // crest road
+  for (let i = 0; i < 3; i++) c.rect(29 + i * 7, 14, 4, 4, C.grey5); // gates
+  // spillway water
+  c.rect(30, 40, 16, 18, C.sky);
+  for (let y = 41; y < 58; y += 3) c.line(31, y, 45, y, C.mint);
+  c.rect(0, 56, 80, 8, C.blue); // river
+  waves(c, 58, 80, C.sky);
+  c.rect(62, 50, 14, 8, C.grey3); // powerhouse
+  c.rect(64, 52, 3, 3, C.amber);
+  c.rect(70, 52, 3, 3, C.amber);
+  c.outline(C.ink);
+  return c;
+}
+
+function gasPlant() {
+  const c = new Canvas(64, 64);
+  c.rect(4, 54, 56, 6, C.grey5); // pad
+  cylinder(c, 17, 22, 10, 30, C.grey1, C.grey3, C.white);
+  cylinder(c, 44, 30, 9, 22, C.grey1, C.grey3, C.white);
+  c.rect(7, 34, 20, 3, C.orange); // stripes
+  c.rect(35, 40, 18, 3, C.orange);
+  // pipes
+  c.rect(26, 46, 10, 3, C.grey4);
+  c.rect(30, 14, 3, 33, C.grey4);
+  c.rect(30, 14, 26, 3, C.grey4);
+  c.rect(54, 8, 3, 9, C.grey4);
+  // flare
+  c.polygon([[55, 0], [52, 7], [58, 7]], C.amber);
+  c.polygon([[55, 3], [54, 7], [56, 7]], C.yellow);
+  c.outline(C.ink);
+  return c;
+}
+
+function tidalStation() {
+  const c = new Canvas(64, 48);
+  c.rect(0, 30, 64, 18, C.blue); // sea
+  waves(c, 32, 64, C.sky);
+  waves(c, 38, 64, C.sky, 12);
+  c.rect(10, 18, 4, 22, C.grey4); // legs
+  c.rect(50, 18, 4, 22, C.grey4);
+  isoBlock(c, 6, 14, 48, 6, 4, C.grey1, C.grey2, C.grey4); // deck
+  isoBlock(c, 20, 4, 18, 10, 4, C.cream, C.steel, C.teal); // control room
+  c.rect(24, 7, 3, 3, C.amber);
+  c.rect(31, 7, 3, 3, C.amber);
+  // underwater turbine
+  c.rect(31, 20, 2, 18, C.grey5);
+  c.circle(32, 40, 2, C.yellow);
+  c.line(32, 40, 26, 44, C.grey1);
+  c.line(32, 40, 38, 44, C.grey1);
+  c.line(32, 40, 32, 35, C.grey1);
+  c.outline(C.ink);
+  return c;
+}
+
+// ---------- resources ----------
+
+function coalIcon() {
+  const c = new Canvas(24, 24);
+  c.polygon([[3, 16], [7, 9], [13, 8], [16, 13], [14, 19], [6, 20]], C.grey6);
+  c.polygon([[11, 18], [14, 11], [19, 10], [21, 15], [19, 20], [13, 21]], C.ink);
+  c.line(8, 11, 11, 10, C.grey4);
+  c.line(15, 12, 17, 12, C.grey5);
+  c.outline(C.black);
+  return c;
+}
+
+function stoneIcon() {
+  const c = new Canvas(24, 24);
+  c.polygon([[3, 18], [5, 10], [11, 5], [18, 7], [21, 14], [18, 20], [8, 21]], C.grey3);
+  c.polygon([[5, 12], [11, 6], [16, 8], [10, 11]], C.grey2);
+  c.polygon([[15, 19], [20, 14], [18, 20]], C.grey4);
+  c.line(9, 15, 13, 13, C.grey5);
+  c.outline(C.ink);
+  return c;
+}
+
+function metalIcon() {
+  const c = new Canvas(24, 24);
+  isoBlock(c, 3, 11, 15, 7, 4, C.grey1, C.grey3, C.grey4);
+  c.line(5, 9, 12, 9, C.white);
+  c.outline(C.ink);
+  return c;
+}
+
+function naturalGasIcon() {
+  const c = new Canvas(24, 24);
+  c.polygon([[12, 2], [5, 13], [6, 19], [12, 22], [18, 19], [19, 13]], C.blue);
+  c.polygon([[12, 8], [8, 15], [9, 19], [12, 21], [15, 19], [16, 15]], C.sky);
+  c.polygon([[12, 13], [10, 17], [12, 20], [14, 17]], C.mint);
+  c.outline(C.ink);
+  return c;
+}
+
+// ---------- producers ----------
+
+function quarry() {
+  const c = new Canvas(48, 48);
+  // stepped pit, lit from top left
+  c.polygon([[2, 26], [24, 14], [46, 26], [24, 40]], C.sand);
+  c.polygon([[8, 27], [24, 18], [40, 27], [24, 36]], C.khaki);
+  c.polygon([[14, 28], [24, 22], [34, 28], [24, 33]], C.mud);
+  c.polygon([[19, 28], [24, 25], [29, 28], [24, 31]], C.brown5);
+  // stone blocks on the rim
+  isoBlock(c, 30, 14, 7, 5, 3, C.grey1, C.grey2, C.grey4);
+  isoBlock(c, 36, 18, 6, 4, 3, C.grey1, C.grey2, C.grey4);
+  // little crane
+  c.rect(8, 6, 2, 18, C.amber);
+  c.rect(8, 6, 14, 2, C.amber);
+  c.line(20, 8, 20, 18, C.grey5);
+  c.rect(19, 18, 3, 2, C.grey3);
+  c.outline(C.ink);
+  return c;
+}
+
+function mine() {
+  const c = new Canvas(48, 48);
+  c.polygon([[0, 40], [10, 14], [24, 6], [38, 14], [48, 40]], C.brown3); // hill
+  c.polygon([[0, 40], [10, 14], [24, 6], [20, 18], [8, 40]], C.brown2);
+  c.rect(16, 22, 16, 18, C.brown5); // entrance
+  c.rect(14, 20, 20, 3, C.brown4); // timber frame
+  c.rect(14, 20, 3, 20, C.brown4);
+  c.rect(31, 20, 3, 20, C.brown4);
+  c.rect(0, 40, 48, 3, C.grey4); // rail
+  c.rect(4, 32, 12, 7, C.grey3); // cart
+  c.rect(5, 30, 10, 3, C.steel); // ore
+  c.circle(7, 40, 1.5, C.grey6);
+  c.circle(13, 40, 1.5, C.grey6);
+  c.outline(C.ink);
+  return c;
+}
+
+function coalMine() {
+  const c = new Canvas(48, 48);
+  c.rect(2, 38, 44, 6, C.mud); // ground
+  // headframe tower
+  c.line(10, 38, 18, 6, C.darkRed);
+  c.line(11, 38, 19, 6, C.darkRed);
+  c.line(30, 38, 22, 6, C.red);
+  c.line(29, 38, 21, 6, C.red);
+  c.line(14, 24, 26, 24, C.red);
+  c.line(16, 16, 24, 16, C.red);
+  c.circle(20, 7, 4, C.grey3); // wheel
+  c.circle(20, 7, 2, C.grey5);
+  isoBlock(c, 4, 30, 14, 8, 3, C.brown2, C.brown3, C.brown4); // shed
+  // coal pile
+  c.polygon([[28, 38], [36, 26], [46, 38]], C.grey6);
+  c.polygon([[33, 30], [36, 26], [39, 30]], C.grey5);
+  c.outline(C.ink);
+  return c;
+}
+
+// ---------- UI ----------
+
+function roomExpansion() {
+  const c = new Canvas(96, 96);
+  const pole = C.amber;
+  for (const x of [8, 36, 64, 86]) c.rect(x, 20, 3, 72, pole); // uprights
+  for (const y of [20, 44, 68, 90]) c.rect(8, y, 81, 3, pole); // ledgers
+  for (let i = 0; i < 3; i++) {
+    const x0 = [9, 37, 65][i];
+    const x1 = [37, 65, 87][i];
+    c.line(x0, 90, x1, 70, C.brown3); // braces
+    c.line(x0, 68, x1, 46, C.brown3);
+  }
+  c.rect(8, 66, 81, 4, C.brown2); // planks
+  c.rect(8, 42, 81, 4, C.brown2);
+  // crane on top
+  c.rect(70, 2, 3, 20, C.yellow);
+  c.rect(30, 2, 52, 3, C.yellow);
+  c.line(36, 5, 36, 18, C.grey5);
+  c.rect(33, 18, 7, 4, C.grey3);
+  c.outline(C.ink);
+  c.fade(170); // semi-transparent overlay
+  return c;
+}
+
+function capacity(fill, light, border) {
+  const c = new Canvas(16, 16);
+  c.box(1, 1, 14, 14, fill, border);
+  if (light) c.rect(2, 2, 12, 2, light);
+  return c;
+}
+
+// ---------- research ----------
+
+function researchBase(c, fill, border) {
+  c.rect(2, 3, 28, 26, border);
+  c.rect(3, 2, 26, 28, border);
+  c.rect(3, 3, 26, 26, fill);
+}
+
+function researchEnergy() {
+  const c = new Canvas(32, 32);
+  researchBase(c, C.navy, C.ink);
+  c.polygon([[18, 6], [9, 18], [15, 18], [12, 27], [23, 13], [17, 13], [20, 6]], C.yellow);
+  c.line(17, 7, 11, 16, C.lemon);
+  return c;
+}
+
+function researchMaterials() {
+  const c = new Canvas(32, 32);
+  researchBase(c, C.forest, C.ink);
+  c.circle(16, 16, 9, C.grey2); // gear body
+  for (const [dx, dy] of [[0, -10], [0, 10], [-10, 0], [10, 0], [-7, -7], [7, 7], [-7, 7], [7, -7]]) {
+    c.rect(16 + dx - 2, 16 + dy - 2, 4, 4, C.grey2);
+  }
+  c.circle(16, 16, 4, C.forest);
+  c.set(12, 11, C.white);
+  c.set(13, 10, C.white);
+  return c;
+}
+
+function researchEfficiency() {
+  const c = new Canvas(32, 32);
+  researchBase(c, C.plum, C.ink);
+  c.circle(16, 19, 10, C.cream); // gauge face
+  c.rect(4, 20, 24, 9, C.plum);
+  c.rect(6, 19, 3, 1, C.red);
+  c.rect(23, 19, 3, 1, C.green);
+  c.line(16, 19, 23, 12, C.red); // needle
+  c.circle(16, 19, 2, C.ink);
+  return c;
+}
+
+function researchAdvanced() {
+  const c = new Canvas(32, 32);
+  researchBase(c, C.purple, C.ink);
+  for (let a = 0; a < 3; a++) {
+    const ang = (a * Math.PI) / 3;
+    for (let t = 0; t < 360; t += 3) {
+      const r = (t * Math.PI) / 180;
+      const ex = Math.cos(r) * 11;
+      const ey = Math.sin(r) * 4;
+      c.set(16 + ex * Math.cos(ang) - ey * Math.sin(ang), 16 + ex * Math.sin(ang) + ey * Math.cos(ang), C.cyan);
+    }
+  }
+  c.circle(16, 16, 3, C.mint);
+  return c;
+}
+
+function progressSegment() {
+  const c = new Canvas(8, 8);
+  c.rect(0, 1, 8, 6, C.sky);
+  c.rect(0, 1, 8, 2, C.mint);
+  c.rect(0, 6, 8, 1, C.blue);
+  c.rect(7, 1, 1, 6, C.blue); // segment gap
+  return c;
+}
+
+function lock() {
+  const c = new Canvas(16, 16);
+  c.rect(4, 2, 8, 2, C.grey3); // shackle
+  c.rect(4, 2, 2, 6, C.grey3);
+  c.rect(10, 2, 2, 6, C.grey3);
+  c.rect(3, 7, 10, 7, C.amber); // body
+  c.rect(3, 7, 10, 2, C.yellow);
+  c.rect(7, 9, 2, 3, C.brown5); // keyhole
+  c.outline(C.ink);
+  return c;
+}
+
+function check() {
+  const c = new Canvas(16, 16);
+  c.polygon([[2, 8], [5, 5], [7, 8], [12, 2], [15, 5], [7, 13]], C.green);
+  c.polygon([[3, 8], [5, 6], [7, 9], [12, 3], [13, 4], [7, 10]], C.lime);
+  c.outline(C.forest);
+  return c;
+}
+
+function panelBg() {
+  const c = new Canvas(128, 128);
+  c.rect(0, 0, 128, 128, C.navy);
+  for (let i = 0; i < 128; i += 16) {
+    for (let j = 0; j < 128; j++) {
+      c.set(i, j, C.blue);
+      c.set(j, i, C.blue);
+    }
+  }
+  for (let i = 0; i < 128; i += 64) {
+    for (let j = 0; j < 128; j++) {
+      c.set(i, j, C.steel);
+      c.set(j, i, C.steel);
+    }
+  }
+  for (let i = 0; i < 128; i += 16) for (let j = 0; j < 128; j += 16) c.set(i, j, C.sky); // grid nodes
+  return c;
+}
+
+/** The same sprite desaturated by 40%, snapped back onto the AAP-64 palette. */
+export function inactiveVariant(src) {
+  const c = new Canvas(src.width, src.height);
+  for (let y = 0; y < src.height; y++) {
+    for (let x = 0; x < src.width; x++) {
+      const [r, g, b, a] = src.getRGBA(x, y);
+      if (a === 0) continue;
+      const l = 0.299 * r + 0.587 * g + 0.114 * b;
+      const mix = (v) => v + (l - v) * 0.4;
+      const [nr, ng, nb] = nearestPaletteRgb([mix(r), mix(g), mix(b)]);
+      c.setRGBA(x, y, [nr, ng, nb, a]);
+    }
+  }
+  return c;
+}
+
+const DRAW = {
+  solar_panel: solarPanel,
+  wind_turbine: windTurbine,
+  coal_plant: coalPlant,
+  hydro_dam: hydroDam,
+  gas_plant: gasPlant,
+  tidal_station: tidalStation,
+  resource_coal: coalIcon,
+  resource_stone: stoneIcon,
+  resource_metal: metalIcon,
+  resource_natural_gas: naturalGasIcon,
+  producer_quarry: quarry,
+  producer_mine: mine,
+  producer_coal_mine: coalMine,
+  room_expansion: roomExpansion,
+  capacity_empty: () => capacity(C.grey6, null, C.grey4),
+  capacity_filled: () => capacity(C.green, C.lime, C.forest),
+  capacity_critical: () => capacity(C.red, C.orange, C.darkRed),
+  research_energy: researchEnergy,
+  research_materials: researchMaterials,
+  research_efficiency: researchEfficiency,
+  research_advanced: researchAdvanced,
+  research_progress_segment: progressSegment,
+  research_lock: lock,
+  research_check: check,
+  research_panel_bg: panelBg,
+};
+
+/** Draws one manifest sprite by ID. Inactive variants derive from the active one. */
+export function drawSprite(id) {
+  if (id.endsWith('_inactive')) return inactiveVariant(drawSprite(id.slice(0, -'_inactive'.length)));
+  const fn = DRAW[id];
+  if (!fn) throw new Error(`No generic drawing for sprite "${id}"`);
+  return fn();
+}
+
+function run() {
+  const force = process.argv.includes('--force');
+  const generic = existsSync(genericListPath)
+    ? JSON.parse(readFileSync(genericListPath, 'utf8'))
+    : { generic: [] };
+  const listed = new Set(generic.generic);
+  let wrote = 0;
+  let skipped = 0;
+  for (const [id, entry] of Object.entries(manifest)) {
+    if (entry.file === ENERGY_ICON) continue; // owned by generate-energy-icon.mjs
+    const rel = `sprites/${entry.file}`;
+    const out = resolve(spritesDir, entry.file);
+    if (existsSync(out)) {
+      if (!listed.has(rel)) {
+        console.log(`keep  ${rel} (real art, not listed as generic)`);
+        skipped++;
+        continue;
+      }
+      if (!force) {
+        skipped++;
+        continue;
+      }
+    }
+    const c = drawSprite(id);
+    if (c.width !== entry.width || c.height !== entry.height) {
+      throw new Error(`${id}: drew ${c.width}x${c.height}, manifest says ${entry.width}x${entry.height}`);
+    }
+    mkdirSync(dirname(out), { recursive: true });
+    writeFileSync(out, c.toPNG());
+    listed.add(rel);
+    wrote++;
+    console.log(`wrote ${rel}`);
+  }
+  generic.generic = [...listed].sort();
+  writeFileSync(genericListPath, JSON.stringify(generic, null, 2) + '\n');
+  console.log(`done: ${wrote} written, ${skipped} left as they were${force ? '' : ' (use --force to regenerate generic files)'}`);
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) run();

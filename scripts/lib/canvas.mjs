@@ -21,6 +21,24 @@ export class Canvas {
     this.data[i + 3] = a;
   }
 
+  getRGBA(x, y) {
+    const i = (y * this.width + x) * 4;
+    return [this.data[i], this.data[i + 1], this.data[i + 2], this.data[i + 3]];
+  }
+
+  setRGBA(x, y, [r, g, b, a]) {
+    const i = (y * this.width + x) * 4;
+    this.data[i] = r;
+    this.data[i + 1] = g;
+    this.data[i + 2] = b;
+    this.data[i + 3] = a;
+  }
+
+  /** Multiply the alpha of every opaque pixel (for semi-transparent sprites). */
+  fade(alpha) {
+    for (let i = 3; i < this.data.length; i += 4) if (this.data[i] > 0) this.data[i] = alpha;
+  }
+
   alphaAt(x, y) {
     if (x < 0 || y < 0 || x >= this.width || y >= this.height) return 0;
     return this.data[(y * this.width + x) * 4 + 3];
