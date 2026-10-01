@@ -205,7 +205,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** `ResearchTree.tsx` (SVG or Canvas connection lines), `ResearchNode.tsx` (category icon, name, level requirement, cost, lock and complete states), `ResearchPanel.tsx` modal (description, costs, duration, start button disabled when unaffordable or locked, progress bar while researching). Visual states: pulse when available, grayed when locked, green when completed. Sprites from the asset index. The layout must stay readable as the tree grows (0.33, 0.45): use a computed layout, not hard-coded coordinates.
 **Acceptance:** starting research from the panel updates state and shows progress; a tree with 30 nodes still renders readably.
 
-### 0.16 — Room expansion and capacity — CODE — Not started
+### 0.16 — Room expansion and capacity — CODE — Done
 **Goal:** limited room that the player can expand.
 **Details:** `src/utils/roomSystem.ts`: `canExpandRoom`, `expandRoom(tier)`. Tiers in `src/data/rooms.ts`: Tier 1 (+10 room; 500 energy + 50 metal + 20 stone), Tier 2 (+15; 2000 energy + 150 metal + 80 stone), Tier 3 (+25; 8000 energy + 400 metal + 200 stone). State: `expansionLevel` 0, `roomCapacity` 10. `RoomPanel.tsx`: usage bar, expansion button with costs, next-tier benefits. Block building when `roomUsed + roomCost > roomCapacity`. Warning at 90% or more.
 **Acceptance:** expansion deducts costs and raises capacity; building blocked over capacity; unit tests.

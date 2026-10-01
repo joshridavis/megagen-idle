@@ -142,3 +142,23 @@ describe('Research UI', () => {
     expect(screen.getByTestId('research-level').textContent).toBe('2');
   });
 });
+
+describe('Room UI', () => {
+  it('expands room from the panel', () => {
+    useStore.setState({
+      ...createInitialState(Date.now()),
+      energy: 600,
+      resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0 },
+    });
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
+    expect(useStore.getState().roomCapacity).toBe(20);
+    expect(screen.getByTestId('room-usage').textContent).toBe('0/20');
+  });
+
+  it('warns when room is 90% used', () => {
+    useStore.setState({ ...createInitialState(Date.now()), roomUsed: 9 });
+    render(<App />);
+    expect(screen.getByRole('status').textContent).toContain('nearly full');
+  });
+});

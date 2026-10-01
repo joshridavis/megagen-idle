@@ -6,6 +6,7 @@ import EnergyDisplay from './components/EnergyDisplay';
 import GeneratorGrid from './components/GeneratorGrid';
 import ResearchTree from './components/ResearchTree';
 import ResourceDisplay from './components/ResourceDisplay';
+import RoomPanel from './components/RoomPanel';
 import { useIdleEngine } from './utils/idleEngine';
 
 type Tab = 'generators' | 'research';
@@ -46,7 +47,10 @@ export default function App() {
         {tab === 'generators' ? (
           <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
             <GeneratorGrid />
-            <ActiveGenerators />
+            <div className="flex flex-col gap-6">
+              <RoomPanel />
+              <ActiveGenerators />
+            </div>
           </div>
         ) : (
           <ResearchTree />

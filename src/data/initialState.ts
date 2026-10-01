@@ -2,6 +2,7 @@ import type { GameState } from '../types/state';
 import { STARTING_ENERGY } from './player';
 import { STARTING_PRODUCERS } from './producers';
 import { STARTING_RESOURCES } from './resources';
+import { BASE_ROOM_CAPACITY } from './rooms';
 
 /** Starting values for a fresh save. `lastSavedTimestamp` is set at creation. */
 export const createInitialState = (now = Date.now()): GameState => ({
@@ -15,7 +16,7 @@ export const createInitialState = (now = Date.now()): GameState => ({
   researchLevel: 1,
   currentResearch: null,
   completedResearch: [],
-  roomCapacity: 10,
+  roomCapacity: BASE_ROOM_CAPACITY,
   roomUsed: 0,
   expansionLevel: 0,
   settings: { notation: 'short' },
