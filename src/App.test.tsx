@@ -2,7 +2,7 @@ import { render, screen, cleanup } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import App from './App';
 import { useStore } from './store';
-import { initialGameState } from './data/initialState';
+import { createInitialState } from './data/initialState';
 
 afterEach(cleanup);
 
@@ -14,13 +14,13 @@ describe('App smoke test', () => {
   });
 
   it('starts from the documented initial state', () => {
-    const s = useStore.getState();
+    const s = createInitialState(0);
     expect(s.energy).toBe(0);
     expect(s.resources).toEqual({ coal: 0, stone: 0, metal: 0, naturalGas: 0 });
     expect(s.researchLevel).toBe(1);
     expect(s.activeGenerators).toEqual([]);
     expect(s.roomCapacity).toBe(10);
     expect(s.roomUsed).toBe(0);
-    expect(initialGameState.roomCapacity).toBe(10);
+    expect(useStore.getState().roomCapacity).toBe(10);
   });
 });

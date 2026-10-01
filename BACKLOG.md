@@ -103,7 +103,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** the repo contains only `CLAUDE.md`, `BACKLOG.md` and `GETTING_STARTED.md`. Create the project: Vite + React + TypeScript, Tailwind, Zustand with `persist`, localforage as the storage backend, Vitest. Folders: `src/components`, `src/store`, `src/assets`, `src/utils`, `src/types`, `src/data`, plus `scripts/`. Initial state: `energy` 0, `resources` (coal, stone, metal, naturalGas all 0), `researchLevel` 1, `activeGenerators` [], `roomCapacity` 10, `roomUsed` 0. An `EnergyDisplay` component showing the energy total with its icon (generate a simple 32×32 lightning-bolt PNG at `src/assets/sprites/energy_currency_icon_32.png` and record it in `src/assets/generic-assets.json`; item 0.27 generalizes this). `.gitignore` covering `node_modules`, `dist` and editor files. npm scripts: `dev`, `build`, `preview`, `test`. One smoke unit test so `npm test` is meaningful from day one.
 **Acceptance:** from a clean clone, `npm install`, `npm run build` and `npm test` all pass; `npm run dev` renders the energy display with its icon; no TypeScript errors.
 
-### 0.04 — Idle calculation and time progression engine — CODE — Not started
+### 0.04 — Idle calculation and time progression engine — CODE — Done
 **Goal:** energy grows over time, and the game credits progress made while it was closed.
 **Details:**
 - Store: `energy`, `lastSavedTimestamp`, `totalProductionPerSecond`, `applyIdleGains(deltaSeconds)` which adds `totalProductionPerSecond * delta` and updates `lastSavedTimestamp`.
