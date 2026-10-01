@@ -12,7 +12,7 @@ const T0 = 1_700_000_000_000;
 const solar = (id: string): Generator => ({ id, type: GeneratorType.SOLAR, isActive: true, level: 1 });
 
 beforeEach(() => {
-  useStore.setState(deriveRates({ ...createInitialState(T0), activeGenerators: [solar('gen-1'), solar('gen-2')] }));
+  useStore.setState(deriveRates({ ...createInitialState(T0), energy: 0, activeGenerators: [solar('gen-1'), solar('gen-2')] }));
 });
 
 describe('computeDeltaSeconds', () => {

@@ -23,6 +23,8 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
 0. 0.48 Offline cap to 24 hours (playtest 1 feedback)
+0. 0.49 Distinct colour for fuel use (playtest 2 feedback)
+0. 0.50 Generators cost energy (playtest 2 feedback)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -98,6 +100,16 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 ---
 
 ## Items
+
+### 0.49 — Distinct colour for fuel use — CODE — Done
+**Goal:** apply playtest 2 feedback: the "Burns" line on a generator card must not look like the red "cannot afford" colour.
+**Details:** give fuel use (the card's "Burns" line, and negative resource rates caused by fuel) its own colour, such as amber, distinct from the red used for unaffordable costs. Keep red only for "you cannot afford this".
+**Acceptance:** the "Burns" text and the unaffordable-cost text use different colours; a UI test checks the fuel line does not use the red class.
+
+### 0.50 — Generators cost energy — CODE — Done
+**Goal:** apply playtest 2 feedback: give energy a use. Building a generator also costs energy, equal to what it produces in 10 minutes.
+**Details:** energy cost = base `energyPerSecond` × `GENERATOR_ENERGY_COST_SECONDS` (600, a named constant in `src/data/generators.ts`), rounded up; the build discount applies to it like other build costs. Cards show the energy cost (red when short); the build button says "Not enough energy" when that is the only thing missing. The owner wants the first Solar Panel buildable straight away, so new saves start with enough energy for one (300). Later generators (0.20, 0.33, 0.34, 0.44) follow the same rule automatically. Producers (0.31) and room expansion (0.16) already have their own energy costs.
+**Acceptance:** Solar costs 300 energy, Wind 480, Coal 1200; building deducts energy; blocked without energy; a fresh save can still build a Solar Panel at once; tests cover the cost formula, the discount and the block.
 
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.
@@ -176,7 +188,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Unlocking:** the grid filters by unlocked research. Until the research system (0.10) exists, all first-tier generators count as unlocked, so the game stays playable.
 **Acceptance:** the full loop works in a browser (click for energy, gather resources, build a generator, watch energy rise, toggle it off); real art added later needs no code change.
 
-### 0.10 — Research system and skill tree foundation — CODE — Not started
+### 0.10 — Research system and skill tree foundation — CODE — Done
 **Goal:** timed research that unlocks generators and bonuses.
 **Details:**
 - `src/types/research.ts`: `id`, `name`, `description`, `requiredLevel`, `cost` (energy + resources), `duration` (seconds), `prerequisites`, `unlocks`.
@@ -186,13 +198,14 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - Bonus effect types from the start: build discount %, research cost reduction %, research speed %, global energy %, click power %.
 - Turning on research gating removes the temporary "all first-tier unlocked" rule from 0.09. Set starting state so the first research is affordable within a few minutes of play.
 **Acceptance:** prerequisites and level gates enforced; research completes offline; a fresh save can reach the first unlock without a stall; unit tests for gating, completion, level increase and bonus application.
+**Note (playtest 2):** the owner wants the Solar Panel buildable at once, so Solar is unlocked from the start and Basic Solar gives +10% energy from all generators instead of unlocking it. It is still the first research and Wind's prerequisite. It also requires owning a Solar Panel (`requiresBuilt`), so the starting energy cannot be spent on research before the first generator; a pacing probe showed that left an idle player with no income.
 
-### 0.13 — Research tree UI — CODE — Not started
+### 0.13 — Research tree UI — CODE — Done
 **Goal:** interactive skill tree.
 **Details:** `ResearchTree.tsx` (SVG or Canvas connection lines), `ResearchNode.tsx` (category icon, name, level requirement, cost, lock and complete states), `ResearchPanel.tsx` modal (description, costs, duration, start button disabled when unaffordable or locked, progress bar while researching). Visual states: pulse when available, grayed when locked, green when completed. Sprites from the asset index. The layout must stay readable as the tree grows (0.33, 0.45): use a computed layout, not hard-coded coordinates.
 **Acceptance:** starting research from the panel updates state and shows progress; a tree with 30 nodes still renders readably.
 
-### 0.16 — Room expansion and capacity — CODE — Not started
+### 0.16 — Room expansion and capacity — CODE — Done
 **Goal:** limited room that the player can expand.
 **Details:** `src/utils/roomSystem.ts`: `canExpandRoom`, `expandRoom(tier)`. Tiers in `src/data/rooms.ts`: Tier 1 (+10 room; 500 energy + 50 metal + 20 stone), Tier 2 (+15; 2000 energy + 150 metal + 80 stone), Tier 3 (+25; 8000 energy + 400 metal + 200 stone). State: `expansionLevel` 0, `roomCapacity` 10. `RoomPanel.tsx`: usage bar, expansion button with costs, next-tier benefits. Block building when `roomUsed + roomCost > roomCapacity`. Warning at 90% or more.
 **Acceptance:** expansion deducts costs and raises capacity; building blocked over capacity; unit tests.
@@ -323,4 +336,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | Checkpoint | After item | Date | Owner feedback | Items created |
 |---|---|---|---|---|
 | 1 | 0.37 | 2026-10-01 | Works. Click value and click feedback feel right; colours suit the game. Offline cap should be 24 h, not 8 h. | 0.48 |
-| 2 | 0.09 | 2026-10-01 | (waiting for owner) | |
+| 2 | 0.09 | 2026-10-01 | Works; layout readable; first Solar buildable at once is right; early metal pace fine for now. Fuel "Burns" line should not share the red of "not enough". Energy needs a use: building should cost energy equal to 10 minutes of the generator's output. | 0.49, 0.50 |
+| 3 | 0.16 | 2026-10-01 | (waiting for owner) | |

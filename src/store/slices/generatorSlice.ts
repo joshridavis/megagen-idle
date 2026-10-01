@@ -1,5 +1,6 @@
 import type { GeneratorType } from '../../types/generator';
 import type { GeneratorState } from '../../types/state';
+import { getBonuses } from '../../utils/bonuses';
 import { buildGenerator, toggleGenerator } from '../../utils/generatorSystem';
 import { getUnlockedGenerators } from '../selectors';
 import type { SliceCreator } from '../types';
@@ -16,7 +17,7 @@ export const createGeneratorSlice =
     ...initial,
     buildGenerator: (type) => {
       const before = get();
-      const after = buildGenerator(before, type, getUnlockedGenerators(before));
+      const after = buildGenerator(before, type, getUnlockedGenerators(before), getBonuses(before.completedResearch));
       if (after === before) return false;
       set(after, undefined, 'generator/build');
       return true;

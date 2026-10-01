@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../data/initialState';
+import { STARTING_ENERGY } from '../data/player';
 import { migrateSave, pickSaved, SAVE_VERSION } from './migrations';
 import { getAvailableRoom, getTotalEnergyRate } from './selectors';
 import { useStore } from '.';
@@ -33,7 +34,7 @@ describe('save migrations', () => {
 
   it('tolerates garbage without throwing', () => {
     const s = migrateSave(null, 0);
-    expect(s.energy).toBe(0);
+    expect(s.energy).toBe(STARTING_ENERGY);
   });
 
   it('current version is at least 1', () => {

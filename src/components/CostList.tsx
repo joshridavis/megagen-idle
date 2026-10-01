@@ -11,7 +11,20 @@ export const RESOURCE_ICONS: Record<ResourceId, SpriteId> = {
 };
 
 /** Resource amounts with icons; amounts the player cannot afford are red. */
-export default function CostList({ cost, have, suffix = '' }: { cost: ResourceAmounts; have?: Resources; suffix?: string }) {
+/** Text colour for fuel use: amber, kept distinct from the red "cannot afford". */
+export const FUEL_CLASS = 'text-amber-300';
+
+export default function CostList({
+  cost,
+  have,
+  suffix = '',
+  className = '',
+}: {
+  cost: ResourceAmounts;
+  have?: Resources;
+  suffix?: string;
+  className?: string;
+}) {
   const items = Object.entries(cost).filter(([, n]) => (n ?? 0) > 0) as [ResourceId, number][];
   if (items.length === 0) return <span className="text-slate-400">free</span>;
   return (
@@ -19,7 +32,7 @@ export default function CostList({ cost, have, suffix = '' }: { cost: ResourceAm
       {items.map(([id, n]) => {
         const short = have !== undefined && have[id] < n;
         return (
-          <span key={id} className={`inline-flex items-center gap-1 ${short ? 'text-red-400' : ''}`}>
+          <span key={id} className={`inline-flex items-center gap-1 ${short ? 'text-red-400' : className}`}>
             <img src={sprites[RESOURCE_ICONS[id]]} alt="" width={16} height={16} className="pixelated" />
             <span>
               {n.toLocaleString('en-US')} {RESOURCE_NAMES[id].toLowerCase()}

@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { sprites } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { useStore } from '../store';
 import type { Generator } from '../types/generator';
+import { getBonuses } from '../utils/bonuses';
 import { getGeneratorOutput } from '../utils/energyGeneration';
 import { GENERATOR_SPRITES } from './generatorSprites';
 
@@ -14,6 +16,8 @@ function statusOf(g: Generator) {
 export default function ActiveGenerators() {
   const generators = useStore((s) => s.activeGenerators);
   const toggle = useStore((s) => s.toggleGenerator);
+  const completed = useStore((s) => s.completedResearch);
+  const bonuses = useMemo(() => getBonuses(completed), [completed]);
   return (
     <section aria-label="Your generators" className="w-full">
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">
@@ -40,7 +44,7 @@ export default function ActiveGenerators() {
                   <div className="font-medium">{name}</div>
                   <div className="text-xs">
                     <span className={status.className}>{status.text}</span>
-                    <span className="text-slate-400"> · +{getGeneratorOutput(g).toFixed(1)} energy/s · {def.roomCost} room</span>
+                    <span className="text-slate-400"> · +{getGeneratorOutput(g, bonuses).toFixed(1)} energy/s · {def.roomCost} room</span>
                   </div>
                 </div>
                 <button

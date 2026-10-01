@@ -1,4 +1,4 @@
-import { BASE_CLICK_VALUE } from '../../data/player';
+import { getClickValue } from '../../utils/bonuses';
 import type { EnergyState } from '../../types/state';
 import { advanceTime } from '../../utils/simulation';
 import { pickSaved } from '../migrations';
@@ -17,9 +17,9 @@ export const createEnergySlice =
     ...initial,
     applyIdleGains: (deltaSeconds, now = Date.now()) =>
       set(
-        (s) => ({ ...pickSaved(advanceTime(s, deltaSeconds).state), lastSavedTimestamp: now }),
+        (s) => ({ ...pickSaved(advanceTime(s, deltaSeconds, now).state), lastSavedTimestamp: now }),
         undefined,
         'energy/applyIdleGains',
       ),
-    clickEnergy: () => set((s) => ({ energy: s.energy + BASE_CLICK_VALUE }), undefined, 'energy/click'),
+    clickEnergy: () => set((s) => ({ energy: s.energy + getClickValue(s.completedResearch) }), undefined, 'energy/click'),
   });

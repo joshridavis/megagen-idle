@@ -1,5 +1,11 @@
 import { GeneratorType, type GeneratorDef } from '../types/generator';
 
+/**
+ * Every generator also costs energy: its base output over this many seconds
+ * (playtest 2: "the amount it creates in 10 minutes").
+ */
+export const GENERATOR_ENERGY_COST_SECONDS = 600;
+
 /** First-tier generators. Costs in resources; maintenance in resources per hour. */
 export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
   [GeneratorType.SOLAR]: {
