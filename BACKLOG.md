@@ -301,10 +301,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** tests for the records (build, upgrade, scrap keeps them, migration) and for completion; report updated.
 **Notes:** save version 6. The simulator now raises every type to max level after research and room are done; 100% completion moved from about 25 h to about 52 h, no stalls (see BALANCE_REPORT.md). Each new best level counts as a simulator milestone for stall detection.
 
-### 0.83 — More click-power research — CODE — Not started
+### 0.83 — More click-power research — CODE — Done
 **Goal:** apply playtest 10 feedback: more research that raises the energy gained per click.
 **Details:** add 4 to 5 click-power research spread across levels (for example Ergonomic Handle, Flywheel, Geared Crank, Kinetic Capture, and a late one that adds a small fraction of current energy/s to each click). They live in the Energy & research branch after Hand-Crank Dynamo. Use the existing `clickPower` bonus type. If a "% of energy/s per click" effect is needed, add a new bonus type, `clickRateShare`, with a cap in `BONUS_CAPS`. All numbers go in `src/data/research.ts`. The click tooltip shows the breakdown. Durations follow the level rule.
 **Acceptance:** each research raises the click value as described (unit tests); the duration-by-level data test passes; the simulator still meets its targets.
+**Notes:** Ergonomic Handle, Flywheel and Geared Crank (click power); Kinetic Capture and Grid Tap (new `clickRateShare` bonus, a quarter second of energy/s per click each, capped at 0.5 s). The click tooltip shows the share.
 
 ### 0.88 — Player level from lifetime energy — CODE — Not started
 **Goal:** apply playtest 10 feedback: the player has a level based on the total energy produced over all time.

@@ -237,7 +237,7 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
     if (o.stopAtCompletion && c >= 1) break;
     // time passes; the player clicks early on
     const clicking = (t - T0) / 60_000 < o.clickMinutes;
-    if (clicking) s = { ...s, energy: s.energy + o.clicksPerSecond * o.stepSeconds * getClickValue(s.completedResearch) };
+    if (clicking) s = { ...s, energy: s.energy + o.clicksPerSecond * o.stepSeconds * getClickValue(s.completedResearch, s.energyPerSecond) };
     t += o.stepSeconds * 1000;
     s = { ...advanceTime(s, o.stepSeconds, t).state, lastSavedTimestamp: t };
   }

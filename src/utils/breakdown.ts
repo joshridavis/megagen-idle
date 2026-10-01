@@ -46,9 +46,18 @@ export function getEnergyBreakdown(state: Pick<GameState, 'activeGenerators' | '
   return breakdownFromResearch(base, state.completedResearch, 'globalEnergy');
 }
 
-/** Energy per click: base click value, then click power boosts. */
-export function getClickBreakdown(completedResearch: string[]): RateBreakdown {
-  return breakdownFromResearch(BASE_CLICK_VALUE, completedResearch, 'clickPower');
+/** Energy per click: base click value, click power boosts, then the energy/s share (capped). */
+export function getClickBreakdown(completedResearch: string[], energyPerSecond = 0): RateBreakdown {
+  const power = breakdownFromResearch(BASE_CLICK_VALUE, completedResearch, 'clickPower');
+  const share = getBonuses(completedResearch).clickRateShare;
+  if (share <= 0) return power;
+  const raw = breakdownFromResearch(1, completedResearch, 'clickRateShare').total - 1;
+  const capped = share < raw ? ' (capped)' : '';
+  const modifiers = [
+    ...power.modifiers,
+    { source: `${Math.round(share * 100)}% of your energy/s${capped}`, amount: share * Math.max(0, energyPerSecond) },
+  ];
+  return { base: power.base, modifiers, total: power.total + modifiers[modifiers.length - 1].amount };
 }
 
 /**

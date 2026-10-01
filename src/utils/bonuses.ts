@@ -13,10 +13,15 @@ export function getBonuses(completedResearch: string[]): Bonuses {
   b.researchSpeed = Math.min(b.researchSpeed, BONUS_CAPS.researchSpeed);
   b.producerDiscount = Math.min(b.producerDiscount, BONUS_CAPS.producerDiscount);
   b.fuelEfficiency = Math.min(b.fuelEfficiency, BONUS_CAPS.fuelEfficiency);
+  b.clickRateShare = Math.min(b.clickRateShare, BONUS_CAPS.clickRateShare);
   return b;
 }
 
-/** Energy per manual click, with the click power bonus. */
-export function getClickValue(completedResearch: string[]): number {
-  return BASE_CLICK_VALUE * (1 + getBonuses(completedResearch).clickPower);
+/**
+ * Energy per manual click: the base value with click power boosts, plus a
+ * share of the current energy/s from late click research (0.83).
+ */
+export function getClickValue(completedResearch: string[], energyPerSecond = 0): number {
+  const b = getBonuses(completedResearch);
+  return BASE_CLICK_VALUE * (1 + b.clickPower) + b.clickRateShare * Math.max(0, energyPerSecond);
 }

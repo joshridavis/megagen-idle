@@ -5,6 +5,8 @@ export interface Bonuses {
   researchSpeed: number;
   globalEnergy: number;
   clickPower: number;
+  /** Each click also adds this many seconds of current energy/s (0.25 = a quarter second). */
+  clickRateShare: number;
   /** All producers produce more (0.1 = +10%). */
   resourceProduction: number;
   metalProduction: number;
@@ -21,6 +23,7 @@ export const NO_BONUSES: Bonuses = {
   researchSpeed: 0,
   globalEnergy: 0,
   clickPower: 0,
+  clickRateShare: 0,
   resourceProduction: 0,
   metalProduction: 0,
   stoneProduction: 0,
