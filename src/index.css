@@ -1,0 +1,31 @@
+@import 'tailwindcss';
+
+body {
+  @apply bg-slate-900 text-slate-100 antialiased;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+}
+
+@keyframes click-pop {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -2rem);
+  }
+}
+
+.click-pop {
+  animation: click-pop 0.7s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .click-pop {
+    animation: none;
+    opacity: 0;
+  }
+}

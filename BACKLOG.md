@@ -98,12 +98,12 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 
 ## Items
 
-### 0.00 — Create the project from scratch — CODE — Not started
+### 0.00 — Create the project from scratch — CODE — Done
 **Goal:** a working, buildable game skeleton that shows something on screen.
 **Details:** the repo contains only `CLAUDE.md`, `BACKLOG.md` and `GETTING_STARTED.md`. Create the project: Vite + React + TypeScript, Tailwind, Zustand with `persist`, localforage as the storage backend, Vitest. Folders: `src/components`, `src/store`, `src/assets`, `src/utils`, `src/types`, `src/data`, plus `scripts/`. Initial state: `energy` 0, `resources` (coal, stone, metal, naturalGas all 0), `researchLevel` 1, `activeGenerators` [], `roomCapacity` 10, `roomUsed` 0. An `EnergyDisplay` component showing the energy total with its icon (generate a simple 32×32 lightning-bolt PNG at `src/assets/sprites/energy_currency_icon_32.png` and record it in `src/assets/generic-assets.json`; item 0.27 generalizes this). `.gitignore` covering `node_modules`, `dist` and editor files. npm scripts: `dev`, `build`, `preview`, `test`. One smoke unit test so `npm test` is meaningful from day one.
 **Acceptance:** from a clean clone, `npm install`, `npm run build` and `npm test` all pass; `npm run dev` renders the energy display with its icon; no TypeScript errors.
 
-### 0.04 — Idle calculation and time progression engine — CODE — Not started
+### 0.04 — Idle calculation and time progression engine — CODE — Done
 **Goal:** energy grows over time, and the game credits progress made while it was closed.
 **Details:**
 - Store: `energy`, `lastSavedTimestamp`, `totalProductionPerSecond`, `applyIdleGains(deltaSeconds)` which adds `totalProductionPerSecond * delta` and updates `lastSavedTimestamp`.
@@ -113,18 +113,18 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - `src/App.tsx` calls `useIdleEngine()` at the top and renders `EnergyDisplay`.
 **Acceptance:** build passes; counter rises about 1 per second; after a refresh it includes time passed; tests cover delta calculation, negative delta, very large gap, and the cap.
 
-### 0.26 — Clicker — CODE — Not started
+### 0.26 — Clicker — CODE — Done
 **Goal:** the player can click to gain energy manually.
 **Details:** `clickEnergy` action; click value in `src/data/player.ts` so research can boost it later; click button with press feedback.
 **Acceptance:** each click adds the configured amount; rapid clicking works; unit test for the action.
 
-### 0.22 — Web build and GitHub Pages deploy — CODE — Not started
+### 0.22 — Web build and GitHub Pages deploy — CODE — Done
 **Goal:** the game is live at a URL, so playtests need only a browser.
 **Details:** Vite only (no Webpack). Set `base` in `vite.config.ts` to `/<repo-name>/`, taking the repo name from the git remote rather than guessing. Do not add lossy image compression (it damages pixel art). Add `.github/workflows/deploy.yml` that builds and deploys with the official GitHub Pages actions on pushes to `main`, and `.github/workflows/ci.yml` that runs `npm test` and `npm run build` on pull requests. No script that pushes to `main`.
 **One-time owner step (does not block anything):** set the repo's Pages source to "GitHub Actions". Until then, workflows still pass and this item counts as done.
 **Acceptance:** `npm run build && npm run preview` serves a working game under the base path; both workflow files are valid; the PR states the expected Pages URL.
 
-### 0.37 — README and local-run instructions — CODE — Not started
+### 0.37 — README and local-run instructions — CODE — Done
 **Goal:** anyone can clone the repo and run the game without asking questions.
 **Details:** create or update `README.md` with: what the game is (3 to 5 lines); the live GitHub Pages URL; **Run locally** (install Node.js 20 or newer, `npm install`, `npm run dev`, then open the printed `http://localhost:5173` address); **Other commands** (`npm run build`, `npm run preview`, `npm test`, and later `npm run check:assets` and `npm run simulate`) each with one line of explanation; project layout (one line per top-level `src/` folder); where the game numbers live (`src/data/`); how to replace a stand-in sprite with real art; how to reset a save (clear site data, or the in-game reset once 0.29 exists); a pointer to `BACKLOG.md`, `CLAUDE.md` and `PLAYTEST.md`. Keep it short and accurate: do not document commands that do not exist.
 **Acceptance:** every command in the README runs successfully from a clean clone; no broken links.
@@ -316,4 +316,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 
 | Checkpoint | After item | Date | Owner feedback | Items created |
 |---|---|---|---|---|
-| (none yet) | | | | |
+| 1 | 0.37 | 2026-10-01 | (waiting for owner) | |
