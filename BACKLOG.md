@@ -275,7 +275,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** cause: background tabs throttle the 1 s heartbeat to about once a minute, so every throttled tick looked like a return and replaced the summary. Fix: the summary after a page load comes only from the first catch-up tick; while the tab is hidden, the engine snapshots the state when it was hidden and, on return (if hidden for at least `WELCOME_BACK_MIN_SECONDS`), shows one summary covering the whole time away (energy, resources, research done, generators out of fuel). Hidden-tab ticks never create summaries.
 **Acceptance:** tests: a hidden period of 10 minutes made of 61 s ticks gives one summary of about 10 minutes; short hides give none; load catch-up still works.
 
-### 0.80 — Fix: build-card tooltip unreadable — CODE — Not started
+### 0.80 — Fix: build-card tooltip unreadable — CODE — Done
 **Goal:** fix playtest 9 bug: hovering a lower build card shows its tooltip over the card above, see-through and hard to read.
 **Details:** locked cards fade with `opacity`, which also faded their tooltip and trapped it below neighbouring cards. Fade the card's content instead of the card, give tooltips a solid background, a border and a stacking order above every card.
 **Acceptance:** tooltip of a locked card is fully opaque and above other cards (UI test checks the tooltip is outside the faded wrapper; screenshot in the PR).

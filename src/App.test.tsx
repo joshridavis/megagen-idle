@@ -604,3 +604,16 @@ describe('Generator upgrades UI (0.32)', () => {
     expect(screen.getByTestId('level-gen-1').textContent).toBe('Lv 2/10');
   });
 });
+
+describe('Build card tooltip (0.80 fix)', () => {
+  it("a locked card's tooltip sits outside the faded content", () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    const body = screen.getByTestId('generator-card-body-hydro');
+    expect(body.className).toContain('opacity-60');
+    expect(screen.getByTestId('generator-card-hydro').className).not.toContain('opacity-60');
+    const tip = document.getElementById('gen-tip-hydro')!;
+    expect(body.contains(tip)).toBe(false);
+    expect(tip.className).toContain('z-50');
+  });
+});
