@@ -55,6 +55,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.81 Research tree in branches (playtest 9 feedback)
 0. 0.82 100% completion includes max upgrades (playtest 9 feedback)
 0. 0.83 More click-power research (playtest 10 feedback)
+0. 0.88 Player level from lifetime energy (playtest 10 feedback)
 0. 0.66 Perfection (completion) tracker, visible to the player (moved up: playtest 10 feedback)
 0. 0.38 Event log and notifications (moved up: needed by random events)
 0. 0.84 Random events: framework and sightings (playtest 10 feedback)
@@ -304,6 +305,16 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Goal:** apply playtest 10 feedback: more research that raises the energy gained per click.
 **Details:** add 4 to 5 click-power research spread across levels (for example Ergonomic Handle, Flywheel, Geared Crank, Kinetic Capture, and a late one that adds a small fraction of current energy/s to each click). They live in the Energy & research branch after Hand-Crank Dynamo. Use the existing `clickPower` bonus type. If a "% of energy/s per click" effect is needed, add a new bonus type, `clickRateShare`, with a cap in `BONUS_CAPS`. All numbers go in `src/data/research.ts`. The click tooltip shows the breakdown. Durations follow the level rule.
 **Acceptance:** each research raises the click value as described (unit tests); the duration-by-level data test passes; the simulator still meets its targets.
+
+### 0.88 — Player level from lifetime energy — CODE — Not started
+**Goal:** apply playtest 10 feedback: the player has a level based on the total energy produced over all time.
+**Details:**
+- **Tracking:** the save tracks `lifetimeEnergy`, the total energy ever produced: generators, clicks and offline gains, never reduced by spending. Save migration starts it at the current energy.
+- **Level curve:** a pure `getPlayerLevel(lifetimeEnergy)` uses a curve in `src/data/playerLevel.ts`. The energy needed grows geometrically, so a level arrives every so often across the whole 200 h. The curve is checked with the simulator, which reports level against hours.
+- **Display:** the top bar shows "Player level N" with a progress bar to the next level. Its tooltip gives the lifetime energy and how much is needed for the next level. The label is kept clearly distinct from the Research level.
+- **Level-up:** a celebration, which reuses the research celebration style.
+- **Rewards:** none at first, like achievements. PLAYTEST asks the owner whether levels should give a small bonus, for example +1% energy per level with a cap.
+**Acceptance:** lifetime energy grows with production and clicks, online and offline, and never drops when spending (unit tests). Level thresholds are monotonic (data test). The save migrates.
 
 ### 0.84 — Random events: framework and sightings — CODE — Not started
 **Goal:** apply playtest 10 feedback: random events make the game feel alive and unpredictable. This item adds the framework and harmless "sightings" that are fun to discover.
@@ -631,4 +642,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 7 (v0.7.0) | 0.30 | 2026-10-01 | List order as fuel priority is intuitive. Welcome-back detail fine; must mention completed research (it already does). Short notation as default (already). Boost research worth it: add ones for other resources (production and discounts). Say "24 hours" not "1d". Show running research on every tab with time left; running node should blink. Research celebration looks great. Room upgrade animation still looks weird (video not received); add more room tiers. | 0.71-0.75 |
 | 8 (v0.8.0) | 0.75 | 2026-10-01 | Add the save-on-close safeguard. Room bar looks good (animation not seen yet). Research chip location odd: make it float at the bottom without hiding the version. 8 room tiers fine for now. +15% all-producer output sounds useful. The tree should start from 3 basic research, one starting resource upgrades. Long-term target: at least 200 hours of play for 100% completion. | 0.76-0.78; 200 h target added to 0.35 and 0.47 |
 | 9 (v0.9.0) | 0.32 | 2026-10-01 | Research tree lines hard to follow: split into the three starting branches. Bug: "You were away for 1m 1s" after switching tabs. Bug: build-card tooltip shows over the card above and is unreadable. 100% completion must include building every generator type and upgrading each to max level. | 0.79-0.82 |
-| 10 (v0.10.0) | 0.79, 0.80, 0.81, 0.82, 0.33 | 2026-10-01 | Branch layout is right. Oil and Nuclear feel like a real step up; uranium pace and level 9/10 gates fine for now. Reach 200 h with a mix of content (larger share) and slower pacing; content should include a new mode or activity, not only research and machines. 100% completion must be visible to the player (like Melvor Idle). More click-power research. Random events: a large variety, some cosmetic (e.g. a spaceship, foreground only), some with positive or negative effects (some also while idle); all rare, some much rarer. Saves like Melvor Idle: automatic cloud and local saves, load either on any device. Future release on Steam, a dedicated website and mobile. Report hours to 100% every version. | 0.83-0.87; 0.66 and 0.38 moved up; 0.67, 0.68 and 0.47 updated |
+| 10 (v0.10.0) | 0.79, 0.80, 0.81, 0.82, 0.33 | 2026-10-01 | Branch layout is right. Oil and Nuclear feel like a real step up; uranium pace and level 9/10 gates fine for now. Reach 200 h with a mix of content (larger share) and slower pacing; content should include a new mode or activity, not only research and machines. 100% completion must be visible to the player (like Melvor Idle). More click-power research. Random events: a large variety, some cosmetic (e.g. a spaceship, foreground only), some with positive or negative effects (some also while idle); all rare, some much rarer. Saves like Melvor Idle: automatic cloud and local saves, load either on any device. Future release on Steam, a dedicated website and mobile. Report hours to 100% every version. Player levels based on lifetime energy. | 0.83-0.88; 0.66 and 0.38 moved up; 0.67, 0.68 and 0.47 updated |
