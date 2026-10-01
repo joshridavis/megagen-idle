@@ -145,7 +145,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - `npm run check:assets` verifies each manifest sprite exists, is a PNG and has the right dimensions, and lists which are still generic. Non-zero exit only for missing or malformed files.
 **Acceptance:** every manifest entry resolves to a real file; replacing a PNG with real art of the same size needs no code change; `check:assets` behaves as described; unit test for output sizes.
 
-### 0.19 — State management by slices — CODE — Not started
+### 0.19 — State management by slices — CODE — Done
 **Goal:** modular, typed store, done while the store is still small.
 **Details:** slices in `src/store/slices/`: `energySlice` (energy, energyPerSecond), `resourceSlice` (resources, producers), `generatorSlice` (activeGenerators, availableGenerators), `researchSlice` (currentResearch, completedResearch, researchLevel), `roomSlice` (roomCapacity, roomUsed, expansionLevel), `settingsSlice` (preferences; no audio). Combine in `src/store/index.ts` with `persist` and `devtools`. Typed selectors in `src/store/selectors.ts` (`getTotalEnergyRate`, `getAvailableRoom`, `getUnlockedGenerators`). Types in `src/types/state.ts`. Components use selectors, not direct store access. Add a persisted-state version number and a migration hook so later changes do not break saves.
 **Acceptance:** build and tests pass; no behavior change; no duplicated calculations.
