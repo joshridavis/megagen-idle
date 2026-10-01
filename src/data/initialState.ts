@@ -19,5 +19,6 @@ export const createInitialState = (now = Date.now()): GameState => ({
   roomCapacity: BASE_ROOM_CAPACITY,
   roomUsed: 0,
   expansionLevel: 0,
+  lastExpansionAt: null,
   settings: { notation: 'short' },
 });

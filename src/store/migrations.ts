@@ -4,7 +4,7 @@ import { STARTING_RESOURCES } from '../data/resources';
 import type { GameState } from '../types/state';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 type AnySave = Record<string, unknown>;
 
@@ -28,6 +28,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   },
   // 0.10: research. Generators built before research gating are kept.
   2: (save) => ({ ...save, currentResearch: null, completedResearch: [], researchLevel: 1 }),
+  // 0.20: gas well producer (filled from defaults) and the expansion animation timestamp.
+  3: (save) => ({ ...save, lastExpansionAt: null }),
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */
@@ -62,6 +64,7 @@ export function pickSaved(s: GameState): GameState {
     roomCapacity: s.roomCapacity,
     roomUsed: s.roomUsed,
     expansionLevel: s.expansionLevel,
+    lastExpansionAt: s.lastExpansionAt,
     settings: s.settings,
   };
 }

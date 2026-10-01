@@ -48,8 +48,8 @@ describe('research gating', () => {
   });
 
   it('enforces cost, including resources', () => {
-    expect(getResearchBlock(rich({ energy: 49 }), 'basic_solar')).toBe('cost');
-    const noCoal = rich({ researchLevel: 2, resources: { metal: 0, stone: 0, coal: 4, naturalGas: 0 } });
+    expect(getResearchBlock(rich({ energy: RESEARCH_BY_ID.basic_solar.cost.energy - 1 }), 'basic_solar')).toBe('cost');
+    const noCoal = rich({ researchLevel: 2, resources: { metal: 0, stone: 0, coal: 9, naturalGas: 0 } });
     expect(getResearchBlock(noCoal, 'fossil_fuels')).toBe('cost');
   });
 
@@ -65,9 +65,10 @@ describe('research gating', () => {
 describe('starting and completing', () => {
   it('starting pays the cost and records the timer', () => {
     const s = startResearch(rich({ researchLevel: 2 }), 'fossil_fuels', T0);
-    expect(s.energy).toBe(100_000 - 300);
-    expect(s.resources.coal).toBe(999 - 5);
-    expect(s.currentResearch).toEqual({ id: 'fossil_fuels', startTime: T0, duration: 180 });
+    const def = RESEARCH_BY_ID.fossil_fuels;
+    expect(s.energy).toBe(100_000 - def.cost.energy);
+    expect(s.resources.coal).toBe(999 - def.cost.resources!.coal!);
+    expect(s.currentResearch).toEqual({ id: 'fossil_fuels', startTime: T0, duration: def.duration });
   });
 
   it('blocked start changes nothing', () => {
@@ -86,7 +87,7 @@ describe('starting and completing', () => {
 
   it('progress is time-based', () => {
     const s = startResearch(rich(), 'basic_solar', T0);
-    expect(researchProgress(s, T0 + 30_000)).toBeCloseTo(0.5);
+    expect(researchProgress(s, T0 + RESEARCH_BY_ID.basic_solar.duration * 500)).toBeCloseTo(0.5);
     expect(researchProgress(s, T0 + 999_999)).toBe(1);
     expect(researchProgress(s, T0 - 5_000)).toBe(0);
   });
@@ -95,7 +96,7 @@ describe('starting and completing', () => {
 describe('offline completion', () => {
   it('research finishes during offline time', () => {
     const s = startResearch(rich(), 'basic_solar', T0);
-    const { state, report } = advanceTime(s, 3600, T0 + 3600_000);
+    const { state, report } = advanceTime(s, 7200, T0 + 7200_000);
     expect(state.completedResearch).toEqual(['basic_solar']);
     expect(state.researchLevel).toBe(2);
     expect(report.completedResearch).toEqual(['basic_solar']);
@@ -117,9 +118,10 @@ describe('offline completion', () => {
     s = buildGenerator(s, GeneratorType.SOLAR, [GeneratorType.SOLAR]); // 0.5/s
     s = startResearch({ ...s, lastSavedTimestamp: T0 }, 'basic_solar', T0);
     const before = s.energy;
-    const { state } = advanceTime(s, 120, T0 + 120_000);
-    // 60 s at 0.5/s, then 60 s at 0.55/s
-    expect(state.energy - before).toBeCloseTo(30 + 33);
+    const d = RESEARCH_BY_ID.basic_solar.duration;
+    const { state } = advanceTime(s, 2 * d, T0 + 2 * d * 1000);
+    // d seconds at 0.5/s, then d seconds at 0.55/s
+    expect(state.energy - before).toBeCloseTo(d * 0.5 + d * 0.55);
     expect(state.energyPerSecond).toBeCloseTo(0.55);
   });
 });
@@ -132,8 +134,8 @@ describe('bonuses', () => {
 
   it('cost reduction and speed apply', () => {
     const def = RESEARCH_BY_ID.fossil_fuels;
-    expect(getResearchCost(def, { ...NO_BONUSES, researchCostReduction: 0.5 })).toEqual({ energy: 150, resources: { coal: 3 } });
-    expect(getResearchDuration(def, { ...NO_BONUSES, researchSpeed: 0.5 })).toBe(120);
+    expect(getResearchCost(def, { ...NO_BONUSES, researchCostReduction: 0.5 })).toEqual({ energy: 750, resources: { coal: 5 } });
+    expect(getResearchDuration(def, { ...NO_BONUSES, researchSpeed: 0.5 })).toBeCloseTo(def.duration / 1.5);
   });
 
   it('caps are named constants and hold', () => {
@@ -154,8 +156,8 @@ describe('a fresh save reaches the first unlock without a stall', () => {
     let t = T0;
     let firstResearchAt = -1;
     for (let i = 0; i < 6 * 60 * 6 && !s.completedResearch.includes('wind_power'); i++) {
-      t += 10_000;
-      s = { ...advanceTime(s, 10, t).state, lastSavedTimestamp: t };
+      t += 60_000;
+      s = { ...advanceTime(s, 60, t).state, lastSavedTimestamp: t };
       for (const r of RESEARCH) {
         if (canStartResearch(s, r.id)) {
           s = startResearch(s, r.id, t);
@@ -164,7 +166,7 @@ describe('a fresh save reaches the first unlock without a stall', () => {
       }
     }
     expect(firstResearchAt).toBeGreaterThan(0);
-    expect(firstResearchAt).toBeLessThanOrEqual(300); // within 5 minutes, no clicking
+    expect(firstResearchAt).toBeLessThanOrEqual(15 * 60); // within 15 minutes, no clicking
     expect(s.completedResearch).toContain('wind_power');
     expect(GENERATORS[GeneratorType.WIND]).toBeDefined();
   });

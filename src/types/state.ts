@@ -46,6 +46,8 @@ export interface RoomState {
   roomCapacity: number;
   roomUsed: number;
   expansionLevel: number;
+  /** Epoch ms of the last expansion; drives the construction animation. */
+  lastExpansionAt: number | null;
 }
 
 export interface SettingsState {

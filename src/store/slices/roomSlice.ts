@@ -13,7 +13,7 @@ export const createRoomSlice =
     ...initial,
     expandRoom: () => {
       const before = get();
-      const after = expandRoom(before);
+      const after = expandRoom(before, undefined, Date.now());
       if (after === before) return false;
       set(after, undefined, 'room/expand');
       return true;

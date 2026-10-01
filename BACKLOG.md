@@ -25,6 +25,9 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.48 Offline cap to 24 hours (playtest 1 feedback)
 0. 0.49 Distinct colour for fuel use (playtest 2 feedback)
 0. 0.50 Generators cost energy (playtest 2 feedback)
+0. 0.51 Higher energy costs for building and research (playtest 3 feedback)
+0. 0.52 Longer research times that grow with level (playtest 3 feedback)
+0. 0.53 Boost breakdown on hover (playtest 3 feedback)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -100,6 +103,21 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 ---
 
 ## Items
+
+### 0.51 — Higher energy costs for building and research — CODE — Done
+**Goal:** apply playtest 3 feedback: energy costs for building and research are reached too easily.
+**Details:** raise `GENERATOR_ENERGY_COST_SECONDS` from 600 (10 minutes of output) to 1800 (30 minutes): Solar 900, Wind 1,440, Coal 3,600. Keep the first Solar Panel buildable at once by setting `STARTING_ENERGY` to its cost (900). Raise research energy costs about 5×: Basic Solar 250, Wind Power Fundamentals 1,000, Fossil Fuels 101 1,500 energy + 10 coal. Room expansion prices stay (owner: "good"). All numbers stay in data files.
+**Acceptance:** tests for the new costs; a fresh save can still build a Solar Panel at once; a pacing probe shows no stall (idle player still reaches every current unlock).
+
+### 0.52 — Longer research times that grow with level — CODE — Done
+**Goal:** apply playtest 3 feedback: research must take much longer, and each research level must take longer than the one before.
+**Details:** new durations: Basic Solar (level 1) 10 minutes, Wind Power Fundamentals (level 2) 30 minutes, Fossil Fuels 101 (level 2) 45 minutes. Rule, enforced by a data test for all current and future research: a research takes longer than every research with a lower level requirement, and longer than each of its prerequisites. Later items that add research (0.20, 0.30, 0.33, 0.45) must follow it.
+**Acceptance:** the data test passes and fails if the rule is broken; durations shown in the panel match.
+
+### 0.53 — Boost breakdown on hover — CODE — Done
+**Goal:** apply playtest 3 feedback: when a research or other non-building boost changes how much is gained, the player can see it. Hovering (or focusing) the energy rate shows the base rate from generators, each active boost with its source and effect, and the total.
+**Details:** pure `getEnergyBreakdown(state)` in `src/utils/` returning base, a list of modifiers (source name, percent, energy per second it adds) and total; boosts come from research effects, so future boosts appear automatically. Built as a reusable rate-breakdown shape and tooltip so resources can use it later. Keyboard accessible (tooltip on focus too). Also shows the click value and its boost when click power is boosted.
+**Acceptance:** tooltip lists Basic Solar's +10% with its energy/s once it is completed, and shows only the base without boosts; unit tests for the breakdown; total matches the displayed rate.
 
 ### 0.49 — Distinct colour for fuel use — CODE — Done
 **Goal:** apply playtest 2 feedback: the "Burns" line on a generator card must not look like the red "cannot afford" colour.
@@ -210,13 +228,14 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** `src/utils/roomSystem.ts`: `canExpandRoom`, `expandRoom(tier)`. Tiers in `src/data/rooms.ts`: Tier 1 (+10 room; 500 energy + 50 metal + 20 stone), Tier 2 (+15; 2000 energy + 150 metal + 80 stone), Tier 3 (+25; 8000 energy + 400 metal + 200 stone). State: `expansionLevel` 0, `roomCapacity` 10. `RoomPanel.tsx`: usage bar, expansion button with costs, next-tier benefits. Block building when `roomUsed + roomCost > roomCapacity`. Warning at 90% or more.
 **Acceptance:** expansion deducts costs and raises capacity; building blocked over capacity; unit tests.
 
-### 0.20 — Mid-tier generators and room expansion UI — CODE — Not started
+### 0.20 — Mid-tier generators and room expansion UI — CODE — Done
 **Goal:** more generators, plus visuals for room expansion.
 **Details:** add to `src/data/generators.ts`: Hydropower Dam (5 energy/s, 8 room, 100 metal + 80 stone, level 5), Natural Gas Plant (8 energy/s, 10 room, 150 metal + 50 stone, 2 natural gas/hour, level 7), Tidal Power Station (6 energy/s, 9 room, 120 metal + 60 stone, level 6). **Natural gas needs a source:** add a gas well producer, or make natural gas a research-unlocked output of an existing producer. Cards show level requirements and a locked state. Add research entries so levels 5 to 7 are reachable. Room expansion: construction sprite fades in and out over 2 seconds; capacity meter from the segment sprites; tooltips on room mechanics.
 **Absorbs old bug item 0.21:** the expansion animation is driven by the expansion state in `roomSystem` so it cannot desynchronize. Add a test for this.
 **Acceptance:** every fuel-burning generator has a reachable fuel source; animation starts and ends with the expansion; locked generators display correctly.
+**Done notes:** natural gas comes from a Gas Well granted by the Natural Gas Extraction research (1 gas / 10 min, fuels 3 gas plants). Research nodes Hydropower, Natural Gas Extraction, Tidal Power and Gas Turbines make levels 5 to 8 reachable. Generators gained a `requiredLevel` gate. Also added **Scrap** (remove a generator, no refund) because a pacing probe showed room fills with Solar Panels before mid-tier unlocks, which made them unbuildable.
 
-### 0.36 — Smoke tests and CI — CODE — Not started
+### 0.36 — Smoke tests and CI — CODE — Done
 **Goal:** catch regressions on every PR.
 **Details:** end-to-end smoke test: load the game, click for energy, build a generator, start research, reload, verify state persisted. Use Playwright if its browsers install in the cloud environment; if not, use React Testing Library with jsdom for the same flow and note the limitation in the PR. Add the smoke test to the CI workflow from 0.22.
 **Acceptance:** CI runs unit tests, smoke test and build on pull requests; no real-time waits (use fake timers or injected time).
@@ -337,4 +356,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 |---|---|---|---|---|
 | 1 | 0.37 | 2026-10-01 | Works. Click value and click feedback feel right; colours suit the game. Offline cap should be 24 h, not 8 h. | 0.48 |
 | 2 | 0.09 | 2026-10-01 | Works; layout readable; first Solar buildable at once is right; early metal pace fine for now. Fuel "Burns" line should not share the red of "not enough". Energy needs a use: building should cost energy equal to 10 minutes of the generator's output. | 0.49, 0.50 |
-| 3 | 0.16 | 2026-10-01 | (waiting for owner) | |
+| 3 | 0.16 | 2026-10-01 | Starting research is clear; first room expansion price good; tree background looks great. Energy costs (build and research) reached too easily: raise them. Research times far too short; each level must take longer than the previous. Show boosts (e.g. Basic Solar) and their effect when hovering the energy rate, later for resources too. | 0.51, 0.52, 0.53 |
+| 4 | 0.36 | 2026-10-01 | (waiting for owner) | |

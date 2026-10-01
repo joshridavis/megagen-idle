@@ -11,6 +11,7 @@ import {
   getBuildBlock,
   getGeneratorStats,
   nextGeneratorId,
+  scrapGenerator,
   toggleGenerator,
 } from './generatorSystem';
 import { advanceTime } from './simulation';
@@ -112,8 +113,8 @@ describe('toggling', () => {
 describe('energy over time', () => {
   it('a coal plant stops adding energy once its fuel is gone', () => {
     let s = fresh({
-      energy: 1200,
-      producers: { quarry: 0, mine: 0, coalMine: 0 },
+      energy: 3600,
+      producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0 },
       resources: { metal: 20, stone: 10, coal: 5, naturalGas: 0 },
     });
     s = buildGenerator(s, GeneratorType.COAL, ALL);
@@ -124,29 +125,29 @@ describe('energy over time', () => {
   });
 });
 
-describe('energy cost (playtest 2: 10 minutes of output)', () => {
-  it('is base output times 600 s', () => {
-    expect(getGeneratorStats(GeneratorType.SOLAR).energyCost).toBe(300);
-    expect(getGeneratorStats(GeneratorType.WIND).energyCost).toBe(480);
-    expect(getGeneratorStats(GeneratorType.COAL).energyCost).toBe(1200);
+describe('energy cost (playtest 3: 30 minutes of output)', () => {
+  it('is base output times 1800 s', () => {
+    expect(getGeneratorStats(GeneratorType.SOLAR).energyCost).toBe(900);
+    expect(getGeneratorStats(GeneratorType.WIND).energyCost).toBe(1440);
+    expect(getGeneratorStats(GeneratorType.COAL).energyCost).toBe(3600);
   });
 
   it('the build discount applies, rounding up', () => {
-    expect(getGeneratorStats(GeneratorType.WIND, { ...NO_BONUSES, buildDiscount: 0.15 }).energyCost).toBe(408);
-    expect(getGeneratorStats(GeneratorType.SOLAR, { ...NO_BONUSES, buildDiscount: 0.333 }).energyCost).toBe(201);
+    expect(getGeneratorStats(GeneratorType.WIND, { ...NO_BONUSES, buildDiscount: 0.15 }).energyCost).toBe(1224);
+    expect(getGeneratorStats(GeneratorType.SOLAR, { ...NO_BONUSES, buildDiscount: 0.333 }).energyCost).toBe(601);
   });
 
   it('a global energy bonus does not raise the cost', () => {
-    expect(getGeneratorStats(GeneratorType.SOLAR, { ...NO_BONUSES, globalEnergy: 1 }).energyCost).toBe(300);
+    expect(getGeneratorStats(GeneratorType.SOLAR, { ...NO_BONUSES, globalEnergy: 1 }).energyCost).toBe(900);
   });
 
   it('building deducts the energy', () => {
-    const s = buildGenerator(fresh({ energy: 350 }), GeneratorType.SOLAR, ALL);
+    const s = buildGenerator(fresh({ energy: 950 }), GeneratorType.SOLAR, ALL);
     expect(s.energy).toBe(50);
   });
 
   it('is blocked without enough energy', () => {
-    const s = fresh({ energy: 299 });
+    const s = fresh({ energy: 899 });
     expect(getBuildBlock(s, GeneratorType.SOLAR, ALL)).toBe('energy');
     expect(buildGenerator(s, GeneratorType.SOLAR, ALL)).toBe(s);
   });
@@ -158,5 +159,21 @@ describe('energy cost (playtest 2: 10 minutes of output)', () => {
 
   it('a fresh save can still build a Solar Panel at once', () => {
     expect(canBuildGenerator(fresh(), GeneratorType.SOLAR, ALL)).toBe(true);
+  });
+});
+
+describe('scrapping', () => {
+  it('removes the generator and frees its room, with no refund', () => {
+    let s = buildGenerator(fresh(), GeneratorType.SOLAR, ALL);
+    const metal = s.resources.metal;
+    s = scrapGenerator(s, s.activeGenerators[0].id);
+    expect(s.activeGenerators).toEqual([]);
+    expect(s.roomUsed).toBe(0);
+    expect(s.energyPerSecond).toBe(0);
+    expect(s.resources.metal).toBe(metal);
+  });
+  it('unknown IDs change nothing', () => {
+    const s = fresh();
+    expect(scrapGenerator(s, 'nope')).toBe(s);
   });
 });

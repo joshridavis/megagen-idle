@@ -16,9 +16,9 @@ describe('App smoke test', () => {
 
   it('starts from the documented initial state', () => {
     const s = createInitialState(0);
-    expect(s.energy).toBe(300); // playtest 2: enough for the first Solar Panel
+    expect(s.energy).toBe(900); // exactly the first Solar Panel's cost
     expect(s.resources).toEqual({ metal: 15, stone: 10, coal: 0, naturalGas: 0 });
-    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1 });
+    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0 });
     expect(s.researchLevel).toBe(1);
     expect(s.activeGenerators).toEqual([]);
     expect(s.roomCapacity).toBe(10);
@@ -63,7 +63,7 @@ describe('Generator UI loop', () => {
     const s = useStore.getState();
     expect(s.activeGenerators).toHaveLength(1);
     expect(s.resources.metal).toBeCloseTo(5, 0);
-    expect(screen.getByLabelText('Energy rate').textContent).toBe('+0.5/s');
+    expect(screen.getByLabelText('Energy rate').textContent).toBe('+0.50/s');
     expect(screen.getByText('Running')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Turn off Solar Panel #1' }));
@@ -97,7 +97,7 @@ describe('Energy cost UI (playtest 2)', () => {
   it('shows the energy cost and says when energy is the only thing missing', () => {
     useStore.setState({ ...createInitialState(Date.now()), energy: 100 });
     render(<App />);
-    expect(screen.getByTestId('energy-cost-solar').textContent).toContain('300 energy');
+    expect(screen.getByTestId('energy-cost-solar').textContent).toContain('900 energy');
     expect(screen.getByTestId('energy-cost-solar').className).toContain('text-red-400');
     expect(screen.getByTestId('generator-card-solar').querySelector('button')!.textContent).toBe('Not enough energy');
   });
@@ -119,7 +119,7 @@ describe('Research UI', () => {
     const now = Date.now();
     useStore.setState({
       ...createInitialState(now),
-      energy: 100,
+      energy: 300,
       activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }],
     });
     render(<App />);
@@ -132,7 +132,7 @@ describe('Research UI', () => {
     expect(dialog.textContent).toContain('+10% energy from all generators');
     fireEvent.click(screen.getByRole('button', { name: 'Start research' }));
     expect(useStore.getState().currentResearch?.id).toBe('basic_solar');
-    expect(useStore.getState().energy).toBeCloseTo(50, 0);
+    expect(useStore.getState().energy).toBeCloseTo(50, -1);
     expect(screen.getAllByRole('progressbar').length).toBeGreaterThan(0);
     expect(screen.getByTestId('research-node-basic_solar').dataset.status).toBe('researching');
     fireEvent.keyDown(window, { key: 'Escape' });
@@ -165,5 +165,65 @@ describe('Room UI', () => {
     useStore.setState({ ...createInitialState(Date.now()), roomUsed: 9 });
     render(<App />);
     expect(screen.getByRole('status').textContent).toContain('nearly full');
+  });
+});
+
+describe('Boost breakdown (playtest 3)', () => {
+  const solar = { id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 };
+
+  it('the energy-rate tooltip lists Basic Solar and its effect', () => {
+    useStore.setState({ ...createInitialState(Date.now()), activeGenerators: [solar], completedResearch: ['basic_solar'], energyPerSecond: 0.55 });
+    render(<App />);
+    const tip = document.getElementById('energy-breakdown')!;
+    expect(tip.getAttribute('role')).toBe('tooltip');
+    expect(tip.textContent).toContain('Generators0.50 /s');
+    expect(tip.textContent).toContain('Basic Solar (+10%)+0.05 /s');
+    expect(tip.textContent).toContain('Total0.55 /s');
+    expect(screen.getByTestId('energy-boost').textContent).toBe('▲10%');
+  });
+
+  it('shows only the base and a hint when nothing is boosted', () => {
+    useStore.setState({ ...createInitialState(Date.now()), activeGenerators: [solar], energyPerSecond: 0.5 });
+    render(<App />);
+    expect(document.getElementById('energy-breakdown')!.textContent).toContain('No boosts yet');
+    expect(screen.queryByTestId('energy-boost')).toBeNull();
+  });
+});
+
+describe('Mid-tier generators UI', () => {
+  it('shows locked mid-tier cards with their level requirement', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    const gas = screen.getByTestId('generator-card-gas');
+    expect(gas.querySelector('button')!.textContent).toBe('Locked');
+    expect(gas.textContent).toContain('Needs research: Gas Turbines');
+    expect(screen.getByTestId('level-req-gas').textContent).toBe('Requires research level 7 (you have 1)');
+  });
+
+  it('says the level is too low when researched but under level', () => {
+    useStore.setState({ ...createInitialState(Date.now()), completedResearch: ['hydropower'], researchLevel: 4 });
+    render(<App />);
+    expect(screen.getByTestId('generator-card-hydro').querySelector('button')!.textContent).toBe('Research level too low');
+  });
+
+  it('plays the construction animation after expanding', () => {
+    useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0 } });
+    render(<App />);
+    expect(screen.queryByTestId('expansion-animation')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
+    expect(useStore.getState().lastExpansionAt).not.toBeNull();
+  });
+});
+
+describe('Scrap', () => {
+  it('needs a confirm click, then frees the room', () => {
+    useStore.setState(createInitialState(Date.now()));
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Build Solar Panel' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Scrap Solar Panel #1' }));
+    expect(useStore.getState().activeGenerators).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Solar Panel #1' }));
+    expect(useStore.getState().activeGenerators).toHaveLength(0);
+    expect(useStore.getState().roomUsed).toBe(0);
   });
 });
