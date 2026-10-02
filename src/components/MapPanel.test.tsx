@@ -111,3 +111,35 @@ describe('Map tab (1.04)', () => {
     expect(screen.getByTestId('map-info').textContent).toContain('It does not fit there');
   });
 });
+
+describe('map events and the Exclusion Zone (playtest 19)', () => {
+  it('draws map events with pixel sprites, not emoji', () => {
+    useStore.getState().resetGame();
+    useStore.setState(deriveRates(createInitialState(0)));
+    const now = Date.now();
+    for (const [id, sprite] of [
+      ['map_flock', 'map_birds'],
+      ['map_delivery', 'map_truck'],
+      ['map_fire', 'map_fire'],
+    ] as const) {
+      useStore.setState({ mapEvent: { id, at: now, cells: [0, 1], ...(id === 'map_fire' ? { claimUntil: now + 30_000 } : {}) } });
+      render(<MapPanel onSelect={() => {}} />);
+      const ev = screen.getByTestId('map-event');
+      expect(ev.getAttribute('data-sprite')).toBe(sprite);
+      expect(ev.querySelector('img')).toBeTruthy();
+      expect(ev.textContent).not.toMatch(/\p{Extended_Pictographic}/u);
+      cleanup();
+    }
+  });
+
+  it('tells a small site where the Exclusion Zone is', () => {
+    useStore.getState().resetGame();
+    useStore.setState(deriveRates(createInitialState(0)));
+    render(<MapPanel onSelect={() => {}} />);
+    expect(screen.getByTestId('exclusion-hint').textContent).toContain('room expansions 9 and 10');
+    cleanup();
+    useStore.setState(deriveRates({ ...createInitialState(0), roomCapacity: 700 }));
+    render(<MapPanel onSelect={() => {}} />);
+    expect(screen.queryByTestId('exclusion-hint')).toBeNull();
+  });
+});

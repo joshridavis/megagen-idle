@@ -39,13 +39,19 @@ export const REWARDS = {
 
 export type PerkId = 'slot' | 'deadline' | 'rewards' | 'offers';
 
-/** Permanent perks bought with Contract Points. Each level costs the next price. */
+/**
+ * Permanent perks bought with Contract Points. Each level costs the next
+ * price; prices climb steeply so maxing every perk is a long goal (playtest
+ * 19: about 600 points in all, it was 48).
+ */
 export const PERKS: Record<PerkId, { name: string; description: string; costs: number[] }> = {
-  slot: { name: 'Extra contract slot', description: 'One more contract open at a time.', costs: [5, 15] },
-  deadline: { name: 'Patient customers', description: 'Deadlines are 50% longer.', costs: [10] },
-  rewards: { name: 'Better terms', description: 'Bundles and boosts are 25% bigger.', costs: [10] },
-  offers: { name: 'Busy grid', description: 'New offers arrive every 20 minutes instead of 30.', costs: [8] },
+  slot: { name: 'Extra contract slot', description: 'One more contract open at a time per level.', costs: [10, 30, 80] },
+  deadline: { name: 'Patient customers', description: 'Deadlines are 25% longer per level.', costs: [12, 35, 80] },
+  rewards: { name: 'Better terms', description: 'Bundles and boosts are 15% bigger per level.', costs: [12, 30, 60, 120] },
+  offers: { name: 'Busy grid', description: 'New offers arrive 5 minutes sooner per level (30 minutes at first).', costs: [10, 35, 90] },
 };
+/** What each perk level adds. */
+export const PERK_STEP = { deadline: 0.25, rewards: 0.15, offerMinutes: 5 };
 export const PERK_IDS = Object.keys(PERKS) as PerkId[];
 
 /** Completion milestones for contracts done (0.86). */

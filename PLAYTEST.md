@@ -1,6 +1,6 @@
-# Playtest 19 (v0.19.0): fusion, the Micro-Supernova, the Exclusion Zone, map events (after item 1.12)
+# Playtest 19.1 (v0.19.1, hotfix): your playtest 19 fixes
 
-The version at the bottom of the screen should read **v0.19.0**.
+The version at the bottom of the screen should read **v0.19.1**.
 
 ## How to play
 
@@ -11,14 +11,56 @@ Your save carries over.
 
 ## Estimated play time
 
-- **100% completion: about 138 hours** (simulated; v0.18.0 was about 110).
-  - The new content added nearly 30 hours without slowing anything that was already there.
-  - Still short of your 200-hour target.
+- **100% completion: about 211 hours** (simulated; v0.19.0 was about 138). This reaches your 200-hour target.
+  - It comes almost entirely from the costlier contract perks.
 - **Milestones:**
   - Content: Wind 2.3 h, Coal 3.5 h, Hydro 5.7 h, Gas 10 h, Oil 17 h, Nuclear 44 h.
-  - New content: room tiers 9 and 10 at 45 h and 70 h, first Fusion Reactor 75 h, first Micro-Supernova 92 h.
-  - Contracts: every contract perk by 32 h, 200 contracts by 103 h.
-  - Both new generators maxed by about 138 h.
+  - Late game: first Fusion Reactor 79 h, every contract perk 166 h (was 32 h), first Micro-Supernova 176 h.
+  - The simulated player spends every contract reward on points until the perks are maxed, which slows the Micro-Supernova. A player who takes materials sometimes will get there sooner.
+
+## What changed (only what you asked for)
+
+- **Bug: things moving backwards.**
+  - The delivery truck and the birds now face the way they travel.
+  - The truck drives in from the left and stops beside the producer.
+  - I checked every other random event and sighting: the whale swam tail first, so it is now mirrored. The rest were already right.
+- **No more emoji on the map.** Events have their own pixel designs and animations:
+  - birds that flap their wings;
+  - a delivery truck that bounces on its wheels;
+  - a lightning bolt;
+  - a flickering fire;
+  - a falling star with a trail;
+  - waves for the river flood.
+  - They stay still if you turn on reduced motion.
+- **Map events are about 35% rarer**, roughly one every 4 to 5 minutes while you watch the Map tab (it was about one every 3 minutes).
+- **Where is the Exclusion Zone?** You aren't missing anything.
+  - The zone lies further south, below the land you have now. It comes into view once your site grows past 480 tiles; room expansions 9 and 10 open it.
+  - The map now shows a note about this until you get there.
+- **Contract perks are much harder to max.**
+  - There are 13 perk levels for about 600 points in all (it was 5 levels for 48).
+  - Each level adds a step: one more slot (up to 6), deadlines +25% each, bundles and boosts +15% each, and new offers 5 minutes sooner each (down to every 15 minutes).
+  - Levels you already bought stay bought. Level 1 of "Patient customers", "Better terms" and "Busy grid" now gives the first, smaller step; the next levels go further than before.
+
+## Things to try
+
+1. Leave the Map tab open and watch for birds, the truck and a fire. Do they look right and move the right way?
+2. Look under the map legend for the Exclusion Zone note.
+3. Open Contracts and look at the perk shop: the new levels and prices.
+
+## Known issues
+
+- The fictional generators still reuse placeholder art.
+- Accounts are tested against fakes only until your live test (see the v0.19.0 checklist below).
+
+## Questions for you
+
+1. Do the new event designs look good, and is the pace of events right now?
+2. Are the new perk prices about right, too steep, or still too easy?
+3. When you're ready: map decorations (1.13), then browser notifications (1.07), as you said.
+
+---
+
+# Previous: Playtest 19 (v0.19.0)
 
 ## New since last playtest (your playtest 18 feedback)
 

@@ -692,6 +692,82 @@ function meteor() {
   return c;
 }
 
+// ---------- map events (1.12; dedicated designs, playtest 19) ----------
+// Everything that moves faces right: it travels left to right.
+
+function mapBirds(wingsUp) {
+  const c = new Canvas(32, 16);
+  // side view, flying right: tail on the left, beak on the right
+  const up = ['...W.....', '....W....', '....WW...', 'TBBBBBHHb', '.........'];
+  const down = ['.........', 'TBBBBBHHb', '....WW...', '....W....', '...W.....'];
+  const colors = { W: C.grey5, T: C.grey5, B: C.ink, H: C.ink, b: C.amber };
+  for (const [x, y] of [[1, 1], [12, 6], [22, 2], [6, 10]]) {
+    (wingsUp ? up : down).forEach((row, dy) =>
+      [...row].forEach((ch, dx) => {
+        if (colors[ch]) c.set(x + dx, y + dy, colors[ch]);
+      }),
+    );
+  }
+  return c;
+}
+
+function mapTruck() {
+  const c = new Canvas(32, 16);
+  c.rect(1, 3, 19, 9, C.brown2); // cargo box (back, on the left)
+  c.rect(1, 3, 19, 2, C.brown1);
+  for (const x of [5, 10, 15]) c.rect(x, 5, 1, 7, C.brown3); // crates
+  c.rect(20, 5, 9, 7, C.red); // cab (front, on the right)
+  c.rect(23, 6, 5, 3, C.sky); // windshield
+  c.rect(29, 9, 2, 2, C.lemon); // headlight
+  c.rect(0, 11, 31, 2, C.grey5); // chassis
+  for (const x of [6, 24]) {
+    c.circle(x, 13, 2, C.ink); // wheels
+    c.set(x, 13, C.grey3);
+  }
+  c.outline(C.ink);
+  return c;
+}
+
+function mapBolt() {
+  const c = new Canvas(16, 32);
+  c.polygon([[9, 0], [3, 15], [8, 15], [4, 31], [13, 12], [8, 12], [12, 0]], C.lemon);
+  c.polygon([[10, 2], [6, 13], [9, 13], [7, 24]], C.white);
+  c.outline(C.yellow);
+  return c;
+}
+
+function mapFire(tall) {
+  const c = new Canvas(16, 16);
+  const top = tall ? 1 : 3;
+  c.polygon([[3, 15], [2, 9], [5, top + 4], [7, top], [9, top + 3], [11, top + 1], [14, 9], [13, 15]], C.red);
+  c.polygon([[5, 15], [4, 10], [7, top + 5], [9, top + 6], [12, 10], [11, 15]], C.orange);
+  c.polygon([[6, 15], [6, 11], [8, top + 8], [10, 11], [10, 15]], C.yellow);
+  c.rect(7, 13, 2, 2, C.lemon);
+  return c;
+}
+
+function mapStar() {
+  const c = new Canvas(24, 24);
+  // the trail streams up and left: the star falls down and to the right
+  for (let i = 0; i < 14; i++) c.set(2 + i, 2 + i, i < 5 ? C.purple : i < 10 ? C.sky : C.mint);
+  for (let i = 3; i < 13; i++) c.set(3 + i, 2 + i, C.steel);
+  c.circle(18, 18, 3, C.lemon);
+  c.circle(18, 18, 1.5, C.white);
+  for (const [x, y] of [[18, 13], [18, 23], [13, 18], [23, 18]]) c.set(x, y, C.yellow);
+  return c;
+}
+
+function mapWave() {
+  const c = new Canvas(16, 16);
+  for (const y of [4, 10]) {
+    c.line(1, y + 1, 4, y - 1, C.white);
+    c.line(4, y - 1, 7, y + 1, C.white);
+    c.line(8, y + 1, 11, y - 1, C.mint);
+    c.line(11, y - 1, 14, y + 1, C.mint);
+  }
+  return c;
+}
+
 // ---------- site map tiles (1.04) ----------
 
 function groundTile() {
@@ -1072,6 +1148,14 @@ const DRAW = {
   producer_deuterium_extractor: deuteriumExtractor,
   room_expansion: roomExpansion,
   tile_ground: groundTile,
+  map_birds_1: () => mapBirds(true),
+  map_birds_2: () => mapBirds(false),
+  map_truck: mapTruck,
+  map_bolt: mapBolt,
+  map_fire_1: () => mapFire(true),
+  map_fire_2: () => mapFire(false),
+  map_star: mapStar,
+  map_wave: mapWave,
   tile_locked: lockedTile,
   tile_plateau: plateauTile,
   tile_ridge: ridgeTile,

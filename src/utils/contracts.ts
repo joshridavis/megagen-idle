@@ -5,6 +5,7 @@ import {
   CONTRACTS_UNLOCK_LEVEL,
   OFFER_INTERVAL_MINUTES,
   PERKS,
+  PERK_STEP,
   REWARDS,
   type ContractKind,
   type PerkId,
@@ -21,9 +22,11 @@ const HOUR = 3_600_000;
 export const contractsUnlocked = (s: Pick<S, 'researchLevel'>) => s.researchLevel >= CONTRACTS_UNLOCK_LEVEL;
 export const perkLevel = (s: Pick<S, 'contracts'>, id: PerkId) => s.contracts.perks[id] ?? 0;
 export const contractSlots = (s: Pick<S, 'contracts'>) => BASE_CONTRACT_SLOTS + perkLevel(s, 'slot');
-export const offerIntervalMs = (s: Pick<S, 'contracts'>) => (perkLevel(s, 'offers') ? 20 : OFFER_INTERVAL_MINUTES) * 60_000;
-const deadlineFactor = (s: Pick<S, 'contracts'>) => (perkLevel(s, 'deadline') ? 1.5 : 1);
-const rewardFactor = (s: Pick<S, 'contracts'>) => (perkLevel(s, 'rewards') ? 1.25 : 1);
+const offerMinutes = (lv: number) => OFFER_INTERVAL_MINUTES - PERK_STEP.offerMinutes * lv;
+export const offerIntervalMs = (s: Pick<S, 'contracts'>) => offerMinutes(perkLevel(s, 'offers')) * 60_000;
+const deadlineFactor = (s: Pick<S, 'contracts'>) => 1 + PERK_STEP.deadline * perkLevel(s, 'deadline');
+const rewardFactor = (s: Pick<S, 'contracts'>) => 1 + PERK_STEP.rewards * perkLevel(s, 'rewards');
+const pctText = (f: number) => (f ? `+${Math.round(f * 100)}%` : 'normal');
 
 /** Resources the player is producing now, the ones a delivery may ask for. */
 function producedResources(s: S): { id: ResourceId; rate: number }[] {
@@ -213,10 +216,10 @@ export function perkEffectText(s: Pick<S, 'contracts'>, id: PerkId): { now: stri
     case 'slot':
       return { now: `Contract slots: ${BASE_CONTRACT_SLOTS + lv}`, next: maxed ? null : `${BASE_CONTRACT_SLOTS + lv + 1}` };
     case 'deadline':
-      return { now: `Deadlines: ${lv ? '+50%' : 'normal'}`, next: maxed ? null : '+50%' };
+      return { now: `Deadlines: ${pctText(PERK_STEP.deadline * lv)}`, next: maxed ? null : pctText(PERK_STEP.deadline * (lv + 1)) };
     case 'rewards':
-      return { now: `Bundles and boosts: ${lv ? '+25%' : 'normal'}`, next: maxed ? null : '+25%' };
+      return { now: `Bundles and boosts: ${pctText(PERK_STEP.rewards * lv)}`, next: maxed ? null : pctText(PERK_STEP.rewards * (lv + 1)) };
     case 'offers':
-      return { now: `New offer every ${lv ? 20 : OFFER_INTERVAL_MINUTES} min`, next: maxed ? null : '20 min' };
+      return { now: `New offer every ${offerMinutes(lv)} min`, next: maxed ? null : `${offerMinutes(lv + 1)} min` };
   }
 }

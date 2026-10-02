@@ -3,11 +3,24 @@ import { EVENTS_BY_ID } from '../data/events';
 import { MAP_COLUMNS } from '../data/map';
 import { useStore } from '../store';
 import { platform } from '../platform';
+import { sprites, type SpriteId } from '../assets';
 
 /** How often to roll map events while the Map tab is open (rolls use the real time passed, not this count). */
 export const MAP_EVENT_CHECK_MS = 5000;
 
-const ICON = { flock: '🐦 🐦 🐦', bolt: '⚡', truck: '🚚', flood: '', fire: '🔥', star: '🌠' } as const;
+/**
+ * Pixel sprites for map events (playtest 19: no emoji). Everything that
+ * moves faces right, the way it travels. Two frames swap for flaps and flames.
+ */
+function Frames({ a, b, still, period }: { a: SpriteId; b: SpriteId; still: boolean; period: string }) {
+  if (still) return <img src={sprites[a]} alt="" className="pixelated h-full w-full" />;
+  return (
+    <span className="relative block h-full w-full" style={{ ['--frame' as string]: period }}>
+      <img src={sprites[a]} alt="" className="pixelated frame-a absolute inset-0 h-full w-full" />
+      <img src={sprites[b]} alt="" className="pixelated frame-b absolute inset-0 h-full w-full" />
+    </span>
+  );
+}
 
 /**
  * Map events (1.12, playtest 15): they roll only while this layer is on
@@ -58,38 +71,63 @@ export default function MapEventLayer({
     return { x, y, w: Math.max(...pts.map((p) => p.x)) - x + 1, h: Math.max(...pts.map((p) => p.y)) - y + 1 };
   };
   const name = EVENTS_BY_ID[ev.id].name;
+  /** Width as a share of the map, in tiles. */
+  const wide = (tiles: number) => `${(tiles / viewColumns) * 100}%`;
 
   switch (m.animation) {
     case 'flock':
       return (
-        <div aria-hidden="true" className={`pointer-events-none absolute z-30 whitespace-nowrap text-lg ${anim}`} style={{ top: `${(1 / rows) * 100}%`, left: reduceMotion ? '40%' : undefined }} data-testid="map-event">
-          {ICON.flock}
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute z-30 ${anim}`}
+          style={{ top: `${(1 / rows) * 100}%`, left: reduceMotion ? '40%' : undefined, width: wide(4), height: `${(1 / rows) * 100}%` }}
+          data-testid="map-event"
+          data-sprite="map_birds"
+        >
+          <Frames a="map_birds_1" b="map_birds_2" still={reduceMotion} period="0.5s" />
         </div>
       );
     case 'flood':
       return (
         <>
           {ev.cells.map((c) => (
-            <div key={c} aria-hidden="true" className={`pointer-events-none absolute z-20 bg-sky-300/50 ${anim}`} style={pct(at(c).x, at(c).y, 1, 1)} data-testid="map-event" />
+            <div key={c} aria-hidden="true" className={`pointer-events-none absolute z-20 bg-sky-300/50 ${anim}`} style={pct(at(c).x, at(c).y, 1, 1)} data-testid="map-event">
+              <img src={sprites.map_wave} alt="" className="pixelated h-full w-full" />
+            </div>
           ))}
         </>
       );
     case 'star':
       return (
-        <div aria-hidden="true" className={`pointer-events-none absolute z-30 flex items-center justify-center text-xl ${anim}`} style={pct(MAP_COLUMNS, 1 + Math.floor((ev.at / 1000) % 4), viewColumns - MAP_COLUMNS, 1)} data-testid="map-event">
-          {ICON.star}
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute z-30 ${anim}`}
+          style={pct(MAP_COLUMNS, 1 + Math.floor((ev.at / 1000) % 4), viewColumns - MAP_COLUMNS, 2)}
+          data-testid="map-event"
+          data-sprite="map_star"
+        >
+          <img src={sprites.map_star} alt="" className="pixelated h-full w-full object-contain" />
         </div>
       );
     case 'truck': {
       const b = box(ev.cells);
+      // drives in from the left edge and stops left of the producer, facing it
+      const stop = Math.max(0, b.x - 2);
       return (
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute z-30 text-xl ${anim}`}
-          style={{ top: `${((b.y + b.h - 1) / rows) * 100}%`, left: reduceMotion ? `${(b.x / viewColumns) * 100}%` : undefined, ['--to' as string]: `${(b.x / viewColumns) * 100}%` }}
+          className={`pointer-events-none absolute z-30 ${anim}`}
+          style={{
+            top: `${((b.y + b.h - 1) / rows) * 100}%`,
+            left: reduceMotion ? wide(stop) : undefined,
+            width: wide(2),
+            height: `${(1 / rows) * 100}%`,
+            ['--to' as string]: wide(stop),
+          }}
           data-testid="map-event"
+          data-sprite="map_truck"
         >
-          {ICON.truck}
+          <img src={sprites.map_truck} alt="" className={`pixelated h-full w-full ${reduceMotion ? '' : 'map-bounce'}`} />
         </div>
       );
     }
@@ -97,21 +135,36 @@ export default function MapEventLayer({
     case 'fire': {
       const b = box(ev.cells);
       const clickable = m.animation === 'fire' && ev.claimUntil !== undefined;
+      const art =
+        m.animation === 'fire' ? (
+          <span className="block aspect-square h-3/4 max-h-full">
+            <Frames a="map_fire_1" b="map_fire_2" still={reduceMotion} period="0.3s" />
+          </span>
+        ) : (
+          <img src={sprites.map_bolt} alt="" className="pixelated h-full max-h-full" />
+        );
       return clickable ? (
         <button
           type="button"
           onClick={() => claim()}
-          className={`absolute z-40 flex items-center justify-center rounded border-2 border-orange-400 bg-orange-500/20 text-2xl ${anim}`}
+          className={`absolute z-40 flex items-center justify-center rounded border-2 border-orange-400 bg-orange-500/20 ${anim}`}
           style={pct(b.x, b.y, b.w, b.h)}
           aria-label={`${name}: click to put it out`}
           title="Click to put it out!"
           data-testid="map-event"
+          data-sprite="map_fire"
         >
-          {ICON.fire}
+          {art}
         </button>
       ) : (
-        <div aria-hidden="true" className={`pointer-events-none absolute z-30 flex items-center justify-center text-2xl ${anim}`} style={pct(b.x, b.y, b.w, b.h)} data-testid="map-event">
-          {ICON[m.animation]}
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute z-30 flex items-center justify-center ${anim}`}
+          style={pct(b.x, b.y, b.w, b.h)}
+          data-testid="map-event"
+          data-sprite={`map_${m.animation}`}
+        >
+          {art}
         </div>
       );
     }
