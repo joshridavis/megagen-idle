@@ -438,7 +438,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Tests:** tests of other mechanics turn the bonus off with `vi.mock`.
 - **Simulator:** 100% in about 66.5 h (was 81.5 h).
 
-### 0.91 — Sightings stay longer on screen — CODE — Not started
+### 0.91 — Sightings stay longer on screen — CODE — Done
 **Goal:** apply playtest 11 feedback: the owner's game recorded an Aurora that the owner never noticed, so sightings should be harder to miss.
 **Details:**
 - **Duration:** every sighting lasts at least 15 seconds, and moving ones cross the screen more slowly (durations in `src/data/events.ts`).
@@ -446,6 +446,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Notice afterwards:** after a sighting, a small "✨ You spotted: Aurora" notice stays in the event log and as a toast, so a player who looked away still learns about it.
 - **Frequency:** unchanged (owner: about one per hour of on-screen play is right).
 **Acceptance:** duration minimum enforced by a data test; a sighting started while hidden is shown only when visible (test); the toast appears for sightings.
+**Notes:**
+- **Duration:** every sighting lasts 15–20 s (`MIN_SIGHTING_MS`), so moving ones cross more slowly. The shooting star and meteor shower show several streaks over that time.
+- **Hidden tab:** the timer runs only while the page is visible, so a sighting waits for the player to return.
+- **Notice:** a "You spotted: …!" toast appears when one ends.
+- **Frequency:** unchanged.
 
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.

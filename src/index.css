@@ -198,7 +198,7 @@ body {
 @keyframes beam { 0% { opacity: 0; transform: translateY(-40px); } 15%, 85% { opacity: 1; transform: translateY(0); } 50% { transform: translateX(10px); } 100% { opacity: 0; transform: translate(200px, -80px) scale(0.3); } }
 .sighting-fall { top: -10%; opacity: 0; animation: fall 1.8s ease-in forwards; }
 @keyframes fall { 0% { opacity: 1; transform: translate(0, 0); } 100% { opacity: 0; transform: translate(-40vw, 60vh); } }
-.sighting-streak { right: 10%; top: 8%; transform: rotate(-30deg); animation: streak var(--dur) ease-out forwards; }
+.sighting-streak { opacity: 0; transform: rotate(-30deg); animation: streak 2.5s ease-out forwards; }
 @keyframes streak { 0% { opacity: 0; translate: 0 0; } 10% { opacity: 1; } 100% { opacity: 0; translate: -50vw 25vh; } }
 .sighting-glow {
   background: linear-gradient(180deg, rgba(89, 193, 53, 0.35), rgba(36, 159, 222, 0.25) 40%, rgba(122, 9, 250, 0.15) 70%, transparent);

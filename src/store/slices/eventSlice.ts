@@ -16,7 +16,13 @@ export const createEventSlice =
   (set, get) => ({
     ...initial,
     activeSighting: null,
-    dismissSighting: () => set({ activeSighting: null }, undefined, 'events/dismissSighting'),
+    dismissSighting: () => {
+      const s = get();
+      const def = s.activeSighting && EVENTS_BY_ID[s.activeSighting.id];
+      set({ activeSighting: null }, undefined, 'events/dismissSighting');
+      // a notice after the animation, for a player who looked away (playtest 11)
+      if (def && !s.settings.reduceMotion) s.pushToast({ kind: 'event', text: `You spotted: ${def.name}!`, toast: true });
+    },
     rollRandomEvents: (seconds, opts, rng = Math.random, now = Date.now()) => {
       const s = get();
       // one sighting on screen at a time

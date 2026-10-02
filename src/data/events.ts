@@ -21,6 +21,9 @@ export const RARITY_LABEL: Record<Rarity, string> = {
   legendary: 'Legendary',
 };
 
+/** Every sighting stays on screen at least this long (ms), so it is hard to miss (playtest 11). */
+export const MIN_SIGHTING_MS = 15000;
+
 /** At most this many events per live tick, and per return from time away. */
 export const MAX_EVENTS_PER_TICK = 1;
 export const MAX_EVENTS_PER_CATCH_UP = 3;
@@ -45,12 +48,12 @@ export interface EventDef {
 }
 
 export const EVENTS: EventDef[] = [
-  { id: 'birds', name: 'Flock of birds', text: 'A flock of birds swept past.', rarity: 'common', when: 'foreground', animation: 'fly-left', durationMs: 7000 },
-  { id: 'shooting_star', name: 'Shooting star', text: 'A shooting star streaked across the sky. Make a wish!', rarity: 'common', when: 'foreground', animation: 'streak', durationMs: 2500 },
-  { id: 'balloon', name: 'Lost balloon', text: 'Someone lost a balloon. It drifts up and away.', rarity: 'common', when: 'foreground', animation: 'rise', durationMs: 9000 },
-  { id: 'paper_plane', name: 'Paper plane', text: 'A paper plane glided by. Who folded it?', rarity: 'common', when: 'foreground', animation: 'fly-right', durationMs: 6000 },
-  { id: 'cat', name: 'Plant cat', text: 'A cat strolled along the top of the screen, unimpressed.', rarity: 'uncommon', when: 'foreground', animation: 'walk', durationMs: 10000 },
-  { id: 'aurora', name: 'Aurora', text: 'An aurora shimmered over the plant.', rarity: 'uncommon', when: 'foreground', animation: 'glow', durationMs: 9000 },
+  { id: 'birds', name: 'Flock of birds', text: 'A flock of birds swept past.', rarity: 'common', when: 'foreground', animation: 'fly-left', durationMs: 16000 },
+  { id: 'shooting_star', name: 'Shooting star', text: 'A shooting star streaked across the sky. Make a wish!', rarity: 'common', when: 'foreground', animation: 'streak', durationMs: 15000 },
+  { id: 'balloon', name: 'Lost balloon', text: 'Someone lost a balloon. It drifts up and away.', rarity: 'common', when: 'foreground', animation: 'rise', durationMs: 20000 },
+  { id: 'paper_plane', name: 'Paper plane', text: 'A paper plane glided by. Who folded it?', rarity: 'common', when: 'foreground', animation: 'fly-right', durationMs: 16000 },
+  { id: 'cat', name: 'Plant cat', text: 'A cat strolled along the top of the screen, unimpressed.', rarity: 'uncommon', when: 'foreground', animation: 'walk', durationMs: 20000 },
+  { id: 'aurora', name: 'Aurora', text: 'An aurora shimmered over the plant.', rarity: 'uncommon', when: 'foreground', animation: 'glow', durationMs: 20000 },
   {
     id: 'rainbow',
     name: 'Rainbow over the dam',
@@ -59,10 +62,10 @@ export const EVENTS: EventDef[] = [
     when: 'foreground',
     requiresBuilt: [GeneratorType.HYDRO],
     animation: 'arc',
-    durationMs: 8000,
+    durationMs: 18000,
   },
-  { id: 'spaceship', name: 'Small spaceship', text: 'A small spaceship zipped across the screen!', rarity: 'rare', when: 'foreground', animation: 'fly-right', durationMs: 4000 },
-  { id: 'meteor_shower', name: 'Meteor shower', text: 'Meteors rained down far away. Beautiful.', rarity: 'rare', when: 'foreground', animation: 'fall', durationMs: 5000 },
+  { id: 'spaceship', name: 'Small spaceship', text: 'A small spaceship zipped across the screen!', rarity: 'rare', when: 'foreground', animation: 'fly-right', durationMs: 15000 },
+  { id: 'meteor_shower', name: 'Meteor shower', text: 'Meteors rained down far away. Beautiful.', rarity: 'rare', when: 'foreground', animation: 'fall', durationMs: 15000 },
   {
     id: 'whale',
     name: 'Whale at the tidal station',
@@ -71,9 +74,9 @@ export const EVENTS: EventDef[] = [
     when: 'foreground',
     requiresBuilt: [GeneratorType.TIDAL],
     animation: 'swim',
-    durationMs: 9000,
+    durationMs: 20000,
   },
-  { id: 'ufo', name: 'UFO', text: 'A UFO hovered, beamed something up, and vanished. Nobody will believe you.', rarity: 'legendary', when: 'foreground', animation: 'beam', durationMs: 7000 },
+  { id: 'ufo', name: 'UFO', text: 'A UFO hovered, beamed something up, and vanished. Nobody will believe you.', rarity: 'legendary', when: 'foreground', animation: 'beam', durationMs: 18000 },
 ];
 
 export const EVENTS_BY_ID: Record<string, EventDef> = Object.fromEntries(EVENTS.map((e) => [e.id, e]));
