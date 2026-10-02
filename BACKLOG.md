@@ -410,10 +410,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Code now:** also add the `src/platform/` interface with the web implementation only, so later wrappers plug in without touching game logic.
 **Acceptance:** the plan document is reviewed in the PR; the platform interface is in place with web implementation and tests; nothing needs secrets or platform tooling.
 
-### 0.95 — Player levels harder to gain early — CODE — Not started
+### 0.95 — Player levels harder to gain early — CODE — Done
 **Goal:** apply playtest 12 feedback: level-ups should stay celebrated, but levels must not come in seconds. Clicking from level 1 to level 4 or 5 should not be possible.
 **Details:** retune the curve in `src/data/playerLevel.ts` so level 2 needs a couple of hundred lifetime energy (well over a minute of fast clicking). The curve grows a little less steeply after that, so level 99 still lands near the 200 h target as content grows. Check with the simulator. Saves keep their lifetime energy; the level is recalculated, so it may go down once on load, with no celebration for that.
 **Acceptance:** level 2 needs at least 100 seconds of clicking at 2 clicks per second at the base click value (test). Thresholds rise strictly with level. The report's Player level column shows the new pacing.
+**Notes:** the curve is 200 × (L − 1)^3.56. Level 2 needs 200 energy; level 10 about 500K; level 99 about 2.5B. In the simulator, level 6 comes at 3 h and level 53 at 100% (67.7 h).
 
 ### 0.96 — Sort your generator list — CODE — Not started
 **Goal:** apply playtest 12 feedback: sorting options for "Your generators".
