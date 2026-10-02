@@ -228,3 +228,24 @@ body {
     animation: none !important;
   }
 }
+
+/* Pet reaction when clicked (0.99). */
+@keyframes pet-hop {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  15% { transform: translateY(-10px) rotate(-6deg); }
+  30% { transform: translateY(0) rotate(0); }
+  45% { transform: translateY(-6px) rotate(6deg); }
+  60% { transform: translateY(0) rotate(0); }
+  75% { transform: rotate(-4deg); }
+  90% { transform: rotate(4deg); }
+}
+.pet-react { animation: pet-hop 2.5s ease-in-out; }
+@keyframes pet-particle {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+}
+.pet-particle { top: 10%; opacity: 0; animation: pet-particle 1.6s ease-out forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .pet-react, .pet-particle { animation: none; }
+}

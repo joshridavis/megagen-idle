@@ -452,10 +452,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** the labels and the "need N more" text are correct for each kind (component tests).
 **Notes:** each card has a "Delivery" or "Production" badge. Delivery cards say "You have X of Y" and that delivering spends it; the button names what is missing ("Need 74K more energy"). Production cards show the progress made so far and say nothing is spent. A note appears when two deliveries need the same thing. Helpers `contractShortfall` and `sharesNeed`, with tests.
 
-### 0.99 — Pets react when clicked — CODE — Not started
+### 0.99 — Pets react when clicked — CODE — Done
 **Goal:** apply playtest 13 feedback: clicking a pet plays a short animation.
 **Details:** clicking or tapping an owned pet's picture plays a 2–3 second animation: a hop or wiggle plus a few themed particles (sparks for the eel and the cat, glow for the firefly and the jellyfish, hearts otherwise). It is purely cosmetic and respects Reduce motion. Clicks while it plays are ignored.
 **Acceptance:** clicking a pet adds the animation class and it clears after the duration (component test); no animation with Reduce motion on.
+**Notes:** clicking an owned pet plays a 2.5 s hop and wiggle with 5 rising particles that suit the pet (sparks for the eel and the cat, ✦ for the firefly and the jellyfish, ❤ for the hamster, and so on). Clicks during the animation are ignored; Reduce motion turns it off.
 
 ### 0.95 — Player levels harder to gain early — CODE — Done
 **Goal:** apply playtest 12 feedback: level-ups should stay celebrated, but levels must not come in seconds. Clicking from level 1 to level 4 or 5 should not be possible.
