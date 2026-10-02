@@ -47,6 +47,14 @@ import achievementUnlocked from './sprites/ui/achievement_unlocked.png';
 import achievementLocked from './sprites/ui/achievement_locked.png';
 import tileGround from './sprites/map/ground.png';
 import tileLocked from './sprites/map/locked.png';
+import tilePlateau from './sprites/map/plateau.png';
+import tileRidge from './sprites/map/ridge.png';
+import tileRiver from './sprites/map/river.png';
+import tileCoast from './sprites/map/coast.png';
+import tileSea from './sprites/map/sea.png';
+import decoRock from './sprites/map/deco_rock.png';
+import decoTuft from './sprites/map/deco_tuft.png';
+import decoFlower from './sprites/map/deco_flower.png';
 import sightingSpaceship from './sprites/events/spaceship.png';
 import sightingBirds from './sprites/events/birds.png';
 import sightingBalloon from './sprites/events/balloon.png';
@@ -127,6 +135,14 @@ export const sprites = {
   achievement_locked: achievementLocked,
   tile_ground: tileGround,
   tile_locked: tileLocked,
+  tile_plateau: tilePlateau,
+  tile_ridge: tileRidge,
+  tile_river: tileRiver,
+  tile_coast: tileCoast,
+  tile_sea: tileSea,
+  deco_rock: decoRock,
+  deco_tuft: decoTuft,
+  deco_flower: decoFlower,
   sighting_spaceship: sightingSpaceship,
   sighting_birds: sightingBirds,
   sighting_balloon: sightingBalloon,

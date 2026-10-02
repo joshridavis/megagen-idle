@@ -121,6 +121,7 @@ function act(s: GameState, now: number): GameState {
       s = buildGenerator(s, t, unlocked, bonuses());
       return s;
     }
+    if (block === 'site') continue; // its zone is full (1.05): build something else
     if (block === 'room') {
       const weakest = [...s.activeGenerators].sort((a, b) => perRoom(a.type) - perRoom(b.type))[0];
       if (weakest && perRoom(t) >= 1.5 * perRoom(weakest.type)) {

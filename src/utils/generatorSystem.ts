@@ -7,6 +7,7 @@ import type { GameState } from '../types/state';
 import { canAfford, consumeResource } from './resourceSystem';
 import { noteGenerator } from './records';
 import { deriveRates } from './simulation';
+import { hasSpotFor } from './siteMap';
 
 export interface GeneratorStats {
   energyPerSecond: number;
@@ -33,7 +34,8 @@ export function getGeneratorStats(type: GeneratorType, bonuses: Bonuses = NO_BON
   };
 }
 
-export type BuildBlock = 'locked' | 'level' | 'room' | 'resources' | 'energy';
+/** 'site': no free spot in the zone it needs (hydro: river, tidal: coast; 1.05). */
+export type BuildBlock = 'locked' | 'level' | 'room' | 'site' | 'resources' | 'energy';
 
 /** Why a generator cannot be built right now, or null if it can. */
 export function getBuildBlock(
@@ -48,6 +50,7 @@ export function getBuildBlock(
   if (state.roomUsed + stats.roomCost > state.roomCapacity) return 'room';
   if (!canAfford(state.resources, stats.buildCost)) return 'resources';
   if (state.energy < stats.energyCost) return 'energy';
+  if (!hasSpotFor(state, type)) return 'site';
   return null;
 }
 

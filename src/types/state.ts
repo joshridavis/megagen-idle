@@ -70,6 +70,8 @@ export interface RoomState {
   expansionLevel: number;
   /** Epoch ms of the last expansion; drives the construction animation. */
   lastExpansionAt: number | null;
+  /** Machines the player placed on the site map: machine key -> top-left tile (1.05). */
+  mapPins: Record<string, number>;
 }
 
 export interface SettingsState {

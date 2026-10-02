@@ -4,6 +4,8 @@ import { GENERATORS } from '../data/generators';
 import { useStore } from '../store';
 import type { Generator } from '../types/generator';
 import { getEnergyBonuses } from '../utils/bonuses';
+import { NO_MODS } from '../utils/effectMods';
+import { getPlacementBonuses } from '../utils/siteMap';
 import { GENERATOR_SORTS, sortGenerators } from '../utils/generatorSort';
 import type { GeneratorSort } from '../types/state';
 import { getGeneratorOutput } from '../utils/energyGeneration';
@@ -68,6 +70,14 @@ export default function ActiveGenerators() {
   const lifetime = useStore((s) => s.lifetimeEnergy);
   const bonuses = useMemo(() => getEnergyBonuses({ completedResearch: completed, lifetimeEnergy: lifetime }), [completed, lifetime]);
   const fmt = useNumberFormat();
+  const producers = useStore((s) => s.producers);
+  const capacity = useStore((s) => s.roomCapacity);
+  const pins = useStore((s) => s.mapPins);
+  // where each stands on the map changes its output (1.05)
+  const placeMods = useMemo(
+    () => ({ ...NO_MODS, placement: getPlacementBonuses({ activeGenerators: generators, producers, completedResearch: completed, roomCapacity: capacity, mapPins: pins }) }),
+    [generators, producers, completed, capacity, pins],
+  );
   const sort = useStore((s) => s.settings.generatorSort ?? 'custom');
   const setSort = useStore((s) => s.setGeneratorSort);
   const custom = sort === 'custom';
@@ -178,7 +188,10 @@ export default function ActiveGenerators() {
                   </div>
                   <div className="text-xs">
                     <span className={status.className}>{status.text}</span>
-                    <span className="text-slate-400"> · +{fmt.rate(getGeneratorOutput(g, bonuses))} energy/s · {def.roomCost} room</span>
+                    <span className="text-slate-400"> · +{fmt.rate(getGeneratorOutput(g, bonuses, placeMods))} energy/s · {def.roomCost} room</span>
+                    {placeMods.placement[g.id] ? (
+                      <span className="text-emerald-300" title="Bonus from where it stands on the map"> · 📍 +{Math.round(placeMods.placement[g.id] * 100)}%</span>
+                    ) : null}
                   </div>
                   {g.level < maxLevel(g.type) && (
                     <UpgradeButton generatorId={g.id} name={name} />

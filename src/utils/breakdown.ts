@@ -10,6 +10,7 @@ import { getPlayerLevel, playerLevelEnergyBonus } from './playerLevel';
 import { baseOutput, calculateEnergyRate } from './energyGeneration';
 import { getFuelUseRates, getProductionRates } from './resourceSystem';
 import { activePetBonus, withPetMods } from './pets';
+import { getPlacementBonuses } from './siteMap';
 import type { PetsState } from '../types/state';
 
 type Pets = PetsState['pets'];
@@ -50,7 +51,15 @@ export function breakdownFromResearch(base: number, completedResearch: string[],
 
 /** Energy per second: base from running generators, then research boosts. */
 export function getEnergyBreakdown(
-  state: Pick<GameState, 'activeGenerators' | 'completedResearch'> & { lifetimeEnergy?: number; activeEffects?: ActiveEffect[]; pets?: Pets },
+  state: Pick<GameState, 'activeGenerators' | 'completedResearch'> & {
+    lifetimeEnergy?: number;
+    activeEffects?: ActiveEffect[];
+    pets?: Pets;
+    /** With these, map placement bonuses count too (1.05). */
+    producers?: GameState['producers'];
+    roomCapacity?: number;
+    mapPins?: Record<string, number>;
+  },
 ): RateBreakdown {
   const running = state.activeGenerators.filter((g) => g.isActive);
   const base = running.reduce((sum, g) => sum + baseOutput(g), 0);
@@ -74,12 +83,17 @@ export function getEnergyBreakdown(
     const affected = b.kind === 'generator' ? running.filter((g) => b.generators.includes(g.type)).reduce((sum, g) => sum + baseOutput(g), 0) : b.kind === 'energy' ? base : 0;
     if (affected > 0) modifiers.push({ source: petSource(pet.def.name), percent: pet.value, amount: affected * pet.value });
   }
+  const placement =
+    state.producers && state.roomCapacity !== undefined
+      ? getPlacementBonuses({ activeGenerators: state.activeGenerators, producers: state.producers, completedResearch: state.completedResearch, roomCapacity: state.roomCapacity, mapPins: state.mapPins })
+      : {};
+  const placed = running.reduce((sum, g) => sum + baseOutput(g) * (placement[g.id] ?? 0), 0);
+  if (placed > 0) modifiers.push({ source: 'Placement on the map', amount: placed });
   // matches getGeneratorOutput, which never goes below 0 per generator
-  const total = calculateEnergyRate(
-    state.activeGenerators,
-    getEnergyBonuses(state),
-    withPetMods(getEffectMods(state.activeEffects), state.pets ? { pets: state.pets } : undefined),
-  );
+  const total = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state), {
+    ...withPetMods(getEffectMods(state.activeEffects), state.pets ? { pets: state.pets } : undefined),
+    placement,
+  });
   return { base, modifiers, total };
 }
 

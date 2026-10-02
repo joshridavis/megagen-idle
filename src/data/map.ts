@@ -1,8 +1,85 @@
+import { GeneratorType } from '../types/generator';
+
 /**
- * Site map (1.04, playtest 14). Every unit of room is one tile; a machine
- * covers as many tiles as its room cost. The map is MAP_COLUMNS wide and
- * grows downward as room expansions are bought.
+ * Site map (1.04, playtest 14; larger with terrain in 1.05, playtest 15).
+ * Every unit of room is one tile; a machine covers as many tiles as its room
+ * cost. The site is MAP_COLUMNS wide and grows downward, row by row, as room
+ * expansions are bought. The land around it is drawn too, fenced off.
  */
-export const MAP_COLUMNS = 16;
+export const MAP_COLUMNS = 24;
+/** Open sea drawn past the coast, on the right. Decoration only: not part of the site. */
+export const SEA_COLUMNS = 2;
 /** Rows of fenced land shown below the current site (the next expansion). */
-export const LOCKED_PREVIEW_ROWS = 2;
+export const LOCKED_PREVIEW_ROWS = 3;
+/** The map always shows at least this many rows, so even a small site sits in a landscape. */
+export const MIN_MAP_ROWS = 10;
+/** Seed for the scattered details (rocks, tufts, flowers): the same map on every visit. */
+export const MAP_SEED = 1505;
+/** Share of plain, plateau and ridge tiles that get a small detail drawn on them. */
+export const DETAIL_CHANCE = 0.16;
+
+export type Terrain = 'plain' | 'plateau' | 'ridge' | 'river' | 'coast';
+export type Zone = Exclude<Terrain, 'plain'>;
+
+export interface ZoneDef {
+  name: string;
+  /** Generator types this zone suits. */
+  generators: GeneratorType[];
+  /** Energy bonus (fraction) when the whole machine stands inside the zone. */
+  bonus: number;
+  /** True if those generators can only be built here (playtest 15). */
+  required: boolean;
+  description: string;
+}
+
+export const ZONES: Record<Zone, ZoneDef> = {
+  plateau: {
+    name: 'Sunny plateau',
+    generators: [GeneratorType.SOLAR],
+    bonus: 0.2,
+    required: false,
+    description: 'Clear skies: Solar Panels standing fully on it make 20% more.',
+  },
+  ridge: {
+    name: 'Windy ridge',
+    generators: [GeneratorType.WIND],
+    bonus: 0.2,
+    required: false,
+    description: 'Strong winds: Wind Turbines standing fully on it make 20% more.',
+  },
+  river: {
+    name: 'River',
+    generators: [GeneratorType.HYDRO],
+    bonus: 0.1,
+    required: true,
+    description: 'Hydropower Dams must be built across the river; fully on it, they make 10% more.',
+  },
+  coast: {
+    name: 'Coast',
+    generators: [GeneratorType.TIDAL],
+    bonus: 0.1,
+    required: true,
+    description: 'Tidal Power Stations must be built on the coast; fully on it, they make 10% more.',
+  },
+};
+
+/** A machine that needs a zone must have at least this share of its tiles on it. */
+export const ZONE_REQUIRED_SHARE = 0.5;
+
+/** The coast: the last columns of the site, next to the sea. */
+export const COAST_COLUMNS = 3;
+/** River width in tiles, and its first column at the top of the map. */
+export const RIVER_WIDTH = 4;
+export const RIVER_START_COLUMN = 9;
+/** The river shifts sideways every RIVER_BEND_ROWS rows, by these steps in turn. */
+export const RIVER_BEND_ROWS = 3;
+export const RIVER_OFFSETS = [0, 1, 2, 2, 1, 0, -1, -2, -2, -1];
+/** Plateau and ridge come in patches of this size (columns x rows). */
+export const PATCH_SIZE: [number, number] = [4, 3];
+/** Chance a patch is plateau, and ridge; the rest is plain. */
+export const PATCH_CHANCES = { plateau: 0.25, ridge: 0.25 };
+/**
+ * Patches fixed at the top of the map: plain land where the first machines go,
+ * with a plateau and a ridge close by for the player to move solar and wind onto.
+ */
+export const FIXED_PATCHES: Record<string, Terrain> = { '0,0': 'plain', '1,0': 'plateau', '2,0': 'plain', '0,1': 'ridge', '4,1': 'plateau' };

@@ -7,7 +7,7 @@ import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 16;
+export const SAVE_VERSION = 17;
 
 type AnySave = Record<string, unknown>;
 
@@ -57,6 +57,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   14: (save) => save,
   // 1.01: cosmetics (filled from default settings below).
   15: (save) => save,
+  // 1.05: machines placed on the map (none yet: everything is placed automatically).
+  16: (save) => ({ ...save, mapPins: {} }),
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */
@@ -94,6 +96,7 @@ export function pickSaved(s: GameState): GameState {
     roomUsed: s.roomUsed,
     expansionLevel: s.expansionLevel,
     lastExpansionAt: s.lastExpansionAt,
+    mapPins: s.mapPins,
     settings: s.settings,
     seenEvents: s.seenEvents,
     activeEffects: s.activeEffects,

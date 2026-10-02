@@ -76,5 +76,13 @@
   "achievement_unlocked": { "file": "ui/achievement_unlocked.png", "width": 24, "height": 24 },
   "achievement_locked": { "file": "ui/achievement_locked.png", "width": 24, "height": 24 },
   "tile_ground": { "file": "map/ground.png", "width": 16, "height": 16 },
+  "tile_plateau": { "file": "map/plateau.png", "width": 16, "height": 16 },
+  "tile_ridge": { "file": "map/ridge.png", "width": 16, "height": 16 },
+  "tile_river": { "file": "map/river.png", "width": 16, "height": 16 },
+  "tile_coast": { "file": "map/coast.png", "width": 16, "height": 16 },
+  "tile_sea": { "file": "map/sea.png", "width": 16, "height": 16 },
+  "deco_rock": { "file": "map/deco_rock.png", "width": 16, "height": 16 },
+  "deco_tuft": { "file": "map/deco_tuft.png", "width": 16, "height": 16 },
+  "deco_flower": { "file": "map/deco_flower.png", "width": 16, "height": 16 },
   "tile_locked": { "file": "map/locked.png", "width": 16, "height": 16 }
 }
