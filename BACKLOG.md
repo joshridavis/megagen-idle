@@ -79,8 +79,11 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.03 Sort generators by "upgradable first" (playtest 14 feedback)
 0. 1.01 Cosmetic rewards for achievements (playtest 14 feedback)
 0. 1.02 Release plan ordered from easiest to hardest (playtest 14 feedback)
+0. 1.04 Site map: see your machines on a map (playtest 14 feedback)
+0. 1.05 Map terrain zones and moving machines (playtest 14 feedback) → CHECKPOINT
+0. 1.06 Map polish: expansions grow the map, simulator and balance (playtest 14 feedback)
 0. 0.34 Late-game fictional generators (moved up)
-0. 0.39 Statistics panel (moved up) → CHECKPOINT
+0. 0.39 Statistics panel (moved up)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -460,6 +463,36 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Goal:** apply playtest 14 feedback: a sort that shows first the generators the player can afford to upgrade right now.
 **Details:** a new "Upgradable first" option in the Sort by menu. Upgrades affordable now come first, then generators not yet at max level, then maxed ones; ties keep your order. It re-sorts as energy and resources change and uses the same rule as the Upgrade button. View only; fuel priority is unchanged.
 **Acceptance:** sorting order unit tests.
+
+### 1.04 — Site map: see your machines on a map — CODE — Not started
+**Goal:** apply playtest 14 feedback: show the player's builds on a map, each taking space by its size. First step of three; it changes nothing about balance.
+**Details:**
+- **Map tab:** a new Map tab, a pixel-art tile grid. Each generator and producer occupies a footprint that matches its room cost (for example solar 2 tiles = 1×2, a dam 8 tiles = 2×4).
+- **Placement:** new builds take the first free spot that fits. Existing saves place everything automatically on load (save migration).
+- **Room:** room capacity stays the same number but is now visibly the number of usable tiles. Unbought expansion areas show as fenced-off land.
+- **Interaction:** hovering a machine shows its name and output; clicking it jumps to it in the generator list.
+- **Sprites:** the existing generator and producer sprites are drawn on the tiles, plus generic ground tiles via the manifest and the generator script.
+- **Performance:** fine at 500+ tiles on a phone, using CSS grid or canvas.
+**Acceptance:** every built machine appears once, with its footprint, and none overlap (unit tests on a pure placement function). Old saves get a valid layout. The map renders at 360 px and 1280 px.
+
+### 1.05 — Map terrain zones and moving machines — CODE — Not started
+**Goal:** apply playtest 14 feedback: some areas suit some machines better, and the player can move machines on the map.
+**Details:**
+- **Zones:** terrain zones in `src/data/map.ts`: sunny plateau (solar +), windy ridge (wind +), river (hydro only, +), coast (tidal only, +), coal or gas field (producers +), and plain (neutral).
+- **Bonuses:** a machine gets its zone's bonus only if its whole footprint is inside the zone. Bonuses are moderate (+10–25%) and shown in the energy breakdown as "Placement".
+- **Restrictions:** a few machines need a zone (hydro on a river, tidal on the coast), which gives the map real decisions.
+- **Moving:** drag a machine on desktop, or tap it then tap a target on a phone. Free, and the game checks for overlap. A "best spot" hint highlights good tiles for the selected machine.
+- **Game rules:** pure functions with tests.
+**Acceptance:** zone bonuses apply only with the whole footprint inside the zone (tests); moving checks overlap and zone rules; the bonus shows in the breakdown; existing saves keep working (machines start on plain unless placed).
+
+### 1.06 — Map polish: expansions grow the map, simulator and balance — CODE — Not started
+**Goal:** finish the map: room expansions open new land with its own terrain mix, and the simulator places machines sensibly.
+**Details:**
+- **Expansions:** each room tier unlocks a named area (for example "North Ridge", windy) with a preview before buying.
+- **Simulator:** places each new machine in its best free zone, so pacing reflects good play; then re-run and tune.
+- **Display:** a mini-map in the Generators tab and a zone legend.
+- **Guide:** a Map section.
+**Acceptance:** the simulator report includes placement bonuses; no stalls; expansion areas have tests.
 
 ### 1.01 — Cosmetic rewards for achievements — CODE — Not started
 **Goal:** apply playtest 14 feedback: achievements give cosmetic rewards, nothing that changes balance.
@@ -847,4 +880,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-02 | Player level reward: yes but small, about +0.1% per level. About one sighting per hour is right for the common ones. Planned effect events approved. Grid Contracts fine; another activity idea: collect and grow pets that fit the energy theme. An Aurora was recorded as seen but went unnoticed: sightings should stay longer. Bug: 360,722 energy showed as 36K. Level-up needs a celebration like research, and levels gained belong in the welcome-back summary. Add player info: tutorial or game guide. Click research chain drawn on the wrong row. Tree lines should leave each parent as one trunk that splits into its children (sketch). The guide is meant to teach new players how the game works. | 0.89-0.94; 0.40 moved up and widened |
 | 12 (v0.12.0) | 0.89, 0.93, 0.94, 0.90, 0.91, 0.40 | 2026-10-02 | Level-ups stay celebrated, but early levels must be harder (no clicking from level 1 to 4 or 5 in seconds). Guide clear. Prefers the squared-off tree lines. Negative events slightly rarer than positive ones. Add sorting to "Your generators" (e.g. by energy per second). | 0.95, 0.96; 0.85 updated |
 | 13 (v0.13.0) | 0.95, 0.96, 0.85, 0.86, 0.92 | 2026-10-02 | Contract deadlines fine (still watching the feature); unclear why two contracts showed "Not enough yet" and one did not. Pet bonuses and feed-then-wait make sense; add a short animation when clicking a pet. One effect event per 2 hours fine for now. Achievements next. Bug: meteor shower meteors fall in the wrong direction. | 0.97-0.99; 0.65 moved up |
-| 14 (v0.14.0) | 0.98, 0.97, 0.99, 0.65, 0.87 | 2026-10-02 | Achievement rewards should be cosmetic. The achievement list is fine for now. Contract wording much clearer. Release order not decided; prefers easiest to hardest, to reach production as soon as possible. Perk shop unclear: is the number on Buy a cost or an amount, how are points earned, is each contract 1 point? Add an "upgradable first" sort. | 1.00-1.03; 0.34 and 0.39 moved up |
+| 14 (v0.14.0) | 0.98, 0.97, 0.99, 0.65, 0.87 | 2026-10-02 | Achievement rewards should be cosmetic. The achievement list is fine for now. Contract wording much clearer. Release order not decided; prefers easiest to hardest, to reach production as soon as possible. Perk shop unclear: is the number on Buy a cost or an amount, how are points earned, is each contract 1 point? Add an "upgradable first" sort. Future: a map showing the builds, movable, with zones that suit some machines (sunny, windy) and sizes that matter; prioritise by impact. | 1.00-1.06 (map placed before fictional generators and statistics, as the highest-impact item); 0.34 and 0.39 moved up |
