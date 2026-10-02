@@ -1,59 +1,57 @@
-# Playtest 14 (v0.14.0): achievements, clearer contracts, pet reactions, meteor fix, release plan (after item 0.87)
+# Playtest 15 (v0.15.0): site map, cosmetic rewards, clearer perk shop, "upgradable first" sort (after item 1.04)
 
-The version at the bottom of the screen should read **v0.14.0**.
+The version at the bottom of the screen should read **v0.15.0**.
 
 ## How to play
 
 - **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
 - **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
 
-Your save carries over. Achievements you have already earned unlock quietly when you load the save.
+Your save carries over.
 
 ## Estimated play time
 
-- **100% completion: about 112 hours** (simulated idle player), up from about 97. Achievements add the rest.
-  - The last stretch is the "MegaGen" achievement (2 billion lifetime energy) and the 200th contract.
-  - Target: 200+. The next content items (fictional generators, more real-world methods, a deeper research tree) and the final balance pass are meant to close the gap.
-- **Milestones:**
-  - First Wind about 2.4 h, Coal about 3.5 h, Hydro about 5.8 h.
-  - First Gas about 16.4 h, Oil about 17.4 h, Nuclear about 44 h.
-  - Every contract perk about 26 h.
-  - Every research about 62 h; every generator type at max level about 65 h; 1 billion lifetime energy about 83 h; 2 billion about 112 h.
+- **100% completion: about 112 hours** (simulated idle player), the same as v0.14.0; nothing in this version changes balance.
+- **Milestones:** first Wind about 2.4 h, Coal about 3.5 h, Hydro about 5.8 h, Gas about 16.4 h, Oil about 17.4 h, Nuclear about 44 h. Every contract perk about 26 h, 1 billion lifetime energy about 83 h.
+- Target: 200+. The next map steps (terrain bonuses), the fictional generators and the final balance pass come next.
 
 ## New since last playtest
 
 - **Your feedback:**
-  - **Achievements** (new tab).
-    - 44 achievements in 7 groups: energy, building, research, progress, contracts, pets and discovery. Each has a progress bar, and a 🏆 notice appears when one unlocks.
-    - 36 count toward 100% completion. 8 are marked **Bonus** (clicks, sightings, events, coming back) because they depend on luck or play style. They don't count, so 100% never depends on luck.
-  - **Clearer contracts.**
-    - Each card is labelled **Delivery** or **Production**.
-    - Delivery cards say "You have 40K of 114K energy", explain that delivering spends it, and the button names what is missing ("Need 74K more energy").
-    - Production cards show the progress so far and say nothing is spent.
-    - When two deliveries ask for the same thing, a note says each is paid separately.
-  - **Pets react when clicked.** Tap a pet's picture: it hops and wiggles with sparks, glows or hearts. Reduce motion turns this off.
-  - **Fixed: meteor shower.** Meteors now fly head first, down and to the right, with the trail behind. Shooting stars were fixed the same way.
-- **Release plan:** `docs/RELEASE_PLAN.md` describes how to release on a dedicated website, Steam and mobile with cloud saves on every device. It marks the one-time steps only you can do: developer accounts, fees, signing, store pages. The code now has a small platform layer, so a desktop or mobile wrapper can plug in later.
-- On tablet and desktop the tabs now wrap onto two rows, so none are cut off.
+  - **Site map** (new Map tab), the first of three steps.
+    - Every machine sits on a tile grid: one tile per unit of room, so a solar panel covers 2 tiles and a dam 8.
+    - Hover over or tap one to see it; click a generator to jump to it in your list.
+    - Fenced land at the bottom is your next room expansion.
+    - Coming next: terrain zones (sunny, windy, river, coast…) that boost the machines that suit them, and moving machines around.
+  - **Cosmetic achievement rewards.**
+    - 16 achievements unlock a **title**, which you can show under your player level.
+    - Having 5, 15, 25 or 36 achievements unlocks a new **accent colour** for the top bar.
+    - Pick them in the new Cosmetics box at the top of the Achievements tab. They change nothing in the game.
+  - **Clearer perk shop.**
+    - A "How Contract Points work" box: choose points as a contract's reward; ★ = 1, ★★ = 2, ★★★ = 3 points.
+    - Buttons say "Buy for 10 points" or "Costs 10 points · need 3 more".
+    - Each perk shows its effect now → next (e.g. "Contract slots: 3 → 4"), and every contract card shows its points.
+  - **"Upgradable first" sort** in Your generators: upgrades you can afford right now first, then the ones not yet maxed, then maxed ones.
+  - **Release plan reordered** from easiest to hardest: website (live) → itch.io → Android → Steam → iOS. Every step can go live with local saves before accounts and cloud saves exist.
+- **Added to the backlog:** browser notifications (1.07). Off by default, only while the game is in the background, a switch per type, and at most a few per hour.
 
 ## Things to try
 
-1. Open Achievements. Which ones did your save unlock? Do the progress bars make sense?
-2. Earn a new one (for example, click 100 times or build a generator) and watch for the 🏆 notice.
-3. Open Contracts. Is the difference between Delivery and Production clear now?
-4. Tap each of your pets.
-5. If you are lucky enough to see a meteor shower, check the direction.
-6. Read `docs/RELEASE_PLAN.md` (in the repository) and note anything you disagree with, such as the order of platforms.
+1. Open the Map. Do your machines look right? Hover over a few and click one.
+2. Buy a room expansion and watch the fenced land turn into ground.
+3. Open Achievements → Cosmetics. Pick a title and, if you have 5 achievements, a colour.
+4. Open Contracts. Is the perk shop clear now?
+5. In Your generators, choose "Upgradable first".
 
 ## Known issues
 
-- Achievements have no rewards yet (see the questions).
-- The Steam, mobile and cloud-save work is planned only; it needs your accounts and setup first.
+- Machines can't be moved yet, and the map has no terrain yet (next item).
+- Some odd-sized machines (3, 5 tiles) have L-shaped footprints, so their picture can overlap a neighbour's corner.
 - Placeholder art.
 
 ## Questions for you
 
-1. Should achievements give rewards? For example, a small permanent bonus per achievement, a cosmetic like a title or badge color, or nothing.
-2. Are any achievements missing, too easy or too grindy? (The top energy one was lowered from 10 billion to 2 billion, because 10 billion would add about 230 hours of pure idling.)
-3. Is the contract wording clear now?
-4. In the release plan, is starting with the website and Android, then Steam, the order you want?
+1. Does the map feel like the right base for zones and moving machines? Should the map be wider or taller?
+2. Which zones would you like? Planned: sunny plateau, windy ridge, river, coast, coal or gas field, and plain.
+3. Should hydro need a river and tidal need the coast (real constraints), or should zones only give bonuses?
+4. Are the titles and colours a nice reward, or would you like other cosmetics (for example map decorations)?
