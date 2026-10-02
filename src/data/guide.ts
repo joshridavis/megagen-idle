@@ -42,6 +42,15 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: 'map',
+    title: 'Site map',
+    icon: 'tile_ground',
+    paragraphs: [
+      'The Map tab shows your site: one tile for each unit of room, and every machine covering as many tiles as the room it takes. Fenced land at the bottom is the next room expansion.',
+      'Hover over or tap a machine to see it; click a generator to find it in your list.',
+    ],
+  },
+  {
     id: 'fuel',
     title: 'Fuel',
     icon: 'coal_plant',
