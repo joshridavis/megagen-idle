@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { sprites, type SpriteId } from '../assets';
 import { GENERATORS } from '../data/generators';
-import { LOCKED_PREVIEW_ROWS, MIN_MAP_ROWS, SEA_COLUMNS, ZONES, type Detail, type Terrain, type Zone } from '../data/map';
+import { EXCLUSION_START_ROW, LOCKED_PREVIEW_ROWS, MIN_MAP_ROWS, SEA_COLUMNS, ZONES, type Detail, type Terrain, type Zone } from '../data/map';
 import { PRODUCERS } from '../data/producers';
 import { useStore } from '../store';
 import type { GeneratorType } from '../types/generator';
@@ -352,6 +352,13 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
       {next && (
         <p className="text-xs text-slate-400">
           Fenced land (dimmed): the next room expansion adds {next.capacity} tiles (Generators tab → Room).
+        </p>
+      )}
+      {siteRows < EXCLUSION_START_ROW && (
+        <p className="flex items-center gap-1 text-xs text-slate-400" data-testid="exclusion-hint">
+          <img src={sprites.tile_exclusion} alt="" width={14} height={14} className="pixelated" />
+          Not on the map yet: the Exclusion Zone (for Fusion Reactors and Micro-Supernovas) lies further south. It comes into view when
+          your site grows past {EXCLUSION_START_ROW * map.columns} tiles; room expansions 9 and 10 open it.
         </p>
       )}
     </section>

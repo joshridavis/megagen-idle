@@ -77,7 +77,8 @@ export default function Sightings() {
           className={`sighting-${def.animation} absolute ${def.id === 'whale' ? 'w-36' : def.id === 'cat' ? 'w-16' : def.id === 'balloon' ? 'w-10' : 'w-24'}`}
           style={style}
         >
-          {img}
+          {/* the whale sprite faces left but swims right (playtest 19): mirror it */}
+          {def.animation === 'swim' ? <div className="-scale-x-100">{img}</div> : img}
         </div>
       )}
     </div>

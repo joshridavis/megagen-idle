@@ -53,14 +53,14 @@ describe('clearer perk shop (1.00)', () => {
     useStore.getState().resetGame();
     useStore.setState({
       researchLevel: 3,
-      contracts: { ...createInitialState(0).contracts, nextOfferAt: 1e15, points: 6, open: [c({ id: 'a', energy: 10, tier: 2 })] },
+      contracts: { ...createInitialState(0).contracts, nextOfferAt: 1e15, points: 11, open: [c({ id: 'a', energy: 10, tier: 2 })] },
     });
     render(<ContractsPanel />);
     expect(screen.getByTestId('points-help').textContent).toContain('★★ = 2');
-    expect(screen.getByTestId('perk-buy-slot').textContent).toBe('Buy for 5 points');
-    expect(screen.getByTestId('perk-buy-deadline').textContent).toBe('Costs 10 points · need 4 more');
+    expect(screen.getByTestId('perk-buy-slot').textContent).toBe('Buy for 10 points');
+    expect(screen.getByTestId('perk-buy-deadline').textContent).toBe('Costs 12 points · need 1 more');
     expect(screen.getByTestId('perk-effect-slot').textContent).toBe('Contract slots: 3 → 4');
-    expect(screen.getByTestId('perk-effect-offers').textContent).toBe('New offer every 30 min → 20 min');
+    expect(screen.getByTestId('perk-effect-offers').textContent).toBe('New offer every 30 min → 25 min');
     expect(screen.getByTestId('contract-a').textContent).toContain('🏅 2 pts');
   });
 });

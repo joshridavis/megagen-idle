@@ -7,6 +7,7 @@ import type { Contract, GameState } from '../types/state';
 import { getCompletion } from './completion';
 import {
   buyPerk,
+  offerIntervalMs,
   canDeliver,
   claimContract,
   contractProgress,
@@ -93,16 +94,20 @@ describe('Grid Contracts (0.86)', () => {
 
   it('perks cost points, take effect and are permanent', () => {
     let s = unlocked();
-    s = { ...s, contracts: { ...s.contracts, points: 100 } };
+    s = { ...s, contracts: { ...s.contracts, points: 1000 } };
     expect(buyPerk({ ...s, contracts: { ...s.contracts, points: 1 } }, 'slot').contracts.perks.slot).toBeUndefined();
     s = buyPerk(s, 'slot');
     expect(contractSlots(s)).toBe(BASE_CONTRACT_SLOTS + 1);
-    expect(s.contracts.points).toBe(100 - PERKS.slot.costs[0]);
-    s = buyPerk(buyPerk(s, 'slot'), 'slot'); // third level does not exist
-    expect(s.contracts.perks.slot).toBe(2);
+    expect(s.contracts.points).toBe(1000 - PERKS.slot.costs[0]);
+    for (let i = 0; i < 5; i++) s = buyPerk(s, 'slot'); // stops at the last level
+    expect(s.contracts.perks.slot).toBe(PERKS.slot.costs.length);
     s = buyPerk(s, 'rewards');
     const c = contract({ status: 'complete' });
-    expect(contractRewards(s, c).boostMinutes).toBeCloseTo(37.5);
+    expect(contractRewards(s, c).boostMinutes).toBeCloseTo(30 * 1.15);
+    s = buyPerk(s, 'rewards');
+    expect(contractRewards(s, c).boostMinutes).toBeCloseTo(30 * 1.3);
+    s = buyPerk(buyPerk(s, 'offers'), 'offers');
+    expect(offerIntervalMs(s)).toBe(20 * 60_000);
   });
 
   it('count toward completion and are saved', () => {

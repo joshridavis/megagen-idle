@@ -64,12 +64,15 @@ export interface MapEventInfo {
   durationMs: number;
 }
 
-/** Map events (1.12): average times per hour each one happens while the Map tab is open, so a watcher sees one every few minutes. */
+/**
+ * Map events (1.12): average times per hour each one happens while the Map
+ * tab is open. About 35% rarer since playtest 19 ("a bit too frequent").
+ */
 export const MAP_RATE_PER_HOUR: Record<Rarity, number> = {
-  common: 5,
-  uncommon: 2.5,
-  rare: 1,
-  legendary: 0.2,
+  common: 3.2,
+  uncommon: 1.6,
+  rare: 0.65,
+  legendary: 0.13,
 };
 
 /** Extra conditions for an event to roll. */
