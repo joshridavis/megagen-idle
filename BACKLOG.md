@@ -424,7 +424,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Display:** a new Pets tab with silhouettes and hints.
 - **Sprites:** 24 generic sprites under `sprites/pets/`.
 
-### 0.87 — Multi-platform release plan: website, Steam, mobile — CODE — Not started
+### 0.87 — Multi-platform release plan: website, Steam, mobile — CODE — Done
 **Goal:** apply playtest 10 feedback: the owner wants to release on a dedicated website, on Steam and on mobile, with Melvor Idle-style saves across devices. This item makes a plan so the rollout goes smoothly. It builds no packages.
 **Details:** write `docs/RELEASE_PLAN.md` covering:
 - **Platforms:**
@@ -437,6 +437,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Timeline:** an order of steps, each with its blocking owner action.
 - **Code now:** also add the `src/platform/` interface with the web implementation only, so later wrappers plug in without touching game logic.
 **Acceptance:** the plan document is reviewed in the PR; the platform interface is in place with web implementation and tests; nothing needs secrets or platform tooling.
+**Notes:** `docs/RELEASE_PLAN.md` covers the platforms and costs, the shared code with a thin platform layer, how 0.67 and 0.68 cloud saves work on every platform (Steam Cloud left off), the website, Steam (Tauri recommended), mobile (Capacitor), and an order of steps marking what only the owner can do. `src/platform/` has the interface and the web implementation (background and resume, external links); the idle engine now uses it for background handling. Tests added.
 
 ### 0.98 — Fix: meteor shower and shooting stars fly the wrong way — CODE — Done
 **Goal:** fix the playtest 13 bug: in the meteor shower, meteors moved against their own trail, so they looked like they were falling backwards.
