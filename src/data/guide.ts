@@ -83,7 +83,8 @@ export const GUIDE: GuideSection[] = [
     icon: 'capacity_filled',
     paragraphs: [
       'From research level 3, customers send contracts: supply energy, deliver materials, or produce an amount of energy before a deadline. New offers arrive over time, even while you are away.',
-      'When a contract is done, pick a reward: materials, a temporary energy boost, or Contract Points. Spend points in the perk shop on permanent perks, such as an extra contract slot. Missing a deadline costs nothing but the reward.',
+      'When a contract is done, pick a reward: materials, a temporary energy boost, or Contract Points. Points depend on the contract size: ★ gives 1, ★★ gives 2, ★★★ gives 3 (each card shows it).',
+      'Spend points in the perk shop on permanent perks, such as an extra contract slot; each button shows the price in points. Missing a deadline costs nothing but the reward.',
     ],
   },
   {

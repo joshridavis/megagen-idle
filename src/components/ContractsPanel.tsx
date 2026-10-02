@@ -1,5 +1,4 @@
-import { sprites } from '../assets';
-import { CONTRACTS_UNLOCK_LEVEL, PERK_IDS, PERKS } from '../data/contracts';
+import { CONTRACTS_UNLOCK_LEVEL, PERK_IDS, PERKS, REWARDS } from '../data/contracts';
 import { RESOURCE_NAMES } from '../data/resources';
 import { useStore } from '../store';
 import type { Contract, ResourceId } from '../types/state';
@@ -11,6 +10,7 @@ import {
   contractSlots,
   contractsUnlocked,
   perkCost,
+  perkEffectText,
   perkLevel,
   sharesNeed,
 } from '../utils/contracts';
@@ -50,7 +50,8 @@ function ContractCard({ c }: { c: Contract }) {
           </span>
           <div className="font-semibold">{title}</div>
           <div className="text-xs text-slate-400">
-            {'★'.repeat(c.tier)}
+            <span title={`Worth ${r.points} Contract Point${r.points > 1 ? 's' : ''} if you choose points`}>{'★'.repeat(c.tier)}</span>
+            <span className="text-amber-300"> · 🏅 {r.points} pt{r.points > 1 ? 's' : ''}</span>
             {c.status === 'open' ? ` · ${formatDuration((c.deadline - now) / 1000)} left` : ' · Complete!'}
           </div>
         </div>
@@ -152,36 +153,57 @@ export default function ContractsPanel() {
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Perk shop</h2>
           <span className="flex items-center gap-1 font-mono text-sm text-amber-300" data-testid="contract-points">
-            <img src={sprites.research_check} alt="" width={16} height={16} className="pixelated" />
-            {points} points
+            <span aria-hidden="true">🏅</span>
+            {points} Contract Points
           </span>
         </div>
-        <p className="mb-2 text-xs text-slate-400">{done} contracts completed. Perks are permanent.</p>
+        <div className="mb-3 rounded border border-amber-700/50 bg-amber-950/40 p-2 text-xs text-amber-100" data-testid="points-help">
+          <p className="mb-1 font-semibold">How Contract Points work</p>
+          <ul className="list-disc space-y-0.5 pl-4">
+            <li>When a contract is done, choose 🏅 Contract Points as its reward.</li>
+            <li>
+              Bigger contracts give more: ★ = {REWARDS.pointsByTier[0]}, ★★ = {REWARDS.pointsByTier[1]}, ★★★ = {REWARDS.pointsByTier[2]} points.
+            </li>
+            <li>Spend points here on permanent perks. The number on each button is its price.</li>
+          </ul>
+        </div>
+        <p className="mb-2 text-xs text-slate-400">{done} contracts completed.</p>
         <ul className="flex flex-col gap-2">
           {PERK_IDS.map((id) => {
             const cost = perkCost(state, id);
             const lv = perkLevel(state, id);
+            const effect = perkEffectText(state, id);
             return (
               <li key={id} className="rounded bg-slate-900/60 p-2 text-sm">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold">
-                    {PERKS[id].name}
-                    {PERKS[id].costs.length > 1 && <span className="text-xs text-slate-400"> ({lv}/{PERKS[id].costs.length})</span>}
-                  </span>
+                <div className="font-semibold">
+                  {PERKS[id].name}
+                  {PERKS[id].costs.length > 1 && (
+                    <span className="text-xs font-normal text-slate-400">
+                      {' '}
+                      · level {lv} of {PERKS[id].costs.length}
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-slate-400">{PERKS[id].description}</div>
+                <div className="mt-1 text-xs text-sky-200" data-testid={`perk-effect-${id}`}>
+                  {effect.now}
+                  {effect.next && <span> → {effect.next}</span>}
+                </div>
+                <div className="mt-2">
                   {cost === null ? (
-                    <span className="text-xs text-emerald-400">Owned</span>
+                    <span className="text-xs text-emerald-400">✔ Owned (max level)</span>
                   ) : (
                     <button
                       type="button"
                       disabled={points < cost}
                       onClick={() => buy(id)}
-                      className="min-h-9 rounded bg-amber-600 px-2 text-xs font-semibold hover:bg-amber-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+                      data-testid={`perk-buy-${id}`}
+                      className="min-h-9 w-full rounded bg-amber-600 px-2 text-xs font-semibold hover:bg-amber-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
                     >
-                      Buy · {cost}
+                      {points >= cost ? `Buy for ${cost} points` : `Costs ${cost} points · need ${cost - points} more`}
                     </button>
                   )}
                 </div>
-                <div className="text-xs text-slate-400">{PERKS[id].description}</div>
               </li>
             );
           })}

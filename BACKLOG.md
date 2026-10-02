@@ -444,7 +444,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** the plan document is reviewed in the PR; the platform interface is in place with web implementation and tests; nothing needs secrets or platform tooling.
 **Notes:** `docs/RELEASE_PLAN.md` covers the platforms and costs, the shared code with a thin platform layer, how 0.67 and 0.68 cloud saves work on every platform (Steam Cloud left off), the website, Steam (Tauri recommended), mobile (Capacitor), and an order of steps marking what only the owner can do. `src/platform/` has the interface and the web implementation (background and resume, external links); the idle engine now uses it for background handling. Tests added.
 
-### 1.00 — Clearer contract perk shop — CODE — Not started
+### 1.00 — Clearer contract perk shop — CODE — Done
 **Goal:** apply playtest 14 feedback: the perk shop raised questions. Is the number on "Buy" a cost or an amount? How are points earned? Is every contract worth 1 point?
 **Details:**
 - **How points work:** a short box at the top of the shop: you earn Contract Points by choosing "Contract Points" as the reward when a contract is done, 1–3 points by size (★ = 1, ★★ = 2, ★★★ = 3), and you spend them here on permanent perks.
@@ -453,6 +453,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Contract cards:** each card shows how many points it would give.
 - **Guide:** updated to match.
 **Acceptance:** the shop shows the explanation, the costs say "points", and the button names the shortfall (component tests). The points reward on a card matches `contractRewards`.
+**Notes:** a "How Contract Points work" box (choose points as the reward; ★/★★/★★★ = 1/2/3; the button number is the price). Buttons read "Buy for N points" or "Costs N points · need M more". Each perk shows its effect now and next (`perkEffectText`), and multi-level perks say "level 1 of 2". Contract cards show "🏅 N pts". The header reads "N Contract Points", and the Guide is updated.
 
 ### 1.01 — Cosmetic rewards for achievements — CODE — Not started
 **Goal:** apply playtest 14 feedback: achievements give cosmetic rewards, nothing that changes balance.
