@@ -60,6 +60,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.38 Event log and notifications (moved up: needed by random events)
 0. 0.84 Random events: framework and sightings (playtest 10 feedback) → CHECKPOINT
 0. 0.89 Fix: short numbers lost their zeros (playtest 11 bug)
+0. 0.93 Fix: research chains jump rows in the tree (playtest 11 bug)
 0. 0.90 Player level reward, celebration and welcome-back line (playtest 11 feedback)
 0. 0.91 Sightings stay longer on screen (playtest 11 feedback)
 0. 0.40 First-run onboarding and in-game guide (moved up and widened: playtest 11 feedback)
@@ -411,6 +412,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** `threeSig` in `src/utils/format.ts` trimmed trailing zeros even when there was no decimal point. So "360" became "36", and likewise 100K showed as "1K" and 200M as "2M". Trim zeros only after a decimal point.
 **Acceptance:** regression tests for round values (360K, 100K, 50K, 200M, 2e17) plus a sweep check that short notation always agrees with the full number to 3 significant digits.
 
+### 0.93 — Fix: research chains jump rows in the tree — CODE — Done
+**Goal:** fix the playtest 11 bug: Geared Crank, Kinetic Capture and Grid Tap were drawn on the Hydropower row instead of continuing Flywheel's line.
+**Details:** the layout packed every column from the top, so a lone child moved to the first free row. Now each node takes the free row nearest the average row of its prerequisites.
+**Acceptance:** the click chain stays on one row (test); a lone child sits on its parent's row (test); no overlaps.
+
 ### 0.90 — Player level reward, celebration and welcome-back line — CODE — Not started
 **Goal:** apply playtest 11 feedback on player levels.
 **Details:**
@@ -697,4 +703,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 8 (v0.8.0) | 0.75 | 2026-10-01 | Add the save-on-close safeguard. Room bar looks good (animation not seen yet). Research chip location odd: make it float at the bottom without hiding the version. 8 room tiers fine for now. +15% all-producer output sounds useful. The tree should start from 3 basic research, one starting resource upgrades. Long-term target: at least 200 hours of play for 100% completion. | 0.76-0.78; 200 h target added to 0.35 and 0.47 |
 | 9 (v0.9.0) | 0.32 | 2026-10-01 | Research tree lines hard to follow: split into the three starting branches. Bug: "You were away for 1m 1s" after switching tabs. Bug: build-card tooltip shows over the card above and is unreadable. 100% completion must include building every generator type and upgrading each to max level. | 0.79-0.82 |
 | 10 (v0.10.0) | 0.79, 0.80, 0.81, 0.82, 0.33 | 2026-10-01 | Branch layout is right. Oil and Nuclear feel like a real step up; uranium pace and level 9/10 gates fine for now. Reach 200 h with a mix of content (larger share) and slower pacing; content should include a new mode or activity, not only research and machines. 100% completion must be visible to the player (like Melvor Idle). More click-power research. Random events: a large variety, some cosmetic (e.g. a spaceship, foreground only), some with positive or negative effects (some also while idle); all rare, some much rarer. Saves like Melvor Idle: automatic cloud and local saves, load either on any device. Future release on Steam, a dedicated website and mobile. Report hours to 100% every version. Player levels based on lifetime energy. | 0.83-0.88; 0.66 and 0.38 moved up; 0.67, 0.68 and 0.47 updated |
-| 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-02 | Player level reward: yes but small, about +0.1% per level. About one sighting per hour is right for the common ones. Planned effect events approved. Grid Contracts fine; another activity idea: collect and grow pets that fit the energy theme. An Aurora was recorded as seen but went unnoticed: sightings should stay longer. Bug: 360,722 energy showed as 36K. Level-up needs a celebration like research, and levels gained belong in the welcome-back summary. Add player info: tutorial or game guide. | 0.89-0.92; 0.40 moved up and widened |
+| 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-02 | Player level reward: yes but small, about +0.1% per level. About one sighting per hour is right for the common ones. Planned effect events approved. Grid Contracts fine; another activity idea: collect and grow pets that fit the energy theme. An Aurora was recorded as seen but went unnoticed: sightings should stay longer. Bug: 360,722 energy showed as 36K. Level-up needs a celebration like research, and levels gained belong in the welcome-back summary. Add player info: tutorial or game guide. Click research chain drawn on the wrong row. | 0.89-0.93; 0.40 moved up and widened |

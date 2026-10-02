@@ -60,3 +60,24 @@ describe('computeResearchLayout (branches, 0.81)', () => {
     expect(Object.keys(cyc.positions).sort()).toEqual(['a', 'b']);
   });
 });
+
+describe('chains stay on one line (playtest 11)', () => {
+  it('the click chain runs straight along the Ergonomic Handle row', () => {
+    const layout = check(RESEARCH);
+    const row = (id: string) => layout.positions[id].row;
+    for (const id of ['flywheel', 'geared_crank', 'kinetic_capture', 'grid_tap']) {
+      expect(row(id), id).toBe(row('ergonomic_handle'));
+    }
+  });
+
+  it('a lone child sits on its parent row, not the top of the column', () => {
+    const layout = check([
+      { id: 'a', prerequisites: [], requiredLevel: 1 },
+      { id: 'b', prerequisites: ['a'], requiredLevel: 2 },
+      { id: 'c', prerequisites: ['a'], requiredLevel: 2 },
+      { id: 'd', prerequisites: ['a'], requiredLevel: 2 },
+      { id: 'e', prerequisites: ['d'], requiredLevel: 3 },
+    ]);
+    expect(layout.positions.e.row).toBe(layout.positions.d.row);
+  });
+});
