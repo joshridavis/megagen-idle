@@ -14,6 +14,7 @@ import CostList from './CostList';
 import { GENERATOR_SPRITES } from './generatorSprites';
 import { ScrapButton, ScrapConfirm } from './Scrap';
 import { useNumberFormat } from './useNumberFormat';
+import FloatingTip from './FloatingTip';
 import { zoneTipText } from './zoneTip';
 
 /** Upgrade control: cost and gain in a tooltip; disabled with a reason when not affordable. */
@@ -191,15 +192,13 @@ export default function ActiveGenerators() {
                     <span className={status.className}>{status.text}</span>
                     <span className="text-slate-400"> · +{fmt.rate(getGeneratorOutput(g, bonuses, placeMods))} energy/s · {def.roomCost} room</span>
                     {placeMods.placement[g.id] ? (
-                      <span className="group/pin relative text-emerald-300" tabIndex={0} data-testid={`pin-${g.id}`}>
+                      <FloatingTip
+                        className="text-emerald-300"
+                        testId={`pin-${g.id}`}
+                        text={`${zoneTipText(g.type, placeMods.placement[g.id])} Move machines in the Map tab.`}
+                      >
                         {' '}· 📍 +{Math.round(placeMods.placement[g.id] * 100)}%
-                        <span
-                          role="tooltip"
-                          className="pointer-events-none absolute bottom-full left-0 z-50 mb-1 hidden w-56 rounded border border-slate-600 bg-slate-950 p-2 text-xs text-slate-100 shadow-xl group-hover/pin:block group-focus/pin:block"
-                        >
-                          {zoneTipText(g.type, placeMods.placement[g.id])} Move machines in the Map tab.
-                        </span>
-                      </span>
+                      </FloatingTip>
                     ) : null}
                   </div>
                   {g.level < maxLevel(g.type) && (
