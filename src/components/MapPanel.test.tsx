@@ -1,9 +1,10 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createInitialState } from '../data/initialState';
 import { useStore } from '../store';
 import { GeneratorType } from '../types/generator';
 import { deriveRates } from '../utils/simulation';
+import ActiveGenerators from './ActiveGenerators';
 import MapPanel from './MapPanel';
 
 afterEach(cleanup);
@@ -47,5 +48,20 @@ describe('Map tab (1.04)', () => {
     const s = useStore.getState();
     expect(s.mapPins['gen-1']).toBe(4);
     expect(s.energyPerSecond).toBeCloseTo(before + 0.5 * 0.2);
+    // 1.14: the star explains itself
+    const tip = within(screen.getByTestId('star-gen-1')).getByRole('tooltip', { hidden: true });
+    expect(tip.textContent).toBe('Sunny plateau: +20% output, because the whole Solar Panel stands on it.');
+  });
+
+  it('shows the 📍 tooltip in Your generators (1.14)', () => {
+    useStore.getState().resetGame();
+    const base = createInitialState(0);
+    useStore.setState(
+      deriveRates({ ...base, activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }], mapPins: { 'gen-1': 4 } }),
+    );
+    render(<ActiveGenerators />);
+    const pin = screen.getByTestId('pin-gen-1');
+    expect(pin.textContent).toContain('📍 +20%');
+    expect(within(pin).getByRole('tooltip', { hidden: true }).textContent).toContain('Move machines in the Map tab.');
   });
 });

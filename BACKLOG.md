@@ -520,7 +520,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **New sprites:** tile_plateau, tile_ridge, tile_river, tile_coast, tile_sea, deco_rock, deco_tuft, deco_flower.
 - **Simulator:** about 114 h to 100% (was 112). Layouts are cached; a full run takes about 7 s.
 
-### 1.14 — Tooltips on the map ⭐ and the 📍 placement marks — CODE — Not started
+### 1.14 — Tooltips on the map ⭐ and the 📍 placement marks — CODE — Done
 **Goal:** apply playtest 16 feedback: hovering the ⭐ on the map or the 📍 in Your generators explains it.
 **Details:** a small tooltip (hover and keyboard focus, `role=tooltip`) naming the zone, the bonus and the rule, for example "Sunny plateau: +20% energy, because the whole Solar Panel stands on it". The 📍 tooltip says the same and that the Map tab is where machines are moved.
 **Acceptance:** both marks show the tooltip on hover and focus (component tests).

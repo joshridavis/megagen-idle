@@ -15,6 +15,7 @@ import { cellsAt, getPlacementBonuses, layoutSite, moveTargets, zoneAllows, zone
 import { GENERATOR_SPRITES } from './generatorSprites';
 import { PRODUCER_SPRITES } from './producerSprites';
 import { useNumberFormat } from './useNumberFormat';
+import { zoneTipText } from './zoneTip';
 
 const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
   plain: 'tile_ground',
@@ -221,11 +222,23 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                   aria-label={info(p)}
                   aria-pressed={selected === p.key}
                   data-testid={`map-${p.key}`}
-                  className="absolute z-10 flex items-center justify-center"
+                  className="group absolute z-10 flex items-center justify-center hover:z-30 focus-visible:z-30"
                   style={pct(p.core.x, p.core.y, p.core.w, p.core.h)}
                 >
                   <img src={sprites[spriteOf(p)]} alt="" className="pixelated pointer-events-none max-h-full max-w-full object-contain p-0.5" />
-                  {p.zoneBonus > 0 && <span className="pointer-events-none absolute right-0 top-0 text-[10px] leading-none">⭐</span>}
+                  {p.zoneBonus > 0 && (
+                    <span className="group/star absolute right-0 top-0 text-[10px] leading-none" data-testid={`star-${p.key}`}>
+                      ⭐
+                      <span
+                        role="tooltip"
+                        className={`pointer-events-none absolute right-0 z-40 hidden w-48 rounded border border-slate-600 bg-slate-950 p-2 text-left text-xs leading-snug text-slate-100 shadow-xl group-hover/star:block group-focus-visible:block ${
+                          p.core.y > rows / 2 ? 'bottom-full mb-1' : 'top-full mt-1'
+                        }`}
+                      >
+                        {zoneTipText(p.type, p.zoneBonus)}
+                      </span>
+                    </span>
+                  )}
                 </button>
               </div>
             );
