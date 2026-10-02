@@ -443,13 +443,14 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** a screenshot check shows the meteors and stars head first. The animation direction matches the sprite (one shared direction constant or a comment in both places).
 **Notes:** meteors now move down-right at 45° (their head is bottom right) and start from the left half. Shooting stars tilt 30° down and move along that tilt toward their bright end. The CSS uses equal units so the angle holds on any screen; a comment in `src/index.css` explains the rule. Checked with screenshots.
 
-### 0.97 — Contracts explain delivery versus production — CODE — Not started
+### 0.97 — Contracts explain delivery versus production — CODE — Done
 **Goal:** apply playtest 13 feedback: it was unclear why two contracts showed "Not enough yet" and one did not.
 **Details:**
 - **Labels:** each card shows its kind clearly. "Delivery": you hand over energy or materials you have, and they are spent. "Production": counts energy your generators make from now on; nothing is spent, and it completes by itself.
 - **Amounts:** delivery cards show "You have X of Y" for each item, and the button says what is missing (e.g. "Need 60K more energy").
 - **Overlap note:** when two delivery contracts need the same thing, a short note says each one is paid separately.
 **Acceptance:** the labels and the "need N more" text are correct for each kind (component tests).
+**Notes:** each card has a "Delivery" or "Production" badge. Delivery cards say "You have X of Y" and that delivering spends it; the button names what is missing ("Need 74K more energy"). Production cards show the progress made so far and say nothing is spent. A note appears when two deliveries need the same thing. Helpers `contractShortfall` and `sharesNeed`, with tests.
 
 ### 0.99 — Pets react when clicked — CODE — Not started
 **Goal:** apply playtest 13 feedback: clicking a pet plays a short animation.

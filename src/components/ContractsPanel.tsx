@@ -3,7 +3,17 @@ import { CONTRACTS_UNLOCK_LEVEL, PERK_IDS, PERKS } from '../data/contracts';
 import { RESOURCE_NAMES } from '../data/resources';
 import { useStore } from '../store';
 import type { Contract, ResourceId } from '../types/state';
-import { canDeliver, contractProgress, contractRewards, contractSlots, contractsUnlocked, perkCost, perkLevel } from '../utils/contracts';
+import {
+  canDeliver,
+  contractProgress,
+  contractRewards,
+  contractShortfall,
+  contractSlots,
+  contractsUnlocked,
+  perkCost,
+  perkLevel,
+  sharesNeed,
+} from '../utils/contracts';
 import { formatDuration } from '../utils/format';
 import CostList from './CostList';
 import ProgressBar from './ProgressBar';
@@ -25,10 +35,19 @@ function ContractCard({ c }: { c: Contract }) {
             .join(' and ')}`;
   const progress = contractProgress(state, c);
   const r = contractRewards(state, c);
+  const missing = contractShortfall(state, c);
+  const name = (id: 'energy' | ResourceId) => (id === 'energy' ? 'energy' : RESOURCE_NAMES[id].toLowerCase());
+  const produced = Math.max(0, state.lifetimeEnergy - (c.startLifetime ?? 0));
   return (
     <li className="flex flex-col gap-2 rounded-lg border border-slate-600 bg-slate-800 p-3" data-testid={`contract-${c.id}`}>
       <div className="flex items-start justify-between gap-2">
         <div>
+          <span
+            className={`mb-1 inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${c.kind === 'produce' ? 'bg-violet-900 text-violet-200' : 'bg-amber-900 text-amber-200'}`}
+            data-testid={`contract-kind-${c.id}`}
+          >
+            {c.kind === 'produce' ? 'Production' : 'Delivery'}
+          </span>
           <div className="font-semibold">{title}</div>
           <div className="text-xs text-slate-400">
             {'★'.repeat(c.tier)}
@@ -40,16 +59,29 @@ function ContractCard({ c }: { c: Contract }) {
       <ProgressBar value={progress} label={`${title} progress`} />
       {c.status === 'open' ? (
         c.kind === 'produce' ? (
-          <p className="text-xs text-slate-400">Completes by itself as your generators produce energy.</p>
+          <p className="text-xs text-slate-400">
+            Produced so far: {fmt.num(Math.min(produced, c.produce ?? 0))} of {fmt.num(c.produce ?? 0)}. Counts the energy your generators make from
+            now on; nothing is spent. Completes by itself.
+          </p>
         ) : (
-          <button
-            type="button"
-            disabled={!canDeliver(state, c)}
-            onClick={() => deliver(c.id)}
-            className="min-h-11 rounded bg-emerald-600 px-3 py-2 font-semibold hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
-          >
-            {canDeliver(state, c) ? 'Deliver' : 'Not enough yet'}
-          </button>
+          <>
+            <p className="text-xs text-slate-400">
+              {c.energy ? `You have ${fmt.num(Math.min(state.energy, c.energy))} of ${fmt.num(c.energy)} energy. ` : ''}
+              {Object.entries(c.resources ?? {})
+                .map(([id, n]) => `You have ${fmt.num(Math.min(state.resources[id as ResourceId], n ?? 0))} of ${fmt.num(n ?? 0)} ${name(id as ResourceId)}.`)
+                .join(' ')}{' '}
+              Delivering hands it over: it is spent.
+              {sharesNeed(state.contracts.open, c) && ' Each delivery contract is paid separately.'}
+            </p>
+            <button
+              type="button"
+              disabled={!canDeliver(state, c)}
+              onClick={() => deliver(c.id)}
+              className="min-h-11 rounded bg-emerald-600 px-3 py-2 font-semibold hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+            >
+              {canDeliver(state, c) ? 'Deliver' : `Need ${missing.map((m) => `${fmt.num(m.missing)} more ${name(m.id)}`).join(' and ')}`}
+            </button>
+          </>
         )
       ) : (
         <div>

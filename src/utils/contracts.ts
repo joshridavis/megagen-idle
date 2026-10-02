@@ -184,3 +184,23 @@ export function updateContracts(s: S, now: number, rng: Rng): ContractUpdate {
   state = { ...s, contracts: { ...s.contracts, open, nextOfferAt, seq } };
   return { ...out, state };
 }
+
+/** What a delivery contract still lacks, e.g. "60K more energy" (empty when it can be delivered). */
+export function contractShortfall(s: Pick<S, 'energy' | 'resources'>, c: Contract): { id: 'energy' | ResourceId; missing: number }[] {
+  if (c.kind === 'produce' || c.status !== 'open') return [];
+  const out: { id: 'energy' | ResourceId; missing: number }[] = [];
+  if (c.energy && s.energy < c.energy) out.push({ id: 'energy', missing: c.energy - s.energy });
+  for (const [id, n] of Object.entries(c.resources ?? {})) {
+    const have = s.resources[id as ResourceId];
+    if (have < (n ?? 0)) out.push({ id: id as ResourceId, missing: (n ?? 0) - have });
+  }
+  return out;
+}
+
+/** Whether another open delivery contract asks for the same thing (each is paid separately). */
+export function sharesNeed(open: Contract[], c: Contract): boolean {
+  if (c.kind === 'produce' || c.status !== 'open') return false;
+  const needs = (x: Contract) => [...(x.energy ? ['energy'] : []), ...Object.keys(x.resources ?? {})];
+  const mine = needs(c);
+  return open.some((o) => o.id !== c.id && o.kind !== 'produce' && o.status === 'open' && needs(o).some((n) => mine.includes(n)));
+}
