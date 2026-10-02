@@ -8,7 +8,7 @@ import { zoneFor } from '../utils/mapTerrain';
 import { useStore } from '../store';
 import type { ProducerId } from '../types/resource';
 import { getBonuses } from '../utils/bonuses';
-import { getProducerBlock, getProducerCost, type ProducerBlock } from '../utils/producerSystem';
+import { getProducerBlock, getProducerCost, producerScrapRefund, type ProducerBlock } from '../utils/producerSystem';
 import CostList from './CostList';
 import { PRODUCER_SPRITES } from './producerSprites';
 import { ScrapButton, ScrapQuantityConfirm } from './Scrap';
@@ -84,6 +84,7 @@ function ProducerCard({ id }: { id: ProducerId }) {
             plural={`${def.name}s`}
             max={owned}
             roomEach={def.roomCost}
+            refundFor={(n) => producerScrapRefund(useStore.getState(), id, n)}
             onConfirm={(n) => {
               scrap(id, n);
               setConfirming(false);

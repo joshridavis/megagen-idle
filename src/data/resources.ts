@@ -1,6 +1,6 @@
 import type { ResourceId, Resources } from '../types/state';
 
-export const RESOURCE_IDS: ResourceId[] = ['metal', 'stone', 'coal', 'naturalGas', 'oil', 'uranium'];
+export const RESOURCE_IDS: ResourceId[] = ['metal', 'stone', 'coal', 'naturalGas', 'oil', 'uranium', 'deuterium'];
 
 export const RESOURCE_NAMES: Record<ResourceId, string> = {
   metal: 'Metal',
@@ -9,7 +9,8 @@ export const RESOURCE_NAMES: Record<ResourceId, string> = {
   naturalGas: 'Natural gas',
   oil: 'Oil',
   uranium: 'Uranium',
+  deuterium: 'Deuterium',
 };
 
 /** Enough for the first generator within a minute or two. */
-export const STARTING_RESOURCES: Resources = { metal: 15, stone: 10, coal: 0, naturalGas: 0, oil: 0, uranium: 0 };
+export const STARTING_RESOURCES: Resources = { metal: 15, stone: 10, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 };

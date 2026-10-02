@@ -9,7 +9,8 @@ import type { ProducerId } from '../types/resource';
 import type { GameState, ResourceId } from '../types/state';
 import { getBonuses, getClickValue } from '../utils/bonuses';
 import { NO_MODS } from '../utils/effectMods';
-import { withPlacementMods } from '../utils/siteMap';
+import { hasSpotFor, layoutSite, terrainOfCell, withPlacementMods } from '../utils/siteMap';
+import { zoneFor } from '../utils/mapTerrain';
 import { getCompletion } from '../utils/completion';
 import {
   buildGenerator,
@@ -18,12 +19,13 @@ import {
   getUpgradeBlock,
   getUpgradeCost,
   scrapGenerator,
+  scrapGenerators,
   upgradeGain,
   upgradeGenerator,
 } from '../utils/generatorSystem';
 import { buildProducer, getProducerBlock } from '../utils/producerSystem';
 import { canStartResearch, getResearchDuration, getUnlockedGeneratorTypes, startResearch } from '../utils/researchSystem';
-import { getFuelUseRates, getProductionRates } from '../utils/resourceSystem';
+import { canAfford, getFuelUseRates, getProductionRates } from '../utils/resourceSystem';
 import { canExpandRoom, expandRoom, getNextRoomTier } from '../utils/roomSystem';
 import { advanceTime } from '../utils/simulation';
 import { buyPerk, canDeliver, claimContract, deliverContract, perkCost, updateContracts } from '../utils/contracts';
@@ -75,13 +77,78 @@ const T0 = 1_700_000_000_000;
 /** Energy per second per unit of room, the greedy player's measure of a generator. */
 const perRoom = (t: GeneratorType) => GENERATORS[t].energyPerSecond / GENERATORS[t].roomCost;
 
+/**
+ * When a zone-bound generator finds no free spot, scraps the weakest plants
+ * standing in that zone (at most 6, each clearly weaker per room) until it
+ * would fit. Returns the state after scrapping, or null if that does not help
+ * or the build is not affordable anyway.
+ */
+function makeZoneSpot(s: GameState, t: GeneratorType, b: Bonuses): GameState | null {
+  const stats = getGeneratorStats(t, b);
+  if (s.energy < stats.energyCost * 1.1 || !canAfford(s.resources, stats.buildCost)) return null;
+  const zone = zoneFor(t);
+  if (!zone) return null;
+  const onZone = new Set(
+    layoutSite(s)
+      .placed.filter((p) => p.kind === 'generator' && p.cells.some((c) => terrainOfCell(c) === zone))
+      .map((p) => p.id),
+  );
+  // only machines that belong in the zone block it: the others make way by themselves
+  const victims = s.activeGenerators
+    .filter((g) => onZone.has(g.id) && zoneFor(g.type) === zone && perRoom(g.type) * 1.5 <= perRoom(t) && !isBeingRaised(s, g))
+    .sort((x, y) => perRoom(x.type) - perRoom(y.type))
+    .slice(0, 6);
+  const ids: string[] = [];
+  for (const g of victims) {
+    ids.push(g.id);
+    const tried = scrapGenerators(s, ids);
+    if (hasSpotFor(tried, t)) return tried;
+  }
+  return null;
+}
+
+/** The highest-level generator of a type that is not maxed yet: the one the completionist raises. */
+function isBeingRaised(s: GameState, g: GameState['activeGenerators'][number]): boolean {
+  if ((s.records.bestLevel[g.type] ?? 0) >= maxLevelOf(g.type)) return false;
+  const top = s.activeGenerators.filter((x) => x.type === g.type).sort((a, b) => b.level - a.level)[0];
+  return top?.id === g.id;
+}
+
+/** The simulated player keeps fuel production this far above what burns: 50% and at least 6 per hour. */
+const FUEL_SURPLUS = 1.5;
+const MIN_FUEL_SURPLUS_PER_S = 6 / 3600;
+
+/** Builds a producer for the first fuel that is burned faster than made, scrapping a weak generator for room if needed. */
+function fixFuelShortage(s: GameState): GameState {
+  const b = getBonuses(s.completedResearch);
+  // demand counts plants switched off for lack of fuel: they want to run
+  const wanting = s.activeGenerators.map((g) => (g.outOfFuel ? { ...g, isActive: true } : g));
+  const demand = getFuelUseRates(wanting, b);
+  const supply = getProductionRates(s.producers, b, withPlacementMods(NO_MODS, s));
+  for (const id of Object.keys(PRODUCER_FOR) as ResourceId[]) {
+    // keep a surplus: builds, upgrades and research also cost fuel
+    if (demand[id] === 0 || supply[id] >= Math.max(demand[id] * FUEL_SURPLUS, demand[id] + MIN_FUEL_SURPLUS_PER_S)) continue;
+    const pid = PRODUCER_FOR[id];
+    const block = getProducerBlock(s, pid, b);
+    if (block === null) return buildProducer(s, pid, b);
+    if (block !== 'room') continue;
+    // the weakest plant makes room (one that burns this fuel helps twice: less demand, more room)
+    const weakest = [...s.activeGenerators].filter((g) => !isBeingRaised(s, g)).sort((x, y) => perRoom(x.type) - perRoom(y.type))[0];
+    if (!weakest) continue;
+    const freed = scrapGenerator(s, weakest.id);
+    const built = buildProducer(freed, pid, b);
+    if (built !== freed) return built;
+  }
+  return s;
+}
+
 /** Net per-second balance of one resource with the current setup. */
 function netRate(s: GameState, id: ResourceId): number {
   const b = getBonuses(s.completedResearch);
   return getProductionRates(s.producers, b, withPlacementMods(NO_MODS, s))[id] - getFuelUseRates(s.activeGenerators, b)[id];
 }
 
-const PRODUCER_FOR: Record<ResourceId, ProducerId> = { metal: 'mine', stone: 'quarry', coal: 'coalMine', naturalGas: 'gasWell', oil: 'oilRig', uranium: 'uraniumMine' };
+const PRODUCER_FOR: Record<ResourceId, ProducerId> = { metal: 'mine', stone: 'quarry', coal: 'coalMine', naturalGas: 'gasWell', oil: 'oilRig', uranium: 'uraniumMine', deuterium: 'deuteriumExtractor' };
 
 /**
  * Deterministic greedy player:
@@ -104,6 +171,10 @@ function act(s: GameState, now: number): GameState {
     if (options[0]) s = startResearch(s, options[0].id, now);
   }
   const unlocked = getUnlockedGeneratorTypes(s.completedResearch);
+  // 1a. fuel short (0.34): a fuel burned faster than it is made gets another
+  // producer; when the site is full, the weakest generator that does not burn
+  // it makes room, as a player would
+  s = fixFuelShortage(s);
   // 1b. end game: own enough generators at once for the count achievements,
   // before the build loop below would trade the small ones back for big plants
   if (!getNextRoomTier(s.expansionLevel) && RESEARCH.every((r) => s.completedResearch.includes(r.id))) {
@@ -129,21 +200,41 @@ function act(s: GameState, now: number): GameState {
       s = buildGenerator(s, t, unlocked, bonuses());
       return s;
     }
-    if (block === 'site') continue; // its zone is full (1.05): build something else
+    if (block === 'site') {
+      // its zone is full (1.05): make room there by scrapping weaker plants in the zone (1.23)
+      const made = makeZoneSpot(s, t, bonuses());
+      if (made) {
+        const built = buildGenerator(made, t, unlocked, bonuses());
+        if (built !== made) return built;
+      }
+      continue;
+    }
     if (block === 'room') {
       const weakest = [...s.activeGenerators].sort((a, b) => perRoom(a.type) - perRoom(b.type))[0];
       if (weakest && perRoom(t) >= 1.5 * perRoom(weakest.type)) {
         const stats = getGeneratorStats(t, bonuses());
         if (s.energy >= stats.energyCost * 1.1) {
-          let tried = s;
+          let free = s.roomCapacity - s.roomUsed;
+          const scrap: string[] = [];
           for (const g of [...s.activeGenerators].sort((a, b) => perRoom(a.type) - perRoom(b.type))) {
-            if (tried.roomCapacity - tried.roomUsed >= stats.roomCost || perRoom(g.type) * 1.5 > perRoom(t)) break;
-            // keep the one generator being raised to max level for completion
-            if ((s.records.bestLevel[g.type] ?? 0) < maxLevelOf(g.type) && RESEARCH.every((r) => s.completedResearch.includes(r.id))) continue;
-            tried = scrapGenerator(tried, g.id);
+            if (free >= stats.roomCost || perRoom(g.type) * 1.5 > perRoom(t)) break;
+            // keep the one generator being raised to max level for completion (only that one)
+            if (isBeingRaised(s, g) && RESEARCH.every((r) => s.completedResearch.includes(r.id))) continue;
+            scrap.push(g.id);
+            free += GENERATORS[g.type].roomCost;
           }
-          const built = buildGenerator(tried, t, unlocked, bonuses());
-          if (built !== tried) return built;
+          // nothing to gain if it still would not fit
+          if (free >= stats.roomCost) {
+            const tried = scrapGenerators(s, scrap);
+            const built = buildGenerator(tried, t, unlocked, bonuses());
+            if (built !== tried) return built;
+            // room is free now, but its zone may still be full (1.23)
+            if (getBuildBlock(tried, t, unlocked, bonuses()) === 'site') {
+              const made = makeZoneSpot(tried, t, bonuses());
+              const built2 = made && buildGenerator(made, t, unlocked, bonuses());
+              if (made && built2 && built2 !== made) return built2;
+            }
+          }
         }
       }
     }
@@ -167,7 +258,8 @@ function act(s: GameState, now: number): GameState {
   }
   // 4a. completionist (0.82): with research and room done, first bring every
   // generator type to max level, building one of each type it lacks.
-  if (!nextTier && RESEARCH.every((r) => s.completedResearch.includes(r.id))) {
+  const chasing = !nextTier && RESEARCH.every((r) => s.completedResearch.includes(r.id)) && GENERATOR_TYPES.some((t) => (s.records.bestLevel[t] ?? 0) < maxLevelOf(t));
+  if (chasing) {
     const chased = chaseMaxLevels(s, unlocked, bonuses());
     if (chased !== s) return chased;
   }
@@ -185,7 +277,8 @@ function act(s: GameState, now: number): GameState {
     Object.entries(getUpgradeCost(upgradable.g.type, upgradable.g.level, bonuses()).resources).every(
       ([id, n]) => s.resources[id as ResourceId] - (n ?? 0) >= (nextTier.resources[id as ResourceId] ?? 0),
     );
-  if (upgradable && keepsTierResources && s.energy - reserve > upgradable.cost * 2) s = upgradeGenerator(s, upgradable.g.id, bonuses());
+  // while raising a type to max level, save for that one instead of spreading upgrades (0.34)
+  if (!chasing && upgradable && keepsTierResources && s.energy - reserve > upgradable.cost * 2) s = upgradeGenerator(s, upgradable.g.id, bonuses());
   // 4b. Grid Contracts (0.86): claim points until every perk is bought, then
   // materials; deliver when it does not eat into savings for the next room tier.
   for (const c of s.contracts.open) {
@@ -229,12 +322,21 @@ function chaseMaxLevels(s: GameState, unlocked: ReturnType<typeof getUnlockedGen
   if (s.energy < getGeneratorStats(t, b).energyCost) return s;
   // free room by scrapping the weakest generators whose type is already maxed
   // or has spare copies
-  let tried = s;
+  const need = getGeneratorStats(t, b).roomCost;
+  let free = s.roomCapacity - s.roomUsed;
+  const left: Record<string, number> = {};
+  for (const g of s.activeGenerators) left[g.type] = (left[g.type] ?? 0) + 1;
+  const scrap: string[] = [];
   for (const g of [...s.activeGenerators].sort((x, y) => perRoom(x.type) - perRoom(y.type))) {
-    if (tried.roomCapacity - tried.roomUsed >= getGeneratorStats(t, b).roomCost) break;
-    const copies = tried.activeGenerators.filter((x) => x.type === g.type).length;
-    if ((s.records.bestLevel[g.type] ?? 0) >= maxLevelOf(g.type) || copies > 1) tried = scrapGenerator(tried, g.id);
+    if (free >= need) break;
+    if ((s.records.bestLevel[g.type] ?? 0) >= maxLevelOf(g.type) || left[g.type] > 1) {
+      scrap.push(g.id);
+      left[g.type]--;
+      free += GENERATORS[g.type].roomCost;
+    }
   }
+  if (free < need) return s;
+  const tried = scrapGenerators(s, scrap);
   const built = buildGenerator(tried, t, unlocked, b);
   return built === tried ? s : built;
 }

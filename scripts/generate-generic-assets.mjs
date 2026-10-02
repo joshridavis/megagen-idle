@@ -218,6 +218,41 @@ function nuclearPlant() {
   return c;
 }
 
+// fictional generators (0.34)
+function fusionReactor() {
+  const c = new Canvas(64, 64);
+  c.rect(2, 56, 60, 6, C.grey5); // pad
+  c.rect(8, 30, 48, 26, C.grey3); // hall
+  c.rect(8, 30, 48, 3, C.grey2);
+  c.circle(32, 30, 18, C.steel); // tokamak ring
+  c.circle(32, 30, 12, C.navy);
+  c.circle(32, 30, 8, C.purple); // plasma
+  c.circle(32, 30, 5, C.cyan);
+  c.circle(32, 30, 2, C.white);
+  for (const x of [12, 50]) c.rect(x, 20, 3, 36, C.grey4); // magnets
+  c.rect(26, 48, 12, 8, C.grey5); // door
+  c.outline(C.ink);
+  return c;
+}
+
+function supernovaCore() {
+  const c = new Canvas(64, 64);
+  c.rect(2, 56, 60, 6, C.plum); // pad
+  // containment frame: four pylons
+  for (const [x, y] of [[6, 10], [52, 10], [6, 42], [52, 42]]) c.rect(x, y, 6, 14, C.grey4);
+  c.rect(6, 8, 52, 3, C.grey3);
+  c.rect(6, 54, 52, 2, C.grey3);
+  // the micro dimension: a bright star in a dark sphere
+  c.circle(32, 32, 20, C.ink);
+  c.circle(32, 32, 16, C.purple);
+  c.circle(32, 32, 11, C.orange);
+  c.circle(32, 32, 7, C.yellow);
+  c.circle(32, 32, 3, C.white);
+  for (const [x, y] of [[32, 12], [32, 50], [12, 32], [50, 32]]) c.circle(x, y, 1.5, C.lemon); // flares
+  c.outline(C.ink);
+  return c;
+}
+
 // ---------- resources ----------
 
 function coalIcon() {
@@ -274,6 +309,18 @@ function uraniumIcon() {
   c.rect(6, 4, 12, 3, C.lemon);
   c.rect(6, 18, 12, 2, C.darkGreen);
   c.rect(14, 7, 4, 11, C.forest);
+  c.outline(C.ink);
+  return c;
+}
+
+function deuteriumIcon() {
+  const c = new Canvas(24, 24);
+  // a flask of heavy water
+  c.rect(10, 3, 4, 6, C.grey2);
+  c.polygon([[10, 9], [14, 9], [20, 20], [4, 20]], C.sky);
+  c.polygon([[10, 9], [12, 9], [7, 20], [4, 20]], C.mint);
+  c.rect(4, 19, 16, 2, C.blue);
+  c.set(13, 14, C.white);
   c.outline(C.ink);
   return c;
 }
@@ -430,6 +477,21 @@ function uraniumMine() {
   // hazard sign
   c.polygon([[8, 26], [3, 34], [13, 34]], C.yellow);
   c.rect(8, 29, 1, 3, C.ink);
+  c.outline(C.ink);
+  return c;
+}
+
+function deuteriumExtractor() {
+  const c = new Canvas(48, 48);
+  c.rect(0, 40, 48, 8, C.sand); // shore
+  c.rect(0, 34, 48, 6, C.blue); // sea water in
+  c.rect(6, 18, 14, 22, C.grey3); // tank
+  c.rect(6, 18, 14, 3, C.grey1);
+  c.rect(24, 24, 18, 16, C.grey2); // hall
+  c.rect(24, 24, 18, 3, C.grey1);
+  c.rect(20, 28, 4, 3, C.grey4); // pipe
+  c.rect(30, 31, 6, 9, C.grey5); // door
+  c.circle(13, 12, 3, C.sky); // droplet sign
   c.outline(C.ink);
   return c;
 }
@@ -679,6 +741,12 @@ const oilfieldTile = () => terrainTile(C.mud, C.khaki, C.brown5, (c) => {
   c.circle(11, 5, 1, C.ink);
   c.set(5, 9, C.purple);
 });
+// the Exclusion Zone (1.23): a dark shielded floor with a glowing grid
+const exclusionTile = () => terrainTile(C.plum, C.purple, C.ink, (c) => {
+  c.rect(0, 7, 15, 1, C.purple); // grid lines
+  c.rect(7, 0, 1, 15, C.purple);
+  c.set(7, 7, C.cyan);
+});
 function seaTile() {
   const c = new Canvas(16, 16);
   c.rect(0, 0, 16, 16, C.navy);
@@ -777,6 +845,18 @@ const decoBoat = deco((c) => {
   c.polygon([[3, 10], [13, 10], [11, 13], [5, 13]], C.brown3);
   c.rect(8, 3, 1, 7, C.brown4);
   c.polygon([[9, 3], [9, 9], [13, 9]], C.white);
+});
+const decoWarning = deco((c) => {
+  c.rect(7, 9, 2, 5, C.grey4); // post
+  c.polygon([[8, 2], [3, 10], [13, 10]], C.yellow);
+  c.rect(8, 5, 1, 3, C.ink);
+  c.set(8, 9, C.ink);
+});
+const decoPylon = deco((c) => {
+  c.rect(6, 4, 4, 10, C.grey3);
+  c.rect(6, 4, 4, 1, C.grey1);
+  c.circle(8, 3, 2, C.cyan);
+  c.rect(5, 13, 6, 1, C.grey5);
 });
 const decoBuoy = deco((c) => {
   c.circle(8, 10, 3, C.red);
@@ -974,18 +1054,22 @@ const DRAW = {
   tidal_station: tidalStation,
   oil_plant: oilPlant,
   nuclear_plant: nuclearPlant,
+  fusion_reactor: fusionReactor,
+  supernova_core: supernovaCore,
   resource_coal: coalIcon,
   resource_stone: stoneIcon,
   resource_metal: metalIcon,
   resource_natural_gas: naturalGasIcon,
   resource_oil: oilIcon,
   resource_uranium: uraniumIcon,
+  resource_deuterium: deuteriumIcon,
   producer_quarry: quarry,
   producer_mine: mine,
   producer_coal_mine: coalMine,
   producer_gas_well: gasWell,
   producer_oil_rig: oilRig,
   producer_uranium_mine: uraniumMine,
+  producer_deuterium_extractor: deuteriumExtractor,
   room_expansion: roomExpansion,
   tile_ground: groundTile,
   tile_locked: lockedTile,
@@ -994,6 +1078,7 @@ const DRAW = {
   tile_river: riverTile,
   tile_coast: coastTile,
   tile_sea: seaTile,
+  tile_exclusion: exclusionTile,
   tile_coalfield: coalfieldTile,
   tile_outcrop: outcropTile,
   tile_oilfield: oilfieldTile,
@@ -1014,6 +1099,8 @@ const DRAW = {
   deco_driftwood: decoDriftwood,
   deco_boat: decoBoat,
   deco_buoy: decoBuoy,
+  deco_warning: decoWarning,
+  deco_pylon: decoPylon,
   achievement_unlocked: () => trophy(C.yellow, C.lemon, C.brown3),
   achievement_locked: () => trophy(C.grey5, C.grey4, C.grey6),
   sighting_spaceship: spaceship,

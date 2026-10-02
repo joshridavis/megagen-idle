@@ -10,7 +10,7 @@ import { useStore } from '.';
 /** A save as written by items 0.00 to 0.04 (unversioned, version 0). */
 const v0Fixture = {
   energy: 1234.5,
-  resources: { coal: 1, stone: 2, metal: 3, naturalGas: 0, oil: 0, uranium: 0 },
+  resources: { coal: 1, stone: 2, metal: 3, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
   researchLevel: 1,
   activeGenerators: [],
   roomCapacity: 10,
@@ -26,8 +26,8 @@ describe('save migrations', () => {
     expect(s.energyPerSecond).toBe(1);
     expect('totalProductionPerSecond' in s).toBe(false);
     // pre-0.11 saves get at least the starting resources and producers
-    expect(s.resources).toEqual({ coal: 1, stone: 10, metal: 15, naturalGas: 0, oil: 0, uranium: 0 });
-    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 });
+    expect(s.resources).toEqual({ coal: 1, stone: 10, metal: 15, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 });
+    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 });
     expect(s.lastSavedTimestamp).toBe(1_700_000_000_000);
     // fields added later get fresh-save defaults
     expect(s.expansionLevel).toBe(0);

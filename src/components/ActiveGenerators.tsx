@@ -3,7 +3,8 @@ import { sprites } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { useStore } from '../store';
 import type { Generator } from '../types/generator';
-import { getEnergyBonuses } from '../utils/bonuses';
+import { getBonuses, getEnergyBonuses } from '../utils/bonuses';
+import { generatorScrapRefund } from '../utils/generatorSystem';
 import { NO_MODS } from '../utils/effectMods';
 import { getPlacementBonuses } from '../utils/siteMap';
 import { GENERATOR_SORTS, sortGenerators } from '../utils/generatorSort';
@@ -222,6 +223,7 @@ export default function ActiveGenerators() {
                   <ScrapConfirm
                     name={name}
                     what="generator"
+                    refund={generatorScrapRefund(g, getBonuses(completed))}
                     onConfirm={() => {
                       scrap(g.id);
                       setConfirming(null);

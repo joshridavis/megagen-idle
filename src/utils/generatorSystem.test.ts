@@ -13,8 +13,7 @@ import {
   nextGeneratorId,
   moveGenerator,
   scrapGenerator,
-  toggleGenerator,
-} from './generatorSystem';
+  toggleGenerator, generatorScrapRefund } from './generatorSystem';
 import { advanceTime } from './simulation';
 
 // These tests check other mechanics at fixed rates: no player level bonus (0.90).
@@ -62,13 +61,13 @@ describe('building', () => {
   });
 
   it('is blocked without resources', () => {
-    const s = fresh({ resources: { metal: 5, stone: 0, coal: 0, naturalGas: 0, oil: 0, uranium: 0 } });
+    const s = fresh({ resources: { metal: 5, stone: 0, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } });
     expect(getBuildBlock(s, GeneratorType.SOLAR, ALL)).toBe('resources');
     expect(buildGenerator(s, GeneratorType.SOLAR, ALL)).toBe(s);
   });
 
   it('is blocked without room', () => {
-    const s = fresh({ resources: { metal: 999, stone: 999, coal: 0, naturalGas: 0, oil: 0, uranium: 0 }, roomUsed: 12 });
+    const s = fresh({ resources: { metal: 999, stone: 999, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 }, roomUsed: 12 });
     expect(getBuildBlock(s, GeneratorType.SOLAR, ALL)).toBe('room');
     expect(buildGenerator(s, GeneratorType.SOLAR, ALL)).toBe(s);
   });
@@ -78,7 +77,7 @@ describe('building', () => {
   });
 
   it('fills room exactly to capacity, then blocks', () => {
-    let s = fresh({ energy: 99_999, resources: { metal: 999, stone: 999, coal: 0, naturalGas: 0, oil: 0, uranium: 0 } });
+    let s = fresh({ energy: 99_999, resources: { metal: 999, stone: 999, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } });
     for (let i = 0; i < 5; i++) s = buildGenerator(s, GeneratorType.SOLAR, ALL);
     expect(s.roomUsed).toBe(13);
     expect(s.activeGenerators).toHaveLength(5);
@@ -118,8 +117,8 @@ describe('energy over time', () => {
   it('a coal plant stops adding energy once its fuel is gone', () => {
     let s = fresh({
       energy: 3600,
-      producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0 },
-      resources: { metal: 20, stone: 15, coal: 5, naturalGas: 0, oil: 0, uranium: 0 },
+      producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 },
+      resources: { metal: 20, stone: 15, coal: 5, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
     });
     s = buildGenerator(s, GeneratorType.COAL, ALL);
     const { state } = advanceTime(s, 3600);
@@ -157,7 +156,7 @@ describe('energy cost (playtest 3: 30 minutes of output)', () => {
   });
 
   it('reports missing resources before missing energy', () => {
-    const s = fresh({ energy: 0, resources: { metal: 0, stone: 0, coal: 0, naturalGas: 0, oil: 0, uranium: 0 } });
+    const s = fresh({ energy: 0, resources: { metal: 0, stone: 0, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } });
     expect(getBuildBlock(s, GeneratorType.SOLAR, ALL)).toBe('resources');
   });
 
@@ -167,14 +166,15 @@ describe('energy cost (playtest 3: 30 minutes of output)', () => {
 });
 
 describe('scrapping', () => {
-  it('removes the generator and frees its room, with no refund', () => {
+  it('removes the generator and frees its room, with a 10% refund (1.24)', () => {
     let s = buildGenerator(fresh(), GeneratorType.SOLAR, ALL);
     const metal = s.resources.metal;
+    const refund = generatorScrapRefund(s.activeGenerators[0]);
     s = scrapGenerator(s, s.activeGenerators[0].id);
     expect(s.activeGenerators).toEqual([]);
     expect(s.roomUsed).toBe(3); // the starting producers remain
     expect(s.energyPerSecond).toBe(0);
-    expect(s.resources.metal).toBe(metal);
+    expect(s.resources.metal).toBe(metal + (refund.resources.metal ?? 0));
   });
   it('unknown IDs change nothing', () => {
     const s = fresh();
@@ -204,8 +204,8 @@ describe('manual ordering (playtest 6)', () => {
 
   it('order is fuel priority: the top coal plant keeps running when coal is short', () => {
     let s = fresh({
-      producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0 },
-      resources: { metal: 0, stone: 0, coal: 1.5, naturalGas: 0, oil: 0, uranium: 0 },
+      producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 },
+      resources: { metal: 0, stone: 0, coal: 1.5, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
       activeGenerators: [gen(GeneratorType.COAL, true, 'gen-1'), gen(GeneratorType.COAL, true, 'gen-2')],
     });
     s = moveGenerator(s, 'gen-2', 0);

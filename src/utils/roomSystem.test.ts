@@ -10,7 +10,7 @@ import { canExpandRoom, expandRoom, expansionBarPhase, getExpandBlock, getNextRo
 const rich = (over: Partial<GameState> = {}): GameState => ({
   ...createInitialState(0),
   energy: 1e8,
-  resources: { metal: 1e6, stone: 1e6, coal: 1e5, naturalGas: 1e4, oil: 0, uranium: 0 },
+  resources: { metal: 1e6, stone: 1e6, coal: 1e5, naturalGas: 1e4, oil: 0, uranium: 0, deuterium: 0 },
   ...over,
 });
 
@@ -31,7 +31,7 @@ describe('room expansion', () => {
   });
 
   it('tiers go in order and stop at the last', () => {
-    let s = rich();
+    let s = rich({ energy: 1e9, resources: { metal: 1e6, stone: 1e6, coal: 1e5, naturalGas: 1e4, oil: 0, uranium: 1e4, deuterium: 1e4 } });
     for (const t of ROOM_TIERS) s = expandRoom(s, t.tier);
     expect(s.roomCapacity).toBe(13 + ROOM_TIERS.reduce((sum, t) => sum + t.capacity, 0));
     expect(getNextRoomTier(s.expansionLevel)).toBeNull();
@@ -46,7 +46,7 @@ describe('room expansion', () => {
 
   it('is blocked without energy or resources', () => {
     expect(canExpandRoom(rich({ energy: 499 }))).toBe(false);
-    expect(getExpandBlock(rich({ resources: { metal: 49, stone: 999, coal: 0, naturalGas: 0, oil: 0, uranium: 0 } }))).toBe('cost');
+    expect(getExpandBlock(rich({ resources: { metal: 49, stone: 999, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } }))).toBe('cost');
   });
 
   it('building is blocked over capacity, and allowed again after expanding', () => {
@@ -93,8 +93,8 @@ describe('expansion animation: room bar (playtest 7 redesign, absorbs 0.21)', ()
 });
 
 describe('room tiers (playtest 7: more, finite)', () => {
-  it('there are 8 tiers, in order, each bigger and dearer than the last', () => {
-    expect(ROOM_TIERS).toHaveLength(8);
+  it('there are 10 tiers (9 and 10 from 0.34), in order, each bigger and dearer than the last', () => {
+    expect(ROOM_TIERS).toHaveLength(10);
     ROOM_TIERS.forEach((t, i) => {
       expect(t.tier).toBe(i + 1);
       if (i > 0) {

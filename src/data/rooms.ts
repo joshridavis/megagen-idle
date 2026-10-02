@@ -31,4 +31,7 @@ export const ROOM_TIERS: RoomTier[] = [
   { tier: 6, capacity: 70, energy: 350_000, resources: { metal: 3000, stone: 1500, coal: 150 } },
   { tier: 7, capacity: 100, energy: 1_200_000, resources: { metal: 5000, stone: 2500, coal: 300 } },
   { tier: 8, capacity: 140, energy: 4_000_000, resources: { metal: 10_000, stone: 5000, coal: 600, naturalGas: 50 } },
+  // 0.34: room for the fictional generators (fusion 16, supernova 25). First guesses, tuned by the simulator.
+  { tier: 9, capacity: 180, energy: 20_000_000, resources: { metal: 25_000, stone: 12_000, uranium: 40 } },
+  { tier: 10, capacity: 240, energy: 80_000_000, resources: { metal: 50_000, stone: 25_000, uranium: 100, deuterium: 30 } },
 ];

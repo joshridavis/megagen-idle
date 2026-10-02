@@ -14,8 +14,8 @@ beforeEach(() => {
     ...deriveRates({
       ...createInitialState(T0),
       energy: 0,
-      resources: { metal: 0, stone: 0, coal: 2, naturalGas: 0, oil: 0, uranium: 0 },
-      producers: { quarry: 1, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0 },
+      resources: { metal: 0, stone: 0, coal: 2, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
+      producers: { quarry: 1, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 },
       activeGenerators: [{ id: 'gen-1', type: GeneratorType.COAL, isActive: true, level: 1 }],
     }),
     welcomeBack: null,

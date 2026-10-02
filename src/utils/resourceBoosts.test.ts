@@ -8,7 +8,7 @@ import { getProducerCost } from './producerSystem';
 import { burnFuel, getFuelUseRates, getProductionRates } from './resourceSystem';
 import { advanceTime } from './simulation';
 
-const P = { quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 };
+const P = { quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 };
 const coal = { id: 'g1', type: GeneratorType.COAL, isActive: true, level: 1 };
 
 describe('resource boost research (0.75)', () => {
@@ -39,7 +39,7 @@ describe('resource boost research (0.75)', () => {
   it('fuel efficiency lowers fuel burned', () => {
     const b = getBonuses(['efficient_boilers']);
     expect(getFuelUseRates([coal], b).coal * 60).toBeCloseTo(0.8);
-    expect(burnFuel({ metal: 0, stone: 0, coal: 10, naturalGas: 0, oil: 0, uranium: 0 }, [coal], 60, b).resources.coal).toBeCloseTo(9.2);
+    expect(burnFuel({ metal: 0, stone: 0, coal: 10, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 }, [coal], 60, b).resources.coal).toBeCloseTo(9.2);
   });
 
   it('boosts apply in the simulation (offline too)', () => {

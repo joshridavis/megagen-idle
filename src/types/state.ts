@@ -3,7 +3,7 @@ import type { ProducerId } from './resource';
 import type { CurrentResearch } from './research';
 import type { ActiveEffect } from '../utils/effectMods';
 
-export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas' | 'oil' | 'uranium';
+export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas' | 'oil' | 'uranium' | 'deuterium';
 
 export type Resources = Record<ResourceId, number>;
 

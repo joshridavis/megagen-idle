@@ -1,5 +1,6 @@
 import { MAX_LOSS_FRACTION, type EventDef } from '../data/events';
 import type { GameState } from '../types/state';
+import type { GeneratorType } from '../types/generator';
 import type { Rng } from './rng';
 export type { ActiveEffect } from './effectMods';
 import { getProductionRates } from './resourceSystem';
@@ -98,6 +99,12 @@ export function applyEventEffect(s: GameState, def: EventDef, now: number, rng: 
  * Exactly what a running timed effect does right now (playtest 15), e.g.
  * "−30% energy from Solar Panels: −1.2 energy/s from your 4 Solar Panels".
  */
+/** The event as it acts now: a map event may have picked the generator type it boosts (1.12). */
+export function effectiveDef(def: EventDef, active?: { generator?: GeneratorType }): EventDef {
+  const e = def.effect;
+  return active?.generator && e?.kind === 'timed' ? { ...def, effect: { ...e, generator: active.generator } } : def;
+}
+
 export function describeEffect(
   def: EventDef,
   s: Pick<GameState, 'activeGenerators' | 'producers' | 'completedResearch'>,

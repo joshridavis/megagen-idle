@@ -16,6 +16,7 @@ import { GENERATOR_SPRITES } from './generatorSprites';
 import { PRODUCER_SPRITES } from './producerSprites';
 import { useNumberFormat } from './useNumberFormat';
 import FloatingTip from './FloatingTip';
+import MapEventLayer from './MapEventLayer';
 import { zoneTipText } from './zoneTip';
 
 const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
@@ -27,6 +28,7 @@ const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
   coalfield: 'tile_coalfield',
   outcrop: 'tile_outcrop',
   oilfield: 'tile_oilfield',
+  exclusion: 'tile_exclusion',
 };
 const detailSprite = (d: Detail) => `deco_${d}` as SpriteId;
 const TERRAIN_NAME = (t: Terrain) => (t === 'plain' ? 'Plain' : ZONES[t].name);
@@ -45,6 +47,7 @@ const zoneSuits = (z: Zone) =>
 export default function MapPanel({ onSelect }: { onSelect: (generatorId: string) => void }) {
   const state = useStore((s) => s);
   const moveOnMap = useStore((s) => s.moveOnMap);
+  const reduceMotion = useStore((s) => s.settings.reduceMotion);
   const fmt = useNumberFormat();
   const map = layoutSite(state);
   const [hover, setHover] = useState<string | null>(null);
@@ -174,7 +177,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     }
   };
 
-  const legend: (Terrain | 'sea')[] = ['plain', 'plateau', 'ridge', 'river', 'coast', 'coalfield', 'outcrop', 'oilfield', 'sea'];
+  const legend: (Terrain | 'sea')[] = ['plain', 'plateau', 'ridge', 'river', 'coast', 'coalfield', 'outcrop', 'oilfield', 'exclusion', 'sea'];
 
   return (
     <section aria-label="Site map" className="flex flex-col gap-3">
@@ -249,6 +252,10 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
               >
                 <img src={sprites[TERRAIN_SPRITE[t]]} alt="" className="pixelated absolute inset-0 h-full w-full" />
                 {d && <img src={sprites[detailSprite(d)]} alt="" className="pixelated absolute inset-0 h-full w-full" data-detail={d} />}
+                {t === 'exclusion' && !locked && !reduceMotion && (
+                  // a soft shield glow (1.23); off with reduced motion
+                  <div aria-hidden="true" className="pointer-events-none absolute inset-0 animate-pulse bg-fuchsia-400/10 motion-reduce:animate-none" />
+                )}
                 {locked && <div className="absolute inset-0 bg-slate-950/55" />}
                 {target && <div className={`absolute inset-0 ${best ? 'bg-emerald-300/45' : 'bg-emerald-200/15'}`} data-testid={best ? 'best-spot' : undefined} />}
               </div>
@@ -316,6 +323,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
               </div>
             );
           })}
+          <MapEventLayer viewColumns={viewColumns} rows={rows} pct={pct} />
           {ghost &&
             ghost.map((c) => (
               <div

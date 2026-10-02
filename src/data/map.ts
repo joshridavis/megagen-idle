@@ -34,7 +34,9 @@ export type Detail =
   | 'shell'
   | 'driftwood'
   | 'boat'
-  | 'buoy';
+  | 'buoy'
+  | 'warning'
+  | 'pylon';
 
 /** Per terrain (and the open sea): how often a tile gets a detail, and which kinds, picked evenly. */
 export const DETAILS: Record<Terrain | 'sea', { chance: number; kinds: Detail[] }> = {
@@ -46,10 +48,11 @@ export const DETAILS: Record<Terrain | 'sea', { chance: number; kinds: Detail[] 
   coalfield: { chance: 0.15, kinds: ['rock', 'drygrass'] },
   outcrop: { chance: 0.2, kinds: ['boulder', 'rock'] },
   oilfield: { chance: 0.12, kinds: ['drygrass', 'stump'] },
+  exclusion: { chance: 0.12, kinds: ['warning', 'pylon'] },
   sea: { chance: 0.05, kinds: ['boat', 'buoy'] },
 };
 
-export type Terrain = 'plain' | 'plateau' | 'ridge' | 'river' | 'coast' | 'coalfield' | 'outcrop' | 'oilfield';
+export type Terrain = 'plain' | 'plateau' | 'ridge' | 'river' | 'coast' | 'coalfield' | 'outcrop' | 'oilfield' | 'exclusion';
 export type Zone = Exclude<Terrain, 'plain'>;
 
 export interface ZoneDef {
@@ -117,8 +120,22 @@ export const ZONES: Record<Zone, ZoneDef> = {
     bonus: 0.2,
     required: false,
     description: 'Pockets underground: Gas Wells and Oil Rigs standing fully on it pump 20% more.',
-  }
+  },
+  exclusion: {
+    name: 'Exclusion Zone',
+    generators: [GeneratorType.FUSION, GeneratorType.SUPERNOVA],
+    bonus: 0.1,
+    required: true,
+    description:
+      'Fenced and shielded land for experiments: Fusion Reactors and Micro-Supernovas must be built here; fully inside, they make 10% more. Other machines may stand here until an experiment needs the spot.',
+  },
 };
+
+/**
+ * The Exclusion Zone (1.23, playtest 18): every land tile from this row down,
+ * the land room tiers 9 and 10 open. The river and coast still run through it.
+ */
+export const EXCLUSION_START_ROW = 20;
 
 /** A machine that needs a zone must have at least this share of its tiles on it. */
 export const ZONE_REQUIRED_SHARE = 0.5;

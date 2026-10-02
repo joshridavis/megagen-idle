@@ -118,7 +118,7 @@ describe('Grid Contracts (0.86)', () => {
 
   it('the store ticks, delivers and claims', () => {
     useStore.getState().resetGame();
-    useStore.setState({ researchLevel: 3, energy: 1e9, resources: { metal: 1e9, stone: 1e9, coal: 1e9, naturalGas: 1e9, oil: 1e9, uranium: 0 } });
+    useStore.setState({ researchLevel: 3, energy: 1e9, resources: { metal: 1e9, stone: 1e9, coal: 1e9, naturalGas: 1e9, oil: 1e9, uranium: 0, deuterium: 0 } });
     useStore.getState().tickContracts(1000, seededRng(3));
     const open = useStore.getState().contracts.open;
     expect(open.length).toBe(BASE_CONTRACT_SLOTS);

@@ -57,7 +57,7 @@ Optional. With no settings, the game has no accounts, as before. To turn them on
 - **The published site:** add the repository variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Settings → Secrets and variables → Actions → Variables). The deploy workflow passes them to the build.
 - **Locally:** put the same two lines in a `.env.local` file in the repository root (`VITE_SUPABASE_URL=...`), then run `npm run dev`. `.env.local` is ignored by git.
 
-Settings then shows "Account and cloud saves".
+Settings then shows "Account and cloud saves". Optional `VITE_AUTH_PROVIDERS` (for example `google,discord`) adds "Continue with …" buttons once those providers are set up in Supabase (`docs/PUBLIC_RELEASE.md`, section 9b). Variables are read at build time, so run the deploy workflow again after changing them.
 
 ## More
 

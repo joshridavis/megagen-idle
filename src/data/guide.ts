@@ -18,7 +18,7 @@ export const GUIDE: GuideSection[] = [
     title: 'The goal',
     icon: 'energy_icon',
     paragraphs: [
-      'MegaGen Idle is about generating energy. You start with one solar panel and work up to oil, nuclear and beyond.',
+      'MegaGen Idle is about generating energy. You start with one solar panel and work up to oil, nuclear and beyond: fusion, and one day a supernova in a pocket dimension.',
       'Energy is the main currency: you spend it on generators, producers, research and room. Reinvest it to grow faster.',
     ],
   },
@@ -48,7 +48,7 @@ export const GUIDE: GuideSection[] = [
     paragraphs: [
       'The Map tab shows your site: one tile for each unit of room, and every machine covering as many tiles as the room it takes. Fenced land at the bottom is the next room expansion.',
       'Zones boost the machines that suit them, when the whole machine stands on them: sunny plateau (Solar Panels +20%), windy ridge (Wind Turbines +20%), coal field (Coal Mines +20%), rocky outcrop (Quarries, Metal and Uranium Mines +20%), oil and gas field (Gas Wells and Oil Rigs +20%).',
-      'Hydropower Dams must be built on the river and Tidal Power Stations on the coast (+10% when fully on it). Other machines may stand there until a dam or station needs the spot.',
+      'Hydropower Dams must be built on the river and Tidal Power Stations on the coast, and Fusion Reactors and Micro-Supernovas in the Exclusion Zone that the last room expansions open (+10% when fully inside). Other machines may stand there until one of those needs the spot.',
       'New machines go to a free spot on their zone when there is one; after that they stay put. Drag a machine to move it, or click it and then a tile. ⭐ marks a machine on its bonus zone.',
     ],
   },
@@ -57,7 +57,7 @@ export const GUIDE: GuideSection[] = [
     title: 'Fuel',
     icon: 'coal_plant',
     paragraphs: [
-      'Some generators burn a resource, shown as "Burns" on their card: coal, natural gas, oil or uranium.',
+      'Some generators burn a resource, shown as "Burns" on their card: coal, natural gas, oil, uranium or deuterium.',
       'If a fuel runs out, those generators switch off until you have fuel again. Generators higher in your list get fuel first; reorder them with ▲ ▼ or by dragging.',
     ],
   },

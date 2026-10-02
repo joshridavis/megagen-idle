@@ -64,7 +64,7 @@ The database setup is in `docs/supabase-schema.sql`, ready to paste.
 ## 5. Security
 
 - **Passwords** are handled by Supabase Auth (hashed and salted). The game never sees or stores them.
-- **The key in the game is public by design:** the project URL and the "anon public" key.
+- **The key in the game is public by design:** the project URL and the "publishable" key (older projects call it the "anon public" key).
   - All protection comes from row-level security: every save row is readable and writable only by its owner (`auth.uid() = user_id`).
   - The secret "service role" key is never used by the game and never goes in the repository.
 - **The keys are not committed:**
@@ -114,16 +114,47 @@ About 15 minutes. Nothing here needs a credit card.
 4. Open **Authentication → URL Configuration**:
    - **Site URL:** `https://joshridavis.github.io/megagen-idle/`
    - **Redirect URLs:** add the same address. Add `http://localhost:5173` too, for testing locally.
-5. Open **Project Settings → API** (or **Data API**) and copy the **Project URL** and the **anon public** key. Do not copy the `service_role` key.
+5. Open **Project Settings → API** (or **Data API**) and copy the **Project URL** and the **publishable** key (`sb_publishable_…`; older projects show an **anon public** key instead, which works the same). Do not copy the secret or `service_role` key.
 6. In GitHub, open the repository **Settings → Secrets and variables → Actions → Variables** tab, and click **New repository variable** twice:
    - `VITE_SUPABASE_URL` = the Project URL
-   - `VITE_SUPABASE_ANON_KEY` = the anon public key
+   - `VITE_SUPABASE_ANON_KEY` = the publishable (or anon public) key
 7. Tell me it is done. The accounts code is already in the game (0.68), switched off. The next deploy turns it on: Settings shows "Account and cloud saves". I then run a live test (sign up, confirm, sync between two browsers, delete) and fix anything it finds.
 
 **Optional, later:**
 - Sign in with Google or Discord (each needs a small app registration on their side).
 - A custom email sender, for branded confirmation emails.
 - The Pro plan, once the game has regular players.
+
+## 9b. Sign in with Google and Discord (owner, optional, about 20 minutes)
+
+The game has "Continue with Google" and "Continue with Discord" buttons (1.22). They stay hidden until you do the steps below, so players never see a button that does not work yet.
+
+You will need your Supabase **callback URL**. It is shown on each provider's page in Supabase (Authentication → Sign In / Providers → Google or Discord) and looks like `https://<your-project>.supabase.co/auth/v1/callback`.
+
+**Google**
+1. Open https://console.cloud.google.com and create a project (any name, for example "MegaGen Idle").
+2. Open **APIs & Services → OAuth consent screen**:
+   - Choose **External** and fill in the app name, your support email and the developer email.
+   - Leave scopes as they are (email and profile).
+   - Publish the app when you are ready for everyone; while it is in testing, only test users you add can sign in.
+3. Open **APIs & Services → Credentials → Create credentials → OAuth client ID**:
+   - **Type:** Web application.
+   - **Authorized JavaScript origins:** `https://joshridavis.github.io`
+   - **Authorized redirect URIs:** the Supabase callback URL.
+   - Copy the **Client ID** and **Client secret**.
+4. In Supabase → **Authentication → Sign In / Providers → Google**, turn it on, paste both values and save.
+
+**Discord**
+1. Open https://discord.com/developers/applications and click **New Application** (name it "MegaGen Idle").
+2. Open **OAuth2**, add the Supabase callback URL under **Redirects**, and save.
+3. Copy the **Client ID**, then click **Reset Secret** and copy the **Client Secret**.
+4. In Supabase → **Authentication → Sign In / Providers → Discord**, turn it on, paste both values and save.
+
+**Then turn the buttons on**
+1. In GitHub → repository **Settings → Secrets and variables → Actions → Variables**, add `VITE_AUTH_PROVIDERS` = `google,discord` (or just one of them).
+2. Variables are read when the site is built, so rebuild it: **Actions → Deploy to GitHub Pages → Run workflow** (on `main`). The same applies whenever you change any of these variables.
+
+Players who sign in with Google or Discord choose a username the first time. Their email comes from the provider, and the cloud saves work the same.
 
 ## 10. Costs
 

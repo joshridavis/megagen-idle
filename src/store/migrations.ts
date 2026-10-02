@@ -7,7 +7,7 @@ import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 17;
+export const SAVE_VERSION = 18;
 
 type AnySave = Record<string, unknown>;
 
@@ -59,6 +59,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   15: (save) => save,
   // 1.05: machines placed on the map (none yet: everything is placed automatically).
   16: (save) => ({ ...save, mapPins: {} }),
+  // 0.34: deuterium and the Deuterium Extractor (filled from defaults below).
+  17: (save) => save,
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */

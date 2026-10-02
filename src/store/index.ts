@@ -46,13 +46,13 @@ export const useStore = create<GameStore>()(
             set(
               (s) => {
                 saveLog([]);
-                return { ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], activeSighting: null, eventEpoch: s.eventEpoch + 1 };
+                return { ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], activeSighting: null, mapEvent: null, eventEpoch: s.eventEpoch + 1 };
               },
               undefined,
               'core/reset',
             ),
           loadSave: (state) =>
-            set((s) => ({ ...pickSaved(state), celebrations: [], welcomeBack: null, toasts: [], activeSighting: null, eventEpoch: s.eventEpoch + 1 }), undefined, 'core/loadSave'),
+            set((s) => ({ ...pickSaved(state), celebrations: [], welcomeBack: null, toasts: [], activeSighting: null, mapEvent: null, eventEpoch: s.eventEpoch + 1 }), undefined, 'core/loadSave'),
           dismissWelcomeBack: () => set({ welcomeBack: null }, undefined, 'core/dismissWelcomeBack'),
         };
       },

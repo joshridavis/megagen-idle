@@ -1,5 +1,6 @@
 import {
   COAST_COLUMNS,
+  EXCLUSION_START_ROW,
   MIN_ZONE_RUN,
   DETAILS,
   FIXED_PATCHES,
@@ -75,6 +76,7 @@ function zoneRun(x: number, y: number): number {
 export function terrainAt(x: number, y: number): Terrain {
   const water = waterAt(x, y);
   if (water) return water;
+  if (y >= EXCLUSION_START_ROW) return 'exclusion';
   const patch = patchAt(x, y);
   return patch !== 'plain' && zoneRun(x, y) < MIN_ZONE_RUN ? 'plain' : patch;
 }

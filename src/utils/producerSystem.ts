@@ -3,7 +3,10 @@ import { BONUS_CAPS } from '../data/research';
 import { NO_BONUSES, type Bonuses } from '../types/bonus';
 import type { ProducerId, ResourceAmounts } from '../types/resource';
 import type { GameState } from '../types/state';
-import { canAfford, consumeResource } from './resourceSystem';
+import { addResources, canAfford, consumeResource } from './resourceSystem';
+import { getBonuses } from './bonuses';
+import { refundOf } from './generatorSystem';
+import { getGrantedProducers } from './researchSystem';
 import { deriveRates } from './simulation';
 
 export interface ProducerCost {
@@ -48,10 +51,33 @@ export function buildProducer(state: GameState, id: ProducerId, bonuses: Bonuses
   });
 }
 
-/** Removes `count` producers of a type (clamped to 0..owned), freeing their room. No refund. */
+/**
+ * What scrapping the last `count` producers of a type gives back (1.24):
+ * SCRAP_REFUND_SHARE of what each cost. Producers granted by research were
+ * free and give nothing.
+ */
+export function producerScrapRefund(state: GameState, id: ProducerId, count = 1, bonuses: Bonuses = getBonuses(state.completedResearch)): ProducerCost {
+  const owned = state.producers[id] ?? 0;
+  const free = getGrantedProducers(state.completedResearch)[id] ?? 0;
+  const spent: ProducerCost = { energy: 0, resources: {} };
+  for (let k = owned - 1; k >= Math.max(free, owned - count); k--) {
+    const c = getProducerCost(id, k, bonuses);
+    spent.energy += c.energy;
+    for (const [r, n] of Object.entries(c.resources)) spent.resources[r as keyof ResourceAmounts] = (spent.resources[r as keyof ResourceAmounts] ?? 0) + (n ?? 0);
+  }
+  return refundOf(spent);
+}
+
+/** Removes `count` producers of a type (clamped to 0..owned), freeing their room, with a small refund (1.24). */
 export function scrapProducer(state: GameState, id: ProducerId, count = 1): GameState {
   const owned = state.producers[id] ?? 0;
   const n = Math.max(0, Math.min(owned, Math.floor(count)));
   if (n === 0) return state;
-  return deriveRates({ ...state, producers: { ...state.producers, [id]: owned - n } });
+  const refund = producerScrapRefund(state, id, n);
+  return deriveRates({
+    ...state,
+    energy: state.energy + refund.energy,
+    resources: addResources(state.resources, refund.resources),
+    producers: { ...state.producers, [id]: owned - n },
+  });
 }

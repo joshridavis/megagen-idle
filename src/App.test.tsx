@@ -20,8 +20,8 @@ describe('App smoke test', () => {
   it('starts from the documented initial state', () => {
     const s = createInitialState(0);
     expect(s.energy).toBe(900); // exactly the first Solar Panel's cost
-    expect(s.resources).toEqual({ metal: 15, stone: 10, coal: 0, naturalGas: 0, oil: 0, uranium: 0 });
-    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 });
+    expect(s.resources).toEqual({ metal: 15, stone: 10, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 });
+    expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 });
     expect(s.researchLevel).toBe(1);
     expect(s.activeGenerators).toEqual([]);
     expect(s.roomCapacity).toBe(13); // 10 for generators + 3 for the starting producers
@@ -155,7 +155,7 @@ describe('Room UI', () => {
     useStore.setState({
       ...createInitialState(Date.now()),
       energy: 600,
-      resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0, oil: 0, uranium: 0 },
+      resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
     });
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
@@ -209,7 +209,7 @@ describe('Mid-tier generators UI', () => {
   });
 
   it('shows the new room under construction after expanding, in a fixed-width bar', () => {
-    useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0, oil: 0, uranium: 0 } });
+    useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } });
     render(<App />);
     expect(screen.queryByTestId('room-building')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
@@ -221,14 +221,14 @@ describe('Mid-tier generators UI', () => {
 });
 
 describe('Scrap', () => {
-  it('tells the player there is no refund, and Cancel keeps the generator', () => {
+  it('tells the player the 10% refund, and Cancel keeps the generator', () => {
     useStore.setState(createInitialState(Date.now()));
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Build Solar Panel' }));
     const scrapBtn = screen.getByRole('button', { name: 'Scrap Solar Panel #1' });
-    expect(document.getElementById(scrapBtn.getAttribute('aria-describedby')!)!.textContent).toContain('No refund');
+    expect(document.getElementById(scrapBtn.getAttribute('aria-describedby')!)!.textContent).toContain('You get back 10% of everything spent on it');
     fireEvent.click(scrapBtn);
-    expect(screen.getByRole('alert').textContent).toContain('No refund');
+    expect(screen.getByRole('alert').textContent).toContain('You get back');
     fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap Solar Panel #1' }));
     expect(screen.queryByRole('alert')).toBeNull();
     expect(useStore.getState().activeGenerators).toHaveLength(1);
@@ -279,7 +279,7 @@ describe('Research level label (playtest 4)', () => {
 
 describe('Producers (0.31)', () => {
   it('buys a quarry from the Producers tab: count, room and stone rate go up', () => {
-    useStore.setState({ ...createInitialState(Date.now()), energy: 1000, resources: { metal: 20, stone: 10, coal: 0, naturalGas: 0, oil: 0, uranium: 0 } });
+    useStore.setState({ ...createInitialState(Date.now()), energy: 1000, resources: { metal: 20, stone: 10, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } });
     render(<App />);
     fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
     expect(screen.getByTestId('producer-owned-quarry').textContent).toBe('1');
@@ -314,7 +314,7 @@ describe('Scrap producers (playtest 5/6)', () => {
   const setup = (mines: number) => {
     useStore.setState({
       ...createInitialState(Date.now()),
-      producers: { quarry: 1, mine: mines, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 },
+      producers: { quarry: 1, mine: mines, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 },
       roomCapacity: 20,
       roomUsed: 2 + mines,
     });
@@ -325,7 +325,7 @@ describe('Scrap producers (playtest 5/6)', () => {
 
   it('Cancel changes nothing', () => {
     setup(3);
-    expect(screen.getByRole('alert').textContent).toContain('No refund');
+    expect(screen.getByRole('alert').textContent).toContain('You get back');
     fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap Metal Mines' }));
     expect(useStore.getState().producers.mine).toBe(3);
   });
@@ -334,7 +334,7 @@ describe('Scrap producers (playtest 5/6)', () => {
     setup(4);
     fireEvent.click(screen.getByRole('button', { name: 'One more' }));
     fireEvent.click(screen.getByRole('button', { name: 'One more' }));
-    expect(screen.getByTestId('scrap-summary').textContent).toContain('removes 3 Metal Mines');
+    expect(screen.getByTestId('scrap-summary').textContent).toContain('Removes 3 Metal Mines');
     expect(screen.getByTestId('scrap-summary').textContent).toContain('frees 3 room');
     fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Metal Mines' }));
     expect(useStore.getState().producers.mine).toBe(1);
@@ -443,7 +443,7 @@ describe('Welcome back and settings (0.28)', () => {
         awaySeconds: 3 * 86400,
         creditedSeconds: 86400,
         energyGained: 4321,
-        resourcesGained: { metal: 10, stone: 20, coal: -2, naturalGas: 0, oil: 0, uranium: 0 },
+        resourcesGained: { metal: 10, stone: 20, coal: -2, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
         completedResearch: ['basic_solar'],
         outOfFuel: [],
       },
@@ -591,7 +591,7 @@ describe('Generator upgrades UI (0.32)', () => {
       deriveRates({
         ...createInitialState(Date.now()),
         energy: 1e6,
-        resources: { metal: 1e4, stone: 1e4, coal: 0, naturalGas: 0, oil: 0, uranium: 0 },
+        resources: { metal: 1e4, stone: 1e4, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
         activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }],
       }),
     );

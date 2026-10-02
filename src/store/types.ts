@@ -1,3 +1,4 @@
+import type { MapEventState } from '../utils/mapEvents';
 import type { StateCreator } from 'zustand';
 import type { GameState, Resources } from '../types/state';
 import type { AwaySnapshot } from '../utils/awayReport';
@@ -54,6 +55,8 @@ export interface TransientState {
   eventEpoch: number;
   /** The random-event sighting on screen (0.84). */
   activeSighting: { id: string; at: number } | null;
+  /** The map event playing on the Map tab (1.12). */
+  mapEvent: MapEventState | null;
 }
 
 export type GameStore = GameState &

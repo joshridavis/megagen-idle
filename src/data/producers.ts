@@ -64,9 +64,20 @@ export const PRODUCERS: Record<ProducerId, ProducerDef> = {
     baseCost: { energy: 60000, resources: { metal: 400, stone: 300 } },
     requiresResearch: 'uranium_mining',
   },
+  // 0.34. Heavy water from the sea, for fusion. The first one is granted by Heavy Water Extraction.
+  deuteriumExtractor: {
+    id: 'deuteriumExtractor',
+    name: 'Deuterium Extractor',
+    resource: 'deuterium',
+    amount: 1,
+    intervalSeconds: 360,
+    roomCost: 3,
+    baseCost: { energy: 400000, resources: { metal: 1500, stone: 800 } },
+    requiresResearch: 'heavy_water',
+  },
 };
 
 export const PRODUCER_IDS = Object.keys(PRODUCERS) as ProducerId[];
 
 /** The player starts with one of each basic producer already running. */
-export const STARTING_PRODUCERS: Record<ProducerId, number> = { quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0 };
+export const STARTING_PRODUCERS: Record<ProducerId, number> = { quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 };

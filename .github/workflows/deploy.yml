@@ -34,6 +34,8 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          # "Continue with …" buttons to show, e.g. google,discord (1.22)
+          VITE_AUTH_PROVIDERS: ${{ vars.VITE_AUTH_PROVIDERS }}
       # On a fresh repo Pages is still off, and configure-pages would fail.
       # Only a 404 means "not enabled": skip the deploy with a warning so the
       # run stays green. Any other API error falls through and fails loudly

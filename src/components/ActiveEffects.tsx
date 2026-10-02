@@ -1,6 +1,6 @@
 import { EVENTS_BY_ID } from '../data/events';
 import { useStore } from '../store';
-import { describeEffect } from '../utils/eventEffects';
+import { describeEffect, effectiveDef } from '../utils/eventEffects';
 import { formatDuration } from '../utils/format';
 import { useNumberFormat } from './useNumberFormat';
 
@@ -23,7 +23,7 @@ export default function ActiveEffects() {
       {live.map((a) => {
         const def = EVENTS_BY_ID[a.id];
         if (!def) return null;
-        const exact = describeEffect(def, { activeGenerators: generators, producers, completedResearch }, fmt.rate);
+        const exact = describeEffect(effectiveDef(def, a), { activeGenerators: generators, producers, completedResearch }, fmt.rate);
         const tipId = `effect-tip-${a.id}`;
         return (
           <li key={a.id} className="group relative">

@@ -11,4 +11,6 @@ export const GENERATOR_SPRITES: Record<GeneratorType, { active: SpriteId; inacti
   [GeneratorType.GAS]: { active: 'gas_plant', inactive: 'gas_plant_inactive' },
   [GeneratorType.OIL]: { active: 'oil_plant', inactive: 'oil_plant_inactive' },
   [GeneratorType.NUCLEAR]: { active: 'nuclear_plant', inactive: 'nuclear_plant_inactive' },
+  [GeneratorType.FUSION]: { active: 'fusion_reactor', inactive: 'fusion_reactor_inactive' },
+  [GeneratorType.SUPERNOVA]: { active: 'supernova_core', inactive: 'supernova_core_inactive' },
 };

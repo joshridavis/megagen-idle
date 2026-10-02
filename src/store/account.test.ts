@@ -8,7 +8,9 @@ import {
   deleteAccount,
   readLastSync,
   resolveChoice,
+  chooseUsername,
   signIn,
+  signInWithProvider,
   signUp,
   uploadDue,
   useAccount,
@@ -49,6 +51,8 @@ function fakeService(opts: { taken?: string[] } = {}) {
       updatePassword: async () => undefined,
       deleteAccount: async () => void calls.push('delete'),
       usernameFree: async (u) => !(opts.taken ?? []).includes(u),
+      signInWith: async (p) => void calls.push(`oauth:${p}`),
+      setUsername: async (username) => (calls.push(`username:${username}`), { ...USER, username }),
     },
     saves: createKVBackend(memoryKV(), 'cloud'),
   };
@@ -60,7 +64,7 @@ const sum = (source: 'local' | 'cloud', savedAt: number): SaveSummary => ({ slot
 beforeEach(() => {
   localStorage.clear();
   useStore.setState({ ...createInitialState(0), energy: 500 });
-  useAccount.setState({ status: 'signedOut', user: null, lastSyncAt: null, busy: false, error: null, notice: null, choice: null, recovering: false });
+  useAccount.setState({ status: 'signedOut', user: null, lastSyncAt: null, busy: false, error: null, notice: null, choice: null, recovering: false, needsUsername: false });
 });
 afterEach(() => setCloudServiceForTests(null));
 
@@ -159,5 +163,21 @@ describe('account flows with a fake cloud (0.68)', () => {
     expect(calls).toContain('delete');
     expect(useAccount.getState()).toMatchObject({ status: 'signedOut', user: null });
     expect(useStore.getState().energy).toBe(500);
+  });
+
+  it('Google or Discord: goes to the provider, then asks once for a username (1.22)', async () => {
+    const { s: svc, calls } = fakeService({ taken: ['Taken'] });
+    setCloudServiceForTests(svc);
+    await signInWithProvider('google');
+    expect(calls).toContain('oauth:google');
+    // back from the provider: an account with no username yet
+    useAccount.setState({ status: 'signedIn', user: { id: 'u1', email: 'g@x.y', username: null }, needsUsername: true });
+    expect(await chooseUsername('no')).toBeUndefined();
+    expect(useAccount.getState().error).toBe('Usernames are 3 to 20 letters, digits or _.');
+    expect(await chooseUsername('Taken')).toBeUndefined();
+    expect(useAccount.getState().error).toBe('That username is taken. Try another one.');
+    expect(await chooseUsername(' New_Name ')).toBe(true);
+    expect(calls).toContain('username:New_Name');
+    expect(useAccount.getState()).toMatchObject({ needsUsername: false, user: { username: 'New_Name' } });
   });
 });

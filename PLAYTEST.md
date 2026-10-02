@@ -1,6 +1,6 @@
-# Playtest 18 (v0.18.0): accounts and cloud saves (ready, waiting for setup), map fixes (after item 1.06)
+# Playtest 19 (v0.19.0): fusion, the Micro-Supernova, the Exclusion Zone, map events (after item 1.12)
 
-The version at the bottom of the screen should read **v0.18.0**.
+The version at the bottom of the screen should read **v0.19.0**.
 
 ## How to play
 
@@ -11,51 +11,67 @@ Your save carries over.
 
 ## Estimated play time
 
-- **100% completion: about 110 hours** (simulated; v0.17.0 was about 119).
-  - The terrain changed where slivers became plain land, which probably shifted where machines land and which bonuses they get.
+- **100% completion: about 138 hours** (simulated; v0.18.0 was about 110).
+  - The new content added nearly 30 hours without slowing anything that was already there.
+  - Still short of your 200-hour target.
 - **Milestones:**
-  - Content: first Wind about 2.3 h, Coal 3.5 h, Hydro 5.7 h, Tidal 7.2 h, Gas 9.2 h, Oil 16.5 h, Nuclear 44 h.
-  - Contracts: every contract perk by about 27 h, 200 contracts by about 100 h.
-  - Max levels: every type maxed by about 64 h.
-  - The last stretch is the 2 billion lifetime energy achievement.
-- **Target:** 200+ hours. Map events, decorations, the fictional generators and the final balance pass are still to come.
+  - Content: Wind 2.3 h, Coal 3.5 h, Hydro 5.7 h, Gas 10 h, Oil 17 h, Nuclear 44 h.
+  - New content: room tiers 9 and 10 at 45 h and 70 h, first Fusion Reactor 75 h, first Micro-Supernova 92 h.
+  - Contracts: every contract perk by 32 h, 200 contracts by 103 h.
+  - Both new generators maxed by about 138 h.
 
-## New since last playtest
+## New since last playtest (your playtest 18 feedback)
 
-- **Your feedback:**
-  - **Accounts and cloud saves (the website step), built but not switched on yet.**
-    - Sign up with email, username and password, then sign in on any browser. The game saves to the cloud every 5 minutes and whenever you leave the tab.
-    - If the game on this device and your cloud save differ, a "Which game do you want to keep?" window shows both (time, energy, completion) and marks the newer one.
-    - You won't be asked at every start: only when another device saved since this one last did.
-    - Settings also has: Forgot password, Save to cloud now, Load cloud save, Sign out and Delete my account. A privacy page explains what is stored.
-    - **It turns on when you finish the 15-minute Supabase setup** in `docs/PUBLIC_RELEASE.md`, section 9. That is a free account, one SQL paste, and two GitHub repository variables. Until then the game looks and plays exactly as before.
-    - `docs/PUBLIC_RELEASE.md` is also the full plan: why Supabase (compared with Firebase, PlayFab and an own server), the data model, security, privacy, cheating and leaderboards, and costs.
-  - **📍 and ⭐ tooltips** now appear centered above the mark and are never cut off.
-  - **No more useless zone slivers:** where the river or coast leaves a piece of plateau, ridge or field narrower than 3 tiles, it is now plain land. Every zone tile left can hold a whole machine.
-  - **Active bonuses** (Research tab) opens and closes. Closed, it shows a one-line summary, and it remembers your choice.
-- **Also:**
-  - The Room panel shows what land the next expansion opens (for example "36 plain, 24 river, 12 windy ridge").
-  - The Guide's Map section explains zones, placement and moving.
-  - Settings → Credits lists the art palette and the open-source libraries.
-  - `LICENSE` reserves all rights to the game; you can change that.
+- **Fictional generators.**
+  - **Fusion Reactor** (research level 12): 200 energy/s, 16 tiles, burns 1 deuterium per hour.
+  - **Micro-Supernova** (level 14): a star that lives and dies every second in a fast-time pocket dimension. 780 energy/s, 25 tiles, burns 2 deuterium per hour.
+  - Each gives about 2.5 times the energy per tile of the tier before.
+  - **Deuterium**, a new resource, comes from the new **Deuterium Extractor** (1 every 6 minutes, from sea water).
+  - A new **Experimental physics** research branch (5 nodes) unlocks it all, after Reactor Safety Systems.
+  - **Room tiers 9 and 10** (+180 and +240 room).
+- **Map upgrade: the Exclusion Zone.**
+  - The last two room tiers open a fenced, shielded purple zone at the bottom of the map, with warning signs, pylons and a soft glow.
+  - Fusion Reactors and Micro-Supernovas must be built there (+10% fully inside).
+  - It holds about 280 tiles, so you choose how many of each to fit.
+- **Map events** (only while the Map tab is open, about one every few minutes):
+  - birds flying over;
+  - lightning that supercharges the generator it hits (+50% for that type, 3 minutes);
+  - a delivery truck that brings resources to a producer;
+  - a **fire at a coal plant: click it within 30 seconds** to put it out for a reward;
+  - a river flood that slows dams briefly;
+  - a rare falling star at sea.
+- **Scrapping refunds 10%** of everything spent on the machine, build and upgrades. The Scrap tooltip and the confirm show the exact amount.
+- **Sign in with Google and Discord:** the code is ready. The buttons stay hidden until you turn them on (`docs/PUBLIC_RELEASE.md`, section 9b, about 20 minutes). New Google or Discord players choose a username the first time.
+
+## Please test: accounts and cloud saves (live)
+
+I can't reach the live site or Supabase from my sandbox, so this part needs you. It takes about 5 minutes:
+
+1. Open the game's Settings. If you don't see "Account and cloud saves", re-run the deploy: Actions → Deploy to GitHub Pages → Run workflow.
+2. **Create an account** with your email, a username and a password. Open the confirmation email, then sign in.
+3. Check that "Last cloud save" shows a time.
+4. **Open the game in a second browser** (or a private window) and sign in there. You should get your game, not a new one.
+5. Play a minute in the second browser, wait until it saves (or click "Save to cloud now"), then reload the first one. It should ask "Which game do you want to keep?" and mark the newer one.
+6. Optional: try "Forgot password?".
+7. Optional, with a throwaway account: "Delete my account".
+
+Tell me what you see, especially any error message, and I'll fix it.
 
 ## Things to try
 
-1. Hover a 📍 in Your generators and a ⭐ on the map. Is the tooltip in the right place now?
-2. Look at the map where the river crosses a plateau or ridge. Any slivers left?
-3. Close and reopen Active bonuses in the Research tab, then reload the page.
-4. Open the Room panel and read the "New land" line.
-5. Read `docs/PUBLIC_RELEASE.md` and, when you have 15 minutes, do the setup in section 9. Then tell me, and I'll run a live test of sign-up, sync between two browsers, and deletion.
+1. Research toward Fusion (Heavy Water Extraction first) and build a Deuterium Extractor.
+2. Expand to room tier 9 and look at the Exclusion Zone on the map. Build a Fusion Reactor there.
+3. Leave the Map tab open for a while. Did you catch a fire in time?
+4. Scrap an upgraded machine and check the refund.
 
 ## Known issues
 
-- Accounts stay hidden until the setup is done. They are tested against a fake server, not yet a real one.
-- Placeholder art.
+- The fictional generators reuse placeholder art, and map events use emoji for now.
+- Accounts are tested against fakes only until your live test.
 
 ## Questions for you
 
-1. Are you happy with Supabase as the provider? The setup is in section 9 of `docs/PUBLIC_RELEASE.md`.
-2. Sign-in methods at launch: email only, or also Google or Discord?
-3. Usernames are 3–20 letters, digits or `_`, shown on future leaderboards. Is that fine?
-4. License: keep "all rights reserved" (the safe choice for a game you plan to sell), or open the code?
-5. After the accounts go live: map events and decorations next, or the fictional generators for more content and hours?
+1. Do the Fusion Reactor and Micro-Supernova feel like a satisfying late game?
+2. Is the Exclusion Zone a good limit, or too tight?
+3. Are map events too frequent, too rare, or about right? Is the fire fun?
+4. Next: map decorations (1.13) and browser notifications (1.07) are queued. Should more content come first to get closer to 200 hours (for example geothermal or biomass generators, or a deeper research tree)?
