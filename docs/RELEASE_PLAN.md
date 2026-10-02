@@ -8,7 +8,8 @@ This document is a plan. Nothing here is built yet except the small platform lay
 
 | Platform | How | Main owner steps | Rough cost |
 |---|---|---|---|
-| Website | The current Vite build, on a custom domain | Buy a domain, point DNS to GitHub Pages (or Netlify or Cloudflare Pages) | Domain: about $10–20 a year |
+| Website | The current Vite build (live on GitHub Pages); custom domain optional | Optional: buy a domain, point DNS to GitHub Pages | Free; domain about $10–20 a year |
+| Web portals (itch.io) | The same build, zipped | An itch.io account and page | Free |
 | Steam (Windows, macOS, Linux) | A desktop wrapper (Tauri recommended, Electron as fallback) around the same web build | Steamworks partner account, app fee, tax and bank forms, store page, code-signing certificate (Windows, optional at first) | Steam Direct fee: about $100 per game (paid back after $1,000 of sales); code signing: about $100–400 a year |
 | Android | Capacitor around the same web build | Google Play developer account, signing key, store listing, data-safety form | Play Console: about $25 once |
 | iOS | Capacitor around the same web build | Apple Developer Program, a Mac with Xcode, App Store listing, privacy form | About $99 a year |
@@ -79,19 +80,26 @@ Rule: game logic never imports Capacitor, Tauri, Electron or Steam libraries dir
 - **Android:** a Play Console account, an upload key (keep a backup; losing it is painful), the store listing, the data-safety form, the content rating questionnaire, and a closed testing track first. New personal accounts must run a closed test with a minimum number of testers before production; check the current rule.
 - **iOS:** the Apple Developer Program, a Mac with Xcode to build and upload, App Store Connect listing, privacy "nutrition label", and TestFlight for testers. Apple reviews every release.
 
-## 6. Order of steps
+## 6. Order of steps: easiest first (playtest 14)
 
-Each step lists what only the owner can do (marked **Owner**). Everything else can be done in cloud sessions.
+You prefer releasing from the easiest platform to the hardest, so the game reaches players as soon as possible. **Every step below can go live before accounts and cloud saves exist.** Each platform works on its own with local saves plus export and import, so nothing waits on the backend. When 0.67 and 0.68 land, an update adds cloud saves everywhere.
 
-1. **Content and art ready for the public.** Finish the planned content and a balance pass (0.47). Replace the stand-in art (**Owner**: commission or create art; the code needs no change).
-2. **Credits and license.** Part of 0.67: a LICENSE file and an in-game credits screen (AAP-64 palette by Adigun A. Polack; open-source libraries).
-3. **Accounts and cloud saves.** Item 0.67 writes the plan and the `SaveBackend` interface. **Owner:** create the backend project (e.g. Supabase) and add the public keys as GitHub repository variables. Then 0.68 builds it.
-4. **Website on its own domain.** **Owner:** buy the domain and set DNS. Then a cloud session updates the build, the landing section and the privacy page.
-5. **Android.** A cloud session adds Capacitor configuration files only. **Owner:** Play Console account and fee, build and sign in Android Studio on your computer (or set up a CI signing secret yourself), store listing, closed test.
-6. **iOS.** **Owner:** Apple Developer account, a Mac with Xcode, signing, TestFlight, review.
-7. **Steam.** A cloud session adds the Tauri or Electron configuration and the Steam achievements mapping. **Owner:** Steamworks account and app fee, tax and bank forms, store page assets, upload builds with SteamPipe, review, launch.
+| # | Step | Owner cost | Typical time to live | What blocks it |
+|---|---|---|---|---|
+| 1 | **Website on GitHub Pages** (already live) | Free | Done | Nothing. Optional custom domain later. |
+| 2 | **Web game portal: itch.io** (optionally also others such as Newgrounds) | Free | 1–2 days | An itch.io account, a page, the zipped build (a cloud session can prepare the zip and the page text). |
+| 3 | **Android (Google Play)** | About $25 once | 1–3 weeks | Play Console account; signing and building in Android Studio on your computer; the closed-test rule for new personal accounts (check the current tester count and duration). |
+| 4 | **Steam (Windows, macOS, Linux)** | About $100 per game (paid back after $1,000 of sales) | 2–6 weeks | Steamworks account, tax and bank forms, store page assets, Steam's review of the page and the build. Real art is strongly advised first. |
+| 5 | **iOS (App Store)** | About $99 a year | 2–4 weeks | Apple Developer Program, **a Mac with Xcode**, TestFlight, App Review. The hardest, mainly because of the Mac and review requirements. |
 
-Steps 5–7 can run in any order; many idle games launch on the web and Android first because those are the cheapest, then Steam once reviews come in.
+Alongside these, at any time:
+
+- **Accounts and cloud saves** (0.67 then 0.68). **Owner:** create the backend project and add the public keys as GitHub repository variables. When ready, an update adds cloud saves to every platform already live.
+- **Real art** before Steam and the app stores (**Owner**: commission or create it; the code needs no change).
+- **Credits and LICENSE** (part of 0.67) before the first store submission.
+- **A custom domain** for the website, whenever you like (**Owner**: buy the domain and set DNS).
+
+What a cloud session can prepare for each step: the itch.io zip and page text, Capacitor configuration files for Android and iOS, Tauri or Electron configuration and the Steam achievements mapping, and store descriptions. Signing, accounts, fees and uploads stay with you (section 7).
 
 ## 7. What stays out of cloud sessions
 

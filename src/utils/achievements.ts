@@ -1,4 +1,4 @@
-import { ACHIEVEMENTS, type AchievementDef, type AchievementMetric } from '../data/achievements';
+import { ACCENTS, ACHIEVEMENTS, type AchievementDef, type AchievementMetric } from '../data/achievements';
 import { EVENTS_BY_ID } from '../data/events';
 import { GENERATORS, GENERATOR_TYPES, UPGRADES } from '../data/generators';
 import { PETS } from '../data/pets';
@@ -64,4 +64,19 @@ export function unlockAchievements<T extends S & Pick<GameState, 'achievements'>
   const achievements = { ...s.achievements };
   for (const d of unlocked) achievements[d.id] = now;
   return { state: { ...s, achievements }, unlocked };
+}
+
+/** Number of achievements unlocked. */
+export const unlockedCount = (s: Pick<GameState, 'achievements'>) => ACHIEVEMENTS.filter((d) => s.achievements?.[d.id] !== undefined).length;
+
+/** A title can be shown once its achievement is unlocked (null means no title). */
+export function canUseTitle(s: Pick<GameState, 'achievements'>, id: string | null): boolean {
+  if (id === null) return true;
+  return !!ACHIEVEMENTS.find((d) => d.id === id && d.title) && s.achievements?.[id] !== undefined;
+}
+
+/** An accent colour can be used once enough achievements are unlocked. */
+export function canUseAccent(s: Pick<GameState, 'achievements'>, id: string): boolean {
+  const accent = ACCENTS.find((x) => x.id === id);
+  return !!accent && unlockedCount(s) >= accent.need;
 }

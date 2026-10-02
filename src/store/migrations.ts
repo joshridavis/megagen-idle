@@ -7,7 +7,7 @@ import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 15;
+export const SAVE_VERSION = 16;
 
 type AnySave = Record<string, unknown>;
 
@@ -55,6 +55,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   13: (save) => save,
   // 0.65: achievements and their counters (filled from defaults; unlocks are checked on load).
   14: (save) => save,
+  // 1.01: cosmetics (filled from default settings below).
+  15: (save) => save,
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */

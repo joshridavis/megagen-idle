@@ -204,3 +204,19 @@ export function sharesNeed(open: Contract[], c: Contract): boolean {
   const mine = needs(c);
   return open.some((o) => o.id !== c.id && o.kind !== 'produce' && o.status === 'open' && needs(o).some((n) => mine.includes(n)));
 }
+
+/** A perk's effect now and after the next level, e.g. "Slots: 3 → 4" (null when maxed). */
+export function perkEffectText(s: Pick<S, 'contracts'>, id: PerkId): { now: string; next: string | null } {
+  const lv = perkLevel(s, id);
+  const maxed = perkCost(s, id) === null;
+  switch (id) {
+    case 'slot':
+      return { now: `Contract slots: ${BASE_CONTRACT_SLOTS + lv}`, next: maxed ? null : `${BASE_CONTRACT_SLOTS + lv + 1}` };
+    case 'deadline':
+      return { now: `Deadlines: ${lv ? '+50%' : 'normal'}`, next: maxed ? null : '+50%' };
+    case 'rewards':
+      return { now: `Bundles and boosts: ${lv ? '+25%' : 'normal'}`, next: maxed ? null : '+25%' };
+    case 'offers':
+      return { now: `New offer every ${lv ? 20 : OFFER_INTERVAL_MINUTES} min`, next: maxed ? null : '20 min' };
+  }
+}

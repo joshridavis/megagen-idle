@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { sprites } from '../assets';
+import { ACCENTS } from '../data/achievements';
 import { useStore } from '../store';
 import { getAvailableRoom, getTotalEnergyRate, selectEnergy } from '../store/selectors';
 import { getEnergyBreakdown } from '../utils/breakdown';
@@ -14,6 +15,8 @@ export default function EnergyDisplay() {
   const capacity = useStore((s) => s.roomCapacity);
   const free = useStore(getAvailableRoom);
   const fmt = useNumberFormat();
+  const accentId = useStore((s) => s.settings.cosmetics?.accent ?? 'amber');
+  const accent = ACCENTS.find((x) => x.id === accentId) ?? ACCENTS[0];
   const generators = useStore((s) => s.activeGenerators);
   const completed = useStore((s) => s.completedResearch);
   const lifetime = useStore((s) => s.lifetimeEnergy);
@@ -25,10 +28,10 @@ export default function EnergyDisplay() {
   // overall change from all boosts (event effects can apply to one generator type only)
   const boost = breakdown.base > 0 ? breakdown.total / breakdown.base - 1 : breakdown.modifiers.reduce((sum, m) => sum + (m.percent ?? 0), 0);
   return (
-    <div className="flex items-center gap-3 rounded-lg bg-slate-800 px-4 py-3 shadow" data-testid="energy-display">
+    <div className={`flex items-center gap-3 rounded-lg bg-slate-800 px-4 py-3 shadow ring-2 ${accent.ring}`} data-testid="energy-display">
       <img src={sprites.energy_icon} alt="Energy" width={32} height={32} className="pixelated" />
       <div className="leading-tight">
-        <span className="font-mono text-2xl text-yellow-300" aria-label="Energy total">
+        <span className={`font-mono text-2xl ${accent.text}`} aria-label="Energy total">
           {fmt.num(energy)}
         </span>
         <div className="text-xs text-slate-400">

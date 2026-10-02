@@ -630,6 +630,29 @@ function meteor() {
   return c;
 }
 
+// ---------- site map tiles (1.04) ----------
+
+function groundTile() {
+  const c = new Canvas(16, 16);
+  c.rect(0, 0, 16, 16, C.forest);
+  for (const [x, y] of [[2, 3], [9, 1], [13, 7], [5, 10], [11, 13], [1, 14], [7, 6]]) c.set(x, y, C.green);
+  for (const [x, y] of [[4, 5], [12, 3], [8, 12]]) c.set(x, y, C.darkGreen);
+  c.rect(0, 15, 16, 1, C.darkGreen); // faint grid line
+  c.rect(15, 0, 1, 16, C.darkGreen);
+  return c;
+}
+
+function lockedTile() {
+  const c = new Canvas(16, 16);
+  c.rect(0, 0, 16, 16, C.mud);
+  for (const [x, y] of [[3, 4], [10, 2], [6, 11], [13, 12]]) c.set(x, y, C.brown2);
+  c.rect(0, 6, 16, 1, C.brown3); // fence rails
+  c.rect(0, 10, 16, 1, C.brown3);
+  c.rect(2, 4, 2, 9, C.brown2); // posts
+  c.rect(11, 4, 2, 9, C.brown2);
+  return c;
+}
+
 // ---------- achievements (0.65) ----------
 
 function trophy(cup, shine, base) {
@@ -822,6 +845,8 @@ const DRAW = {
   producer_oil_rig: oilRig,
   producer_uranium_mine: uraniumMine,
   room_expansion: roomExpansion,
+  tile_ground: groundTile,
+  tile_locked: lockedTile,
   achievement_unlocked: () => trophy(C.yellow, C.lemon, C.brown3),
   achievement_locked: () => trophy(C.grey5, C.grey4, C.grey6),
   sighting_spaceship: spaceship,

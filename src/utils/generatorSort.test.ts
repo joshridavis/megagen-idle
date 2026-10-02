@@ -38,3 +38,19 @@ describe('generator list sorting (0.96)', () => {
     expect(migrateSave(v10, 10).settings.generatorSort).toBe('custom');
   });
 });
+
+describe('upgradable first (1.03, playtest 14)', () => {
+  it('puts affordable upgrades first, then not-maxed, then maxed; ties keep your order', () => {
+    const l = [g(1, GeneratorType.SOLAR, 10), g(2, GeneratorType.COAL, 2), g(3, GeneratorType.HYDRO, 4), g(4, GeneratorType.WIND, 1)];
+    const affordable = new Set(['gen-3']);
+    expect(ids(sortGenerators(l, 'upgradable', NO_BONUSES, (x) => affordable.has(x.id)))).toEqual(['gen-3', 'gen-2', 'gen-4', 'gen-1']);
+  });
+
+  it('uses the real upgrade rules in the game', async () => {
+    const { getUpgradeBlock } = await import('./generatorSystem');
+    const { getEnergyBonuses } = await import('./bonuses');
+    const s = { ...createInitialState(0), energy: 1e9, resources: { ...createInitialState(0).resources, metal: 1e6, stone: 1e6 }, activeGenerators: list };
+    const can = (x: Generator) => getUpgradeBlock(s, x.id, getEnergyBonuses(s)) === null;
+    expect(sortGenerators(list, 'upgradable', NO_BONUSES, can).every((x) => can(x))).toBe(true);
+  });
+});

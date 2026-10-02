@@ -35,7 +35,12 @@ export interface AchievementDef {
   metric: AchievementMetric;
   target: number;
   bonus?: boolean;
+  /** Unlocks this achievement's name as a title to show in the top bar (1.01). */
+  title?: boolean;
 }
+
+/** Achievements whose name becomes a title to show (1.01, cosmetic only). */
+const TITLES = new Set(['energy_100k', 'energy_10m', 'energy_1b', 'energy_2b', 'level_10', 'level_25', 'level_50', 'level_75', 'contracts_50', 'contracts_200', 'adult_all', 'research_all', 'maxed_all', 'types_all', 'clicks_10k', 'sight_5']);
 
 const a = (
   id: string,
@@ -45,7 +50,7 @@ const a = (
   metric: AchievementMetric,
   target: number,
   bonus = false,
-): AchievementDef => ({ id, name, description, category, metric, target, ...(bonus ? { bonus } : {}) });
+): AchievementDef => ({ id, name, description, category, metric, target, ...(bonus ? { bonus } : {}), ...(TITLES.has(id) ? { title: true } : {}) });
 
 export const ACHIEVEMENTS: AchievementDef[] = [
   a('energy_1k', 'First Spark', 'Produce 1,000 energy in total.', 'Energy', 'lifetimeEnergy', 1e3),
@@ -93,5 +98,18 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   a('returns_1', 'Welcome Back', 'Come back after time away.', 'Discovery', 'returns', 1, true),
   a('returns_25', 'Regular', 'Come back after time away 25 times.', 'Discovery', 'returns', 25, true),
 ];
+
+/**
+ * Accent colours for the top bar (1.01), unlocked by the number of achievements.
+ * `text` colours the energy number and level; `ring` outlines the top bar.
+ */
+export const ACCENTS = [
+  { id: 'amber', name: 'Amber', need: 0, text: 'text-yellow-300', ring: 'ring-yellow-500/0' },
+  { id: 'emerald', name: 'Emerald', need: 5, text: 'text-emerald-300', ring: 'ring-emerald-400/60' },
+  { id: 'sky', name: 'Sky', need: 15, text: 'text-sky-300', ring: 'ring-sky-400/60' },
+  { id: 'violet', name: 'Violet', need: 25, text: 'text-violet-300', ring: 'ring-violet-400/60' },
+  { id: 'rose', name: 'Rose', need: 36, text: 'text-rose-300', ring: 'ring-rose-400/70' },
+] as const;
+export type AccentId = (typeof ACCENTS)[number]['id'];
 
 export const ACHIEVEMENTS_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((x) => [x.id, x]));

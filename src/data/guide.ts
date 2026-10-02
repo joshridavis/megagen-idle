@@ -42,6 +42,15 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: 'map',
+    title: 'Site map',
+    icon: 'tile_ground',
+    paragraphs: [
+      'The Map tab shows your site: one tile for each unit of room, and every machine covering as many tiles as the room it takes. Fenced land at the bottom is the next room expansion.',
+      'Hover over or tap a machine to see it; click a generator to find it in your list.',
+    ],
+  },
+  {
     id: 'fuel',
     title: 'Fuel',
     icon: 'coal_plant',
@@ -83,7 +92,8 @@ export const GUIDE: GuideSection[] = [
     icon: 'capacity_filled',
     paragraphs: [
       'From research level 3, customers send contracts: supply energy, deliver materials, or produce an amount of energy before a deadline. New offers arrive over time, even while you are away.',
-      'When a contract is done, pick a reward: materials, a temporary energy boost, or Contract Points. Spend points in the perk shop on permanent perks, such as an extra contract slot. Missing a deadline costs nothing but the reward.',
+      'When a contract is done, pick a reward: materials, a temporary energy boost, or Contract Points. Points depend on the contract size: ★ gives 1, ★★ gives 2, ★★★ gives 3 (each card shows it).',
+      'Spend points in the perk shop on permanent perks, such as an extra contract slot; each button shows the price in points. Missing a deadline costs nothing but the reward.',
     ],
   },
   {

@@ -11,6 +11,7 @@ import DepletionWarning from './components/DepletionWarning';
 import EnergyDisplay from './components/EnergyDisplay';
 import EventLog from './components/EventLog';
 import GuidePanel from './components/GuidePanel';
+import MapPanel from './components/MapPanel';
 import GeneratorGrid from './components/GeneratorGrid';
 import ProducerPanel from './components/ProducerPanel';
 import ResearchCelebration from './components/ResearchCelebration';
@@ -28,9 +29,10 @@ import { useStore } from './store';
 import { formatCompletion, getCompletion } from './utils/completion';
 import { useIdleEngine } from './utils/idleEngine';
 
-type Tab = 'generators' | 'producers' | 'research' | 'contracts' | 'pets' | 'achievements' | 'completion' | 'guide' | 'settings';
+type Tab = 'generators' | 'map' | 'producers' | 'research' | 'contracts' | 'pets' | 'achievements' | 'completion' | 'guide' | 'settings';
 const TABS: { id: Tab; label: string; icon: SpriteId }[] = [
   { id: 'generators', label: 'Generators', icon: 'solar_panel' },
+  { id: 'map', label: 'Map', icon: 'tile_ground' },
   { id: 'producers', label: 'Producers', icon: 'producer_mine' },
   { id: 'research', label: 'Research', icon: 'research_advanced' },
   { id: 'contracts', label: 'Contracts', icon: 'capacity_filled' },
@@ -99,6 +101,19 @@ export default function App() {
               <ActiveGenerators />
             </div>
           </div>
+        ) : tab === 'map' ? (
+          <MapPanel
+            onSelect={(id) => {
+              setTab('generators');
+              // after the list renders, bring that generator into view and flash it
+              setTimeout(() => {
+                const el = document.querySelector(`[data-testid="generator-${id}"]`);
+                el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el?.classList.add('ring-2', 'ring-yellow-300');
+                setTimeout(() => el?.classList.remove('ring-2', 'ring-yellow-300'), 1500);
+              }, 50);
+            }}
+          />
         ) : tab === 'producers' ? (
           <div className="grid gap-6 lg:grid-cols-[3fr_1fr]">
             <ProducerPanel />

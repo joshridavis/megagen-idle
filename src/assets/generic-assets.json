@@ -25,6 +25,8 @@
     "sprites/generators/tidal_station_inactive.png",
     "sprites/generators/wind_turbine.png",
     "sprites/generators/wind_turbine_inactive.png",
+    "sprites/map/ground.png",
+    "sprites/map/locked.png",
     "sprites/pets/beetle_1.png",
     "sprites/pets/beetle_2.png",
     "sprites/pets/beetle_3.png",

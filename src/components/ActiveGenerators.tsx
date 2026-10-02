@@ -71,7 +71,15 @@ export default function ActiveGenerators() {
   const sort = useStore((s) => s.settings.generatorSort ?? 'custom');
   const setSort = useStore((s) => s.setGeneratorSort);
   const custom = sort === 'custom';
-  const shown = useMemo(() => sortGenerators(generators, sort, bonuses), [generators, sort, bonuses]);
+  // 'upgradable' depends on what you can afford, so it re-sorts as energy and resources change
+  const fullState = useStore((s) => (sort === 'upgradable' ? s : null));
+  const shown = useMemo(
+    () =>
+      sortGenerators(generators, sort, bonuses, (g) =>
+        fullState ? getUpgradeBlock(fullState, g.id, getEnergyBonuses(fullState)) === null : false,
+      ),
+    [generators, sort, bonuses, fullState],
+  );
   return (
     <section aria-label="Your generators" className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-2">
