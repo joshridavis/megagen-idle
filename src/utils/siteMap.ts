@@ -391,3 +391,16 @@ export function settledPins(s: SiteState): Record<string, number> {
   }
   return next;
 }
+
+/**
+ * The land the next room expansion opens, by terrain (1.06): tiles from the
+ * current capacity up to the new one. Shown before buying it.
+ */
+export function expansionTerrain(capacity: number, added: number, columns = MAP_COLUMNS): Partial<Record<Terrain, number>> {
+  const out: Partial<Record<Terrain, number>> = {};
+  for (let c = capacity; c < capacity + added; c++) {
+    const t = terrainOfCell(c, columns);
+    out[t] = (out[t] ?? 0) + 1;
+  }
+  return out;
+}

@@ -90,8 +90,12 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.16 Drag and drop to move machines on the map (playtest 16 feedback)
 0. 1.15 More variety in the small map details (playtest 16 feedback)
 0. 1.18 Producer zones: fields and outcrops that boost mines, quarries and wells (playtest 16 feedback) → CHECKPOINT 17
-0. 1.06 Map polish: expansions grow the map, simulator and balance (playtest 14 feedback)
-0. 0.67 Public release plan: accounts and cloud saves (moved up: playtest 15, the website needs accounts)
+0. 1.19 Tooltips drawn on top of the page, never cut off (playtest 17 bug)
+0. 1.20 No zone slivers too narrow for a machine (playtest 17 bug)
+0. 1.21 Active bonuses can be opened and closed (playtest 17 feedback)
+0. 0.67 Public release plan: accounts and cloud saves (moved up: playtest 15 and 17, the website needs accounts)
+0. 0.68 Accounts and cloud saves (needs owner setup, see 0.67; skipped until then)
+0. 1.06 Map polish: expansions grow the map, simulator and balance (playtest 14 feedback) → CHECKPOINT 18
 0. 1.12 Map events you can watch on the map (playtest 15 feedback)
 0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback) → CHECKPOINT
@@ -134,7 +138,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 35. (0.65 moved to the top, playtest 13)
 36. (0.66 moved to the top, playtest 10)
 37. (0.67 moved to the top, playtest 15)
-38. 0.68 Accounts and cloud saves (needs owner setup, see 0.67)
+38. (0.68 moved to the top, playtest 17)
 
 ---
 
@@ -559,7 +563,22 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Sprites:** tile_coalfield, tile_outcrop, tile_oilfield.
 - **Simulator:** about 119 h to 100%, no stalls.
 
-### 1.06 — Map polish: expansions grow the map, simulator and balance — CODE — Not started
+### 1.19 — Tooltips drawn on top of the page, never cut off — CODE — Done
+**Goal:** fix the playtest 17 bug: the 📍 tooltip in Your generators opened to the side and was cut off by the scrolling list.
+**Details:** a shared `FloatingTip` component draws the tip on top of the page (a portal with fixed position). It is centered above its anchor, goes below when there is no room above, and is kept inside the screen. Used for 📍 and the map ⭐.
+**Acceptance:** the tip is not inside the scrolling list and shows on hover and keyboard focus (component test); checked at 600 px wide in Chromium.
+
+### 1.20 — No zone slivers too narrow for a machine — CODE — Done
+**Goal:** fix the playtest 17 bug: where the river or coast cut a patch, a strip 1 or 2 tiles wide was left. A Solar Panel (2 wide) or a Wind Turbine (3 wide) could never stand fully on it, so the bonus was impossible there.
+**Details:** in each row, a zone piece narrower than `MIN_ZONE_RUN` (3, the widest machine that wants a zone) after the river and coast becomes plain land. Pinned machines stay put; their bonuses follow the terrain.
+**Acceptance:** a test scans 60 rows: every zone tile belongs to a run of at least 3 in its row. Simulator: about 110 h, no stalls.
+
+### 1.21 — Active bonuses can be opened and closed — CODE — Done
+**Goal:** apply playtest 17 feedback: the Active bonuses list in the Research tab gets long.
+**Details:** the panel opens and closes from its header, which shows the count. Closed, it keeps a one-line summary of each bonus (icon and total). The choice is remembered on this device.
+**Acceptance:** opening, closing, the summary and remembering are covered by a component test.
+
+### 1.06 — Map polish: expansions grow the map, simulator and balance — CODE — Done
 **Goal:** finish the map: room expansions open new land with its own terrain mix, and the simulator places machines sensibly.
 **Details:**
 - **Expansions:** each room tier unlocks a named area (for example "North Ridge", windy) with a preview before buying.
@@ -567,6 +586,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Display:** a mini-map in the Generators tab and a zone legend.
 - **Guide:** a Map section.
 **Acceptance:** the simulator report includes placement bonuses; no stalls; expansion areas have tests.
+**Notes:**
+- **Expansions:** the Room panel previews the land the next expansion opens, by terrain (for example "36 plain, 24 river, 12 windy ridge"). It replaces named areas, since the site grows row by row through a single landscape.
+- **Simulator:** placement on zones was already handled by 1.17 (new machines go to their zone), so the simulator gets the bonuses. About 110 h, no stalls.
+- **Guide:** the Map section explains zones, the river and coast rule, placement and moving. The Map tab already has the zone legend.
+- **Skipped:** the mini-map in the Generators tab; the Map tab covers it and the owner has not asked for it.
 
 ### 1.07 — Browser notifications, opt-in and rate-limited — CODE — Not started
 **Goal:** apply playtest 14 feedback: notify the player outside the game (browser notifications now, mobile later) when something worth coming back for happens, such as a research done or a level up. Handled carefully, because too many notifications are annoying.
@@ -966,15 +990,35 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** 0% on a fresh save (except what starts owned), 100% only when everything is done; tests for the aggregation.
 **Notes:** new Completion tab. It shows the overall % (one decimal, rounded down) and one row per part with a bar and its share of the total. Each row expands to list every entry, done or not; generator rows show their best level out of the max. The % also shows on the tab button. Achievements (0.65), sightings (0.84) and contracts (0.86) add their own parts when they arrive.
 
-### 0.67 — Public release plan: accounts and cloud saves — CODE — Not started
+### 0.67 — Public release plan: accounts and cloud saves — CODE — Done
 **Goal:** owner request (playtest 5): make the game available to the public with sign-up, usernames, passwords, log-in and a per-account save. Accounts are for both cloud saves and leaderboards (playtest 6). Saves work like Melvor Idle (playtest 10). The game saves automatically to the cloud and locally. The player can load either the local or the cloud save, on the same device or another one: for example, play on a computer, then open the mobile app and load that save.
 **Details:** GitHub Pages hosts static files only, so accounts need a hosted backend. This item writes `docs/PUBLIC_RELEASE.md`: options compared (e.g. Supabase, Firebase, a small server), recommended choice, data model (user, save blob, version), security (hashed passwords handled by the provider, no secrets in the repo, rate limits), privacy (what is stored, deleting an account), cheating considerations for an idle game (matters for leaderboards: server-side plausibility checks on submitted scores), leaderboard design, a LICENSE file and an in-game credits screen (AAP-64 palette by Adigun A. Polack, open-source libraries), cost estimate, and the exact one-time steps the owner must do (create the project, add the public keys as GitHub repository variables). Also adds a save-sync abstraction in code (`SaveBackend` interface with the current IndexedDB implementation) so a cloud backend can plug in later without touching game logic.
 **Acceptance:** plan document reviewed in the PR; the abstraction is in place with the local backend and tests; nothing requires secrets.
+**Notes:**
+- **Plan:** `docs/PUBLIC_RELEASE.md` recommends Supabase, comparing it with Firebase, PlayFab and a small server. It covers the data model, security, privacy, cheating and leaderboards, sync, costs, the 15-minute owner setup and open decisions. `docs/supabase-schema.sql` has the tables, row-level security and `delete_my_account()`, ready to paste.
+- **Code:** `src/store/saveBackend.ts` has `SaveBackend`, the IndexedDB local backend, `summarize` and `chooseSave` (conflict rule), with tests.
+- **Credits:** Settings → Credits.
+- **Licenses:** `THIRD_PARTY_NOTICES.md` comes from the new `npm run notices`. `LICENSE` reserves all rights, a safe default for a game meant for sale; the owner may change it.
+- **Measured:** a late-game save is about 11 KB.
 
-### 0.68 — Accounts and cloud saves — CODE — Not started (needs owner setup)
+### 0.68 — Accounts and cloud saves — CODE — Partial (built and tested with fakes; live test waits for the owner's Supabase setup)
 **Goal:** implement 0.67's plan once the owner has created the backend project.
 **Details:** sign-up, log-in, log-out, password reset through the chosen provider; automatic cloud save on a timer and on close, alongside the local save; a load screen listing the local and cloud saves (time, version, energy, completion %) so the player picks which to load on any device; conflict handling (newest wins, with a prompt); guest play keeps working offline. **Blocked until the owner completes the one-time setup in `docs/PUBLIC_RELEASE.md`.** Until then, skip it and continue with other items.
 **Acceptance:** end-to-end test against the provider's local emulator if available; otherwise mocked; no secrets committed.
+**Notes:**
+- **Built ahead of the setup (owner, playtest 17: the website comes next):** everything is in place but switched off until the two repository variables exist.
+- **Code:**
+  - `src/store/cloud.ts`: the Supabase service behind `CloudAuth` and `SaveBackend`, with the library loaded only when configured.
+  - `src/store/account.ts`: account state and sync. It uploads every 5 minutes (timestamp-based) and when the game goes to the background (keepalive request). On sign-in it decides with `decideOnSignIn`: if the cloud save has not changed since this device last synced, play just continues; otherwise it asks.
+- **Screens:**
+  - Settings → Account and cloud saves: sign in, create an account (username checked first), forgot password, save or load now, sign out, delete account.
+  - A "Which game do you want to keep?" dialog that marks the newer save, and a "Set a new password" dialog after a reset link.
+- **Other:**
+  - `public/privacy.html`.
+  - The deploy workflow passes `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from repository variables.
+  - Supabase was added to Credits and notices.
+- **Tests:** the sign-in decision, the account flows against a fake service, the Supabase mapping against a fake client, and component tests.
+- **Still to do:** once the owner has set up the project, a live test: sign up, confirm the email, sign in on two browsers, check the save-choice dialog and delete the account. Then mark this Done.
 
 ---
 
@@ -1011,4 +1055,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 14 (v0.14.0) | 0.98, 0.97, 0.99, 0.65, 0.87 | 2026-10-02 | Achievement rewards should be cosmetic. The achievement list is fine for now. Contract wording much clearer. Release order not decided; prefers easiest to hardest, to reach production as soon as possible. Perk shop unclear: is the number on Buy a cost or an amount, how are points earned, is each contract 1 point? Add an "upgradable first" sort. Future: a map showing the builds, movable, with zones that suit some machines (sunny, windy) and sizes that matter; prioritize by impact. Notifications (browser, later mobile) for research done, level up and so on, handled carefully so they are not annoying. | 1.00-1.07 (map placed before fictional generators and statistics, as the highest-impact item); 0.34 and 0.39 moved up |
 | 15 (v0.15.0) | 1.00, 1.03, 1.01, 1.02, 1.04 | 2026-10-02 | "Website" means a real site with sign-up and log-in and saves in the cloud, not in the browser. The map should be larger and more detailed, with varied terrain. Wants random events that only happen on the map and visibly do something there. Planned zones good; hydro must need a river and tidal the coast. Map decorations welcome. Amber accent did nothing. Mixed American and British English: use one (American, the larger market). Bug: coal plant #32 drawn as a huge box over other machines. Event messages vanish too fast; hovering an effect should say exactly what it does. An event seemed missing from the log. The Wheel Hamster's click bonus seemed to do nothing (+2 instead of +3). | 1.08-1.13; 1.05 widened; 0.67 moved up |
 | 16 (v0.16.0) | 1.08, 1.09, 1.10, 1.11, 1.05 | 2026-10-02 | The ⭐ and 📍 marks need a tooltip on hover. Map size fine for now; more variety in the small objects would help. +20% and +10% are worth moving machines for. Wants drag and drop. Solar and wind should go onto their bonus zones automatically when built, but not move afterwards. Yes to producer zones (for example a coal field for coal mines). | 1.14-1.18 |
-| 17 (v0.17.0) | 1.14, 1.17, 1.16, 1.15, 1.18 | 2026-10-02 | (waiting for owner) | |
+| 17 (v0.17.0) | 1.14, 1.17, 1.16, 1.15, 1.18 | 2026-10-02 | Drag and drop feels right on computer and phone. The "makes way for a new dam" rule is clear and fair. +20% for producers is worth moving them; averaging is clear. Next: accounts and cloud saves for the website (before map events and decorations). Bug: the 📍 tooltip opens to the side and is cut off. Bug: a 1-tile-wide strip of sunny plateau can never give a Solar Panel its bonus. Active bonuses get long: let it be opened and closed. | 1.19, 1.20, 1.21; 0.67 next |
+| 18 (v0.18.0) | 1.19, 1.20, 1.21, 0.67, 1.06 (and 0.68 built, waiting for setup) | 2026-10-02 | (waiting for owner) | |

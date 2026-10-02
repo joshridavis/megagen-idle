@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createInitialState } from '../data/initialState';
 import { useStore } from '../store';
@@ -54,8 +54,8 @@ describe('Map tab (1.04)', () => {
     expect(s.mapPins['gen-1']).toBe(16);
     expect(s.energyPerSecond).toBeCloseTo(before + 0.5 * 0.2);
     // 1.14: the star explains itself
-    const tip = within(screen.getByTestId('star-gen-1')).getByRole('tooltip', { hidden: true });
-    expect(tip.textContent).toBe('Sunny plateau: +20% output, because the whole Solar Panel stands on it.');
+    fireEvent.mouseEnter(screen.getByTestId('star-gen-1'));
+    expect(screen.getByRole('tooltip').textContent).toBe('Sunny plateau: +20% output, because the whole Solar Panel stands on it.');
   });
 
   it('shows the 📍 tooltip in Your generators (1.14)', () => {
@@ -67,7 +67,16 @@ describe('Map tab (1.04)', () => {
     render(<ActiveGenerators />);
     const pin = screen.getByTestId('pin-gen-1');
     expect(pin.textContent).toContain('📍 +20%');
-    expect(within(pin).getByRole('tooltip', { hidden: true }).textContent).toContain('Move machines in the Map tab.');
+    const pinTip = () => screen.queryAllByRole('tooltip', { hidden: true }).find((t) => t.textContent?.includes('Move machines in the Map tab.'));
+    expect(pinTip()).toBeUndefined();
+    fireEvent.focus(pin);
+    // drawn on top of the page (1.19), not inside the scrolling list
+    const tip = pinTip()!;
+    expect(tip.textContent).toContain('Sunny plateau: +20% output');
+    expect(pin.contains(tip)).toBe(false);
+    expect(tip.parentElement).toBe(document.body);
+    fireEvent.blur(pin);
+    expect(pinTip()).toBeUndefined();
   });
 
   it('drags a machine to a new spot; a bad drop moves nothing (1.16)', () => {

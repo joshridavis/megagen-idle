@@ -15,7 +15,7 @@ export interface SaveFile {
   state: GameState;
 }
 
-/** Serialises the saved part of the state into an export file (pretty JSON). */
+/** Serializes the saved part of the state into an export file (pretty JSON). */
 export function exportSave(state: GameState, now = Date.now()): string {
   const file: SaveFile = { game: SAVE_FILE_GAME, version: SAVE_VERSION, exportedAt: new Date(now).toISOString(), state: pickSaved(state) };
   return JSON.stringify(file, null, 2);

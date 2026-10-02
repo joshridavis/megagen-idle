@@ -5,6 +5,34 @@ import type { GameState, NumberNotation } from '../types/state';
 import { MAX_OFFLINE_SECONDS } from '../data/time';
 import { formatHours } from '../utils/format';
 import { useNumberFormat } from './useNumberFormat';
+import { ART_CREDITS, LIBRARY_CREDITS, type Credit } from '../data/credits';
+import { platform } from '../platform';
+import { cloudEnabled } from '../store/cloud';
+import AccountPanel from './AccountPanel';
+
+function CreditList({ items }: { items: Credit[] }) {
+  return (
+    <ul className="mt-1 space-y-1">
+      {items.map((c) => (
+        <li key={c.name}>
+          <a
+            href={c.url}
+            onClick={(e) => {
+              e.preventDefault();
+              platform.openExternal(c.url);
+            }}
+            className="text-sky-300 underline hover:text-sky-200"
+          >
+            {c.name}
+          </a>{' '}
+          <span className="text-slate-400">
+            · {c.what} · {c.license}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 const NOTATIONS: { id: NumberNotation; label: string; example: string }[] = [
   { id: 'short', label: 'Short', example: '1.23M' },
@@ -54,6 +82,7 @@ export default function SettingsPanel() {
 
   return (
     <section aria-label="Settings" className="w-full max-w-2xl space-y-4">
+      {cloudEnabled() && <AccountPanel />}
       <fieldset className="rounded-lg bg-slate-800 p-4">
         <legend className="sr-only">Number notation</legend>
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Numbers</h2>
@@ -158,6 +187,15 @@ export default function SettingsPanel() {
         Generators, producers and research keep going while the game is closed, for up to{' '}
         <strong>{formatHours(MAX_OFFLINE_SECONDS)}</strong>. Research that finishes later still completes.
       </div>
+      <details className="rounded-lg bg-slate-800 p-4 text-sm text-slate-300" data-testid="credits">
+        <summary className="cursor-pointer text-sm font-semibold uppercase tracking-wide text-slate-400">Credits</summary>
+        <p className="mt-2">MegaGen Idle. All sprites are drawn by the game's own script, using the AAP-64 palette.</p>
+        <h3 className="mt-3 font-semibold text-slate-200">Art</h3>
+        <CreditList items={ART_CREDITS} />
+        <h3 className="mt-3 font-semibold text-slate-200">Open-source software</h3>
+        <CreditList items={LIBRARY_CREDITS} />
+        <p className="mt-2 text-xs text-slate-400">Full license texts: THIRD_PARTY_NOTICES.md in the game's repository.</p>
+      </details>
       <div className="rounded-lg border border-red-900 bg-slate-800 p-4">
         <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-red-300">Reset</h2>
         <p className="mb-3 text-sm text-slate-300">Start over from the beginning. This deletes your progress in this browser.</p>

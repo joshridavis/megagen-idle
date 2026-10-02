@@ -27,7 +27,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      # Accounts and cloud saves (0.68): public project settings from the
+      # repository's Actions variables. Empty until the owner adds them, and the
+      # game then builds without accounts. Not secrets (docs/PUBLIC_RELEASE.md).
       - run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
       # On a fresh repo Pages is still off, and configure-pages would fail.
       # Only a 404 means "not enabled": skip the deploy with a warning so the
       # run stays green. Any other API error falls through and fails loudly

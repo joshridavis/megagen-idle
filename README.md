@@ -20,6 +20,7 @@ An idle/incremental game about generating energy. You start with almost nothing 
 | `npm run test:e2e` | Builds the game and runs the Playwright browser smoke test against it. First run `npx playwright install chromium` (or set `PW_CHROMIUM_PATH` to an existing Chromium). |
 | `npm run simulate` | Runs the balance simulator (a greedy idle player) and writes `BALANCE_REPORT.md`: milestone times, pacing targets from `src/data/pacingTargets.ts`, stalls and hours to 100% completion. |
 | `npm run check:assets` | Checks every sprite in the manifest exists as a PNG of the right size, and lists which are still generic stand-ins. |
+| `npm run notices` | Rewrites `THIRD_PARTY_NOTICES.md` with the license of every package shipped in the game. Run after changing dependencies. |
 | `npm run generate:assets` | Draws any missing generic stand-in sprites. Add `-- --force` to redraw the generic ones; files not listed in `src/assets/generic-assets.json` (real art) are never touched. |
 
 ## Project layout
@@ -48,6 +49,15 @@ The game shows its release version (from `package.json`) at the bottom of the sc
 ## Saves
 
 The game saves automatically in your browser (IndexedDB). In the **Settings** tab you can **export** the save to a JSON file and **import** it again, for backups or to move to another device; a damaged or wrong file is rejected without touching your current game. To start over, use **Reset game** in the Settings tab (it asks twice). Settings also has the number notation choice (short 1.23M, scientific 1.23e6, or full).
+
+## Accounts and cloud saves
+
+Optional. With no settings, the game has no accounts, as before. To turn them on, set two public values from the Supabase project (setup in `docs/PUBLIC_RELEASE.md`, section 9):
+
+- **The published site:** add the repository variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Settings → Secrets and variables → Actions → Variables). The deploy workflow passes them to the build.
+- **Locally:** put the same two lines in a `.env.local` file in the repository root (`VITE_SUPABASE_URL=...`), then run `npm run dev`. `.env.local` is ignored by git.
+
+Settings then shows "Account and cloud saves".
 
 ## More
 

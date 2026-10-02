@@ -46,6 +46,8 @@ Rule: game logic never imports Capacitor, Tauri, Electron or Steam libraries dir
 
 ## 3. Website
 
+**Plan and setup:** `docs/PUBLIC_RELEASE.md` (0.67).
+
 **What "website" means (owner, playtest 15):** a real site where players sign up and log in, and their game is saved in the cloud, not only in browser storage. The game on GitHub Pages today is a preview with local saves. The website step is therefore 0.67 (plan, `SaveBackend` interface) followed by 0.68 (accounts and cloud saves), and 0.67 is moved up to come right after the map work.
 
 

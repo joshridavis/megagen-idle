@@ -1,7 +1,7 @@
 {
   "name": "megagen-idle",
   "private": true,
-  "version": "0.17.0",
+  "version": "0.18.0",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -13,10 +13,12 @@
     "test": "vitest run",
     "generate:assets": "node scripts/generate-generic-assets.mjs",
     "check:assets": "node scripts/check-assets.mjs",
+    "notices": "node scripts/third-party-notices.mjs",
     "test:e2e": "playwright test",
     "simulate": "tsx scripts/simulate.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
     "localforage": "^1.10.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
