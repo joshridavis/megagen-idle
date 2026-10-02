@@ -65,9 +65,11 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.90 Player level reward, celebration and welcome-back line (playtest 11 feedback)
 0. 0.91 Sightings stay longer on screen (playtest 11 feedback)
 0. 0.40 First-run onboarding and in-game guide (moved up and widened: playtest 11 feedback) → CHECKPOINT
+0. 0.95 Player levels harder to gain early (playtest 12 feedback)
+0. 0.96 Sort your generator list (playtest 12 feedback)
 0. 0.85 Random events with effects (playtest 10 feedback)
 0. 0.86 Grid Contracts: a second activity (playtest 10 feedback)
-0. 0.92 Energy pets: collect and grow (playtest 11 feedback)
+0. 0.92 Energy pets: collect and grow (playtest 11 feedback) → CHECKPOINT
 0. 0.87 Multi-platform release plan: website, Steam, mobile (playtest 10 feedback)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
@@ -360,7 +362,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Goal:** apply playtest 10 feedback: some random events change the game, some for the better and some for the worse.
 **Details:** add at least 12 effect events on the 0.84 framework, with a mix of positive and negative ones, each with a clear message in the event log (0.38) and a toast:
 - **Positive:** Sunny spell (+50% solar for 10 min), Strong winds (+50% wind), Rich seam (a free batch of metal or coal), Government grant (energy equal to 10 minutes of output), Eureka (the running research is 10% faster), Volunteer crew (the next build is 20% cheaper).
-- **Negative:** Overcast (−30% solar for 10 min), Calm air (−30% wind), Coal shortage (−20% coal mine output for 15 min), Grid fault (one random generator off until the player restarts it), Pipe leak (lose a little gas or oil), Equipment wear (−10% output for 10 min).
+- **Negative** (playtest 12: slightly rarer than positive ones): Overcast (−30% solar for 10 min), Calm air (−30% wind), Coal shortage (−20% coal mine output for 15 min), Grid fault (one random generator off until the player restarts it), Pipe leak (lose a little gas or oil), Equipment wear (−10% output for 10 min).
 - **Rules:**
   - Effects are temporary bonuses stored with an end timestamp (`activeEffects`) and applied in `deriveRates` and the producer system. Timed effects that roll offline are applied for their real overlap with the offline period.
   - Negative events are milder and never block progress: no permanent loss, and resource losses are capped at a small share of stock.
@@ -407,6 +409,19 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Timeline:** an order of steps, each with its blocking owner action.
 - **Code now:** also add the `src/platform/` interface with the web implementation only, so later wrappers plug in without touching game logic.
 **Acceptance:** the plan document is reviewed in the PR; the platform interface is in place with web implementation and tests; nothing needs secrets or platform tooling.
+
+### 0.95 — Player levels harder to gain early — CODE — Not started
+**Goal:** apply playtest 12 feedback: level-ups should stay celebrated, but levels must not come in seconds. Clicking from level 1 to level 4 or 5 should not be possible.
+**Details:** retune the curve in `src/data/playerLevel.ts` so level 2 needs a couple of hundred lifetime energy (well over a minute of fast clicking). The curve grows a little less steeply after that, so level 99 still lands near the 200 h target as content grows. Check with the simulator. Saves keep their lifetime energy; the level is recalculated, so it may go down once on load, with no celebration for that.
+**Acceptance:** level 2 needs at least 100 seconds of clicking at 2 clicks per second at the base click value (test). Thresholds rise strictly with level. The report's Player level column shows the new pacing.
+
+### 0.96 — Sort your generator list — CODE — Not started
+**Goal:** apply playtest 12 feedback: sorting options for "Your generators".
+**Details:**
+- **Options:** a "Sort by" control above the list: your order (default, the fuel-priority order), most or least energy per second, level (high or low), type and name.
+- **View only:** sorting changes only what is shown; the saved order, which decides fuel priority, never changes. While a sort other than "your order" is active, ▲ ▼ reordering and dragging are hidden, with a short note.
+- **Saving:** the choice is kept in settings.
+**Acceptance:** each sort orders the list correctly, and switched-off generators count as 0 energy/s (unit tests for a pure sort helper). The saved order is unchanged by sorting (test). The choice survives a reload.
 
 ### 0.89 — Fix: short numbers lost their zeros — CODE — Done
 **Goal:** fix the playtest 11 bug: 360,722 energy showed as "36K" in short notation.
@@ -725,4 +740,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 9 (v0.9.0) | 0.32 | 2026-10-01 | Research tree lines hard to follow: split into the three starting branches. Bug: "You were away for 1m 1s" after switching tabs. Bug: build-card tooltip shows over the card above and is unreadable. 100% completion must include building every generator type and upgrading each to max level. | 0.79-0.82 |
 | 10 (v0.10.0) | 0.79, 0.80, 0.81, 0.82, 0.33 | 2026-10-01 | Branch layout is right. Oil and Nuclear feel like a real step up; uranium pace and level 9/10 gates fine for now. Reach 200 h with a mix of content (larger share) and slower pacing; content should include a new mode or activity, not only research and machines. 100% completion must be visible to the player (like Melvor Idle). More click-power research. Random events: a large variety, some cosmetic (e.g. a spaceship, foreground only), some with positive or negative effects (some also while idle); all rare, some much rarer. Saves like Melvor Idle: automatic cloud and local saves, load either on any device. Future release on Steam, a dedicated website and mobile. Report hours to 100% every version. Player levels based on lifetime energy. | 0.83-0.88; 0.66 and 0.38 moved up; 0.67, 0.68 and 0.47 updated |
 | 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-02 | Player level reward: yes but small, about +0.1% per level. About one sighting per hour is right for the common ones. Planned effect events approved. Grid Contracts fine; another activity idea: collect and grow pets that fit the energy theme. An Aurora was recorded as seen but went unnoticed: sightings should stay longer. Bug: 360,722 energy showed as 36K. Level-up needs a celebration like research, and levels gained belong in the welcome-back summary. Add player info: tutorial or game guide. Click research chain drawn on the wrong row. Tree lines should leave each parent as one trunk that splits into its children (sketch). The guide is meant to teach new players how the game works. | 0.89-0.94; 0.40 moved up and widened |
-| 12 (v0.12.0) | 0.89, 0.93, 0.94, 0.90, 0.91, 0.40 | 2026-10-02 | (waiting for owner) | |
+| 12 (v0.12.0) | 0.89, 0.93, 0.94, 0.90, 0.91, 0.40 | 2026-10-02 | Level-ups stay celebrated, but early levels must be harder (no clicking from level 1 to 4 or 5 in seconds). Guide clear. Prefers the squared-off tree lines. Negative events slightly rarer than positive ones. Add sorting to "Your generators" (e.g. by energy per second). | 0.95, 0.96; 0.85 updated |
