@@ -69,4 +69,36 @@ describe('Map tab (1.04)', () => {
     expect(pin.textContent).toContain('📍 +20%');
     expect(within(pin).getByRole('tooltip', { hidden: true }).textContent).toContain('Move machines in the Map tab.');
   });
+
+  it('drags a machine to a new spot; a bad drop moves nothing (1.16)', () => {
+    useStore.getState().resetGame();
+    useStore.setState(
+      deriveRates({
+        ...createInitialState(0),
+        roomCapacity: 23,
+        activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }],
+        mapPins: { 'gen-1': 0 },
+      }),
+    );
+    render(<MapPanel onSelect={() => {}} />);
+    // 26 columns (24 + sea) by 10 rows, 20 px per tile
+    const grid = screen.getByTestId('site-map');
+    grid.getBoundingClientRect = () => ({ left: 0, top: 0, width: 520, height: 200, right: 520, bottom: 200, x: 0, y: 0, toJSON: () => ({}) });
+    const solar = screen.getByTestId('map-gen-1');
+    const at = (x: number, y: number) => ({ clientX: x * 20 + 10, clientY: y * 20 + 10, button: 0, pointerId: 1 });
+    fireEvent.pointerDown(solar, at(0, 0));
+    fireEvent.pointerMove(solar, at(8, 0));
+    fireEvent.pointerMove(solar, at(16, 0));
+    expect(screen.getByTestId('map-info').textContent).toContain('place here (+20%)');
+    fireEvent.pointerUp(solar, at(16, 0));
+    fireEvent.click(solar);
+    expect(useStore.getState().mapPins['gen-1']).toBe(16);
+    expect(screen.getByTestId('map-info').textContent).toContain('Moved Solar Panel #1');
+    // dropped half outside the site (tile 23 is still fenced): refused, it stays put
+    fireEvent.pointerDown(solar, at(16, 0));
+    fireEvent.pointerMove(solar, at(22, 0));
+    fireEvent.pointerUp(solar, at(22, 0));
+    expect(useStore.getState().mapPins['gen-1']).toBe(16);
+    expect(screen.getByTestId('map-info').textContent).toContain('It does not fit there');
+  });
 });

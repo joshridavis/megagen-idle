@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { sprites, type SpriteId } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { LOCKED_PREVIEW_ROWS, MIN_MAP_ROWS, SEA_COLUMNS, ZONES, type Terrain, type Zone } from '../data/map';
@@ -43,6 +43,10 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const [selected, setSelected] = useState<string | null>(null);
   const [hoverCell, setHoverCell] = useState<number | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  /** A drag in progress (1.16): which machine, where it was grabbed, and whether it has moved yet. */
+  const drag = useRef<{ key: string; grabX: number; grabY: number; x: number; y: number; moved: boolean } | null>(null);
+  const dragged = useRef(false);
   const next = getNextRoomTier(state.expansionLevel);
   const siteRows = Math.ceil(map.capacity / map.columns);
   const rows = Math.max(MIN_MAP_ROWS, siteRows + (next ? LOCKED_PREVIEW_ROWS : 1));
@@ -91,8 +95,58 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const ghostBonus = ghost && sel?.kind === 'generator' ? zoneBonusFor(sel.type, ghost, map.columns) : 0;
 
   const pick = (p: Placed) => {
+    if (dragged.current) {
+      dragged.current = false; // the click that ends a drag is not a selection
+      return;
+    }
     setNote(null);
     setSelected((k) => (k === p.key ? null : p.key));
+  };
+  /** The site cell under a pointer position, or null outside the site columns. */
+  const cellAt = (clientX: number, clientY: number) => {
+    const r = gridRef.current?.getBoundingClientRect();
+    if (!r || r.width === 0 || r.height === 0) return null;
+    const x = Math.floor(((clientX - r.left) / r.width) * viewColumns);
+    const y = Math.floor(((clientY - r.top) / r.height) * rows);
+    return x < 0 || y < 0 || x >= map.columns || y >= rows ? null : { x, y };
+  };
+  const anchorFor = (clientX: number, clientY: number) => {
+    const d = drag.current;
+    const at = cellAt(clientX, clientY);
+    if (!d || !at) return null;
+    const x = at.x - d.grabX;
+    const y = at.y - d.grabY;
+    return x < 0 || y < 0 || x >= map.columns ? null : y * map.columns + x;
+  };
+  // drag and drop (1.16): pointer events, so mouse, pen and touch all work
+  const startDrag = (p: Placed, e: ReactPointerEvent) => {
+    if (e.button !== 0) return;
+    const at = cellAt(e.clientX, e.clientY);
+    if (!at) return;
+    drag.current = { key: p.key, grabX: at.x - p.core.x, grabY: at.y - p.core.y, x: e.clientX, y: e.clientY, moved: false };
+    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+  };
+  const moveDrag = (e: ReactPointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    if (!d.moved && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) return;
+    if (!d.moved) {
+      d.moved = true;
+      setNote(null);
+      setSelected(d.key);
+    }
+    setHoverCell(anchorFor(e.clientX, e.clientY));
+  };
+  const endDrag = (e: ReactPointerEvent) => {
+    const d = drag.current;
+    const anchor = anchorFor(e.clientX, e.clientY);
+    drag.current = null;
+    if (!d?.moved) return;
+    dragged.current = true;
+    setHoverCell(null);
+    if (anchor !== null) clickTile(anchor);
+    else setNote('Dropped outside your site: nothing moved.');
+    setSelected(null); // a drop always ends the move, whether or not it was allowed
   };
   const clickTile = (c: number) => {
     if (!sel) return;
@@ -120,7 +174,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
           Your site ({used}/{map.capacity} tiles)
         </h2>
-        <span className="text-xs text-slate-400">One tile per unit of room. Click a machine, then a tile, to move it.</span>
+        <span className="text-xs text-slate-400">One tile per unit of room. Drag a machine to move it (or click it, then a tile).</span>
       </div>
       <div className="min-h-10 text-sm text-sky-200" aria-live="polite" data-testid="map-info">
         {sel ? (
@@ -155,7 +209,8 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
           className="relative grid"
           style={{ gridTemplateColumns: `repeat(${viewColumns}, minmax(20px, 1fr))`, minWidth: viewColumns * 20 }}
           data-testid="site-map"
-          onMouseLeave={() => setHoverCell(null)}
+          ref={gridRef}
+          onMouseLeave={() => !drag.current && setHoverCell(null)}
         >
           {Array.from({ length: rows * viewColumns }, (_, i) => {
             const x = i % viewColumns;
@@ -219,11 +274,18 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                   type="button"
                   onFocus={() => setHover(p.key)}
                   onClick={() => pick(p)}
+                  onPointerDown={(e) => startDrag(p, e)}
+                  onPointerMove={moveDrag}
+                  onPointerUp={endDrag}
+                  onPointerCancel={() => {
+                    drag.current = null;
+                  }}
+                  draggable={false}
+                  style={{ ...pct(p.core.x, p.core.y, p.core.w, p.core.h), touchAction: 'none' }}
                   aria-label={info(p)}
                   aria-pressed={selected === p.key}
                   data-testid={`map-${p.key}`}
-                  className="group absolute z-10 flex items-center justify-center hover:z-30 focus-visible:z-30"
-                  style={pct(p.core.x, p.core.y, p.core.w, p.core.h)}
+                  className="group absolute z-10 flex cursor-grab items-center justify-center hover:z-30 focus-visible:z-30 active:cursor-grabbing"
                 >
                   <img src={sprites[spriteOf(p)]} alt="" className="pixelated pointer-events-none max-h-full max-w-full object-contain p-0.5" />
                   {p.zoneBonus > 0 && (

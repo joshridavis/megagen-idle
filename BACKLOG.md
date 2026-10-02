@@ -535,10 +535,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Starting land:** the first row is plain, and the first room expansion (about 17 min) opens a windy ridge and a sunny plateau. Early rates are unchanged and the zones arrive almost at once.
 - **Simulator:** it now reaches "Own 50 generators at once" on purpose at the end, by building Solar Panels; before, it only got there by chance. About 112.6 h to 100%, no stalls.
 
-### 1.16 — Drag and drop to move machines on the map — CODE — Not started
+### 1.16 — Drag and drop to move machines on the map — CODE — Done
 **Goal:** apply playtest 16 feedback: drag a machine to a new spot.
 **Details:** pointer events (mouse, pen and touch), so it works on phones too: press on a machine, drag, and the footprint preview follows the pointer (green or red, bright on bonus tiles); release on a valid spot to move. Click-then-click still works, and keyboard users keep the select-then-tile flow. No new dependency.
 **Acceptance:** dragging moves a machine to a valid spot and does nothing on an invalid one (component tests with pointer events); a plain click still selects.
+**Notes:** the drag starts after 6 px of movement, so a tap still selects. The tile under the pointer keeps its place in the machine (grab offset). Any drop ends the move, and an invalid drop says why. Checked in Chromium with real mouse events. Touch scrolling is off only when the drag starts on a machine.
 
 ### 1.15 — More variety in the small map details — CODE — Not started
 **Goal:** apply playtest 16 feedback: more kinds of small objects on the map.
