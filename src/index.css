@@ -196,10 +196,14 @@ body {
 @keyframes swim { from { left: -20%; transform: translateY(20px); opacity: 0; } 20%, 80% { opacity: 1; transform: translateY(0); } to { left: 105%; transform: translateY(20px); opacity: 0; } }
 .sighting-beam { left: calc(50% - 3rem); top: 10%; animation: beam var(--dur) ease-in-out forwards; }
 @keyframes beam { 0% { opacity: 0; transform: translateY(-40px); } 15%, 85% { opacity: 1; transform: translateY(0); } 50% { transform: translateX(10px); } 100% { opacity: 0; transform: translate(200px, -80px) scale(0.3); } }
+/* Streaks move head first (playtest 13): the meteor sprite's head is at its
+   bottom right (trail up-left), so it moves down-right at 45 degrees; a
+   shooting star is a line, bright at its right end, tilted 30 degrees down,
+   and moves along that tilt. Equal units keep the angle on any screen. */
 .sighting-fall { top: -10%; opacity: 0; animation: fall 1.8s ease-in forwards; }
-@keyframes fall { 0% { opacity: 1; transform: translate(0, 0); } 100% { opacity: 0; transform: translate(-40vw, 60vh); } }
-.sighting-streak { opacity: 0; transform: rotate(-30deg); animation: streak 2.5s ease-out forwards; }
-@keyframes streak { 0% { opacity: 0; translate: 0 0; } 10% { opacity: 1; } 100% { opacity: 0; translate: -50vw 25vh; } }
+@keyframes fall { 0% { opacity: 1; transform: translate(0, 0); } 100% { opacity: 0; transform: translate(55vh, 55vh); } }
+.sighting-streak { opacity: 0; transform: rotate(30deg); animation: streak 2.5s ease-out forwards; }
+@keyframes streak { 0% { opacity: 0; translate: 0 0; } 10% { opacity: 1; } 100% { opacity: 0; translate: 52vh 30vh; } }
 .sighting-glow {
   background: linear-gradient(180deg, rgba(89, 193, 53, 0.35), rgba(36, 159, 222, 0.25) 40%, rgba(122, 9, 250, 0.15) 70%, transparent);
   animation: glow var(--dur) ease-in-out forwards;

@@ -437,10 +437,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Code now:** also add the `src/platform/` interface with the web implementation only, so later wrappers plug in without touching game logic.
 **Acceptance:** the plan document is reviewed in the PR; the platform interface is in place with web implementation and tests; nothing needs secrets or platform tooling.
 
-### 0.98 — Fix: meteor shower and shooting stars fly the wrong way — CODE — Not started
+### 0.98 — Fix: meteor shower and shooting stars fly the wrong way — CODE — Done
 **Goal:** fix the playtest 13 bug: in the meteor shower, meteors moved against their own trail, so they looked like they were falling backwards.
 **Details:** the meteor sprite has its glowing head at the bottom right and its trail up to the left, but the animation moved it down and to the left. Shooting stars had the same mismatch: their bright end trailed behind the motion. Every streak must move in the direction of its bright head, with its trail behind.
 **Acceptance:** a screenshot check shows the meteors and stars head first. The animation direction matches the sprite (one shared direction constant or a comment in both places).
+**Notes:** meteors now move down-right at 45° (their head is bottom right) and start from the left half. Shooting stars tilt 30° down and move along that tilt toward their bright end. The CSS uses equal units so the angle holds on any screen; a comment in `src/index.css` explains the rule. Checked with screenshots.
 
 ### 0.97 — Contracts explain delivery versus production — CODE — Not started
 **Goal:** apply playtest 13 feedback: it was unclear why two contracts showed "Not enough yet" and one did not.
