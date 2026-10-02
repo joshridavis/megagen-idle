@@ -5,7 +5,7 @@ import { getBonuses, getEnergyBonuses } from './bonuses';
 import { getPlayerLevel } from './playerLevel';
 import { expireEffects, getEffectMods } from './effectMods';
 import { withPetMods } from './pets';
-import { getPlacementBonuses, settledPins } from './siteMap';
+import { settledPins, withPlacementMods } from './siteMap';
 import { calculateEnergyRate } from './energyGeneration';
 import { completeResearch, getGrantedProducers, researchFinishTime } from './researchSystem';
 import type { ResourceId, GameState } from '../types/state';
@@ -49,7 +49,7 @@ export function advanceTime(
     const effects = expireEffects(s.activeEffects, stepStart);
     if (effects !== s.activeEffects) s = deriveRates({ ...s, activeEffects: effects });
     const bonuses = getBonuses(s.completedResearch);
-    const produced = accrueResources(s.resources, s.producers, dt, bonuses, withPetMods(getEffectMods(s.activeEffects), s));
+    const produced = accrueResources(s.resources, s.producers, dt, bonuses, withPlacementMods(withPetMods(getEffectMods(s.activeEffects), s), s));
     const fuel = burnFuel(produced, s.activeGenerators, dt, bonuses);
     s = { ...s, resources: fuel.resources, activeGenerators: fuel.generators };
     if (fuel.deactivated.length) {
@@ -87,7 +87,7 @@ export function deriveRates(input: GameState): GameState {
   // new machines are pinned where they land, so nothing on the map moves by itself (1.17)
   const mapPins = settledPins(input);
   const state = mapPins === input.mapPins ? input : { ...input, mapPins };
-  const mods = { ...withPetMods(getEffectMods(state.activeEffects), state), placement: getPlacementBonuses(state) };
+  const mods = withPlacementMods(withPetMods(getEffectMods(state.activeEffects), state), state);
   const energyPerSecond = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state), mods);
   const granted = getGrantedProducers(state.completedResearch);
   const roomUsed =

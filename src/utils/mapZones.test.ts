@@ -6,7 +6,10 @@ import type { GameState } from '../types/state';
 import { getBuildBlock } from './generatorSystem';
 import { detailAt, terrainAt } from './mapTerrain';
 import { migrateSave } from '../store/migrations';
-import { cellsAt, getPlacementBonuses, hasSpotFor, layoutSite, moveOnMap, moveTargets, zoneAllows, zoneBonusFor } from './siteMap';
+import { cellsAt, getPlacementBonuses, getProducerPlacement, hasSpotFor, layoutSite, moveOnMap, moveTargets, withPlacementMods, zoneAllows, zoneBonusFor } from './siteMap';
+import { getProductionRates } from './resourceSystem';
+import { getResourceBreakdown } from './breakdown';
+import { NO_MODS } from './effectMods';
 import { deriveRates } from './simulation';
 
 const gen = (n: number, type: GeneratorType): Generator => ({ id: `gen-${n}`, type, isActive: true, level: 1 });
@@ -147,5 +150,50 @@ describe('new machines and staying put (1.17)', () => {
 
   it('old saves load with no pins', () => {
     expect(migrateSave({ energy: 5 }, 16).mapPins).toEqual({});
+  });
+});
+
+describe('producer zones (1.18)', () => {
+  const findZone = (zone: string) => {
+    for (let y = 0; y < 40; y++) for (let x = 0; x < MAP_COLUMNS; x++) if (terrainAt(x, y) === zone) return y * MAP_COLUMNS + x;
+    return -1;
+  };
+
+  it('the map has coal fields, rocky outcrops and oil and gas fields', () => {
+    for (const z of ['coalfield', 'outcrop', 'oilfield']) expect(findZone(z)).toBeGreaterThanOrEqual(0);
+  });
+
+  it('a coal mine fully on a coal field raises coal output, averaged over all coal mines', () => {
+    const field = findZone('coalfield');
+    const base = site([], 200, { producers: { ...createInitialState(0).producers, coalMine: 2 } });
+    // one mine on the field, the other on plain land at the top left
+    const on = { ...base, mapPins: { 'coalMine-1': field, 'coalMine-2': 5 } };
+    const settled = deriveRates(on);
+    const placed = layoutSite(settled).placed.find((p) => p.key === 'coalMine-1')!;
+    expect(placed.cells).toEqual([field]);
+    expect(placed.zoneBonus).toBe(ZONES.coalfield.bonus);
+    // the other mine is on plain land: coal gets half the bonus
+    const other = layoutSite(settled).placed.find((p) => p.key === 'coalMine-2')!;
+    expect(other.zoneBonus).toBe(0);
+    expect(getProducerPlacement(settled).coal).toBeCloseTo(ZONES.coalfield.bonus / 2);
+    const rates = getProductionRates(settled.producers, undefined, withPlacementMods(NO_MODS, settled));
+    const plain = getProductionRates(settled.producers);
+    expect(rates.coal).toBeCloseTo(plain.coal * (1 + ZONES.coalfield.bonus / 2));
+    // the quarry found a free rocky outcrop on its own
+    expect(rates.stone).toBeCloseTo(plain.stone * (1 + ZONES.outcrop.bonus));
+  });
+
+  it('the resource breakdown shows the placement row and still adds up', () => {
+    const field = findZone('coalfield');
+    const s = deriveRates({ ...site([], 200), mapPins: { 'coalMine-1': field } });
+    const b = getResourceBreakdown(s, 'coal');
+    expect(b.modifiers.find((m) => m.source === 'Placement on the map')?.percent).toBeCloseTo(ZONES.coalfield.bonus);
+    expect(b.total).toBeCloseTo(getProductionRates(s.producers, undefined, withPlacementMods(NO_MODS, s)).coal);
+  });
+
+  it('new producers go onto their zone when a spot is free', () => {
+    const s = site([], 200, { producers: { ...createInitialState(0).producers, quarry: 3 } });
+    const quarries = layoutSite(s).placed.filter((p) => p.id === 'quarry');
+    expect(quarries.some((p) => p.zoneBonus === ZONES.outcrop.bonus)).toBe(true);
   });
 });

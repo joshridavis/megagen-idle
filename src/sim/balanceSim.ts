@@ -8,6 +8,8 @@ import { GeneratorType } from '../types/generator';
 import type { ProducerId } from '../types/resource';
 import type { GameState, ResourceId } from '../types/state';
 import { getBonuses, getClickValue } from '../utils/bonuses';
+import { NO_MODS } from '../utils/effectMods';
+import { withPlacementMods } from '../utils/siteMap';
 import { getCompletion } from '../utils/completion';
 import {
   buildGenerator,
@@ -76,7 +78,7 @@ const perRoom = (t: GeneratorType) => GENERATORS[t].energyPerSecond / GENERATORS
 /** Net per-second balance of one resource with the current setup. */
 function netRate(s: GameState, id: ResourceId): number {
   const b = getBonuses(s.completedResearch);
-  return getProductionRates(s.producers, b)[id] - getFuelUseRates(s.activeGenerators, b)[id];
+  return getProductionRates(s.producers, b, withPlacementMods(NO_MODS, s))[id] - getFuelUseRates(s.activeGenerators, b)[id];
 }
 
 const PRODUCER_FOR: Record<ResourceId, ProducerId> = { metal: 'mine', stone: 'quarry', coal: 'coalMine', naturalGas: 'gasWell', oil: 'oilRig', uranium: 'uraniumMine' };

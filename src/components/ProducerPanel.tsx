@@ -3,6 +3,8 @@ import { sprites } from '../assets';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { RESEARCH_BY_ID } from '../data/research';
 import { RESOURCE_NAMES } from '../data/resources';
+import { ZONES } from '../data/map';
+import { zoneFor } from '../utils/mapTerrain';
 import { useStore } from '../store';
 import type { ProducerId } from '../types/resource';
 import { getBonuses } from '../utils/bonuses';
@@ -50,6 +52,11 @@ function ProducerCard({ id }: { id: ProducerId }) {
           <div className="text-xs text-slate-400">
             Owned: <strong data-testid={`producer-owned-${id}`}>{owned}</strong> · {def.roomCost} room each
           </div>
+          {zoneFor(id) && (
+            <div className="text-xs text-emerald-300" data-testid={`producer-zone-${id}`}>
+              +{Math.round(ZONES[zoneFor(id)!].bonus * 100)}% on a {ZONES[zoneFor(id)!].name.toLowerCase()} (Map tab)
+            </div>
+          )}
         </div>
       </div>
       <div className="text-sm">

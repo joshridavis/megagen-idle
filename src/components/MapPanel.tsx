@@ -23,10 +23,17 @@ const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
   ridge: 'tile_ridge',
   river: 'tile_river',
   coast: 'tile_coast',
+  coalfield: 'tile_coalfield',
+  outcrop: 'tile_outcrop',
+  oilfield: 'tile_oilfield',
 };
 const detailSprite = (d: Detail) => `deco_${d}` as SpriteId;
-const TERRAIN_NAME: Record<Terrain, string> = { plain: 'Plain', plateau: ZONES.plateau.name, ridge: ZONES.ridge.name, river: ZONES.river.name, coast: ZONES.coast.name };
+const TERRAIN_NAME = (t: Terrain) => (t === 'plain' ? 'Plain' : ZONES[t].name);
 const pctBonus = (b: number) => `+${Math.round(b * 100)}%`;
+const plural = (name: string) => (name.endsWith('y') ? `${name.slice(0, -1)}ies` : `${name}s`);
+/** The machines a zone suits, e.g. "Quarries, Metal Mines, Uranium Mines". */
+const zoneSuits = (z: Zone) =>
+  [...ZONES[z].generators.map((g) => GENERATORS[g].name), ...(ZONES[z].producers ?? []).map((p) => PRODUCERS[p].name)].map(plural).join(', ');
 
 /**
  * Site map (1.04; terrain, zones and moving in 1.05, playtest 14 and 15).
@@ -68,7 +75,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
       const g = state.activeGenerators.find((x) => x.id === p.id)!;
       return `${nameOf(p)} · Lv ${g.level} · ${g.isActive ? `+${fmt.rate(getGeneratorOutput(g, bonuses, mods))} energy/s` : 'off'} · ${p.cells.length} tiles${where}`;
     }
-    return `${nameOf(p)} · ${p.cells.length} tile${p.cells.length > 1 ? 's' : ''}`;
+    return `${nameOf(p)} · ${p.cells.length} tile${p.cells.length > 1 ? 's' : ''}${where}`;
   };
   const tileInfo = (c: number) => {
     const t = terrainAt(c % map.columns, Math.floor(c / map.columns));
@@ -166,7 +173,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     }
   };
 
-  const legend: (Terrain | 'sea')[] = ['plain', 'plateau', 'ridge', 'river', 'coast', 'sea'];
+  const legend: (Terrain | 'sea')[] = ['plain', 'plateau', 'ridge', 'river', 'coast', 'coalfield', 'outcrop', 'oilfield', 'sea'];
 
   return (
     <section aria-label="Site map" className="flex flex-col gap-3">
@@ -326,10 +333,10 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
         {legend.map((t) => (
           <li key={t} className="flex items-center gap-1">
             <img src={sprites[t === 'sea' ? 'tile_sea' : TERRAIN_SPRITE[t]]} alt="" width={14} height={14} className="pixelated" />
-            {t === 'sea' ? 'Sea' : TERRAIN_NAME[t]}
+            {t === 'sea' ? 'Sea' : TERRAIN_NAME(t)}
             {t !== 'sea' && t !== 'plain' && (
               <span className="text-slate-400">
-                ({ZONES[t].required ? `${GENERATORS[ZONES[t].generators[0]].name}s only` : `${pctBonus(ZONES[t].bonus)} ${GENERATORS[ZONES[t].generators[0]].name}s`})
+                ({ZONES[t].required ? `${zoneSuits(t)} only` : `${pctBonus(ZONES[t].bonus)} ${zoneSuits(t)}`})
               </span>
             )}
           </li>

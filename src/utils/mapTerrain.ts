@@ -16,6 +16,7 @@ import {
   type Zone,
 } from '../data/map';
 import type { GeneratorType } from '../types/generator';
+import type { ProducerId } from '../types/resource';
 
 /** A stable pseudo-random number in [0, 1) for a tile, from the map seed. */
 export function tileHash(x: number, y: number, salt = 0): number {
@@ -39,9 +40,11 @@ export function terrainAt(x: number, y: number): Terrain {
   const py = Math.floor(y / PATCH_SIZE[1]);
   const fixed = FIXED_PATCHES[`${px},${py}`];
   if (fixed) return fixed;
-  const roll = tileHash(px, py, 7);
-  if (roll < PATCH_CHANCES.plateau) return 'plateau';
-  if (roll < PATCH_CHANCES.plateau + PATCH_CHANCES.ridge) return 'ridge';
+  let roll = tileHash(px, py, 7);
+  for (const [zone, chance] of PATCH_CHANCES) {
+    if (roll < chance) return zone;
+    roll -= chance;
+  }
   return 'plain';
 }
 
@@ -58,7 +61,7 @@ export function zoneFor(type: string): Zone | null {
   if (zoneOfType.has(type)) return zoneOfType.get(type)!;
   let zone: Zone | null = null;
   for (const [id, z] of Object.entries(ZONES) as [Zone, (typeof ZONES)[Zone]][]) {
-    if (z.generators.includes(type as GeneratorType)) zone = id;
+    if (z.generators.includes(type as GeneratorType) || z.producers?.includes(type as ProducerId)) zone = id;
   }
   zoneOfType.set(type, zone);
   return zone;

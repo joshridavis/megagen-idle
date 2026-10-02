@@ -2,6 +2,8 @@ import { GENERATORS } from '../data/generators';
 import { MAP_COLUMNS, ZONE_REQUIRED_SHARE, ZONES, type Terrain, type Zone } from '../data/map';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import type { ProducerId } from '../types/resource';
+import type { ResourceId } from '../types/state';
+import type { EffectMods } from './effectMods';
 import type { GameState } from '../types/state';
 import { terrainAt, zoneFor } from './mapTerrain';
 import { getGrantedProducers } from './researchSystem';
@@ -184,7 +186,7 @@ function computeLayout(s: SiteState): SiteMap {
   const free = (c: number) => c >= 0 && c < capacity && !taken.has(c);
   const add = (it: Item, cells: number[], pinned: boolean, misplaced = false) => {
     cells.forEach((c) => taken.add(c));
-    const zoneBonus = it.kind === 'generator' && !misplaced ? zoneBonusFor(it.type, cells, columns) : 0;
+    const zoneBonus = misplaced ? 0 : zoneBonusFor(it.type, cells, columns);
     placed.push({ key: it.key, kind: it.kind, id: it.id, type: it.type, size: it.size, cells, core: coreOf(cells, columns, it.size), zoneBonus, misplaced, pinned });
   };
   const needsZone = (it: Item) => {
@@ -279,6 +281,30 @@ export function layoutSite(s: SiteState): SiteMap {
   }
   last = { key: refs, map };
   return map;
+}
+
+/**
+ * Production bonus per resource from where its producers stand (1.18): the
+ * zone bonus averaged over every producer of that resource, so 2 of 4 coal
+ * mines on a coal field give coal +10%. Producers granted by research take no
+ * room, are not on the map and count as 0.
+ */
+export function getProducerPlacement(s: SiteState): Partial<Record<ResourceId, number>> {
+  const sum: Partial<Record<ProducerId, number>> = {};
+  for (const p of layoutSite(s).placed) if (p.kind === 'producer' && p.zoneBonus > 0) sum[p.id as ProducerId] = (sum[p.id as ProducerId] ?? 0) + p.zoneBonus;
+  const out: Partial<Record<ResourceId, number>> = {};
+  for (const [pid, total] of Object.entries(sum) as [ProducerId, number][]) {
+    const owned = s.producers[pid] ?? 0;
+    if (owned > 0) out[PRODUCERS[pid].resource] = (out[PRODUCERS[pid].resource] ?? 0) + total / owned;
+  }
+  return out;
+}
+
+/** Adds map placement to effect modifiers: generator bonuses by id, producer bonuses by resource (1.05, 1.18). */
+export function withPlacementMods(mods: EffectMods, s: SiteState): EffectMods {
+  const resource = { ...mods.resource };
+  for (const [id, b] of Object.entries(getProducerPlacement(s)) as [ResourceId, number][]) resource[id] = (resource[id] ?? 0) + b;
+  return { ...mods, resource, placement: getPlacementBonuses(s) };
 }
 
 /** Energy bonus per generator id from where each stands (1.05). Empty if none. */

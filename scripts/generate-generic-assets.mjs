@@ -664,6 +664,21 @@ const riverTile = () => terrainTile(C.blue, C.sky, C.navy, (c) => {
   c.rect(9, 10, 4, 1, C.sky);
 });
 const coastTile = () => terrainTile(C.sand, C.cream, C.khaki, (c) => c.rect(10, 4, 3, 1, C.white));
+// producer zones (1.18)
+const coalfieldTile = () => terrainTile(C.brown5, C.grey5, C.black, (c) => {
+  c.rect(3, 9, 2, 2, C.ink); // coal lumps
+  c.rect(10, 5, 2, 2, C.ink);
+  c.set(11, 5, C.grey4);
+});
+const outcropTile = () => terrainTile(C.grey5, C.grey3, C.grey6, (c) => {
+  c.polygon([[2, 12], [5, 7], [8, 12]], C.grey4); // rock faces
+  c.polygon([[8, 9], [11, 4], [14, 9]], C.grey3);
+});
+const oilfieldTile = () => terrainTile(C.mud, C.khaki, C.brown5, (c) => {
+  c.circle(5, 10, 2, C.ink); // dark pools
+  c.circle(11, 5, 1, C.ink);
+  c.set(5, 9, C.purple);
+});
 function seaTile() {
   const c = new Canvas(16, 16);
   c.rect(0, 0, 16, 16, C.navy);
@@ -979,6 +994,9 @@ const DRAW = {
   tile_river: riverTile,
   tile_coast: coastTile,
   tile_sea: seaTile,
+  tile_coalfield: coalfieldTile,
+  tile_outcrop: outcropTile,
+  tile_oilfield: oilfieldTile,
   deco_rock: decoRock,
   deco_tuft: decoTuft,
   deco_flower: decoFlower,
