@@ -16,6 +16,7 @@ import { GENERATOR_SPRITES } from './generatorSprites';
 import { PRODUCER_SPRITES } from './producerSprites';
 import { useNumberFormat } from './useNumberFormat';
 import FloatingTip from './FloatingTip';
+import MapEventLayer from './MapEventLayer';
 import { zoneTipText } from './zoneTip';
 
 const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
@@ -322,6 +323,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
               </div>
             );
           })}
+          <MapEventLayer viewColumns={viewColumns} rows={rows} pct={pct} />
           {ghost &&
             ghost.map((c) => (
               <div

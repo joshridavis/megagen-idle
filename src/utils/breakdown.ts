@@ -74,7 +74,8 @@ export function getEnergyBreakdown(
     const def = EVENTS_BY_ID[a.id];
     const e = def?.effect;
     if (e?.kind !== 'timed' || !e.energy) continue;
-    const affected = e.generator ? running.filter((g) => g.type === e.generator).reduce((sum, g) => sum + baseOutput(g), 0) : base;
+    const gen = a.generator ?? e.generator;
+    const affected = gen ? running.filter((g) => g.type === gen).reduce((sum, g) => sum + baseOutput(g), 0) : base;
     modifiers.push({ source: `${def.name} (event)`, percent: e.energy, amount: affected * e.energy });
   }
   const pet = state.pets ? activePetBonus({ pets: state.pets }) : null;

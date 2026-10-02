@@ -49,6 +49,29 @@ export type EventEffect =
   /** A pet joins you (0.92). Only rolls while that pet is not found yet. */
   | { kind: 'find-pet'; pet: string };
 
+/** How a map event (1.12) plays on the map. */
+export type MapAnimation = 'flock' | 'bolt' | 'truck' | 'flood' | 'fire' | 'star';
+
+export interface MapEventInfo {
+  animation: MapAnimation;
+  /** What it happens to: a random machine of that kind, the river in the site, the sea, or the sky over the map. */
+  target: 'generator' | 'producer' | 'river' | 'sea' | 'sky';
+  /** Only this generator type can be the target (a fire breaks out at a coal plant). */
+  generatorType?: GeneratorType;
+  /** Click within this many seconds to get the effect (put out the fire); otherwise it just ends. */
+  claimSeconds?: number;
+  /** How long it stays on the map (ms). */
+  durationMs: number;
+}
+
+/** Map events (1.12): average times per hour each one happens while the Map tab is open, so a watcher sees one every few minutes. */
+export const MAP_RATE_PER_HOUR: Record<Rarity, number> = {
+  common: 5,
+  uncommon: 2.5,
+  rare: 1,
+  legendary: 0.2,
+};
+
 /** Extra conditions for an event to roll. */
 export type EventRequirement = 'research-running' | 'two-running' | 'gas-or-oil' | 'coal-mine' | 'pet-missing';
 
@@ -65,8 +88,10 @@ export interface EventDef {
   /** Shown in the event log. */
   text: string;
   rarity: Rarity;
-  /** 'foreground' only rolls while the game screen is visible; 'anytime' also while idle or away; 'never' is not random (rewards). */
-  when: 'foreground' | 'anytime' | 'never';
+  /** 'foreground' only rolls while the game screen is visible; 'anytime' also while idle or away; 'never' is not random (rewards); 'map' only while the Map tab is open (1.12). */
+  when: 'foreground' | 'anytime' | 'never' | 'map';
+  /** Map events (1.12): what they look like on the map and what they happen to. */
+  map?: MapEventInfo;
   /** Needs at least one of each built (on or off). */
   requiresBuilt?: GeneratorType[];
   /** Cosmetic sightings have an animation and no effect. */
@@ -256,6 +281,65 @@ export const EVENTS: EventDef[] = [
     rarity: 'common',
     when: 'never',
     effect: { kind: 'timed', minutes: 30, energy: 0.25 },
+  },
+  // ---- Map events (1.12, playtest 15): only while the Map tab is open, and they happen on the map ----
+  {
+    id: 'map_flock',
+    name: 'Birds over the site',
+    text: 'A flock of birds circled over your site.',
+    rarity: 'common',
+    when: 'map',
+    map: { animation: 'flock', target: 'sky', durationMs: 12000 },
+  },
+  {
+    id: 'map_lightning',
+    name: 'Lightning strike',
+    text: 'Lightning struck one of your generators and supercharged it: +50% from that type for 3 minutes.',
+    rarity: 'common',
+    when: 'map',
+    map: { animation: 'bolt', target: 'generator', durationMs: 6000 },
+    // the struck generator's type is saved with the effect
+    effect: { kind: 'timed', minutes: 3, energy: 0.5 },
+  },
+  {
+    id: 'map_delivery',
+    name: 'Delivery truck',
+    text: 'A delivery truck dropped off supplies at one of your producers.',
+    rarity: 'common',
+    when: 'map',
+    map: { animation: 'truck', target: 'producer', durationMs: 9000 },
+    // the producer's own resource: 15 minutes of its production
+    effect: { kind: 'grant-resource', resource: 'metal', minutes: 15, min: 10 },
+  },
+  {
+    id: 'map_fire',
+    name: 'Small fire',
+    text: 'A small fire broke out at a coal plant!',
+    rarity: 'uncommon',
+    when: 'map',
+    requiresBuilt: [GeneratorType.COAL],
+    map: { animation: 'fire', target: 'generator', generatorType: GeneratorType.COAL, claimSeconds: 30, durationMs: 30000 },
+    // the crew's thanks for putting it out
+    effect: { kind: 'grant-energy', minutes: 5, min: 500 },
+  },
+  {
+    id: 'map_flood',
+    name: 'River flood',
+    text: 'The river flooded: Hydropower Dams make 20% less for 5 minutes.',
+    rarity: 'uncommon',
+    when: 'map',
+    negative: true,
+    requiresBuilt: [GeneratorType.HYDRO],
+    map: { animation: 'flood', target: 'river', durationMs: 10000 },
+    effect: { kind: 'timed', minutes: 5, energy: -0.2, generator: GeneratorType.HYDRO },
+  },
+  {
+    id: 'map_star',
+    name: 'Falling star at sea',
+    text: 'A falling star dropped into the sea, far out. It glowed for a moment.',
+    rarity: 'rare',
+    when: 'map',
+    map: { animation: 'star', target: 'sea', durationMs: 8000 },
   },
 ];
 

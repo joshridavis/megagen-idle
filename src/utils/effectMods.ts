@@ -7,6 +7,8 @@ export interface ActiveEffect {
   id: string;
   /** Epoch ms when it ends. */
   until: number;
+  /** The generator type it acts on, when the event picked one (a lightning strike, 1.12). */
+  generator?: GeneratorType;
 }
 
 /** Combined changes from timed effects, as fractions added to output. */
@@ -29,7 +31,8 @@ export function getEffectMods(active: ActiveEffect[] | undefined, now?: number):
     const e = EVENTS_BY_ID[a.id]?.effect;
     if (e?.kind !== 'timed') continue;
     if (e.energy) {
-      if (e.generator) mods.generator[e.generator] = (mods.generator[e.generator] ?? 0) + e.energy;
+      const gen = a.generator ?? e.generator;
+      if (gen) mods.generator[gen] = (mods.generator[gen] ?? 0) + e.energy;
       else mods.allEnergy += e.energy;
     }
     if (e.production) {

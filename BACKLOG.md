@@ -100,8 +100,8 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.24 Scrapping refunds 10% of everything spent (playtest 18 feedback)
 0. 0.34 Late-game fictional generators, with two more room tiers (moved up: playtest 18, first priority)
 0. 1.23 Map upgrade: the Exclusion Zone for fictional generators (playtest 18 feedback)
-0. 1.12 Map events you can watch on the map (playtest 15 feedback; playtest 18: after the fictional generators)
-0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback) → CHECKPOINT
+0. 1.12 Map events you can watch on the map (playtest 15 feedback; playtest 18: after the fictional generators) → CHECKPOINT 19
+0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
 0. 0.39 Statistics panel (moved up)
 1. 0.00 Bootstrap and repo verification
@@ -629,7 +629,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** clicks did get the pet's bonus, but the "+2 per click" label, the click pop-up and the click breakdown ignored it, and so did the energy and resource breakdowns for other pets. All of them now include the active pet as a "(pet)" row, so the label and the pop-up match what a click really gives. The simulator also counts the click pet.
 **Acceptance:** tests check that the click breakdown with a pet matches the real click value and that a generator pet shows in energy/s with the right total.
 
-### 1.12 — Map events you can watch on the map — CODE — Not started
+### 1.12 — Map events you can watch on the map — CODE — Done
 **Goal:** apply playtest 15 feedback: some random events happen only while the Map tab is open and visibly do something on the map.
 **Details:**
 - **Events:** a handful, in `src/data/events.ts` with a `mapOnly` flag, for example: a flock of birds crossing (cosmetic), a lightning strike on a machine that briefly boosts it, a delivery truck driving to a producer that drops a small stack of resources, a river flood that slows hydro for a few minutes, a small fire on a coal plant to click and put out for a reward.
@@ -637,6 +637,17 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Display:** animated on the map at the affected machine or tile (CSS only, honoring reduced motion), with the usual toast and log entry. Clickable ones give their reward only when clicked.
 - **Rules:** picking and applying stay pure functions with tests.
 **Acceptance:** map events never roll on other tabs (tests); each event's effect matches its text; the sightings list in Completion includes them.
+**Notes:**
+- **Six events:**
+  - Birds over the site (cosmetic).
+  - Lightning strike: +50% from the struck generator's type for 3 minutes; the type is saved with the effect.
+  - Delivery truck: 15 minutes of the target producer's resource.
+  - Small fire at a coal plant: click within 30 s for 5 minutes of energy.
+  - River flood: dams −20% for 5 minutes; needs hydro.
+  - Falling star at sea (rare, cosmetic).
+- **Rolling:** only while the Map tab is open and the page is visible, checked every 5 s from the real time passed. Rates (common 5/h each, uncommon 2.5/h, rare 1/h) give one every few minutes.
+- **Display:** CSS animations at the target, off with reduced motion, plus the usual toast and log entry. Icons are emoji stand-ins (no new sprites).
+- **Deviation:** Completion has no sightings list (sightings feed bonus achievements only), so map events are not added there.
 
 ### 1.13 — Map decorations as cosmetic rewards — CODE — Not started
 **Goal:** apply playtest 15 feedback: decorations make the map more personal.
