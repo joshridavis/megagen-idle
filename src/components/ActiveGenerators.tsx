@@ -4,6 +4,8 @@ import { GENERATORS } from '../data/generators';
 import { useStore } from '../store';
 import type { Generator } from '../types/generator';
 import { getEnergyBonuses } from '../utils/bonuses';
+import { GENERATOR_SORTS, sortGenerators } from '../utils/generatorSort';
+import type { GeneratorSort } from '../types/state';
 import { getGeneratorOutput } from '../utils/energyGeneration';
 import { getUpgradeBlock, getUpgradeCost, maxLevel, upgradeGain } from '../utils/generatorSystem';
 import CostList from './CostList';
@@ -66,14 +68,37 @@ export default function ActiveGenerators() {
   const lifetime = useStore((s) => s.lifetimeEnergy);
   const bonuses = useMemo(() => getEnergyBonuses({ completedResearch: completed, lifetimeEnergy: lifetime }), [completed, lifetime]);
   const fmt = useNumberFormat();
+  const sort = useStore((s) => s.settings.generatorSort ?? 'custom');
+  const setSort = useStore((s) => s.setGeneratorSort);
+  const custom = sort === 'custom';
+  const shown = useMemo(() => sortGenerators(generators, sort, bonuses), [generators, sort, bonuses]);
   return (
     <section aria-label="Your generators" className="w-full">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-        Your generators ({generators.length})
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Your generators ({generators.length})</h2>
+        {generators.length > 1 && (
+          <label className="flex items-center gap-1 text-xs text-slate-400">
+            Sort by
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as GeneratorSort)}
+              className="min-h-9 rounded border border-slate-600 bg-slate-800 px-2 text-xs text-slate-100"
+              data-testid="generator-sort"
+            >
+              {GENERATOR_SORTS.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      </div>
       {generators.length > 1 && (
         <p className="mb-2 text-xs text-slate-400">
-          Drag or use ▲▼ to reorder (Shift for top/bottom). When fuel runs short, generators higher up get it first.
+          {custom
+            ? 'Drag or use ▲▼ to reorder (Shift for top/bottom). When fuel runs short, generators higher up get it first.'
+            : 'Sorted for viewing only: fuel still goes in your order. Choose "Your order" to reorder.'}
         </p>
       )}
       {generators.length === 0 ? (
@@ -82,7 +107,8 @@ export default function ActiveGenerators() {
         </p>
       ) : (
         <ul className="flex max-h-96 flex-col gap-2 overflow-y-auto pr-1">
-          {generators.map((g, i) => {
+          {shown.map((g) => {
+            const i = generators.indexOf(g);
             const def = GENERATORS[g.type];
             const status = statusOf(g);
             const name = `${def.name} #${g.id.split('-')[1] ?? i + 1}`;
@@ -91,7 +117,7 @@ export default function ActiveGenerators() {
                 key={g.id}
                 className={`rounded-lg bg-slate-800 p-2 ${dragId === g.id ? 'opacity-50' : ''}`}
                 data-testid={`generator-${g.id}`}
-                draggable
+                draggable={custom}
                 onDragStart={(e) => {
                   setDragId(g.id);
                   e.dataTransfer.effectAllowed = 'move';
@@ -107,7 +133,7 @@ export default function ActiveGenerators() {
                 }}
               >
                 <div className="flex items-center gap-2 sm:gap-3">
-                <div className="flex flex-col">
+                <div className={`flex flex-col ${custom ? '' : 'hidden'}`}>
                   <button
                     type="button"
                     disabled={i === 0}

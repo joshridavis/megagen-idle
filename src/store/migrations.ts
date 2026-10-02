@@ -7,7 +7,7 @@ import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 10;
+export const SAVE_VERSION = 11;
 
 type AnySave = Record<string, unknown>;
 
@@ -45,6 +45,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   8: (save) => ({ ...save, seenEvents: {} }),
   // 0.40: players with an existing save have already learned the basics: no walkthrough.
   9: (save) => ({ ...save, settings: { ...(save.settings as object), tutorial: { step: TUTORIAL_DONE, replay: false } } }),
+  // 0.96: generator list sort (filled from defaults below).
+  10: (save) => save,
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */

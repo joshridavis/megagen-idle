@@ -416,13 +416,14 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** level 2 needs at least 100 seconds of clicking at 2 clicks per second at the base click value (test). Thresholds rise strictly with level. The report's Player level column shows the new pacing.
 **Notes:** the curve is 200 × (L − 1)^3.56. Level 2 needs 200 energy; level 10 about 500K; level 99 about 2.5B. In the simulator, level 6 comes at 3 h and level 53 at 100% (67.7 h).
 
-### 0.96 — Sort your generator list — CODE — Not started
+### 0.96 — Sort your generator list — CODE — Done
 **Goal:** apply playtest 12 feedback: sorting options for "Your generators".
 **Details:**
 - **Options:** a "Sort by" control above the list: your order (default, the fuel-priority order), most or least energy per second, level (high or low), type and name.
 - **View only:** sorting changes only what is shown; the saved order, which decides fuel priority, never changes. While a sort other than "your order" is active, ▲ ▼ reordering and dragging are hidden, with a short note.
 - **Saving:** the choice is kept in settings.
 **Acceptance:** each sort orders the list correctly, and switched-off generators count as 0 energy/s (unit tests for a pure sort helper). The saved order is unchanged by sorting (test). The choice survives a reload.
+**Notes:** pure `sortGenerators` in `src/utils/generatorSort.ts`, with 6 options (your order, most or least energy/s, highest or lowest level, type). The choice is saved in `settings.generatorSort` (save version 11). While sorted, ▲▼ and dragging are hidden and a note says fuel still follows your order. "Name" is covered by "Type" (same type, then build number).
 
 ### 0.89 — Fix: short numbers lost their zeros — CODE — Done
 **Goal:** fix the playtest 11 bug: 360,722 energy showed as "36K" in short notation.
