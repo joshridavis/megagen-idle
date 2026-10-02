@@ -4,6 +4,7 @@ import { PRODUCERS, PRODUCER_IDS } from '../data/producers';
 import type { Generator } from '../types/generator';
 import type { ProducerId, ResourceAmounts } from '../types/resource';
 import type { ResourceId, Resources } from '../types/state';
+import { NO_MODS, type EffectMods } from './effectMods';
 
 const entries = (amounts: ResourceAmounts) =>
   Object.entries(amounts).filter(([, n]) => (n ?? 0) > 0) as [ResourceId, number][];
@@ -31,13 +32,19 @@ export function consumeResource(
 }
 
 /** Per-second production of each resource from producers. */
-export function getProductionRates(producers: Record<ProducerId, number>, bonuses: Bonuses = NO_BONUSES): Resources {
+export function getProductionRates(
+  producers: Record<ProducerId, number>,
+  bonuses: Bonuses = NO_BONUSES,
+  mods: EffectMods = NO_MODS,
+): Resources {
   const rates: Resources = { coal: 0, stone: 0, metal: 0, naturalGas: 0, oil: 0, uranium: 0 };
   for (const id of PRODUCER_IDS) {
     const def = PRODUCERS[id];
     rates[def.resource] += ((producers[id] ?? 0) * def.amount) / def.intervalSeconds;
   }
-  for (const id of Object.keys(rates) as ResourceId[]) rates[id] *= 1 + productionBoost(id, bonuses);
+  for (const id of Object.keys(rates) as ResourceId[]) {
+    rates[id] *= Math.max(0, 1 + productionBoost(id, bonuses) + mods.allProduction + (mods.resource[id] ?? 0));
+  }
   return rates;
 }
 
@@ -63,9 +70,10 @@ export function accrueResources(
   producers: Record<ProducerId, number>,
   seconds: number,
   bonuses: Bonuses = NO_BONUSES,
+  mods: EffectMods = NO_MODS,
 ): Resources {
   if (!(seconds > 0)) return resources;
-  const rates = getProductionRates(producers, bonuses);
+  const rates = getProductionRates(producers, bonuses, mods);
   const next = { ...resources };
   for (const id of Object.keys(rates) as ResourceId[]) next[id] += rates[id] * seconds;
   return next;

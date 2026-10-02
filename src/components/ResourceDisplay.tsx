@@ -19,12 +19,16 @@ export default function ResourceDisplay() {
   const producers = useStore((s) => s.producers);
   const generators = useStore((s) => s.activeGenerators);
   const completed = useStore((s) => s.completedResearch);
+  const effects = useStore((s) => s.activeEffects);
   const breakdowns = useMemo(
     () =>
       Object.fromEntries(
-        RESOURCE_IDS.map((id) => [id, getResourceBreakdown({ producers, activeGenerators: generators, completedResearch: completed }, id)]),
+        RESOURCE_IDS.map((id) => [
+          id,
+          getResourceBreakdown({ producers, activeGenerators: generators, completedResearch: completed, activeEffects: effects }, id),
+        ]),
       ) as Record<ResourceId, RateBreakdown>,
-    [producers, generators, completed],
+    [producers, generators, completed, effects],
   );
   const producerCount = (id: ResourceId) =>
     PRODUCER_IDS.filter((p) => PRODUCERS[p].resource === id).reduce((n, p) => n + (producers[p] ?? 0), 0);

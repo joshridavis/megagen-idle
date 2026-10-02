@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { sprites, type SpriteId } from './assets';
+import ActiveEffects from './components/ActiveEffects';
 import ActiveGenerators from './components/ActiveGenerators';
 import ClickButton from './components/ClickButton';
 import CompletionPanel from './components/CompletionPanel';
@@ -48,6 +49,7 @@ export default function App() {
       <header className="flex flex-col items-center gap-4">
         <h1 className="text-3xl font-bold tracking-tight">MegaGen Idle</h1>
         <EnergyDisplay />
+        <ActiveEffects />
         <ClickButton />
         <TutorialCoach />
         <DepletionWarning />

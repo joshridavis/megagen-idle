@@ -17,11 +17,13 @@ export default function EnergyDisplay() {
   const generators = useStore((s) => s.activeGenerators);
   const completed = useStore((s) => s.completedResearch);
   const lifetime = useStore((s) => s.lifetimeEnergy);
+  const effects = useStore((s) => s.activeEffects);
   const breakdown = useMemo(
-    () => getEnergyBreakdown({ activeGenerators: generators, completedResearch: completed, lifetimeEnergy: lifetime }),
-    [generators, completed, lifetime],
+    () => getEnergyBreakdown({ activeGenerators: generators, completedResearch: completed, lifetimeEnergy: lifetime, activeEffects: effects }),
+    [generators, completed, lifetime, effects],
   );
-  const boost = breakdown.modifiers.reduce((sum, m) => sum + (m.percent ?? 0), 0);
+  // overall change from all boosts (event effects can apply to one generator type only)
+  const boost = breakdown.base > 0 ? breakdown.total / breakdown.base - 1 : breakdown.modifiers.reduce((sum, m) => sum + (m.percent ?? 0), 0);
   return (
     <div className="flex items-center gap-3 rounded-lg bg-slate-800 px-4 py-3 shadow" data-testid="energy-display">
       <img src={sprites.energy_icon} alt="Energy" width={32} height={32} className="pixelated" />
@@ -35,9 +37,10 @@ export default function EnergyDisplay() {
               +{fmt.rate(rate)}/s
             </span>
           </BreakdownTooltip>
-          {boost > 0 && (
-            <span className="ml-1 font-mono text-emerald-400" data-testid="energy-boost">
-              ▲{Math.round(boost * 100)}%
+          {Math.round(boost * 100) !== 0 && (
+            <span className={`ml-1 font-mono ${boost > 0 ? 'text-emerald-400' : 'text-red-400'}`} data-testid="energy-boost">
+              {boost > 0 ? '▲' : '▼'}
+              {Math.abs(Math.round(boost * 100))}%
             </span>
           )}
         </div>

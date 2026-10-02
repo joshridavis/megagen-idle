@@ -100,8 +100,9 @@ export const GUIDE: GuideSection[] = [
     title: 'Random events',
     icon: 'sighting_spaceship',
     paragraphs: [
-      'Now and then something unexpected passes by while you watch the game. Some sightings are common, some are very rare.',
-      'Every sighting you discover is listed in the Completion tab. The event log at the bottom of the screen shows what happened this session.',
+      'Now and then something unexpected passes by while you watch the game. Some sightings are common, some are very rare. Every sighting you discover is listed in the Completion tab.',
+      'Other events change the game for a while, even while you are away: a sunny spell or strong winds boost your output, a grant or a rich seam gives you energy or metal, and overcast skies or a grid fault set you back a little. Negative events are a bit rarer and never take anything away for good.',
+      'Running events show under your energy with the time left, and in the energy and resource tooltips. The event log at the bottom of the screen lists what happened this session.',
     ],
   },
 ];

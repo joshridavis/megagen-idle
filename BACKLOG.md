@@ -358,7 +358,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Display and settings:** the Completion tab lists "Sightings discovered" (not counted toward 100%, since legendary ones are luck). Settings has "Reduce motion": no animation, a toast instead.
 - **Sprites:** 8 new generic sprites under `sprites/events/`.
 
-### 0.85 — Random events with effects — CODE — Not started
+### 0.85 — Random events with effects — CODE — Done
 **Goal:** apply playtest 10 feedback: some random events change the game, some for the better and some for the worse.
 **Details:** add at least 12 effect events on the 0.84 framework, with a mix of positive and negative ones, each with a clear message in the event log (0.38) and a toast:
 - **Positive:** Sunny spell (+50% solar for 10 min), Strong winds (+50% wind), Rich seam (a free batch of metal or coal), Government grant (energy equal to 10 minutes of output), Eureka (the running research is 10% faster), Volunteer crew (the next build is 20% cheaper).
@@ -370,6 +370,13 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Display:** the energy and resource tooltips list active effects with the time left.
 - **Balance:** the simulator gets a deterministic expected-value mode, so pacing stays testable.
 **Acceptance:** each effect applies and expires correctly, including across offline time (unit tests). Negative events cannot push a resource below 0 or remove anything permanently. The simulator still meets its targets.
+**Notes:**
+- **Events:** 13 effect events in `src/data/events.ts`, all `anytime`.
+- **Timed effects:** saved in `activeEffects` (save version 12) with an end time. Modifiers live in `src/utils/effectMods.ts` and are applied in the energy rate and production. They expire inside `advanceTime`, so offline time counts them exactly.
+- **Instant effects:** `applyEventEffect` in `src/utils/eventEffects.ts`.
+- **Requirements:** solar or wind built, a running research, two running generators, gas or oil in stock, a coal mine.
+- **Display:** chips under the energy display with time left; the energy and resource tooltips list each event; the boost badge shows the overall change, up or down.
+- **Deviations:** "Volunteer crew" became +50% producer output for 15 minutes instead of a next-build discount, which would need a new build-cost path. The simulator runs without events instead of an expected-value mode (see BALANCE_REPORT.md).
 
 ### 0.86 — Grid Contracts: a second activity — CODE — Not started
 **Goal:** apply playtest 10 feedback: the extra hours should come partly from a new kind of activity, not only more research and machines.

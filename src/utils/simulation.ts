@@ -3,6 +3,7 @@ import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { SIM_STEP_SECONDS } from '../data/time';
 import { getBonuses, getEnergyBonuses } from './bonuses';
 import { getPlayerLevel } from './playerLevel';
+import { expireEffects, getEffectMods } from './effectMods';
 import { calculateEnergyRate } from './energyGeneration';
 import { completeResearch, getGrantedProducers, researchFinishTime } from './researchSystem';
 import type { ResourceId, GameState } from '../types/state';
@@ -41,8 +42,12 @@ export function advanceTime(
   while (left > 0) {
     const dt = Math.min(SIM_STEP_SECONDS, left);
     left -= dt;
+    // timed event effects that ended before this step stop counting (0.85)
+    const stepStart = endTime - (left + dt) * 1000;
+    const effects = expireEffects(s.activeEffects, stepStart);
+    if (effects !== s.activeEffects) s = deriveRates({ ...s, activeEffects: effects });
     const bonuses = getBonuses(s.completedResearch);
-    const produced = accrueResources(s.resources, s.producers, dt, bonuses);
+    const produced = accrueResources(s.resources, s.producers, dt, bonuses, getEffectMods(s.activeEffects));
     const fuel = burnFuel(produced, s.activeGenerators, dt, bonuses);
     s = { ...s, resources: fuel.resources, activeGenerators: fuel.generators };
     if (fuel.deactivated.length) {
@@ -77,7 +82,7 @@ function finishResearch(s: GameState, now: number, report: TimeReport): GameStat
  * generators and research bonuses. The single place these are calculated.
  */
 export function deriveRates(state: GameState): GameState {
-  const energyPerSecond = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state));
+  const energyPerSecond = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state), getEffectMods(state.activeEffects));
   const granted = getGrantedProducers(state.completedResearch);
   const roomUsed =
     state.activeGenerators.reduce((sum, g) => sum + (GENERATORS[g.type]?.roomCost ?? 0), 0) +

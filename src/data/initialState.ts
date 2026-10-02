@@ -24,4 +24,5 @@ export const createInitialState = (now = Date.now()): GameState => ({
   lastExpansionAt: null,
   settings: { notation: 'short', reduceMotion: false, tutorial: { step: 0, replay: false }, generatorSort: 'custom' },
   seenEvents: {},
+  activeEffects: [],
 });

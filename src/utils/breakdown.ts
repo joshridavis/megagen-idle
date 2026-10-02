@@ -3,9 +3,11 @@ import { BASE_CLICK_VALUE } from '../data/player';
 import { RESEARCH_BY_ID } from '../data/research';
 import type { BonusType } from '../types/research';
 import type { GameState, ResourceId } from '../types/state';
-import { getBonuses } from './bonuses';
+import { EVENTS_BY_ID } from '../data/events';
+import { getBonuses, getEnergyBonuses } from './bonuses';
+import { getEffectMods, type ActiveEffect } from './effectMods';
 import { getPlayerLevel, playerLevelEnergyBonus } from './playerLevel';
-import { baseOutput } from './energyGeneration';
+import { baseOutput, calculateEnergyRate } from './energyGeneration';
 import { getFuelUseRates, getProductionRates } from './resourceSystem';
 
 export interface RateModifier {
@@ -41,16 +43,27 @@ export function breakdownFromResearch(base: number, completedResearch: string[],
 
 /** Energy per second: base from running generators, then research boosts. */
 export function getEnergyBreakdown(
-  state: Pick<GameState, 'activeGenerators' | 'completedResearch'> & { lifetimeEnergy?: number },
+  state: Pick<GameState, 'activeGenerators' | 'completedResearch'> & { lifetimeEnergy?: number; activeEffects?: ActiveEffect[] },
 ): RateBreakdown {
-  const base = state.activeGenerators
-    .filter((g) => g.isActive)
-    .reduce((sum, g) => sum + baseOutput(g), 0);
+  const running = state.activeGenerators.filter((g) => g.isActive);
+  const base = running.reduce((sum, g) => sum + baseOutput(g), 0);
   const research = breakdownFromResearch(base, state.completedResearch, 'globalEnergy');
+  const modifiers = [...research.modifiers];
   const level = playerLevelEnergyBonus(state.lifetimeEnergy ?? 0);
-  if (level <= 0) return research;
-  const lv = getPlayerLevel(state.lifetimeEnergy ?? 0).level;
-  return { ...research, modifiers: [...research.modifiers, { source: `Player level ${lv}`, percent: level, amount: base * level }], total: research.total + base * level };
+  if (level > 0) {
+    modifiers.push({ source: `Player level ${getPlayerLevel(state.lifetimeEnergy ?? 0).level}`, percent: level, amount: base * level });
+  }
+  // timed random events (0.85)
+  for (const a of state.activeEffects ?? []) {
+    const def = EVENTS_BY_ID[a.id];
+    const e = def?.effect;
+    if (e?.kind !== 'timed' || !e.energy) continue;
+    const affected = e.generator ? running.filter((g) => g.type === e.generator).reduce((sum, g) => sum + baseOutput(g), 0) : base;
+    modifiers.push({ source: `${def.name} (event)`, percent: e.energy, amount: affected * e.energy });
+  }
+  // matches getGeneratorOutput, which never goes below 0 per generator
+  const total = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state), getEffectMods(state.activeEffects));
+  return { base, modifiers, total };
 }
 
 /** Energy per click: base click value, click power boosts, then the energy/s share (capped). */
@@ -73,13 +86,19 @@ export function getClickBreakdown(completedResearch: string[], energyPerSecond =
  * (after fuel efficiency) as a negative modifier.
  */
 export function getResourceBreakdown(
-  state: Pick<GameState, 'producers' | 'activeGenerators' | 'completedResearch'>,
+  state: Pick<GameState, 'producers' | 'activeGenerators' | 'completedResearch'> & { activeEffects?: ActiveEffect[] },
   id: ResourceId,
 ): RateBreakdown {
   const base = getProductionRates(state.producers)[id];
   const boosts = breakdownFromResearch(base, state.completedResearch, 'resourceProduction').modifiers;
   const specific = id === 'metal' ? 'metalProduction' : id === 'stone' ? 'stoneProduction' : null;
   if (specific) boosts.push(...breakdownFromResearch(base, state.completedResearch, specific).modifiers);
+  for (const a of state.activeEffects ?? []) {
+    const def = EVENTS_BY_ID[a.id];
+    const e = def?.effect;
+    if (e?.kind !== 'timed' || !e.production || (e.resource && e.resource !== id) || base <= 0) continue;
+    boosts.push({ source: `${def.name} (event)`, percent: e.production, amount: base * e.production });
+  }
   const bonuses = getBonuses(state.completedResearch);
   const burn = getFuelUseRates(state.activeGenerators, bonuses)[id];
   const modifiers: RateModifier[] = [...boosts];

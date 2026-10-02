@@ -1,6 +1,7 @@
 import type { Generator, GeneratorType } from './generator';
 import type { ProducerId } from './resource';
 import type { CurrentResearch } from './research';
+import type { ActiveEffect } from '../utils/effectMods';
 
 export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas' | 'oil' | 'uranium';
 
@@ -77,6 +78,8 @@ export interface SettingsState {
 /** Random events seen so far (0.84): count and first time, kept for collections and achievements. */
 export interface EventsState {
   seenEvents: Record<string, { count: number; firstSeen: number }>;
+  /** Timed event effects in progress (0.85), each with its end time. */
+  activeEffects: ActiveEffect[];
 }
 
 export type GameState = EnergyState & ResourceState & GeneratorState & ResearchState & RoomState & SettingsState & EventsState;

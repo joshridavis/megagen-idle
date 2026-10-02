@@ -45,8 +45,9 @@ describe('random events (0.84)', () => {
 
   it('foreground events never roll while away or hidden', () => {
     const always = () => 0; // every roll succeeds
-    expect(rollEvents(s, 3600, always, { foreground: false })).toEqual([]);
-    expect(rollEvents(s, 3600, always, { foreground: true, catchUp: true })).toEqual([]);
+    // only 'anytime' events (0.85 effects) can roll while hidden or away
+    for (const e of rollEvents(s, 3600, always, { foreground: false })) expect(e.when).toBe('anytime');
+    for (const e of eligibleEvents(s, { foreground: true, catchUp: true })) expect(e.when).toBe('anytime');
     expect(rollEvents(s, 3600, always, fg)).toHaveLength(1); // capped per tick
   });
 
