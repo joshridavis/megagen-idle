@@ -6,6 +6,7 @@ import CompletionPanel from './components/CompletionPanel';
 import DepletionWarning from './components/DepletionWarning';
 import EnergyDisplay from './components/EnergyDisplay';
 import EventLog from './components/EventLog';
+import GuidePanel from './components/GuidePanel';
 import GeneratorGrid from './components/GeneratorGrid';
 import ProducerPanel from './components/ProducerPanel';
 import ResearchCelebration from './components/ResearchCelebration';
@@ -16,18 +17,20 @@ import RoomPanel from './components/RoomPanel';
 import SettingsPanel from './components/SettingsPanel';
 import Sightings from './components/Sightings';
 import Toasts from './components/Toasts';
+import TutorialCoach from './components/TutorialCoach';
 import VersionFooter from './components/VersionFooter';
 import WelcomeBack from './components/WelcomeBack';
 import { useStore } from './store';
 import { formatCompletion, getCompletion } from './utils/completion';
 import { useIdleEngine } from './utils/idleEngine';
 
-type Tab = 'generators' | 'producers' | 'research' | 'completion' | 'settings';
+type Tab = 'generators' | 'producers' | 'research' | 'completion' | 'guide' | 'settings';
 const TABS: { id: Tab; label: string; icon: SpriteId }[] = [
   { id: 'generators', label: 'Generators', icon: 'solar_panel' },
   { id: 'producers', label: 'Producers', icon: 'producer_mine' },
   { id: 'research', label: 'Research', icon: 'research_advanced' },
   { id: 'completion', label: 'Completion', icon: 'research_check' },
+  { id: 'guide', label: 'Guide', icon: 'research_energy' },
   { id: 'settings', label: 'Settings', icon: 'research_materials' },
 ];
 
@@ -46,6 +49,7 @@ export default function App() {
         <h1 className="text-3xl font-bold tracking-tight">MegaGen Idle</h1>
         <EnergyDisplay />
         <ClickButton />
+        <TutorialCoach />
         <DepletionWarning />
       </header>
       <ResourceDisplay />
@@ -59,6 +63,7 @@ export default function App() {
             aria-selected={tab === t.id}
             aria-controls={`panel-${t.id}`}
             onClick={() => setTab(t.id)}
+            data-tutorial={`tab-${t.id}`}
             className={`min-h-11 min-w-11 shrink-0 rounded-t px-3 py-2 text-sm font-semibold sm:px-4 sm:text-base ${tab === t.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
           >
             <span className="flex items-center gap-1 sm:gap-1.5">
@@ -95,6 +100,8 @@ export default function App() {
           <ResearchTree />
         ) : tab === 'completion' ? (
           <CompletionPanel />
+        ) : tab === 'guide' ? (
+          <GuidePanel />
         ) : (
           <SettingsPanel />
         )}

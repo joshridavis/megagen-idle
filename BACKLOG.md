@@ -621,13 +621,17 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** lifetime energy, current rate, per-generator and per-type contribution with percentages, resource rates, total play time, time of last offline gain. Derived from selectors, with nothing new persisted beyond lifetime totals.
 **Acceptance:** numbers match the simulation within rounding; unit tests for the aggregations.
 
-### 0.40 — First-run onboarding and in-game guide — CODE — Not started
+### 0.40 — First-run onboarding and in-game guide — CODE — Done
 **Goal:** a new player understands the loop without being told. Playtest 11: the game also needs player info, like a tutorial or game guide.
 **Details:**
 - **Onboarding:** on a fresh save, a short, skippable sequence: click to make energy, then build your first generator, then start your first research. It highlights the relevant UI, one step at a time, is dismissible, and never repeats once completed (stored in settings). No modal walls of text.
 - **Guide:** a **Guide** (❓) tab or panel with short illustrated sections. It covers energy and clicking, generators and room, fuel, producers and resources, research and the research level, upgrades, offline progress (24 hours), player level, completion, random events and saves. The text is written in data (`src/data/guide.ts`) so it is easy to update as features arrive.
 - **Replay:** a "Replay the tutorial" button in Settings.
 **Acceptance:** onboarding appears only on a fresh save; skipping works; reset and replay bring it back; every guide section renders; a smoke test covers the first onboarding step.
+**Notes:**
+- **Walkthrough:** 4 steps (click, build a Solar Panel, start research, "you're set"). A card under the click button highlights the target with a pulsing outline, using `data-tutorial` attributes. Steps move on when done; on a replay they move with "Next".
+- **Saving:** the step is in `settings.tutorial` (save version 10). Older saves skip the walkthrough; Reset brings it back.
+- **Guide:** a new Guide tab with 10 sections from `src/data/guide.ts`, plus a "Replay the tutorial" button there and in Settings.
 
 ### 0.41 — Responsive layout and keyboard access — CODE — Not started
 **Goal:** the game is usable on a phone browser and by keyboard.

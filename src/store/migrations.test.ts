@@ -3,6 +3,7 @@ import type { GameState } from '../types/state';
 import { createInitialState } from '../data/initialState';
 import { STARTING_ENERGY } from '../data/player';
 import { migrateSave, pickSaved, SAVE_VERSION } from './migrations';
+import { TUTORIAL_DONE } from '../data/tutorial';
 import { getAvailableRoom, getTotalEnergyRate } from './selectors';
 import { useStore } from '.';
 
@@ -30,7 +31,7 @@ describe('save migrations', () => {
     expect(s.lastSavedTimestamp).toBe(1_700_000_000_000);
     // fields added later get fresh-save defaults
     expect(s.expansionLevel).toBe(0);
-    expect(s.settings).toEqual({ notation: 'short', reduceMotion: false });
+    expect(s.settings).toEqual({ notation: 'short', reduceMotion: false, tutorial: { step: TUTORIAL_DONE, replay: false } });
   });
 
   it('tolerates garbage without throwing', () => {

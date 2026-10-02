@@ -25,6 +25,7 @@ export default function ClickButton() {
       <button
         type="button"
         onClick={onClick}
+        data-tutorial="click"
         className="select-none rounded-xl border-2 border-yellow-500 bg-yellow-400 px-8 py-4 text-xl font-bold text-slate-900 shadow-[0_4px_0_0_#b4202a] transition-transform hover:bg-yellow-300 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
       >
         Generate energy

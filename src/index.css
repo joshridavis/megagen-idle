@@ -212,3 +212,15 @@ body {
 @media (prefers-reduced-motion: reduce) {
   [class*='sighting-'] { animation: none; display: none; }
 }
+
+/* Tutorial highlight (0.40). */
+@keyframes tutorial-pulse {
+  50% {
+    outline-color: rgba(255, 200, 37, 0.35);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-tutorial] {
+    animation: none !important;
+  }
+}

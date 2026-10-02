@@ -44,6 +44,7 @@ export default function ResearchNode({
       type="button"
       onClick={onOpen}
       data-testid={`research-node-${def.id}`}
+      data-tutorial={`research-${def.id}`}
       data-status={status}
       title={def.name}
       aria-label={`${def.name}, needs research level ${def.requiredLevel}, ${STATUS_TEXT[status]}`}

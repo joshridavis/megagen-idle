@@ -84,6 +84,7 @@ export default function GeneratorCard({
         type="button"
         disabled={block !== null}
         onClick={() => build(type)}
+        data-tutorial={`build-${type}`}
         aria-describedby={tooltipId}
         className="mt-auto min-h-11 rounded bg-emerald-600 px-3 py-2 font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
       >
