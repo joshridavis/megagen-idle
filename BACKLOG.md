@@ -70,7 +70,11 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.85 Random events with effects (playtest 10 feedback)
 0. 0.86 Grid Contracts: a second activity (playtest 10 feedback)
 0. 0.92 Energy pets: collect and grow (playtest 11 feedback) → CHECKPOINT
-0. 0.87 Multi-platform release plan: website, Steam, mobile (playtest 10 feedback)
+0. 0.98 Fix: meteor shower and shooting stars fly the wrong way (playtest 13 bug)
+0. 0.97 Contracts explain delivery versus production (playtest 13 feedback)
+0. 0.99 Pets react when clicked (playtest 13 feedback)
+0. 0.65 Achievements (moved up: playtest 13 feedback)
+0. 0.87 Multi-platform release plan: website, Steam, mobile (playtest 10 feedback) → CHECKPOINT
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -105,7 +109,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 32. 0.45 Deeper research tree
 33. 0.46 Crash recovery and error boundaries
 34. 0.47 Balance re-tune and difficulty curve review
-35. 0.65 Achievements (owner request, playtest 5)
+35. (0.65 moved to the top, playtest 13)
 36. (0.66 moved to the top, playtest 10)
 37. 0.67 Public release plan: accounts and cloud saves (owner request, playtest 5)
 38. 0.68 Accounts and cloud saves (needs owner setup, see 0.67)
@@ -432,6 +436,24 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Timeline:** an order of steps, each with its blocking owner action.
 - **Code now:** also add the `src/platform/` interface with the web implementation only, so later wrappers plug in without touching game logic.
 **Acceptance:** the plan document is reviewed in the PR; the platform interface is in place with web implementation and tests; nothing needs secrets or platform tooling.
+
+### 0.98 — Fix: meteor shower and shooting stars fly the wrong way — CODE — Not started
+**Goal:** fix the playtest 13 bug: in the meteor shower, meteors moved against their own trail, so they looked like they were falling backwards.
+**Details:** the meteor sprite has its glowing head at the bottom right and its trail up to the left, but the animation moved it down and to the left. Shooting stars had the same mismatch: their bright end trailed behind the motion. Every streak must move in the direction of its bright head, with its trail behind.
+**Acceptance:** a screenshot check shows the meteors and stars head first. The animation direction matches the sprite (one shared direction constant or a comment in both places).
+
+### 0.97 — Contracts explain delivery versus production — CODE — Not started
+**Goal:** apply playtest 13 feedback: it was unclear why two contracts showed "Not enough yet" and one did not.
+**Details:**
+- **Labels:** each card shows its kind clearly. "Delivery": you hand over energy or materials you have, and they are spent. "Production": counts energy your generators make from now on; nothing is spent, and it completes by itself.
+- **Amounts:** delivery cards show "You have X of Y" for each item, and the button says what is missing (e.g. "Need 60K more energy").
+- **Overlap note:** when two delivery contracts need the same thing, a short note says each one is paid separately.
+**Acceptance:** the labels and the "need N more" text are correct for each kind (component tests).
+
+### 0.99 — Pets react when clicked — CODE — Not started
+**Goal:** apply playtest 13 feedback: clicking a pet plays a short animation.
+**Details:** clicking or tapping an owned pet's picture plays a 2–3 second animation: a hop or wiggle plus a few themed particles (sparks for the eel and the cat, glow for the firefly and the jellyfish, hearts otherwise). It is purely cosmetic and respects Reduce motion. Clicks while it plays are ignored.
+**Acceptance:** clicking a pet adds the animation class and it clears after the duration (component test); no animation with Reduce motion on.
 
 ### 0.95 — Player levels harder to gain early — CODE — Done
 **Goal:** apply playtest 12 feedback: level-ups should stay celebrated, but levels must not come in seconds. Clicking from level 1 to level 4 or 5 should not be possible.
@@ -766,4 +788,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 10 (v0.10.0) | 0.79, 0.80, 0.81, 0.82, 0.33 | 2026-10-01 | Branch layout is right. Oil and Nuclear feel like a real step up; uranium pace and level 9/10 gates fine for now. Reach 200 h with a mix of content (larger share) and slower pacing; content should include a new mode or activity, not only research and machines. 100% completion must be visible to the player (like Melvor Idle). More click-power research. Random events: a large variety, some cosmetic (e.g. a spaceship, foreground only), some with positive or negative effects (some also while idle); all rare, some much rarer. Saves like Melvor Idle: automatic cloud and local saves, load either on any device. Future release on Steam, a dedicated website and mobile. Report hours to 100% every version. Player levels based on lifetime energy. | 0.83-0.88; 0.66 and 0.38 moved up; 0.67, 0.68 and 0.47 updated |
 | 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-02 | Player level reward: yes but small, about +0.1% per level. About one sighting per hour is right for the common ones. Planned effect events approved. Grid Contracts fine; another activity idea: collect and grow pets that fit the energy theme. An Aurora was recorded as seen but went unnoticed: sightings should stay longer. Bug: 360,722 energy showed as 36K. Level-up needs a celebration like research, and levels gained belong in the welcome-back summary. Add player info: tutorial or game guide. Click research chain drawn on the wrong row. Tree lines should leave each parent as one trunk that splits into its children (sketch). The guide is meant to teach new players how the game works. | 0.89-0.94; 0.40 moved up and widened |
 | 12 (v0.12.0) | 0.89, 0.93, 0.94, 0.90, 0.91, 0.40 | 2026-10-02 | Level-ups stay celebrated, but early levels must be harder (no clicking from level 1 to 4 or 5 in seconds). Guide clear. Prefers the squared-off tree lines. Negative events slightly rarer than positive ones. Add sorting to "Your generators" (e.g. by energy per second). | 0.95, 0.96; 0.85 updated |
-| 13 (v0.13.0) | 0.95, 0.96, 0.85, 0.86, 0.92 | 2026-10-02 | (waiting for owner) | |
+| 13 (v0.13.0) | 0.95, 0.96, 0.85, 0.86, 0.92 | 2026-10-02 | Contract deadlines fine (still watching the feature); unclear why two contracts showed "Not enough yet" and one did not. Pet bonuses and feed-then-wait make sense; add a short animation when clicking a pet. One effect event per 2 hours fine for now. Achievements next. Bug: meteor shower meteors fall in the wrong direction. | 0.97-0.99; 0.65 moved up |
