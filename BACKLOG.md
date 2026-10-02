@@ -520,7 +520,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Saving:** in `settings.cosmetics` (save version 16); the store refuses locked choices.
 - **No gameplay effect:** a test checks that rates are unchanged.
 
-### 1.02 — Release plan ordered from easiest to hardest — CODE — Not started
+### 1.02 — Release plan ordered from easiest to hardest — CODE — Done
 **Goal:** apply playtest 14 feedback: the owner has not chosen an order yet, but prefers to release from the easiest platform to the hardest, to get to production as soon as possible.
 **Details:**
 - **Order:** reorder `docs/RELEASE_PLAN.md`'s steps by effort and owner cost:
@@ -532,6 +532,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Per step:** the time to production and what blocks it.
 - **Deferred work:** say which steps can go live before accounts and cloud saves (0.67/0.68) are ready (all of them, with local saves and export/import), so nothing waits on the backend.
 **Acceptance:** the plan document is updated, and the order and reasons are clear.
+**Notes:** `docs/RELEASE_PLAN.md` section 6 now has a table ordered by effort and cost: website (live), itch.io, Android, Steam, iOS. Each step has cost, time to live and blockers. Every step can go live with local saves before accounts exist; cloud saves arrive later as an update. itch.io was added to the summary table.
 
 ### 0.98 — Fix: meteor shower and shooting stars fly the wrong way — CODE — Done
 **Goal:** fix the playtest 13 bug: in the meteor shower, meteors moved against their own trail, so they looked like they were falling backwards.
