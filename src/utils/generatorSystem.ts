@@ -1,10 +1,11 @@
-import { GENERATOR_ENERGY_COST_SECONDS, GENERATORS, UPGRADES } from '../data/generators';
+import { GENERATOR_ENERGY_COST_SECONDS, GENERATORS, SCRAP_REFUND_SHARE, UPGRADES } from '../data/generators';
+import { getBonuses } from './bonuses';
 import { levelMultiplier } from './energyGeneration';
 import { NO_BONUSES, type Bonuses } from '../types/bonus';
 import type { Generator, GeneratorType } from '../types/generator';
 import type { ResourceAmounts } from '../types/resource';
 import type { GameState } from '../types/state';
-import { canAfford, consumeResource } from './resourceSystem';
+import { addResources, canAfford, consumeResource } from './resourceSystem';
 import { noteGenerator } from './records';
 import { deriveRates } from './simulation';
 import { hasSpotFor } from './siteMap';
@@ -98,11 +99,44 @@ export function toggleGenerator(state: GameState, id: string): GameState {
   return deriveRates({ ...state, activeGenerators });
 }
 
-/** Removes a generator for good, freeing its room. No refund. */
+/** Removes a generator for good, freeing its room, and gives back a share of what was spent on it (1.24). */
 export function scrapGenerator(state: GameState, id: string): GameState {
-  if (!state.activeGenerators.some((g) => g.id === id)) return state;
-  return deriveRates({ ...state, activeGenerators: state.activeGenerators.filter((g) => g.id !== id) });
+  const g = state.activeGenerators.find((x) => x.id === id);
+  if (!g) return state;
+  const refund = generatorScrapRefund(g, getBonuses(state.completedResearch));
+  return deriveRates({
+    ...state,
+    energy: state.energy + refund.energy,
+    resources: addResources(state.resources, refund.resources),
+    activeGenerators: state.activeGenerators.filter((x) => x.id !== id),
+  });
 }
+
+/** What was spent on a generator: its build cost and every upgrade it got, at today's discounts (1.24). */
+export function generatorSpent(g: Generator, bonuses: Bonuses = NO_BONUSES): UpgradeCost {
+  const stats = getGeneratorStats(g.type, bonuses);
+  const resources: ResourceAmounts = { ...stats.buildCost };
+  let energy = stats.energyCost;
+  for (let level = 1; level < g.level; level++) {
+    const up = getUpgradeCost(g.type, level, bonuses);
+    energy += up.energy;
+    for (const [id, n] of Object.entries(up.resources)) resources[id as keyof ResourceAmounts] = (resources[id as keyof ResourceAmounts] ?? 0) + (n ?? 0);
+  }
+  return { energy, resources };
+}
+
+/** A share of an amount, rounded down: what scrapping gives back. */
+export function refundOf(spent: UpgradeCost, share = SCRAP_REFUND_SHARE): UpgradeCost {
+  const resources: ResourceAmounts = {};
+  for (const [id, n] of Object.entries(spent.resources)) {
+    const r = Math.floor((n ?? 0) * share);
+    if (r > 0) resources[id as keyof ResourceAmounts] = r;
+  }
+  return { energy: Math.floor(spent.energy * share), resources };
+}
+
+/** Scrapping a generator gives back SCRAP_REFUND_SHARE of everything spent on it (playtest 18). */
+export const generatorScrapRefund = (g: Generator, bonuses: Bonuses = NO_BONUSES) => refundOf(generatorSpent(g, bonuses));
 
 /**
  * Moves a generator to `toIndex` (clamped to the list). The list order is

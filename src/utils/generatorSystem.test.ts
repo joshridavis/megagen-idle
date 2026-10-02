@@ -13,8 +13,7 @@ import {
   nextGeneratorId,
   moveGenerator,
   scrapGenerator,
-  toggleGenerator,
-} from './generatorSystem';
+  toggleGenerator, generatorScrapRefund } from './generatorSystem';
 import { advanceTime } from './simulation';
 
 // These tests check other mechanics at fixed rates: no player level bonus (0.90).
@@ -167,14 +166,15 @@ describe('energy cost (playtest 3: 30 minutes of output)', () => {
 });
 
 describe('scrapping', () => {
-  it('removes the generator and frees its room, with no refund', () => {
+  it('removes the generator and frees its room, with a 10% refund (1.24)', () => {
     let s = buildGenerator(fresh(), GeneratorType.SOLAR, ALL);
     const metal = s.resources.metal;
+    const refund = generatorScrapRefund(s.activeGenerators[0]);
     s = scrapGenerator(s, s.activeGenerators[0].id);
     expect(s.activeGenerators).toEqual([]);
     expect(s.roomUsed).toBe(3); // the starting producers remain
     expect(s.energyPerSecond).toBe(0);
-    expect(s.resources.metal).toBe(metal);
+    expect(s.resources.metal).toBe(metal + (refund.resources.metal ?? 0));
   });
   it('unknown IDs change nothing', () => {
     const s = fresh();

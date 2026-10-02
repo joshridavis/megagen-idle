@@ -14,6 +14,8 @@ export const GENERATOR_ENERGY_COST_SECONDS = 1800;
  * Tuned with the balance simulator (BALANCE_REPORT.md).
  */
 export const UPGRADES = { maxLevel: 10, outputPerLevel: 0.25, costGrowth: 1.6, resourceGrowth: 1.3 };
+/** Share of everything spent on a machine (build and upgrades) given back when it is scrapped (1.24, playtest 18). */
+export const SCRAP_REFUND_SHARE = 0.1;
 
 /** Generators, cheapest first. Costs in resources; maintenance in resources per hour. */
 export const GENERATORS: Record<GeneratorType, GeneratorDef> = {

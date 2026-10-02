@@ -221,14 +221,14 @@ describe('Mid-tier generators UI', () => {
 });
 
 describe('Scrap', () => {
-  it('tells the player there is no refund, and Cancel keeps the generator', () => {
+  it('tells the player the 10% refund, and Cancel keeps the generator', () => {
     useStore.setState(createInitialState(Date.now()));
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Build Solar Panel' }));
     const scrapBtn = screen.getByRole('button', { name: 'Scrap Solar Panel #1' });
-    expect(document.getElementById(scrapBtn.getAttribute('aria-describedby')!)!.textContent).toContain('No refund');
+    expect(document.getElementById(scrapBtn.getAttribute('aria-describedby')!)!.textContent).toContain('You get back 10% of everything spent on it');
     fireEvent.click(scrapBtn);
-    expect(screen.getByRole('alert').textContent).toContain('No refund');
+    expect(screen.getByRole('alert').textContent).toContain('You get back');
     fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap Solar Panel #1' }));
     expect(screen.queryByRole('alert')).toBeNull();
     expect(useStore.getState().activeGenerators).toHaveLength(1);
@@ -325,7 +325,7 @@ describe('Scrap producers (playtest 5/6)', () => {
 
   it('Cancel changes nothing', () => {
     setup(3);
-    expect(screen.getByRole('alert').textContent).toContain('No refund');
+    expect(screen.getByRole('alert').textContent).toContain('You get back');
     fireEvent.click(screen.getByRole('button', { name: 'Cancel scrap Metal Mines' }));
     expect(useStore.getState().producers.mine).toBe(3);
   });
@@ -334,7 +334,7 @@ describe('Scrap producers (playtest 5/6)', () => {
     setup(4);
     fireEvent.click(screen.getByRole('button', { name: 'One more' }));
     fireEvent.click(screen.getByRole('button', { name: 'One more' }));
-    expect(screen.getByTestId('scrap-summary').textContent).toContain('removes 3 Metal Mines');
+    expect(screen.getByTestId('scrap-summary').textContent).toContain('Removes 3 Metal Mines');
     expect(screen.getByTestId('scrap-summary').textContent).toContain('frees 3 room');
     fireEvent.click(screen.getByRole('button', { name: 'Confirm scrap Metal Mines' }));
     expect(useStore.getState().producers.mine).toBe(1);

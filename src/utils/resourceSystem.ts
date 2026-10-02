@@ -15,6 +15,13 @@ export function canAfford(resources: Resources, cost: ResourceAmounts): boolean 
 }
 
 /** Adds `amount` of one resource. Negative amounts are ignored. */
+/** Adds amounts to an inventory (refunds, rewards). */
+export function addResources(resources: Resources, add: ResourceAmounts): Resources {
+  const next = { ...resources };
+  for (const [id, n] of Object.entries(add)) next[id as ResourceId] += n ?? 0;
+  return next;
+}
+
 export function gatherResource(resources: Resources, id: ResourceId, amount: number): Resources {
   if (!(amount > 0)) return resources;
   return { ...resources, [id]: resources[id] + amount };

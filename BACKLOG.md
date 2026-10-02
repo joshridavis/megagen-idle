@@ -97,6 +97,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.68 Accounts and cloud saves (needs owner setup, see 0.67; skipped until then)
 0. 1.06 Map polish: expansions grow the map, simulator and balance (playtest 14 feedback) → CHECKPOINT 18
 0. 1.22 Sign in with Google and Discord (playtest 18 feedback)
+0. 1.24 Scrapping refunds 10% of everything spent (playtest 18 feedback)
 0. 0.34 Late-game fictional generators, with two more room tiers (moved up: playtest 18, first priority)
 0. 1.23 Map upgrade: the Exclusion Zone for fictional generators (playtest 18 feedback)
 0. 1.12 Map events you can watch on the map (playtest 15 feedback; playtest 18: after the fictional generators)
@@ -923,6 +924,14 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** tests with a fake service for the buttons, the redirect call and the username dialog; no secrets in the repository.
 **Notes:** the code is done and tested with fakes. The owner turns it on with section 9b of `docs/PUBLIC_RELEASE.md` (register the Google and Discord OAuth apps, paste the keys into Supabase, add `VITE_AUTH_PROVIDERS`, rerun the deploy). The live sign-in check rides with 0.68's live test.
 
+### 1.24 — Scrapping refunds 10% of everything spent — CODE — Done
+**Goal:** apply playtest 18 feedback: scrapping gives back 10% of the building cost, and for an upgraded machine 10% of everything spent on it.
+**Details:**
+- **Generators:** the refund is `SCRAP_REFUND_SHARE` (10%) of the build cost plus every upgrade, energy and resources, rounded down. Costs are counted at today's discounts, since what was paid is not stored.
+- **Producers:** 10% of what each scrapped one cost; producers granted by research were free and give nothing.
+- **Where it shows:** the Scrap tooltip and both confirm rows show the exact refund.
+**Acceptance:** tests for the build-only and upgraded refunds, the producer refund, and free granted producers; UI texts updated. Simulator: about 112 h, no stalls.
+
 ### 1.23 — Map upgrade: the Exclusion Zone for fictional generators — CODE — Not started
 **Goal:** apply playtest 18 feedback: the fictional generators may need a map upgrade.
 **Details:**
@@ -1081,4 +1090,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 15 (v0.15.0) | 1.00, 1.03, 1.01, 1.02, 1.04 | 2026-10-02 | "Website" means a real site with sign-up and log-in and saves in the cloud, not in the browser. The map should be larger and more detailed, with varied terrain. Wants random events that only happen on the map and visibly do something there. Planned zones good; hydro must need a river and tidal the coast. Map decorations welcome. Amber accent did nothing. Mixed American and British English: use one (American, the larger market). Bug: coal plant #32 drawn as a huge box over other machines. Event messages vanish too fast; hovering an effect should say exactly what it does. An event seemed missing from the log. The Wheel Hamster's click bonus seemed to do nothing (+2 instead of +3). | 1.08-1.13; 1.05 widened; 0.67 moved up |
 | 16 (v0.16.0) | 1.08, 1.09, 1.10, 1.11, 1.05 | 2026-10-02 | The ⭐ and 📍 marks need a tooltip on hover. Map size fine for now; more variety in the small objects would help. +20% and +10% are worth moving machines for. Wants drag and drop. Solar and wind should go onto their bonus zones automatically when built, but not move afterwards. Yes to producer zones (for example a coal field for coal mines). | 1.14-1.18 |
 | 17 (v0.17.0) | 1.14, 1.17, 1.16, 1.15, 1.18 | 2026-10-02 | Drag and drop feels right on computer and phone. The "makes way for a new dam" rule is clear and fair. +20% for producers is worth moving them; averaging is clear. Next: accounts and cloud saves for the website (before map events and decorations). Bug: the 📍 tooltip opens to the side and is cut off. Bug: a 1-tile-wide strip of sunny plateau can never give a Solar Panel its bonus. Active bonuses get long: let it be opened and closed. | 1.19, 1.20, 1.21; 0.67 next |
-| 18 (v0.18.0) | 1.19, 1.20, 1.21, 0.67, 1.06 (and 0.68 built, waiting for setup) | 2026-10-02 | Supabase is fine; setup in docs/PUBLIC_RELEASE.md done. Sign-in: email, plus Google and Discord as options. Usernames 3–20 letters, digits or _: fine. Keep the license "all rights reserved" (no one may use the project or assets as theirs). Next: 1. fictional generators (may need a map upgrade too), 2. map events and decorations. | 1.22, 1.23; 0.34 widened and moved first |
+| 18 (v0.18.0) | 1.19, 1.20, 1.21, 0.67, 1.06 (and 0.68 built, waiting for setup) | 2026-10-02 | Supabase is fine; setup in docs/PUBLIC_RELEASE.md done. Sign-in: email, plus Google and Discord as options. Usernames 3–20 letters, digits or _: fine. Keep the license "all rights reserved" (no one may use the project or assets as theirs). Next: 1. fictional generators (may need a map upgrade too), 2. map events and decorations. Scrapping should refund 10% of the building cost; for an upgraded machine, 10% of everything spent on it. | 1.22, 1.23, 1.24; 0.34 widened and moved first |

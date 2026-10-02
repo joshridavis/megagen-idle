@@ -3,7 +3,7 @@ import { createInitialState } from '../data/initialState';
 import { PRODUCER_COST_GROWTH } from '../data/producers';
 import { NO_BONUSES } from '../types/bonus';
 import type { GameState } from '../types/state';
-import { buildProducer, getProducerBlock, getProducerCost, scrapProducer } from './producerSystem';
+import { buildProducer, getProducerBlock, getProducerCost, scrapProducer, producerScrapRefund } from './producerSystem';
 import { getProductionRates } from './resourceSystem';
 import { advanceTime, deriveRates } from './simulation';
 
@@ -80,13 +80,14 @@ describe('rates and room scale with count', () => {
 });
 
 describe('scrapping producers (playtest 5)', () => {
-  it('lowers the count and frees room, with no refund', () => {
+  it('lowers the count and frees room, with a 10% refund (1.24)', () => {
     const s0 = rich();
+    const r = producerScrapRefund(s0, 'quarry', 1);
     const s = scrapProducer(s0, 'quarry');
     expect(s.producers.quarry).toBe(0);
     expect(s.roomUsed).toBe(2);
-    expect(s.resources).toEqual(s0.resources);
-    expect(s.energy).toBe(s0.energy);
+    expect(s.energy).toBe(s0.energy + r.energy);
+    expect(s.resources.stone).toBe(s0.resources.stone + (r.resources.stone ?? 0));
   });
   it('never goes below zero', () => {
     const s = rich();
