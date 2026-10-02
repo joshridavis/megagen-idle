@@ -112,6 +112,22 @@ export function scrapGenerator(state: GameState, id: string): GameState {
   });
 }
 
+/** Scraps several generators at once (one recalculation), each with its refund. */
+export function scrapGenerators(state: GameState, ids: string[]): GameState {
+  if (ids.length === 0) return state;
+  const gone = new Set(ids);
+  const b = getBonuses(state.completedResearch);
+  let energy = state.energy;
+  let resources = state.resources;
+  for (const g of state.activeGenerators) {
+    if (!gone.has(g.id)) continue;
+    const r = generatorScrapRefund(g, b);
+    energy += r.energy;
+    resources = addResources(resources, r.resources);
+  }
+  return deriveRates({ ...state, energy, resources, activeGenerators: state.activeGenerators.filter((g) => !gone.has(g.id)) });
+}
+
 /** What was spent on a generator: its build cost and every upgrade it got, at today's discounts (1.24). */
 export function generatorSpent(g: Generator, bonuses: Bonuses = NO_BONUSES): UpgradeCost {
   const stats = getGeneratorStats(g.type, bonuses);

@@ -181,11 +181,12 @@ function computeLayout(s: SiteState): SiteMap {
   const columns = MAP_COLUMNS;
   const capacity = s.roomCapacity;
   const pins = s.mapPins ?? {};
-  const taken = new Set<number>();
+  // a flat array, not a Set: layouts run thousands of times in the simulator
+  const taken = new Uint8Array(Math.max(0, capacity));
   const placed: Placed[] = [];
-  const free = (c: number) => c >= 0 && c < capacity && !taken.has(c);
+  const free = (c: number) => c >= 0 && c < capacity && taken[c] === 0;
   const add = (it: Item, cells: number[], pinned: boolean, misplaced = false) => {
-    cells.forEach((c) => taken.add(c));
+    for (const c of cells) if (c >= 0 && c < capacity) taken[c] = 1;
     const zoneBonus = misplaced ? 0 : zoneBonusFor(it.type, cells, columns);
     placed.push({ key: it.key, kind: it.kind, id: it.id, type: it.type, size: it.size, cells, core: coreOf(cells, columns, it.size), zoneBonus, misplaced, pinned });
   };
@@ -207,10 +208,18 @@ function computeLayout(s: SiteState): SiteMap {
   const placeAuto = (it: Item, soft: Set<number> = new Set()) => {
     let best: number[] | null = null;
     let bestScore = -Infinity;
+    const shape = footprint(it.size);
+    const fits = (anchor: number) => {
+      const x0 = anchor % columns;
+      for (const [dx, dy] of shape) {
+        const c = anchor + dy * columns + dx;
+        if (x0 + dx >= columns || c >= capacity || taken[c] === 1) return false;
+      }
+      return true;
+    };
     for (let anchor = 0; anchor < capacity; anchor++) {
-      if (!free(anchor)) continue;
-      const cells = cellsAt(anchor, it.size, columns);
-      if (!cells || !cells.every(free)) continue;
+      if (taken[anchor] === 1 || !fits(anchor)) continue;
+      const cells = cellsAt(anchor, it.size, columns)!;
       const base = spotScore(it.type, cells, columns);
       if (base === null) continue;
       const bumped = soft.size ? cells.filter((c) => soft.has(c)).length : 0;
@@ -259,9 +268,20 @@ function computeLayout(s: SiteState): SiteMap {
 }
 
 /** What the layout depends on, as text: machines (keys, types), room and pins. */
+// the parts of a signature are cached by object: the simulator asks thousands of times
+const pinsText = new WeakMap<object, string>();
+let lastItems: { refs: unknown[]; text: string } | null = null;
 function signature(s: SiteState): string {
-  const items = siteItems(s).map((it) => `${it.key}:${it.type}`).join(',');
-  return `${s.roomCapacity}|${items}|${s.mapPins ? JSON.stringify(s.mapPins) : ''}`;
+  const refs = [s.activeGenerators, s.producers, s.completedResearch];
+  if (!lastItems || !lastItems.refs.every((r, i) => r === refs[i])) {
+    lastItems = { refs, text: siteItems(s).map((it) => `${it.key}:${it.type}`).join(',') };
+  }
+  let pins = '';
+  if (s.mapPins) {
+    pins = pinsText.get(s.mapPins) ?? JSON.stringify(s.mapPins);
+    pinsText.set(s.mapPins, pins);
+  }
+  return `${s.roomCapacity}|${lastItems.text}|${pins}`;
 }
 
 const LAYOUT_CACHE_SIZE = 16;
@@ -289,9 +309,9 @@ export function layoutSite(s: SiteState): SiteMap {
  * mines on a coal field give coal +10%. Producers granted by research take no
  * room, are not on the map and count as 0.
  */
-export function getProducerPlacement(s: SiteState): Partial<Record<ResourceId, number>> {
+export function getProducerPlacement(s: SiteState, map: SiteMap = layoutSite(s)): Partial<Record<ResourceId, number>> {
   const sum: Partial<Record<ProducerId, number>> = {};
-  for (const p of layoutSite(s).placed) if (p.kind === 'producer' && p.zoneBonus > 0) sum[p.id as ProducerId] = (sum[p.id as ProducerId] ?? 0) + p.zoneBonus;
+  for (const p of map.placed) if (p.kind === 'producer' && p.zoneBonus > 0) sum[p.id as ProducerId] = (sum[p.id as ProducerId] ?? 0) + p.zoneBonus;
   const out: Partial<Record<ResourceId, number>> = {};
   for (const [pid, total] of Object.entries(sum) as [ProducerId, number][]) {
     const owned = s.producers[pid] ?? 0;
@@ -302,15 +322,16 @@ export function getProducerPlacement(s: SiteState): Partial<Record<ResourceId, n
 
 /** Adds map placement to effect modifiers: generator bonuses by id, producer bonuses by resource (1.05, 1.18). */
 export function withPlacementMods(mods: EffectMods, s: SiteState): EffectMods {
+  const map = layoutSite(s);
   const resource = { ...mods.resource };
-  for (const [id, b] of Object.entries(getProducerPlacement(s)) as [ResourceId, number][]) resource[id] = (resource[id] ?? 0) + b;
-  return { ...mods, resource, placement: getPlacementBonuses(s) };
+  for (const [id, b] of Object.entries(getProducerPlacement(s, map)) as [ResourceId, number][]) resource[id] = (resource[id] ?? 0) + b;
+  return { ...mods, resource, placement: getPlacementBonuses(s, map) };
 }
 
 /** Energy bonus per generator id from where each stands (1.05). Empty if none. */
-export function getPlacementBonuses(s: SiteState): Record<string, number> {
+export function getPlacementBonuses(s: SiteState, map: SiteMap = layoutSite(s)): Record<string, number> {
   const out: Record<string, number> = {};
-  for (const p of layoutSite(s).placed) if (p.kind === 'generator' && p.zoneBonus > 0) out[p.id] = p.zoneBonus;
+  for (const p of map.placed) if (p.kind === 'generator' && p.zoneBonus > 0) out[p.id] = p.zoneBonus;
   return out;
 }
 
@@ -372,9 +393,14 @@ export function anchorOf(p: Placed, columns = MAP_COLUMNS): number {
  * on the map then never move by themselves (playtest 16). Returns the same
  * object when nothing changed.
  */
+const pinCount = new WeakMap<object, number>();
 export function settledPins(s: SiteState): Record<string, number> {
   const map = layoutSite(s);
   const old = s.mapPins ?? {};
+  // fast path: every machine already stands where it is pinned, and no pin is stale
+  let count = pinCount.get(old);
+  if (count === undefined) pinCount.set(old, (count = Object.keys(old).length));
+  if (count === map.placed.length && map.placed.every((p) => p.pinned)) return old;
   const next: Record<string, number> = {};
   for (const p of map.placed) {
     if (p.misplaced) continue;

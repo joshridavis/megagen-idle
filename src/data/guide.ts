@@ -18,7 +18,7 @@ export const GUIDE: GuideSection[] = [
     title: 'The goal',
     icon: 'energy_icon',
     paragraphs: [
-      'MegaGen Idle is about generating energy. You start with one solar panel and work up to oil, nuclear and beyond.',
+      'MegaGen Idle is about generating energy. You start with one solar panel and work up to oil, nuclear and beyond: fusion, and one day a supernova in a pocket dimension.',
       'Energy is the main currency: you spend it on generators, producers, research and room. Reinvest it to grow faster.',
     ],
   },
@@ -57,7 +57,7 @@ export const GUIDE: GuideSection[] = [
     title: 'Fuel',
     icon: 'coal_plant',
     paragraphs: [
-      'Some generators burn a resource, shown as "Burns" on their card: coal, natural gas, oil or uranium.',
+      'Some generators burn a resource, shown as "Burns" on their card: coal, natural gas, oil, uranium or deuterium.',
       'If a fuel runs out, those generators switch off until you have fuel again. Generators higher in your list get fuel first; reorder them with ▲ ▼ or by dragging.',
     ],
   },

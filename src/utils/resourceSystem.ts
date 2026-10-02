@@ -44,7 +44,7 @@ export function getProductionRates(
   bonuses: Bonuses = NO_BONUSES,
   mods: EffectMods = NO_MODS,
 ): Resources {
-  const rates: Resources = { coal: 0, stone: 0, metal: 0, naturalGas: 0, oil: 0, uranium: 0 };
+  const rates: Resources = { coal: 0, stone: 0, metal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 };
   for (const id of PRODUCER_IDS) {
     const def = PRODUCERS[id];
     rates[def.resource] += ((producers[id] ?? 0) * def.amount) / def.intervalSeconds;
@@ -62,7 +62,7 @@ export function productionBoost(id: ResourceId, bonuses: Bonuses): number {
 
 /** Per-second fuel use of active generators. */
 export function getFuelUseRates(generators: Generator[], bonuses: Bonuses = NO_BONUSES): Resources {
-  const rates: Resources = { coal: 0, stone: 0, metal: 0, naturalGas: 0, oil: 0, uranium: 0 };
+  const rates: Resources = { coal: 0, stone: 0, metal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 };
   for (const g of generators) {
     const upkeep = GENERATORS[g.type]?.maintenanceCost;
     if (!g.isActive || !upkeep) continue;

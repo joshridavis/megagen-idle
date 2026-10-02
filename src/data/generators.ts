@@ -96,6 +96,27 @@ export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
     buildCost: { metal: 800, stone: 600 },
     maintenanceCost: { uranium: 1 },
   },
+  // ---- Fictional (0.34): the few methods that do not exist (yet). About 2.5x the energy per room again each. ----
+  [GeneratorType.FUSION]: {
+    type: GeneratorType.FUSION,
+    requiredLevel: 12,
+    name: 'Fusion Reactor',
+    description: 'A star in a magnetic bottle. Burns 1 deuterium per hour for 2.5x the output per room of fission.',
+    energyPerSecond: 200,
+    roomCost: 16,
+    buildCost: { metal: 4000, stone: 2500, deuterium: 5 },
+    maintenanceCost: { deuterium: 1 },
+  },
+  [GeneratorType.SUPERNOVA]: {
+    type: GeneratorType.SUPERNOVA,
+    requiredLevel: 14,
+    name: 'Micro-Supernova',
+    description: 'A supernova in a fast-time micro dimension: a star lives and dies every second, and we catch the light. Burns 2 deuterium per hour.',
+    energyPerSecond: 780,
+    roomCost: 25,
+    buildCost: { metal: 12000, stone: 8000, deuterium: 10 },
+    maintenanceCost: { deuterium: 2 },
+  },
 };
 
 export const GENERATOR_TYPES = Object.values(GeneratorType);

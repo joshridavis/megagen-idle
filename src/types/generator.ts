@@ -9,6 +9,9 @@ export enum GeneratorType {
   GAS = 'gas',
   OIL = 'oil',
   NUCLEAR = 'nuclear',
+  // fictional (0.34)
+  FUSION = 'fusion',
+  SUPERNOVA = 'supernova',
 }
 
 export interface GeneratorDef {

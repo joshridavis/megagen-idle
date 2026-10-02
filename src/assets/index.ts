@@ -18,6 +18,12 @@ import oilPlant from './sprites/generators/oil_plant.png';
 import oilPlantInactive from './sprites/generators/oil_plant_inactive.png';
 import nuclearPlant from './sprites/generators/nuclear_plant.png';
 import nuclearPlantInactive from './sprites/generators/nuclear_plant_inactive.png';
+import fusionReactor from './sprites/generators/fusion_reactor.png';
+import fusionReactorInactive from './sprites/generators/fusion_reactor_inactive.png';
+import supernovaCore from './sprites/generators/supernova_core.png';
+import supernovaCoreInactive from './sprites/generators/supernova_core_inactive.png';
+import resourceDeuterium from './sprites/resources/deuterium.png';
+import producerDeuteriumExtractor from './sprites/producers/deuterium_extractor.png';
 import resourceCoal from './sprites/resources/coal.png';
 import resourceStone from './sprites/resources/stone.png';
 import resourceMetal from './sprites/resources/metal.png';
@@ -123,18 +129,24 @@ export const sprites = {
   oil_plant_inactive: oilPlantInactive,
   nuclear_plant: nuclearPlant,
   nuclear_plant_inactive: nuclearPlantInactive,
+  fusion_reactor: fusionReactor,
+  fusion_reactor_inactive: fusionReactorInactive,
+  supernova_core: supernovaCore,
+  supernova_core_inactive: supernovaCoreInactive,
   resource_coal: resourceCoal,
   resource_stone: resourceStone,
   resource_metal: resourceMetal,
   resource_natural_gas: resourceNaturalGas,
   resource_oil: resourceOil,
   resource_uranium: resourceUranium,
+  resource_deuterium: resourceDeuterium,
   producer_quarry: producerQuarry,
   producer_mine: producerMine,
   producer_coal_mine: producerCoalMine,
   producer_gas_well: producerGasWell,
   producer_oil_rig: producerOilRig,
   producer_uranium_mine: producerUraniumMine,
+  producer_deuterium_extractor: producerDeuteriumExtractor,
   room_expansion: roomExpansion,
   capacity_empty: capacityEmpty,
   capacity_filled: capacityFilled,

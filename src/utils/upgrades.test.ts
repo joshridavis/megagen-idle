@@ -14,7 +14,7 @@ const rich = (level = 1): GameState =>
   deriveRates({
     ...createInitialState(0),
     energy: 1e12,
-    resources: { metal: 1e9, stone: 1e9, coal: 0, naturalGas: 0, oil: 0, uranium: 0 },
+    resources: { metal: 1e9, stone: 1e9, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
     activeGenerators: [{ id: 'gen-1', type: GeneratorType.WIND, isActive: true, level }],
   });
 
@@ -61,7 +61,7 @@ describe('generator upgrades (0.32)', () => {
 
   it('is blocked without energy or resources', () => {
     expect(getUpgradeBlock({ ...rich(), energy: 0 }, 'gen-1')).toBe('energy');
-    expect(getUpgradeBlock({ ...rich(), resources: { metal: 0, stone: 0, coal: 0, naturalGas: 0, oil: 0, uranium: 0 } }, 'gen-1')).toBe('resources');
+    expect(getUpgradeBlock({ ...rich(), resources: { metal: 0, stone: 0, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } }, 'gen-1')).toBe('resources');
     expect(getUpgradeBlock(rich(), 'nope')).toBe('unknown');
   });
 
