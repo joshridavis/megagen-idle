@@ -25,6 +25,7 @@ export function eligibleEvents(state: EventState, opts: RollOptions, events: Eve
   const built = new Set(state.activeGenerators.map((g) => g.type));
   return events.filter(
     (e) =>
+      e.when !== 'never' &&
       (e.when === 'anytime' || (opts.foreground && !opts.catchUp)) &&
       (e.requiresBuilt ?? []).every((t) => built.has(t)) &&
       meetsRequirement(e, state),

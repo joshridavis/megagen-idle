@@ -82,4 +82,41 @@ export interface EventsState {
   activeEffects: ActiveEffect[];
 }
 
-export type GameState = EnergyState & ResourceState & GeneratorState & ResearchState & RoomState & SettingsState & EventsState;
+/** One Grid Contract (0.86). */
+export interface Contract {
+  id: string;
+  kind: 'energy' | 'resources' | 'produce';
+  /** What to hand over (energy and resources contracts). */
+  energy?: number;
+  resources?: Partial<Record<ResourceId, number>>;
+  /** Energy to produce from `startLifetime` on (produce contracts). */
+  produce?: number;
+  startLifetime?: number;
+  /** Size, 1-3: sets the Contract Points reward. */
+  tier: number;
+  deadline: number;
+  /** 'complete' waits for the player to pick a reward. */
+  status: 'open' | 'complete';
+}
+
+export interface ContractsState {
+  contracts: {
+    open: Contract[];
+    /** When the next offer fills an empty slot (epoch ms). */
+    nextOfferAt: number;
+    done: number;
+    points: number;
+    perks: Partial<Record<'slot' | 'deadline' | 'rewards' | 'offers', number>>;
+    /** Counter for contract ids. */
+    seq: number;
+  };
+}
+
+export type GameState = EnergyState &
+  ResourceState &
+  GeneratorState &
+  ResearchState &
+  RoomState &
+  SettingsState &
+  EventsState &
+  ContractsState;

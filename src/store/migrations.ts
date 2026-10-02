@@ -7,7 +7,7 @@ import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 12;
+export const SAVE_VERSION = 13;
 
 type AnySave = Record<string, unknown>;
 
@@ -49,6 +49,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   10: (save) => save,
   // 0.85: timed event effects.
   11: (save) => ({ ...save, activeEffects: [] }),
+  // 0.86: Grid Contracts (fresh state from defaults below).
+  12: (save) => save,
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */
@@ -89,5 +91,6 @@ export function pickSaved(s: GameState): GameState {
     settings: s.settings,
     seenEvents: s.seenEvents,
     activeEffects: s.activeEffects,
+    contracts: s.contracts,
   };
 }

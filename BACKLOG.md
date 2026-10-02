@@ -378,7 +378,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Display:** chips under the energy display with time left; the energy and resource tooltips list each event; the boost badge shows the overall change, up or down.
 - **Deviations:** "Volunteer crew" became +50% producer output for 15 minutes instead of a next-build discount, which would need a new build-cost path. The simulator runs without events instead of an expected-value mode (see BALANCE_REPORT.md).
 
-### 0.86 — Grid Contracts: a second activity — CODE — Not started
+### 0.86 — Grid Contracts: a second activity — CODE — Done
 **Goal:** apply playtest 10 feedback: the extra hours should come partly from a new kind of activity, not only more research and machines.
 **Details:**
 - **Contracts:** a Contracts tab offers up to 3 contracts at a time. Each asks the player to deliver something by a deadline, for example "Supply 50K energy within 2 hours", "Deliver 300 stone and 200 metal", or "Keep 5 coal plants running for 1 hour".
@@ -391,6 +391,14 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Completion:** 100% completion counts contract milestones (for example 10, 50 and 100 contracts done) and the perk shop.
 - **Data and logic:** all numbers go in `src/data/contracts.ts`; game rules are pure functions with tests.
 **Acceptance:** contracts generate, progress, complete and expire correctly online and offline (unit tests); the reward choice works; completion includes the new parts; the simulator models contracts and reports the hours they add.
+**Notes:**
+- **Rules:** pure functions in `src/utils/contracts.ts`, numbers in `src/data/contracts.ts`. The state is saved in `contracts` (save version 13).
+- **Kinds:** energy, resources and produce; produce contracts complete by themselves.
+- **Timing:** offers fill on a real-time timer and catch up after an absence, one per missed interval up to the slots.
+- **Rewards:** materials, a boost (the timed `contract_boost` effect) or points. 4 perks.
+- **Completion:** contract milestones (10/50/100/200) and perk levels.
+- **Simulator:** plays contracts with a seeded random source; 100% in about 102 h.
+- **Tabs:** the tab bar now scrolls sideways on phones (7 tabs).
 
 ### 0.92 — Energy pets: collect and grow — CODE — Not started
 **Goal:** apply playtest 11 feedback: another light activity besides contracts. The player collects pets and grows them. Pets fit the energy theme (no dragons and the like) and stay simple.

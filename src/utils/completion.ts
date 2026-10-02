@@ -1,4 +1,5 @@
 import { GENERATOR_TYPES, GENERATORS, UPGRADES } from '../data/generators';
+import { CONTRACT_MILESTONES, PERK_IDS, PERKS } from '../data/contracts';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { RESEARCH } from '../data/research';
 import { ROOM_TIERS } from '../data/rooms';
@@ -28,7 +29,7 @@ export interface CompletionPart {
  * Overall = done / total over all entries; each part lists its entries for the completion log.
  */
 export function getCompletion(
-  state: Pick<GameState, 'completedResearch' | 'records' | 'expansionLevel' | 'producers'>,
+  state: Pick<GameState, 'completedResearch' | 'records' | 'expansionLevel' | 'producers'> & Partial<Pick<GameState, 'contracts'>>,
 ): { parts: CompletionPart[]; done: number; total: number; ratio: number } {
   const maxOf = (t: GeneratorType) => GENERATORS[t].maxLevel ?? UPGRADES.maxLevel;
   const part = (label: string, items: CompletionItem[]): CompletionPart => ({
@@ -60,6 +61,26 @@ export function getCompletion(
     part(
       'Producer types owned',
       PRODUCER_IDS.map((p) => ({ id: p, label: PRODUCERS[p].name, done: (state.producers[p] ?? 0) > 0 })),
+    ),
+    // Grid Contracts (0.86)
+    part(
+      'Contracts completed',
+      CONTRACT_MILESTONES.map((n) => ({
+        id: `contracts-${n}`,
+        label: `${n} contracts`,
+        done: (state.contracts?.done ?? 0) >= n,
+        detail: `${Math.min(n, state.contracts?.done ?? 0)}/${n}`,
+      })),
+    ),
+    part(
+      'Contract perks',
+      PERK_IDS.flatMap((id) =>
+        PERKS[id].costs.map((_, lv) => ({
+          id: `perk-${id}-${lv + 1}`,
+          label: PERKS[id].costs.length > 1 ? `${PERKS[id].name} ${lv + 1}` : PERKS[id].name,
+          done: (state.contracts?.perks[id] ?? 0) > lv,
+        })),
+      ),
     ),
   ];
   const done = parts.reduce((s, p) => s + p.done, 0);

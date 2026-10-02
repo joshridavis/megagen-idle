@@ -78,6 +78,15 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: 'contracts',
+    title: 'Grid Contracts',
+    icon: 'capacity_filled',
+    paragraphs: [
+      'From research level 3, customers send contracts: supply energy, deliver materials, or produce an amount of energy before a deadline. New offers arrive over time, even while you are away.',
+      'When a contract is done, pick a reward: materials, a temporary energy boost, or Contract Points. Spend points in the perk shop on permanent perks, such as an extra contract slot. Missing a deadline costs nothing but the reward.',
+    ],
+  },
+  {
     id: 'level',
     title: 'Player level',
     icon: 'research_check',

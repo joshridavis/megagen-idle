@@ -63,8 +63,8 @@ export interface EventDef {
   /** Shown in the event log. */
   text: string;
   rarity: Rarity;
-  /** 'foreground' only rolls while the game screen is visible; 'anytime' also while idle or away. */
-  when: 'foreground' | 'anytime';
+  /** 'foreground' only rolls while the game screen is visible; 'anytime' also while idle or away; 'never' is not random (rewards). */
+  when: 'foreground' | 'anytime' | 'never';
   /** Needs at least one of each built (on or off). */
   requiresBuilt?: GeneratorType[];
   /** Cosmetic sightings have an animation and no effect. */
@@ -225,6 +225,15 @@ export const EVENTS: EventDef[] = [
     when: 'anytime',
     negative: true,
     effect: { kind: 'timed', minutes: 10, energy: -0.1 },
+  },
+  // ---- Not random: the Grid Contracts boost reward (0.86) reuses the timed effects. ----
+  {
+    id: 'contract_boost',
+    name: 'Contract bonus',
+    text: 'A grateful customer: +25% energy from all generators for 30 minutes.',
+    rarity: 'common',
+    when: 'never',
+    effect: { kind: 'timed', minutes: 30, energy: 0.25 },
   },
 ];
 
