@@ -82,6 +82,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.04 Site map: see your machines on a map (playtest 14 feedback)
 0. 1.05 Map terrain zones and moving machines (playtest 14 feedback) → CHECKPOINT
 0. 1.06 Map polish: expansions grow the map, simulator and balance (playtest 14 feedback)
+0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
 0. 0.34 Late-game fictional generators (moved up)
 0. 0.39 Statistics panel (moved up)
 1. 0.00 Bootstrap and repo verification
@@ -494,7 +495,17 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Guide:** a Map section.
 **Acceptance:** the simulator report includes placement bonuses; no stalls; expansion areas have tests.
 
-### 1.01 — Cosmetic rewards for achievements — CODE — Not started
+### 1.07 — Browser notifications, opt-in and rate-limited — CODE — Not started
+**Goal:** apply playtest 14 feedback: notify the player outside the game (browser notifications now, mobile later) when something worth coming back for happens, such as a research done or a level up. Handled carefully, because too many notifications are annoying.
+**Details:**
+- **Off by default.** Settings has a "Notifications" section with a master switch. Turning it on asks the browser for permission only at that moment, never on load.
+- **Per-type toggles:** research complete (on), player level up (off), contract complete (on), pet grown (on), fuel ran out (on), rare sighting missed (off).
+- **When:** only while the game is in the background (`platform.isBackground()`); never while the player is looking.
+- **Limits:** at most `MAX_PER_HOUR` (default 3) per hour, collapsed into one summary when several arrive together ("Research done: Hydropower, and 2 more"). Quiet hours are optional.
+- **Code:** a pure `selectNotifications(events, settings, history, now)` decides what to send, with tests. Sending goes through the platform layer (`platform.notify`), so a mobile wrapper can use native notifications later. A closed tab cannot notify on the web; the item notes this, and mobile push is planned with the app.
+**Acceptance:** nothing is sent without opt-in and permission; nothing is sent while visible; the rate limit and per-type switches work (unit tests); the summary text is correct.
+
+### 1.01 — Cosmetic rewards for achievements — CODE — Done
 **Goal:** apply playtest 14 feedback: achievements give cosmetic rewards, nothing that changes balance.
 **Details:**
 - **Titles:** unlocking certain achievements gives a title, for example "Live Wire", "Grid Operator" or "Proud Keeper". The player picks one to show under the player level in the top bar.
@@ -502,6 +513,12 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Settings and saving:** the choices are in a Cosmetics section of the Achievements tab and saved in settings. Each achievement card says what it unlocks.
 - **No gameplay effect:** a test checks that rates are unchanged.
 **Acceptance:** titles and colours unlock with their achievements (unit tests); choosing one updates the top bar and survives a reload; locked ones cannot be chosen.
+**Notes:**
+- **Titles:** 16 title achievements; the chosen one shows under the player level.
+- **Accents:** 5 accent colours (amber, then emerald at 5, sky at 15, violet at 25, rose at 36 achievements) colour the energy number and outline the top bar.
+- **Where:** a Cosmetics box at the top of the Achievements tab; cards say which title they unlock.
+- **Saving:** in `settings.cosmetics` (save version 16); the store refuses locked choices.
+- **No gameplay effect:** a test checks that rates are unchanged.
 
 ### 1.02 — Release plan ordered from easiest to hardest — CODE — Not started
 **Goal:** apply playtest 14 feedback: the owner has not chosen an order yet, but prefers to release from the easiest platform to the hardest, to get to production as soon as possible.
@@ -880,4 +897,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-02 | Player level reward: yes but small, about +0.1% per level. About one sighting per hour is right for the common ones. Planned effect events approved. Grid Contracts fine; another activity idea: collect and grow pets that fit the energy theme. An Aurora was recorded as seen but went unnoticed: sightings should stay longer. Bug: 360,722 energy showed as 36K. Level-up needs a celebration like research, and levels gained belong in the welcome-back summary. Add player info: tutorial or game guide. Click research chain drawn on the wrong row. Tree lines should leave each parent as one trunk that splits into its children (sketch). The guide is meant to teach new players how the game works. | 0.89-0.94; 0.40 moved up and widened |
 | 12 (v0.12.0) | 0.89, 0.93, 0.94, 0.90, 0.91, 0.40 | 2026-10-02 | Level-ups stay celebrated, but early levels must be harder (no clicking from level 1 to 4 or 5 in seconds). Guide clear. Prefers the squared-off tree lines. Negative events slightly rarer than positive ones. Add sorting to "Your generators" (e.g. by energy per second). | 0.95, 0.96; 0.85 updated |
 | 13 (v0.13.0) | 0.95, 0.96, 0.85, 0.86, 0.92 | 2026-10-02 | Contract deadlines fine (still watching the feature); unclear why two contracts showed "Not enough yet" and one did not. Pet bonuses and feed-then-wait make sense; add a short animation when clicking a pet. One effect event per 2 hours fine for now. Achievements next. Bug: meteor shower meteors fall in the wrong direction. | 0.97-0.99; 0.65 moved up |
-| 14 (v0.14.0) | 0.98, 0.97, 0.99, 0.65, 0.87 | 2026-10-02 | Achievement rewards should be cosmetic. The achievement list is fine for now. Contract wording much clearer. Release order not decided; prefers easiest to hardest, to reach production as soon as possible. Perk shop unclear: is the number on Buy a cost or an amount, how are points earned, is each contract 1 point? Add an "upgradable first" sort. Future: a map showing the builds, movable, with zones that suit some machines (sunny, windy) and sizes that matter; prioritise by impact. | 1.00-1.06 (map placed before fictional generators and statistics, as the highest-impact item); 0.34 and 0.39 moved up |
+| 14 (v0.14.0) | 0.98, 0.97, 0.99, 0.65, 0.87 | 2026-10-02 | Achievement rewards should be cosmetic. The achievement list is fine for now. Contract wording much clearer. Release order not decided; prefers easiest to hardest, to reach production as soon as possible. Perk shop unclear: is the number on Buy a cost or an amount, how are points earned, is each contract 1 point? Add an "upgradable first" sort. Future: a map showing the builds, movable, with zones that suit some machines (sunny, windy) and sizes that matter; prioritise by impact. Notifications (browser, later mobile) for research done, level up and so on, handled carefully so they are not annoying. | 1.00-1.07 (map placed before fictional generators and statistics, as the highest-impact item); 0.34 and 0.39 moved up |
