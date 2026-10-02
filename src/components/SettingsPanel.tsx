@@ -7,6 +7,8 @@ import { formatHours } from '../utils/format';
 import { useNumberFormat } from './useNumberFormat';
 import { ART_CREDITS, LIBRARY_CREDITS, type Credit } from '../data/credits';
 import { platform } from '../platform';
+import { cloudEnabled } from '../store/cloud';
+import AccountPanel from './AccountPanel';
 
 function CreditList({ items }: { items: Credit[] }) {
   return (
@@ -80,6 +82,7 @@ export default function SettingsPanel() {
 
   return (
     <section aria-label="Settings" className="w-full max-w-2xl space-y-4">
+      {cloudEnabled() && <AccountPanel />}
       <fieldset className="rounded-lg bg-slate-800 p-4">
         <legend className="sr-only">Number notation</legend>
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Numbers</h2>

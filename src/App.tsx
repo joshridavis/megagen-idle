@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sprites, type SpriteId } from './assets';
 import ActiveEffects from './components/ActiveEffects';
 import AchievementsPanel from './components/AchievementsPanel';
@@ -22,6 +22,8 @@ import RoomPanel from './components/RoomPanel';
 import SettingsPanel from './components/SettingsPanel';
 import Sightings from './components/Sightings';
 import Toasts from './components/Toasts';
+import CloudDialogs from './components/CloudDialogs';
+import { startCloud } from './store/account';
 import TutorialCoach from './components/TutorialCoach';
 import VersionFooter from './components/VersionFooter';
 import WelcomeBack from './components/WelcomeBack';
@@ -45,6 +47,8 @@ const TABS: { id: Tab; label: string; icon: SpriteId }[] = [
 
 export default function App() {
   useIdleEngine();
+  // accounts and cloud saves (0.68): does nothing unless this build has the cloud settings
+  useEffect(() => startCloud(), []);
   const [tab, setTab] = useState<Tab>('generators');
   const researching = useStore((s) => s.currentResearch !== null);
   // Completion % on its tab, always visible (like Melvor Idle's completion log).
@@ -149,6 +153,7 @@ export default function App() {
       )}
       <ResearchCelebration />
       <Toasts />
+      <CloudDialogs />
       <Sightings />
       <WelcomeBack />
     </main>

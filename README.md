@@ -50,6 +50,15 @@ The game shows its release version (from `package.json`) at the bottom of the sc
 
 The game saves automatically in your browser (IndexedDB). In the **Settings** tab you can **export** the save to a JSON file and **import** it again, for backups or to move to another device; a damaged or wrong file is rejected without touching your current game. To start over, use **Reset game** in the Settings tab (it asks twice). Settings also has the number notation choice (short 1.23M, scientific 1.23e6, or full).
 
+## Accounts and cloud saves
+
+Optional. With no settings, the game has no accounts, as before. To turn them on, set two public values from the Supabase project (setup in `docs/PUBLIC_RELEASE.md`, section 9):
+
+- **The published site:** add the repository variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Settings → Secrets and variables → Actions → Variables). The deploy workflow passes them to the build.
+- **Locally:** put the same two lines in a `.env.local` file in the repository root (`VITE_SUPABASE_URL=...`), then run `npm run dev`. `.env.local` is ignored by git.
+
+Settings then shows "Account and cloud saves".
+
 ## More
 
 - `BACKLOG.md` — the plan and status of every item.

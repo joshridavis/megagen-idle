@@ -15,14 +15,15 @@ Prices and free-tier limits below are from the time of writing. Check them on ea
 - **Guest play:** works as today. No account is needed, and a guest can sign up later and upload the game they have.
 - **Account deletion:** "Delete my account" in Settings removes the login and every cloud save.
 
-## 2. What exists today (0.67)
+## 2. What exists today (0.67, 0.68)
 
 - **The live save:** in IndexedDB, with a localStorage backup written at the moment of every save (0.76). Settings has Export and Import.
 - **`src/store/saveBackend.ts`:** one `SaveBackend` interface for every place a save can live.
   - `list`, `load`, `save` and `remove` work by slot, and a summary carries time, version, energy and completion.
   - The local implementation stores slots in IndexedDB, with tests.
   - `chooseSave(local, cloud)` decides between them: a new game, use one without asking, or ask with the newer suggested. It is tested too.
-  - The cloud backend (0.68) implements the same interface, so the game logic does not change.
+  - The cloud backend (0.68, `src/store/cloud.ts`) implements the same interface, so the game logic does not change.
+- **Accounts and sync (0.68):** built and switched off. They turn on by themselves once the two repository variables from section 9 exist (`src/store/account.ts`, Settings → Account and cloud saves, `public/privacy.html`).
 - **Save format:** the save travels as the existing export file text. It carries `SAVE_VERSION` and migrates on load, and a save from a newer game version is refused, not damaged.
 - **Credits and licenses:**
   - Settings → Credits lists the AAP-64 palette and the open-source libraries.
@@ -117,7 +118,7 @@ About 15 minutes. Nothing here needs a credit card.
 6. In GitHub, open the repository **Settings → Secrets and variables → Actions → Variables** tab, and click **New repository variable** twice:
    - `VITE_SUPABASE_URL` = the Project URL
    - `VITE_SUPABASE_ANON_KEY` = the anon public key
-7. Tell me it is done. Item 0.68 then adds the log-in screen, the cloud backend, syncing, the load screen, account deletion and the privacy page, and passes the two variables to the build.
+7. Tell me it is done. The accounts code is already in the game (0.68), switched off. The next deploy turns it on: Settings shows "Account and cloud saves". I then run a live test (sign up, confirm, sync between two browsers, delete) and fix anything it finds.
 
 **Optional, later:**
 - Sign in with Google or Discord (each needs a small app registration on their side).

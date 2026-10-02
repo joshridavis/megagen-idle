@@ -17,7 +17,7 @@ describe('Credits (0.67)', () => {
   it('credits every runtime dependency in package.json', () => {
     const named = LIBRARY_CREDITS.map((c) => c.name.toLowerCase().replace(/\s/g, ''));
     for (const dep of Object.keys(pkg.dependencies)) {
-      const base = dep.replace(/-dom$/, '');
+      const base = dep.replace(/^@[^/]+\//, '').replace(/-(dom|js)$/, '');
       expect(named.some((n) => n === base || n === base.replace(/-/g, '')), dep).toBe(true);
     }
   });

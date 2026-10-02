@@ -24,6 +24,7 @@ export const LIBRARY_CREDITS: Credit[] = [
   { name: 'React', what: 'User interface', license: 'MIT', url: 'https://react.dev' },
   { name: 'Zustand', what: 'Game state', license: 'MIT', url: 'https://github.com/pmndrs/zustand' },
   { name: 'localForage', what: 'Saving in the browser', license: 'Apache-2.0', url: 'https://github.com/localForage/localForage' },
+  { name: 'Supabase', what: 'Accounts and cloud saves', license: 'MIT', url: 'https://github.com/supabase/supabase-js' },
   { name: 'Vite', what: 'Build tool', license: 'MIT', url: 'https://vite.dev' },
   { name: 'Tailwind CSS', what: 'Styling', license: 'MIT', url: 'https://tailwindcss.com' },
   { name: 'TypeScript', what: 'Language', license: 'Apache-2.0', url: 'https://www.typescriptlang.org' },

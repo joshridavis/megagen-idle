@@ -996,10 +996,24 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Licenses:** `THIRD_PARTY_NOTICES.md` comes from the new `npm run notices`. `LICENSE` reserves all rights, a safe default for a game meant for sale; the owner may change it.
 - **Measured:** a late-game save is about 11 KB.
 
-### 0.68 — Accounts and cloud saves — CODE — Not started (needs owner setup)
+### 0.68 — Accounts and cloud saves — CODE — Partial (built and tested with fakes; live test waits for the owner's Supabase setup)
 **Goal:** implement 0.67's plan once the owner has created the backend project.
 **Details:** sign-up, log-in, log-out, password reset through the chosen provider; automatic cloud save on a timer and on close, alongside the local save; a load screen listing the local and cloud saves (time, version, energy, completion %) so the player picks which to load on any device; conflict handling (newest wins, with a prompt); guest play keeps working offline. **Blocked until the owner completes the one-time setup in `docs/PUBLIC_RELEASE.md`.** Until then, skip it and continue with other items.
 **Acceptance:** end-to-end test against the provider's local emulator if available; otherwise mocked; no secrets committed.
+**Notes:**
+- **Built ahead of the setup (owner, playtest 17: the website comes next):** everything is in place but switched off until the two repository variables exist.
+- **Code:**
+  - `src/store/cloud.ts`: the Supabase service behind `CloudAuth` and `SaveBackend`, with the library loaded only when configured.
+  - `src/store/account.ts`: account state and sync. It uploads every 5 minutes (timestamp-based) and when the game goes to the background (keepalive request). On sign-in it decides with `decideOnSignIn`: if the cloud save has not changed since this device last synced, play just continues; otherwise it asks.
+- **Screens:**
+  - Settings → Account and cloud saves: sign in, create an account (username checked first), forgot password, save or load now, sign out, delete account.
+  - A "Which game do you want to keep?" dialog that marks the newer save, and a "Set a new password" dialog after a reset link.
+- **Other:**
+  - `public/privacy.html`.
+  - The deploy workflow passes `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from repository variables.
+  - Supabase was added to Credits and notices.
+- **Tests:** the sign-in decision, the account flows against a fake service, the Supabase mapping against a fake client, and component tests.
+- **Still to do:** once the owner has set up the project, a live test: sign up, confirm the email, sign in on two browsers, check the save-choice dialog and delete the account. Then mark this Done.
 
 ---
 
