@@ -30,6 +30,8 @@ const service = (): CloudService => ({
     updatePassword: async () => undefined,
     deleteAccount: async () => undefined,
     usernameFree: async () => true,
+    signInWith: async () => undefined,
+    setUsername: async (username) => ({ id: 'u1', email: 'a@b.c', username }),
   },
   saves: createKVBackend(memoryKV(), 'cloud'),
 });
@@ -41,7 +43,7 @@ afterEach(() => {
 beforeEach(() => {
   localStorage.clear();
   useStore.setState({ ...createInitialState(0) });
-  useAccount.setState({ status: 'signedOut', user: null, lastSyncAt: null, busy: false, error: null, notice: null, choice: null, recovering: false });
+  useAccount.setState({ status: 'signedOut', user: null, lastSyncAt: null, busy: false, error: null, notice: null, choice: null, recovering: false, needsUsername: false });
 });
 
 describe('Account panel (0.68)', () => {
@@ -97,6 +99,26 @@ describe('Account panel (0.68)', () => {
     expect(screen.getByText('(newer)')).toBeTruthy();
     await act(async () => fireEvent.click(screen.getAllByRole('button', { name: 'Use this one' })[1]));
     expect(useStore.getState().energy).toBe(777);
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('shows "Continue with" buttons only for providers that are turned on (1.22)', async () => {
+    setCloudServiceForTests(service());
+    render(<AccountPanel providers={[]} />);
+    expect(screen.queryByTestId('oauth-buttons')).toBeNull();
+    cleanup();
+    render(<AccountPanel providers={['google', 'discord']} />);
+    expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Continue with Discord' })).toBeTruthy();
+  });
+
+  it('asks a new Google or Discord player for a username (1.22)', async () => {
+    setCloudServiceForTests(service());
+    useAccount.setState({ status: 'signedIn', user: { id: 'u1', email: 'g@x.y', username: null }, needsUsername: true });
+    render(<CloudDialogs />);
+    fireEvent.change(screen.getByLabelText('Username'), { target: { value: 'Pixel_Fan' } });
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Save username' })));
+    expect(useAccount.getState().user?.username).toBe('Pixel_Fan');
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 });

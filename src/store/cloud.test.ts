@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cloudErrorText, createSupabaseService, type SupabaseLike } from './cloud';
+import { authProviders, cloudErrorText, createSupabaseService, type SupabaseLike } from './cloud';
 
 type Row = Record<string, unknown>;
 
@@ -44,7 +44,8 @@ function fakeClient() {
         password === 'pw-ok-123' ? { data: { user }, error: null } : { data: { user: null }, error: { message: 'Invalid login credentials' } },
       signOut: async () => ({ error: null }),
       resetPasswordForEmail: async () => ({ error: null }),
-      updateUser: async () => ({ error: null }),
+      updateUser: async (args) => (log.push(`updateUser:${JSON.stringify(args)}`), { data: { user: { ...user, user_metadata: { ...user.user_metadata, ...(args.data ?? {}) } } }, error: null }),
+      signInWithOAuth: async (args) => (log.push(`oauth:${args.provider}:${args.options?.redirectTo}`), { error: null }),
     },
     from: query,
     rpc: async (fn: string) => (log.push(`rpc:${fn}`), { error: null }),
@@ -93,5 +94,21 @@ describe('Supabase service (0.68)', () => {
     await expect(createSupabaseService(client, '').auth.signIn('a@b.c', 'bad')).rejects.toThrow('Wrong email or password.');
     expect(cloudErrorText({ message: 'Email not confirmed' })).toContain('confirm your email');
     expect(cloudErrorText(new TypeError('Failed to fetch'))).toContain('Could not reach the server');
+  });
+
+  it('Google or Discord: redirects back to the game; usernames are set on the profile and the login (1.22)', async () => {
+    const { client, log, tables } = fakeClient();
+    const svc = createSupabaseService(client, 'https://game.test/');
+    await svc.auth.signInWith('discord');
+    expect(log).toContain('oauth:discord:https://game.test/');
+    await svc.auth.signIn('a@b.c', 'pw-ok-123');
+    const u = await svc.auth.setUsername('Neo');
+    expect(u.username).toBe('Neo');
+    expect(tables.profiles.find((p) => p.id === 'u1')?.username).toBe('Neo');
+  });
+
+  it('only known, listed providers get a button', () => {
+    expect(authProviders('')).toEqual([]);
+    expect(authProviders('Google, discord ,google,github')).toEqual(['google', 'discord']);
   });
 });

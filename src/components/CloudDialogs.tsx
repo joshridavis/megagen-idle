@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { MIN_PASSWORD } from '../store/cloud';
-import { resolveChoice, updatePassword, useAccount } from '../store/account';
+import { chooseUsername, resolveChoice, updatePassword, useAccount } from '../store/account';
 import type { SaveSummary } from '../store/saveBackend';
 import { useNumberFormat } from './useNumberFormat';
 
@@ -14,9 +14,45 @@ const when = (at: number) => new Date(at).toLocaleString([], { dateStyle: 'mediu
 export default function CloudDialogs() {
   const choice = useAccount((s) => s.choice);
   const recovering = useAccount((s) => s.recovering);
+  const needsUsername = useAccount((s) => s.needsUsername);
   if (choice) return <ChooseSave local={choice.local} cloud={choice.cloud} newer={choice.newer} />;
   if (recovering) return <NewPassword />;
+  if (needsUsername) return <ChooseUsername />;
   return null;
+}
+
+/** After the first sign-in with Google or Discord (1.22). */
+function ChooseUsername() {
+  const [name, setName] = useState('');
+  const busy = useAccount((s) => s.busy);
+  const error = useAccount((s) => s.error);
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    void chooseUsername(name);
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="choose-username-title">
+      <form onSubmit={submit} className="w-full max-w-sm space-y-2 rounded-lg bg-slate-800 p-4 shadow-xl">
+        <h2 id="choose-username-title" className="text-lg font-semibold">
+          Choose your username
+        </h2>
+        <p className="text-sm text-slate-400">3 to 20 letters, digits or _. It may be shown on future leaderboards.</p>
+        <input
+          required
+          autoFocus
+          autoComplete="username"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          aria-label="Username"
+          className="w-full rounded border border-slate-600 bg-slate-900 px-3 py-2"
+        />
+        {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
+        <button type="submit" disabled={busy} className="min-h-11 rounded bg-emerald-600 px-3 py-2 font-semibold hover:bg-emerald-500 disabled:opacity-60">
+          Save username
+        </button>
+      </form>
+    </div>
+  );
 }
 
 function Card({ title, s, newer, onPick, busy }: { title: string; s: SaveSummary; newer: boolean; onPick: () => void; busy: boolean }) {

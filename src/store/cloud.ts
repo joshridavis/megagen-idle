@@ -12,6 +12,18 @@ export const CLOUD_URL: string = import.meta.env.VITE_SUPABASE_URL ?? '';
 export const CLOUD_KEY: string = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
 export const cloudConfigured = () => CLOUD_URL !== '' && CLOUD_KEY !== '';
 
+export type OAuthProvider = 'google' | 'discord';
+export const OAUTH_NAMES: Record<OAuthProvider, string> = { google: 'Google', discord: 'Discord' };
+
+/** Which "Continue with …" buttons to show (1.22): providers the owner turned on, from VITE_AUTH_PROVIDERS, e.g. "google,discord". */
+export function authProviders(raw: string = import.meta.env.VITE_AUTH_PROVIDERS ?? ''): OAuthProvider[] {
+  return raw
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter((s): s is OAuthProvider => s in OAUTH_NAMES)
+    .filter((s, i, all) => all.indexOf(s) === i);
+}
+
 export interface CloudUser {
   id: string;
   email: string;
@@ -36,6 +48,10 @@ export interface CloudAuth {
   deleteAccount(): Promise<void>;
   /** Whether a username is still free (3–20 letters, digits or _). */
   usernameFree(username: string): Promise<boolean>;
+  /** Goes to Google or Discord to sign in; the page comes back signed in (1.22). */
+  signInWith(provider: OAuthProvider): Promise<void>;
+  /** Sets the username of the signed-in account (accounts made with Google or Discord have none at first). */
+  setUsername(username: string): Promise<CloudUser>;
 }
 
 export interface CloudService {
@@ -68,7 +84,8 @@ export interface SupabaseLike {
     signInWithPassword(args: { email: string; password: string }): Promise<{ data: { user: SupaUser | null }; error: unknown }>;
     signOut(): Promise<{ error: unknown }>;
     resetPasswordForEmail(email: string, opts?: { redirectTo?: string }): Promise<{ error: unknown }>;
-    updateUser(args: { password: string }): Promise<{ error: unknown }>;
+    updateUser(args: { password?: string; data?: Record<string, unknown> }): Promise<{ data?: { user: SupaUser | null }; error: unknown }>;
+    signInWithOAuth(args: { provider: string; options?: { redirectTo?: string } }): Promise<{ error: unknown }>;
   };
   // the query builder is chainable and awaitable; typed loosely on purpose
   from(table: string): any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -166,6 +183,14 @@ export function createSupabaseService(client: SupabaseLike, redirectTo: string):
       const r = await client.from('profiles').select('id').eq('username', username).limit(1);
       check(r);
       return (r.data ?? []).length === 0;
+    },
+    signInWith: async (provider) => check(await client.auth.signInWithOAuth({ provider, options: { redirectTo } })),
+    setUsername: async (username) => {
+      const id = needUser();
+      check(await client.from('profiles').upsert({ id, username }, { onConflict: 'id' }));
+      const r = await client.auth.updateUser({ data: { username } });
+      check(r);
+      return r.data?.user ? toUser(r.data.user) : { id, email: '', username };
     },
   };
 

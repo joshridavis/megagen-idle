@@ -914,13 +914,14 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Balance:** re-run the simulator and tune, aiming to move 100% toward 200 hours with content rather than slower pacing.
 **Acceptance:** buildable late in the tree; unit tests; the simulator report includes them, with no stalls; old saves load.
 
-### 1.22 — Sign in with Google and Discord — CODE — Not started
+### 1.22 — Sign in with Google and Discord — CODE — Done
 **Goal:** apply playtest 18 feedback: email sign-in, plus Google and Discord as options.
 **Details:**
 - **Buttons:** "Continue with Google" and "Continue with Discord" in the Account panel, through the provider's OAuth sign-in. They show only for providers listed in a new repository variable `VITE_AUTH_PROVIDERS` (for example `google,discord`), so nothing broken appears before the owner turns them on in Supabase.
 - **First sign-in:** an account made this way has no username yet, so a "Choose your username" dialog appears once (same rules, checked for uniqueness).
 - **Owner steps:** added to `docs/PUBLIC_RELEASE.md`. Register an OAuth app with Google (Google Cloud console) and with Discord (Discord Developer Portal), paste each client ID and secret into Supabase → Authentication → Sign In / Providers, and set the variable.
 **Acceptance:** tests with a fake service for the buttons, the redirect call and the username dialog; no secrets in the repository.
+**Notes:** the code is done and tested with fakes. The owner turns it on with section 9b of `docs/PUBLIC_RELEASE.md` (register the Google and Discord OAuth apps, paste the keys into Supabase, add `VITE_AUTH_PROVIDERS`, rerun the deploy). The live sign-in check rides with 0.68's live test.
 
 ### 1.23 — Map upgrade: the Exclusion Zone for fictional generators — CODE — Not started
 **Goal:** apply playtest 18 feedback: the fictional generators may need a map upgrade.

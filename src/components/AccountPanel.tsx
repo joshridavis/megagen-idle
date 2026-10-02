@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { MIN_PASSWORD, USERNAME_PATTERN } from '../store/cloud';
-import { deleteAccount, loadFromCloud, resetPassword, saveToCloud, signIn, signOut, signUp, useAccount } from '../store/account';
+import { authProviders, MIN_PASSWORD, OAUTH_NAMES, USERNAME_PATTERN, type OAuthProvider } from '../store/cloud';
+import { deleteAccount, loadFromCloud, resetPassword, saveToCloud, signIn, signInWithProvider, signOut, signUp, useAccount } from '../store/account';
 
 const input = 'mt-1 w-full rounded border border-slate-600 bg-slate-900 px-3 py-2 text-slate-100 focus-visible:outline-2 focus-visible:outline-sky-400';
 const button = 'min-h-11 rounded px-3 py-2 font-semibold disabled:cursor-not-allowed disabled:opacity-60';
@@ -12,7 +12,7 @@ const when = (at: number | null) => (at === null ? 'not yet' : new Date(at).toLo
  * Settings → Account (0.68): sign in, create an account, or manage it.
  * Hidden by the caller when the build has no cloud settings.
  */
-export default function AccountPanel() {
+export default function AccountPanel({ providers = authProviders() }: { providers?: OAuthProvider[] }) {
   const a = useAccount();
   const [mode, setMode] = useState<'signIn' | 'signUp' | 'reset'>('signIn');
   const [email, setEmail] = useState('');
@@ -92,6 +92,22 @@ export default function AccountPanel() {
                 ? 'We will email you a link to set a new password.'
                 : 'Sign in to save your game in the cloud and continue it on any device. Playing without an account works as before.'}
           </p>
+          {mode !== 'reset' && providers.length > 0 && (
+            <div className="flex flex-col gap-2 sm:flex-row" data-testid="oauth-buttons">
+              {providers.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  disabled={a.busy}
+                  onClick={() => void signInWithProvider(p)}
+                  className={`${button} flex-1 border border-slate-500 bg-slate-900 hover:bg-slate-700`}
+                >
+                  Continue with {OAUTH_NAMES[p]}
+                </button>
+              ))}
+            </div>
+          )}
+          {mode !== 'reset' && providers.length > 0 && <p className="text-center text-xs text-slate-400">or with email</p>}
           <label className="block">
             Email
             <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className={input} />

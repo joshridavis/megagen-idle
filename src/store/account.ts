@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { platform } from '../platform';
 import { exportSave, parseSaveFile } from '../utils/saveFile';
-import { cloudEnabled, cloudErrorText, getCloudService, type CloudService, type CloudUser } from './cloud';
+import { cloudEnabled, cloudErrorText, getCloudService, USERNAME_PATTERN, type CloudService, type CloudUser, type OAuthProvider } from './cloud';
 import { AUTO_SLOT, chooseSave, SAME_SAVE_MS, summarize, type SaveChoice, type SaveSummary } from './saveBackend';
 import { useStore } from '.';
 
@@ -24,6 +24,8 @@ export interface AccountState {
   choice: Extract<SaveChoice, { kind: 'ask' }> | null;
   /** A password-reset link was opened: ask for a new password. */
   recovering: boolean;
+  /** Signed in with Google or Discord for the first time: ask for a username (1.22). */
+  needsUsername: boolean;
 }
 
 export const useAccount = create<AccountState>()(() => ({
@@ -35,6 +37,7 @@ export const useAccount = create<AccountState>()(() => ({
   notice: null,
   choice: null,
   recovering: false,
+  needsUsername: false,
 }));
 
 /** How often the automatic cloud save uploads while playing. */
@@ -127,7 +130,7 @@ export async function loadCloud(now = Date.now()): Promise<boolean> {
 }
 
 async function afterSignIn(user: CloudUser): Promise<void> {
-  set({ status: 'signedIn', user, lastSyncAt: readLastSync(user.id) });
+  set({ status: 'signedIn', user, lastSyncAt: readLastSync(user.id), needsUsername: !user.username });
   const s = await svc();
   const cloud = (await s.saves.list()).find((x) => x.slot === AUTO_SLOT) ?? null;
   const choice = decideOnSignIn(localSummary(), cloud, readLastSync(user.id));
@@ -166,7 +169,23 @@ export const signOut = () =>
   run(async () => {
     await uploadNow().catch(() => false); // keep the latest progress before leaving
     await (await svc()).auth.signOut();
-    set({ status: 'signedOut', user: null, lastSyncAt: null, choice: null, notice: 'Signed out. Your game keeps playing on this device.' });
+    set({ status: 'signedOut', user: null, lastSyncAt: null, choice: null, needsUsername: false, notice: 'Signed out. Your game keeps playing on this device.' });
+  });
+
+/** Leaves for Google or Discord; the game reloads signed in (1.22). */
+export const signInWithProvider = (provider: OAuthProvider) => run(async () => (await svc()).auth.signInWith(provider));
+
+/** Saves the username for an account made with Google or Discord. Returns true when set. */
+export const chooseUsername = (username: string) =>
+  run(async () => {
+    const name = username.trim();
+    if (!USERNAME_PATTERN.test(name)) throw new Error('Usernames are 3 to 20 letters, digits or _.');
+    const s = await svc();
+    if (!(await s.auth.usernameFree(name))) throw new Error('That username is taken. Try another one.');
+    const user = await s.auth.setUsername(name);
+    const prev = useAccount.getState().user;
+    set({ user: { ...prev, ...user, email: user.email || prev?.email || '' }, needsUsername: false, notice: `Welcome, ${name}!` });
+    return true;
   });
 
 export const resetPassword = (email: string) =>
@@ -184,7 +203,7 @@ export const updatePassword = (password: string) =>
 export const deleteAccount = () =>
   run(async () => {
     await (await svc()).auth.deleteAccount();
-    set({ status: 'signedOut', user: null, lastSyncAt: null, choice: null, notice: 'Your account and cloud saves are deleted. The game on this device is untouched.' });
+    set({ status: 'signedOut', user: null, lastSyncAt: null, choice: null, needsUsername: false, notice: 'Your account and cloud saves are deleted. The game on this device is untouched.' });
   });
 
 export const saveToCloud = () =>
