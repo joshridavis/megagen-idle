@@ -8,7 +8,7 @@ export function getGeneratorOutput(generator: Generator, bonuses: Bonuses = NO_B
   if (!generator.isActive) return 0;
   const def = GENERATORS[generator.type];
   if (!def) return 0;
-  const boost = bonuses.globalEnergy + mods.allEnergy + (mods.generator[generator.type] ?? 0);
+  const boost = bonuses.globalEnergy + mods.allEnergy + (mods.generator[generator.type] ?? 0) + (mods.placement?.[generator.id] ?? 0);
   return baseOutput(generator) * Math.max(0, 1 + boost);
 }
 

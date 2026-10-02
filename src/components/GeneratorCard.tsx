@@ -1,5 +1,7 @@
 import { sprites } from '../assets';
 import { GENERATORS } from '../data/generators';
+import { ZONES } from '../data/map';
+import { zoneFor } from '../utils/mapTerrain';
 import { useStore } from '../store';
 import type { Bonuses } from '../types/bonus';
 import type { GeneratorType } from '../types/generator';
@@ -15,6 +17,7 @@ const BLOCK_TEXT: Record<BuildBlock, string> = {
   resources: 'Not enough resources',
   energy: 'Not enough energy',
   room: 'Not enough room',
+  site: 'No free spot in its zone',
 };
 
 export default function GeneratorCard({
@@ -36,6 +39,8 @@ export default function GeneratorCard({
   const locked = block === 'locked' || block === 'level';
   const level = useStore((s) => s.researchLevel);
   const tooltipId = `gen-tip-${type}`;
+  const zoneId = zoneFor(type);
+  const zone = zoneId ? ZONES[zoneId] : null;
 
   return (
     <article
@@ -72,6 +77,11 @@ export default function GeneratorCard({
           <CostList cost={def.maintenanceCost} suffix="/h" className={FUEL_CLASS} />
         </div>
       )}
+      {zone && (
+        <div className={`text-xs ${block === 'site' ? 'text-red-400' : 'text-emerald-300'}`} data-testid={`zone-${type}`}>
+          {zone.required ? `Must be built on the ${zone.name.toLowerCase()}` : `+${Math.round(zone.bonus * 100)}% on a ${zone.name.toLowerCase()}`} (Map tab)
+        </div>
+      )}
       {block === 'locked' && unlockedBy && (
         <div className="text-xs text-sky-300">Needs research: {unlockedBy.name}</div>
       )}
@@ -88,7 +98,7 @@ export default function GeneratorCard({
         aria-describedby={tooltipId}
         className="mt-auto min-h-11 rounded bg-emerald-600 px-3 py-2 font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
       >
-        {block ? BLOCK_TEXT[block] : `Build ${def.name}`}
+        {block === 'site' && zone ? `No free spot on the ${zone.name.toLowerCase()}` : block ? BLOCK_TEXT[block] : `Build ${def.name}`}
       </button>
       </div>
       <div

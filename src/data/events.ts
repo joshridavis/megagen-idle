@@ -172,7 +172,7 @@ export const EVENTS: EventDef[] = [
   {
     id: 'overcast',
     name: 'Overcast',
-    text: 'Grey clouds roll in: −30% energy from solar panels for 10 minutes.',
+    text: 'Gray clouds roll in: −30% energy from solar panels for 10 minutes.',
     rarity: 'common',
     when: 'anytime',
     negative: true,

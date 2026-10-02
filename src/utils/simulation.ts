@@ -5,6 +5,7 @@ import { getBonuses, getEnergyBonuses } from './bonuses';
 import { getPlayerLevel } from './playerLevel';
 import { expireEffects, getEffectMods } from './effectMods';
 import { withPetMods } from './pets';
+import { getPlacementBonuses } from './siteMap';
 import { calculateEnergyRate } from './energyGeneration';
 import { completeResearch, getGrantedProducers, researchFinishTime } from './researchSystem';
 import type { ResourceId, GameState } from '../types/state';
@@ -83,7 +84,8 @@ function finishResearch(s: GameState, now: number, report: TimeReport): GameStat
  * generators and research bonuses. The single place these are calculated.
  */
 export function deriveRates(state: GameState): GameState {
-  const energyPerSecond = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state), withPetMods(getEffectMods(state.activeEffects), state));
+  const mods = { ...withPetMods(getEffectMods(state.activeEffects), state), placement: getPlacementBonuses(state) };
+  const energyPerSecond = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state), mods);
   const granted = getGrantedProducers(state.completedResearch);
   const roomUsed =
     state.activeGenerators.reduce((sum, g) => sum + (GENERATORS[g.type]?.roomCost ?? 0), 0) +

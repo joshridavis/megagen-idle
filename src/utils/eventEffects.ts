@@ -8,6 +8,8 @@ import { formatNumber } from './format';
 import { RESOURCE_NAMES } from '../data/resources';
 import { PETS_BY_ID, type PetId } from '../data/pets';
 import { addPet } from './pets';
+import { GENERATORS } from '../data/generators';
+import { baseOutput } from './energyGeneration';
 
 /** Whether an event's extra condition holds. */
 export function meetsRequirement(
@@ -90,4 +92,37 @@ export function applyEventEffect(s: GameState, def: EventDef, now: number, rng: 
     case 'find-pet':
       return { state: addPet(s, e.pet as PetId, now), text: `${def.text} New pet: ${PETS_BY_ID[e.pet as PetId]?.name}!` };
   }
+}
+
+/**
+ * Exactly what a running timed effect does right now (playtest 15), e.g.
+ * "−30% energy from Solar Panels: −1.2 energy/s from your 4 Solar Panels".
+ */
+export function describeEffect(
+  def: EventDef,
+  s: Pick<GameState, 'activeGenerators' | 'producers' | 'completedResearch'>,
+  fmtRate: (n: number) => string,
+): string {
+  const e = def.effect;
+  if (e?.kind !== 'timed') return def.text;
+  const parts: string[] = [];
+  const sign = (n: number) => (n >= 0 ? '+' : '−');
+  if (e.energy) {
+    const gens = s.activeGenerators.filter((g) => g.isActive && (!e.generator || g.type === e.generator));
+    const base = gens.reduce((sum, g) => sum + baseOutput(g), 0);
+    const what = e.generator ? `${GENERATORS[e.generator].name}s` : 'all generators';
+    const amount = base * e.energy;
+    parts.push(
+      `${sign(e.energy)}${Math.round(Math.abs(e.energy) * 100)}% energy from ${what}: ${sign(amount)}${fmtRate(Math.abs(amount))} energy/s` +
+        (e.generator ? ` from your ${gens.length} running` : ''),
+    );
+  }
+  if (e.production) {
+    const rates = getProductionRates(s.producers, getBonuses(s.completedResearch));
+    const ids = e.resource ? [e.resource] : (Object.keys(rates) as (keyof typeof rates)[]).filter((id) => rates[id] > 0);
+    const what = e.resource ? RESOURCE_NAMES[e.resource].toLowerCase() : 'all producers';
+    const detail = ids.map((id) => `${sign(e.production!)}${fmtRate(Math.abs(rates[id] * e.production!))} ${RESOURCE_NAMES[id].toLowerCase()}/s`).join(', ');
+    parts.push(`${sign(e.production)}${Math.round(Math.abs(e.production) * 100)}% output from ${what}${detail ? `: ${detail}` : ''}`);
+  }
+  return parts.join('; ');
 }

@@ -7,7 +7,7 @@ import { GeneratorType, type Generator } from '../types/generator';
 import type { GameState } from '../types/state';
 import { getEnergyBreakdown, getResourceBreakdown } from './breakdown';
 import { expireEffects, getEffectMods } from './effectMods';
-import { applyEventEffect } from './eventEffects';
+import { applyEventEffect, describeEffect } from './eventEffects';
 import { eligibleEvents, eventRatePerHour } from './randomEvents';
 import { advanceTime, deriveRates } from './simulation';
 
@@ -106,5 +106,26 @@ describe('effect events (0.85)', () => {
     const v11 = { ...createInitialState(0) } as Record<string, unknown>;
     delete v11.activeEffects;
     expect(migrateSave(v11, 11).activeEffects).toEqual([]);
+  });
+});
+
+describe('event notices are readable (1.10, playtest 15)', () => {
+  it('event and achievement notices stay longer than the rest', async () => {
+    const { toastDuration } = await import('../components/Toasts');
+    const { EVENT_TOAST_MS, TOAST_MS } = await import('../data/notifications');
+    expect(toastDuration({ kind: 'event' })).toBe(EVENT_TOAST_MS);
+    expect(toastDuration({ kind: 'achievement' })).toBe(EVENT_TOAST_MS);
+    expect(toastDuration({ kind: 'room' })).toBe(TOAST_MS);
+    expect(EVENT_TOAST_MS).toBeGreaterThanOrEqual(10_000);
+  });
+});
+
+describe('exact effect text (1.10, playtest 15)', () => {
+  it('says exactly how much a running effect changes', () => {
+    const s = base(); // a solar panel (0.5/s) and a wind turbine
+    const r = (n: number) => n.toFixed(2);
+    expect(describeEffect(EVENTS_BY_ID.overcast, s, r)).toBe('−30% energy from Solar Panels: −0.15 energy/s from your 1 running');
+    expect(describeEffect(EVENTS_BY_ID.equipment_wear, s, r)).toBe('−10% energy from all generators: −0.13 energy/s');
+    expect(describeEffect(EVENTS_BY_ID.coal_shortage, s, r)).toBe('−20% output from coal: −0.01 coal/s');
   });
 });

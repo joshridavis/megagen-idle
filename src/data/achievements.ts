@@ -100,11 +100,11 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 ];
 
 /**
- * Accent colours for the top bar (1.01), unlocked by the number of achievements.
- * `text` colours the energy number and level; `ring` outlines the top bar.
+ * Accent colors for the top bar (1.01), unlocked by the number of achievements.
+ * `text` colors the energy number and level; `ring` outlines the top bar.
  */
 export const ACCENTS = [
-  { id: 'amber', name: 'Amber', need: 0, text: 'text-yellow-300', ring: 'ring-yellow-500/0' },
+  { id: 'amber', name: 'Amber', need: 0, text: 'text-yellow-300', ring: 'ring-yellow-400/60' },
   { id: 'emerald', name: 'Emerald', need: 5, text: 'text-emerald-300', ring: 'ring-emerald-400/60' },
   { id: 'sky', name: 'Sky', need: 15, text: 'text-sky-300', ring: 'ring-sky-400/60' },
   { id: 'violet', name: 'Violet', need: 25, text: 'text-violet-300', ring: 'ring-violet-400/60' },

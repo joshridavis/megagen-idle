@@ -642,6 +642,55 @@ function groundTile() {
   return c;
 }
 
+/** Terrain tiles (1.05): same 16x16 grid as ground, each with its own look. */
+function terrainTile(base, dots, dark, extra) {
+  const c = new Canvas(16, 16);
+  c.rect(0, 0, 16, 16, base);
+  for (const [x, y] of [[2, 3], [9, 1], [13, 7], [5, 10], [11, 13], [1, 14], [7, 6]]) c.set(x, y, dots);
+  for (const [x, y] of [[4, 5], [12, 3], [8, 12]]) c.set(x, y, dark);
+  if (extra) extra(c);
+  c.rect(0, 15, 16, 1, dark);
+  c.rect(15, 0, 1, 16, dark);
+  return c;
+}
+
+const plateauTile = () => terrainTile(C.brown2, C.brown1, C.brown3, (c) => c.rect(3, 8, 3, 1, C.yellow));
+const ridgeTile = () => terrainTile(C.teal, C.mint, C.grey5, (c) => {
+  c.rect(2, 4, 5, 1, C.mint); // wind streaks
+  c.rect(8, 9, 6, 1, C.mint);
+});
+const riverTile = () => terrainTile(C.blue, C.sky, C.navy, (c) => {
+  c.rect(2, 4, 4, 1, C.sky); // ripples
+  c.rect(9, 10, 4, 1, C.sky);
+});
+const coastTile = () => terrainTile(C.sand, C.cream, C.khaki, (c) => c.rect(10, 4, 3, 1, C.white));
+function seaTile() {
+  const c = new Canvas(16, 16);
+  c.rect(0, 0, 16, 16, C.navy);
+  c.rect(2, 3, 5, 1, C.blue);
+  c.rect(9, 8, 5, 1, C.blue);
+  c.rect(4, 12, 4, 1, C.sky);
+  return c;
+}
+function decoRock() {
+  const c = new Canvas(16, 16);
+  c.polygon([[4, 13], [6, 8], [10, 7], [12, 13]], C.grey4);
+  c.rect(7, 8, 2, 1, C.grey2);
+  return c;
+}
+function decoTuft() {
+  const c = new Canvas(16, 16);
+  for (const x of [5, 7, 9, 11]) c.rect(x, 9 + (x % 3), 1, 13 - 9 - (x % 3) + 1, C.lime);
+  return c;
+}
+function decoFlower() {
+  const c = new Canvas(16, 16);
+  c.rect(7, 9, 1, 4, C.green);
+  for (const [x, y] of [[6, 7], [8, 7], [7, 6], [7, 8]]) c.set(x, y, C.lemon);
+  c.set(7, 7, C.orange);
+  return c;
+}
+
 function lockedTile() {
   const c = new Canvas(16, 16);
   c.rect(0, 0, 16, 16, C.mud);
@@ -789,7 +838,7 @@ function jellyfish() {
   return c;
 }
 
-/** A 32x32 sprite scaled down (nearest neighbour) and centred near the bottom, for baby and young pets. */
+/** A 32x32 sprite scaled down (nearest neighbor) and centerd near the bottom, for baby and young pets. */
 function scaledPet(src, factor) {
   const c = new Canvas(32, 32);
   const size = Math.round(32 * factor);
@@ -847,6 +896,14 @@ const DRAW = {
   room_expansion: roomExpansion,
   tile_ground: groundTile,
   tile_locked: lockedTile,
+  tile_plateau: plateauTile,
+  tile_ridge: ridgeTile,
+  tile_river: riverTile,
+  tile_coast: coastTile,
+  tile_sea: seaTile,
+  deco_rock: decoRock,
+  deco_tuft: decoTuft,
+  deco_flower: decoFlower,
   achievement_unlocked: () => trophy(C.yellow, C.lemon, C.brown3),
   achievement_locked: () => trophy(C.grey5, C.grey4, C.grey6),
   sighting_spaceship: spaceship,

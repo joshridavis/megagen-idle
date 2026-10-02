@@ -75,7 +75,7 @@ export function canUseTitle(s: Pick<GameState, 'achievements'>, id: string | nul
   return !!ACHIEVEMENTS.find((d) => d.id === id && d.title) && s.achievements?.[id] !== undefined;
 }
 
-/** An accent colour can be used once enough achievements are unlocked. */
+/** An accent color can be used once enough achievements are unlocked. */
 export function canUseAccent(s: Pick<GameState, 'achievements'>, id: string): boolean {
   const accent = ACCENTS.find((x) => x.id === id);
   return !!accent && unlockedCount(s) >= accent.need;

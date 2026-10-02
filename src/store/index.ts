@@ -8,7 +8,7 @@ import { createResearchSlice } from './slices/researchSlice';
 import { createResourceSlice } from './slices/resourceSlice';
 import { createRoomSlice } from './slices/roomSlice';
 import { createSettingsSlice } from './slices/settingsSlice';
-import { createLogSlice } from './slices/logSlice';
+import { createLogSlice, saveLog } from './slices/logSlice';
 import { createEventSlice } from './slices/eventSlice';
 import { createContractSlice } from './slices/contractSlice';
 import { createPetSlice } from './slices/petSlice';
@@ -44,7 +44,10 @@ export const useStore = create<GameStore>()(
           stats: init.stats,
           resetGame: () =>
             set(
-              (s) => ({ ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], activeSighting: null, eventEpoch: s.eventEpoch + 1 }),
+              (s) => {
+                saveLog([]);
+                return { ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], activeSighting: null, eventEpoch: s.eventEpoch + 1 };
+              },
               undefined,
               'core/reset',
             ),

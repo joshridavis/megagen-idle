@@ -1,19 +1,31 @@
-import { useEffect } from 'react';
-import { TOAST_MS } from '../data/notifications';
+import { useEffect, useState } from 'react';
+import { EVENT_TOAST_MS, TOAST_MS } from '../data/notifications';
 import { useStore } from '../store';
 import type { LogEntry } from '../utils/eventLog';
 import { LOG_ICONS } from './EventLog';
 
+/** How long a notice stays: events and achievements longer, since they need reading. */
+export const toastDuration = (t: Pick<LogEntry, 'kind'>) => (t.kind === 'event' || t.kind === 'achievement' ? EVENT_TOAST_MS : TOAST_MS);
+
 function Toast({ t }: { t: LogEntry }) {
   const dismiss = useStore((s) => s.dismissToast);
+  const [paused, setPaused] = useState(false);
+  const ms = toastDuration(t);
+  // the timer restarts after hovering, so a notice being read never vanishes
   useEffect(() => {
-    const timer = setTimeout(() => dismiss(t.id), TOAST_MS);
+    if (paused) return;
+    const timer = setTimeout(() => dismiss(t.id), ms);
     return () => clearTimeout(timer);
-  }, [t.id, dismiss]);
+  }, [t.id, dismiss, paused, ms]);
   return (
     <button
       type="button"
       onClick={() => dismiss(t.id)}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+      title="Click to close"
       className="celebrate pointer-events-auto flex w-full items-start gap-2 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-left text-sm shadow-xl"
       data-testid="toast"
     >

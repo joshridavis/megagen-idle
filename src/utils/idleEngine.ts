@@ -45,7 +45,7 @@ export const useIdleEngine = (): void => {
       tick(Date.now(), MAX_OFFLINE_SECONDS, true);
       interval = setInterval(() => tick(), TICK_INTERVAL_MS);
     };
-    // Background tabs throttle the heartbeat to about once a minute; summarise
+    // Background tabs throttle the heartbeat to about once a minute; summarize
     // the whole hidden period once, on return (0.79).
     const onBackground = (hidden: boolean) => {
       tick();

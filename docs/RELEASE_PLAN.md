@@ -8,7 +8,7 @@ This document is a plan. Nothing here is built yet except the small platform lay
 
 | Platform | How | Main owner steps | Rough cost |
 |---|---|---|---|
-| Website | The current Vite build (live on GitHub Pages); custom domain optional | Optional: buy a domain, point DNS to GitHub Pages | Free; domain about $10–20 a year |
+| Website with accounts | The current Vite build, plus sign-up, log-in and cloud saves (0.67, 0.68). Players log in on any browser and continue the same game. | Create the backend project and add its public keys as repository variables; optional domain | Free tier at first; domain about $10–20 a year |
 | Web portals (itch.io) | The same build, zipped | An itch.io account and page | Free |
 | Steam (Windows, macOS, Linux) | A desktop wrapper (Tauri recommended, Electron as fallback) around the same web build | Steamworks partner account, app fee, tax and bank forms, store page, code-signing certificate (Windows, optional at first) | Steam Direct fee: about $100 per game (paid back after $1,000 of sales); code signing: about $100–400 a year |
 | Android | Capacitor around the same web build | Google Play developer account, signing key, store listing, data-safety form | Play Console: about $25 once |
@@ -22,7 +22,7 @@ All platforms run the same React and Vite game. What differs is kept behind `src
 - `onBackground` / `isBackground`: the game going to the background and coming back.
   - On the web this is page visibility.
   - In Capacitor it is the app pause and resume events.
-  - In Tauri or Electron it is window focus and minimise.
+  - In Tauri or Electron it is window focus and minimize.
   - The idle engine already uses it, so offline gains and the "welcome back" summary work the same everywhere.
 - `openExternal`: links open in the system browser in a wrapper, not inside the game window.
 - **Later additions**, as each wrapper arrives:
@@ -45,6 +45,9 @@ Rule: game logic never imports Capacitor, Tauri, Electron or Steam libraries dir
 - **Steam Cloud is optional.** Steam's own cloud saves could sync the local file on Steam, but our account cloud already covers every platform. The suggestion is to rely on our own cloud and leave Steam Cloud off, so a save never has two different "clouds".
 
 ## 3. Website
+
+**What "website" means (owner, playtest 15):** a real site where players sign up and log in, and their game is saved in the cloud, not only in browser storage. The game on GitHub Pages today is a preview with local saves. The website step is therefore 0.67 (plan, `SaveBackend` interface) followed by 0.68 (accounts and cloud saves), and 0.67 is moved up to come right after the map work.
+
 
 1. Buy a domain (any registrar).
 2. Either keep GitHub Pages (add a `CNAME` file and set the custom domain in the repository's Pages settings) or move to Netlify or Cloudflare Pages for preview links on pull requests. The Vite `base` path changes from `/megagen-idle/` to `/` for a root domain.
@@ -82,11 +85,11 @@ Rule: game logic never imports Capacitor, Tauri, Electron or Steam libraries dir
 
 ## 6. Order of steps: easiest first (playtest 14)
 
-You prefer releasing from the easiest platform to the hardest, so the game reaches players as soon as possible. **Every step below can go live before accounts and cloud saves exist.** Each platform works on its own with local saves plus export and import, so nothing waits on the backend. When 0.67 and 0.68 land, an update adds cloud saves everywhere.
+You prefer releasing from the easiest platform to the hardest, so the game reaches players as soon as possible. The website comes first and includes accounts (playtest 15). **The other steps can go live before accounts exist.** Each platform works on its own with local saves plus export and import, so nothing waits on the backend. When 0.67 and 0.68 land, an update adds cloud saves everywhere.
 
 | # | Step | Owner cost | Typical time to live | What blocks it |
 |---|---|---|---|---|
-| 1 | **Website on GitHub Pages** (already live) | Free | Done | Nothing. Optional custom domain later. |
+| 1 | **Website with accounts and cloud saves** (the game itself is already live on GitHub Pages, with local saves only) | Free tier at first | 1–2 weeks after the owner setup | 0.67 then 0.68; the owner creates the backend project and adds the public keys. Optional custom domain. |
 | 2 | **Web game portal: itch.io** (optionally also others such as Newgrounds) | Free | 1–2 days | An itch.io account, a page, the zipped build (a cloud session can prepare the zip and the page text). |
 | 3 | **Android (Google Play)** | About $25 once | 1–3 weeks | Play Console account; signing and building in Android Studio on your computer; the closed-test rule for new personal accounts (check the current tester count and duration). |
 | 4 | **Steam (Windows, macOS, Linux)** | About $100 per game (paid back after $1,000 of sales) | 2–6 weeks | Steamworks account, tax and bank forms, store page assets, Steam's review of the page and the build. Real art is strongly advised first. |
@@ -94,7 +97,7 @@ You prefer releasing from the easiest platform to the hardest, so the game reach
 
 Alongside these, at any time:
 
-- **Accounts and cloud saves** (0.67 then 0.68). **Owner:** create the backend project and add the public keys as GitHub repository variables. When ready, an update adds cloud saves to every platform already live.
+- **Accounts and cloud saves** are part of step 1. When they are ready, an update adds them to any other platform already live.
 - **Real art** before Steam and the app stores (**Owner**: commission or create it; the code needs no change).
 - **Credits and LICENSE** (part of 0.67) before the first store submission.
 - **A custom domain** for the website, whenever you like (**Owner**: buy the domain and set DNS).

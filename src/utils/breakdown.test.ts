@@ -57,3 +57,25 @@ describe('getResourceBreakdown', () => {
     });
   });
 });
+
+describe('active pet in breakdowns (playtest 15)', () => {
+  const pets = (id: string, stage: 1 | 2 | 3) => ({ owned: { [id]: { stage, growUntil: null } }, active: id }) as never;
+
+  it('adds the click pet to the click breakdown, matching what a click gives', () => {
+    const b = getClickBreakdown(['hand_crank'], 0, pets('hamster', 2));
+    const row = b.modifiers.find((m) => m.source === 'Wheel Hamster (pet)');
+    expect(row?.amount).toBeCloseTo(1);
+    expect(b.total).toBeCloseTo(getClickValue(['hand_crank'], 0, 1));
+  });
+
+  it('adds a generator pet to energy/s and keeps the total equal to the real rate', () => {
+    const gens = [gen('a', GeneratorType.SOLAR), gen('b', GeneratorType.SOLAR)];
+    const b = getEnergyBreakdown({ activeGenerators: gens, completedResearch: [], pets: pets('firefly', 3) });
+    expect(b.modifiers.find((m) => m.source === 'Firefly Swarm (pet)')?.percent).toBe(0.2);
+    expect(b.total).toBeCloseTo(b.base * 1.2);
+  });
+
+  it('leaves breakdowns unchanged with no active pet', () => {
+    expect(getClickBreakdown([], 0, { owned: {}, active: null }).modifiers).toEqual([]);
+  });
+});

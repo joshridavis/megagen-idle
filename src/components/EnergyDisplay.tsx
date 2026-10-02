@@ -21,9 +21,14 @@ export default function EnergyDisplay() {
   const completed = useStore((s) => s.completedResearch);
   const lifetime = useStore((s) => s.lifetimeEnergy);
   const effects = useStore((s) => s.activeEffects);
+  const pets = useStore((s) => s.pets);
+  const producers = useStore((s) => s.producers);
+  const roomCapacity = useStore((s) => s.roomCapacity);
+  const mapPins = useStore((s) => s.mapPins);
   const breakdown = useMemo(
-    () => getEnergyBreakdown({ activeGenerators: generators, completedResearch: completed, lifetimeEnergy: lifetime, activeEffects: effects }),
-    [generators, completed, lifetime, effects],
+    () =>
+      getEnergyBreakdown({ activeGenerators: generators, completedResearch: completed, lifetimeEnergy: lifetime, activeEffects: effects, pets, producers, roomCapacity, mapPins }),
+    [generators, completed, lifetime, effects, pets, producers, roomCapacity, mapPins],
   );
   // overall change from all boosts (event effects can apply to one generator type only)
   const boost = breakdown.base > 0 ? breakdown.total / breakdown.base - 1 : breakdown.modifiers.reduce((sum, m) => sum + (m.percent ?? 0), 0);

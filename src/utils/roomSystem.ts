@@ -1,6 +1,7 @@
 import { EXPANSION_ANIMATION_MS, ROOM_TIERS, ROOM_WARNING_RATIO, type RoomTier } from '../data/rooms';
 import type { GameState } from '../types/state';
 import { canAfford, consumeResource } from './resourceSystem';
+import { deriveRates } from './simulation';
 
 /** The next expansion to buy, or null when all are bought. */
 export function getNextRoomTier(expansionLevel: number): RoomTier | null {
@@ -27,14 +28,15 @@ export function canExpandRoom(state: GameState): boolean {
 export function expandRoom(state: GameState, tier?: number, now = Date.now()): GameState {
   const next = getNextRoomTier(state.expansionLevel);
   if (!next || (tier !== undefined && tier !== next.tier) || !canExpandRoom(state)) return state;
-  return {
+  // more land can change where machines stand, and so their map bonuses (1.05)
+  return deriveRates({
     ...state,
     energy: state.energy - next.energy,
     resources: consumeResource(state.resources, next.resources).resources,
     roomCapacity: state.roomCapacity + next.capacity,
     expansionLevel: state.expansionLevel + 1,
     lastExpansionAt: now,
-  };
+  });
 }
 
 /** Share of room in use, 0..1 (can exceed 1 only if data shrinks capacity). */

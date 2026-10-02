@@ -8,7 +8,8 @@ export default function ClickButton() {
   const clickEnergy = useStore((s) => s.clickEnergy);
   const completed = useStore((s) => s.completedResearch);
   const eps = useStore((s) => s.energyPerSecond);
-  const click = useMemo(() => getClickBreakdown(completed, eps), [completed, eps]);
+  const pets = useStore((s) => s.pets);
+  const click = useMemo(() => getClickBreakdown(completed, eps, pets), [completed, eps, pets]);
   const fmt = useNumberFormat();
   const clickText = click.total < 10 && click.total % 1 ? fmt.rate(click.total) : fmt.num(click.total);
   const [pops, setPops] = useState<number[]>([]);

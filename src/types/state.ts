@@ -20,7 +20,7 @@ export interface Settings {
   /** First-run walkthrough (0.40): current step (TUTORIAL_DONE when finished); replay steps with "Next". */
   tutorial: { step: number; replay: boolean };
   generatorSort: GeneratorSort;
-  /** Cosmetic rewards from achievements (1.01): the shown title (an achievement id) and the accent colour. */
+  /** Cosmetic rewards from achievements (1.01): the shown title (an achievement id) and the accent color. */
   cosmetics: { title: string | null; accent: string };
 }
 
@@ -70,6 +70,8 @@ export interface RoomState {
   expansionLevel: number;
   /** Epoch ms of the last expansion; drives the construction animation. */
   lastExpansionAt: number | null;
+  /** Machines the player placed on the site map: machine key -> top-left tile (1.05). */
+  mapPins: Record<string, number>;
 }
 
 export interface SettingsState {

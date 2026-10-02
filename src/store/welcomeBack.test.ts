@@ -24,7 +24,7 @@ beforeEach(() => {
 });
 
 describe('welcome back report (0.28)', () => {
-  it('summarises an offline catch-up: time, energy, resources, fuel', () => {
+  it('summarizes an offline catch-up: time, energy, resources, fuel', () => {
     useStore.getState().applyIdleGains(600, T0 + 600_000, { catchUp: true });
     const r = useStore.getState().welcomeBack!;
     expect(r.awaySeconds).toBe(600);

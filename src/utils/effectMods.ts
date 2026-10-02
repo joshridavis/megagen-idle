@@ -15,6 +15,8 @@ export interface EffectMods {
   generator: Partial<Record<GeneratorType, number>>;
   allProduction: number;
   resource: Partial<Record<ResourceId, number>>;
+  /** Per generator id: bonus from where it stands on the site map (1.05). */
+  placement?: Record<string, number>;
 }
 
 export const NO_MODS: EffectMods = { allEnergy: 0, generator: {}, allProduction: 0, resource: {} };
