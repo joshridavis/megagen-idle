@@ -31,7 +31,12 @@ describe('Map tab (1.04)', () => {
   it('draws terrain and moves a solar panel onto the plateau for its bonus (1.05)', () => {
     useStore.getState().resetGame();
     useStore.setState(
-      deriveRates({ ...createInitialState(0), activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }] }),
+      deriveRates({
+        ...createInitialState(0),
+        roomCapacity: 23,
+        activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }],
+        mapPins: { 'gen-1': 0 },
+      }),
     );
     const before = useStore.getState().energyPerSecond;
     const { container } = render(<MapPanel onSelect={() => {}} />);
@@ -40,13 +45,13 @@ describe('Map tab (1.04)', () => {
     expect(screen.getByTestId('map-legend').textContent).toContain('Sunny plateau');
     fireEvent.click(screen.getByTestId('map-gen-1'));
     expect(screen.getAllByTestId('best-spot').length).toBeGreaterThan(0);
-    // tile 4 of the first row is on the plateau
+    // tile 16 of the first row is on the plateau
     const tiles = container.querySelectorAll('[data-terrain]');
-    fireEvent.mouseEnter(tiles[4]);
+    fireEvent.mouseEnter(tiles[16]);
     expect(screen.getByTestId('map-info').textContent).toContain('place here (+20%)');
-    fireEvent.click(tiles[4]);
+    fireEvent.click(tiles[16]);
     const s = useStore.getState();
-    expect(s.mapPins['gen-1']).toBe(4);
+    expect(s.mapPins['gen-1']).toBe(16);
     expect(s.energyPerSecond).toBeCloseTo(before + 0.5 * 0.2);
     // 1.14: the star explains itself
     const tip = within(screen.getByTestId('star-gen-1')).getByRole('tooltip', { hidden: true });
@@ -57,7 +62,7 @@ describe('Map tab (1.04)', () => {
     useStore.getState().resetGame();
     const base = createInitialState(0);
     useStore.setState(
-      deriveRates({ ...base, activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }], mapPins: { 'gen-1': 4 } }),
+      deriveRates({ ...base, roomCapacity: 23, activeGenerators: [{ id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 }], mapPins: { 'gen-1': 16 } }),
     );
     render(<ActiveGenerators />);
     const pin = screen.getByTestId('pin-gen-1');

@@ -5,7 +5,7 @@ import { getBonuses, getEnergyBonuses } from './bonuses';
 import { getPlayerLevel } from './playerLevel';
 import { expireEffects, getEffectMods } from './effectMods';
 import { withPetMods } from './pets';
-import { getPlacementBonuses } from './siteMap';
+import { getPlacementBonuses, settledPins } from './siteMap';
 import { calculateEnergyRate } from './energyGeneration';
 import { completeResearch, getGrantedProducers, researchFinishTime } from './researchSystem';
 import type { ResourceId, GameState } from '../types/state';
@@ -83,7 +83,10 @@ function finishResearch(s: GameState, now: number, report: TimeReport): GameStat
  * Recomputes the cached derived values (energy rate, room used) from built
  * generators and research bonuses. The single place these are calculated.
  */
-export function deriveRates(state: GameState): GameState {
+export function deriveRates(input: GameState): GameState {
+  // new machines are pinned where they land, so nothing on the map moves by itself (1.17)
+  const mapPins = settledPins(input);
+  const state = mapPins === input.mapPins ? input : { ...input, mapPins };
   const mods = { ...withPetMods(getEffectMods(state.activeEffects), state), placement: getPlacementBonuses(state) };
   const energyPerSecond = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state), mods);
   const granted = getGrantedProducers(state.completedResearch);

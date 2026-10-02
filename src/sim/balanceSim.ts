@@ -4,7 +4,7 @@ import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { RESEARCH } from '../data/research';
 import { ROOM_TIERS } from '../data/rooms';
 import type { Bonuses } from '../types/bonus';
-import type { GeneratorType } from '../types/generator';
+import { GeneratorType } from '../types/generator';
 import type { ProducerId } from '../types/resource';
 import type { GameState, ResourceId } from '../types/state';
 import { getBonuses, getClickValue } from '../utils/bonuses';
@@ -101,8 +101,14 @@ function act(s: GameState, now: number): GameState {
     );
     if (options[0]) s = startResearch(s, options[0].id, now);
   }
-  // 2. generators, best per room first
   const unlocked = getUnlockedGeneratorTypes(s.completedResearch);
+  // 1b. end game: own enough generators at once for the count achievements,
+  // before the build loop below would trade the small ones back for big plants
+  if (!getNextRoomTier(s.expansionLevel) && RESEARCH.every((r) => s.completedResearch.includes(r.id))) {
+    const counted = chaseGeneratorCount(s, unlocked, bonuses());
+    if (counted !== s) return counted;
+  }
+  // 2. generators, best per room first
   const candidates = [...unlocked].sort((a, b) => perRoom(b) - perRoom(a));
   let wanted: GeneratorType | null = null;
   for (const t of candidates) {
@@ -228,6 +234,27 @@ function chaseMaxLevels(s: GameState, unlocked: ReturnType<typeof getUnlockedGen
     if ((s.records.bestLevel[g.type] ?? 0) >= maxLevelOf(g.type) || copies > 1) tried = scrapGenerator(tried, g.id);
   }
   const built = buildGenerator(tried, t, unlocked, b);
+  return built === tried ? s : built;
+}
+
+/**
+ * Once every type is maxed, owns enough generators at once for the largest
+ * "own N generators" achievement: Solar Panels, scrapping the weakest
+ * non-solar plant for room when needed (the normal loop rebuilds big plants
+ * afterwards). The map made reaching it by chance unreliable (1.17).
+ */
+function chaseGeneratorCount(s: GameState, unlocked: ReturnType<typeof getUnlockedGeneratorTypes>, b: Bonuses): GameState {
+  if (GENERATOR_TYPES.some((t) => (s.records.bestLevel[t] ?? 0) < maxLevelOf(t))) return s;
+  const goal = ACHIEVEMENTS.filter((x) => x.metric === 'generators' && s.achievements[x.id] === undefined).sort((x, y) => x.target - y.target)[0];
+  if (!goal || s.activeGenerators.length >= goal.target) return s;
+  const solar = getGeneratorStats(GeneratorType.SOLAR, b);
+  if (s.energy < solar.energyCost * 2) return s;
+  let tried = s;
+  if (tried.roomCapacity - tried.roomUsed < solar.roomCost) {
+    const weakest = [...s.activeGenerators].filter((g) => g.type !== GeneratorType.SOLAR).sort((x, y) => perRoom(x.type) - perRoom(y.type))[0];
+    if (weakest) tried = scrapGenerator(tried, weakest.id);
+  }
+  const built = buildGenerator(tried, GeneratorType.SOLAR, unlocked, b);
   return built === tried ? s : built;
 }
 

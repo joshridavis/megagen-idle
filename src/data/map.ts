@@ -52,14 +52,14 @@ export const ZONES: Record<Zone, ZoneDef> = {
     generators: [GeneratorType.HYDRO],
     bonus: 0.1,
     required: true,
-    description: 'Hydropower Dams must be built across the river; fully on it, they make 10% more.',
+    description: 'Hydropower Dams must be built across the river; fully on it, they make 10% more. Other machines may stand here until a dam needs the spot.',
   },
   coast: {
     name: 'Coast',
     generators: [GeneratorType.TIDAL],
     bonus: 0.1,
     required: true,
-    description: 'Tidal Power Stations must be built on the coast; fully on it, they make 10% more.',
+    description: 'Tidal Power Stations must be built on the coast; fully on it, they make 10% more. Other machines may stand here until a station needs the spot.',
   },
 };
 
@@ -79,7 +79,15 @@ export const PATCH_SIZE: [number, number] = [4, 3];
 /** Chance a patch is plateau, and ridge; the rest is plain. */
 export const PATCH_CHANCES = { plateau: 0.25, ridge: 0.25 };
 /**
- * Patches fixed at the top of the map: plain land where the first machines go,
- * with a plateau and a ridge close by for the player to move solar and wind onto.
+ * Patches fixed at the top of the map: the starting land is plain, and the
+ * first room expansion opens a windy ridge and a sunny plateau next to it.
  */
-export const FIXED_PATCHES: Record<string, Terrain> = { '0,0': 'plain', '1,0': 'plateau', '2,0': 'plain', '0,1': 'ridge', '4,1': 'plateau' };
+export const FIXED_PATCHES: Record<string, Terrain> = {
+  '0,0': 'plain',
+  '1,0': 'plain',
+  '2,0': 'plain',
+  '3,0': 'ridge',
+  '4,0': 'plateau',
+  '0,1': 'ridge',
+  '1,1': 'plateau',
+};

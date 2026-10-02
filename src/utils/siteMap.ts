@@ -115,26 +115,31 @@ function coreOf(cells: number[], columns: number, size: number): Placed['core'] 
 
 /**
  * How good a spot is for a new machine (higher is better). Machines that need
- * a zone go on it; everything else keeps to plain land so the zones stay
- * free. Bonus zones are the player's to use: moving solar onto a plateau or
- * wind onto a ridge is a choice, not automatic. Null if the machine may not
- * stand there.
+ * a zone go on it; solar and wind go fully onto their bonus zone when a spot
+ * is free (playtest 16); everything else keeps to plain land so the zones
+ * stay free. Null if the machine may not stand there.
  */
 function spotScore(type: string, cells: number[], columns: number): number | null {
   if (!zoneAllows(type, cells, columns)) return null;
   const zone = zoneFor(type);
   if (zone && ZONES[zone].required) return zoneShare(cells, zone, columns) * 10;
-  let score = 0;
+  // solar and wind: fully on their bonus zone when a spot is free (1.17)
+  let score = zone && zoneShare(cells, zone, columns) === 1 ? ZONE_SEEK_SCORE : 0;
   for (const c of cells) {
     const t = terrainOfCell(c, columns);
+    if (t === zone) continue;
     if (t === 'river' || t === 'coast') score -= 1;
     else if (t !== 'plain') score -= 0.2;
   }
   return score;
 }
 
-/** Highest spotScore possible: all plain land (0), or fully on the zone needed (10). */
-const BEST_SCORE = [0, 10];
+const ZONE_SEEK_SCORE = 5;
+/** Highest spotScore possible for a type: fully on the zone it needs or likes, else all plain (0). */
+function maxScore(type: string): number {
+  const zone = zoneFor(type);
+  return !zone ? 0 : ZONES[zone].required ? 10 : ZONE_SEEK_SCORE;
+}
 
 interface Item {
   key: string;
@@ -159,11 +164,14 @@ export function siteItems(s: SiteState): Item[] {
 }
 
 /**
- * Places every machine that takes room on the site. Pure (1.04, zones 1.05).
- * 1. Machines the player moved stay where they were put, if still valid.
- * 2. The rest go, those that need a zone first and then biggest first, to the
- *    best free spot (see spotScore), the earliest one on a tie.
- * 3. A machine with no block of free tiles takes any free tiles (a fragmented,
+ * Places every machine that takes room on the site. Pure (1.04, zones 1.05, pins 1.17).
+ * 1. Pinned machines (every machine is pinned where it lands) stay put, if still valid.
+ * 2. New hydro and tidal go to the river and coast. Other machines may stand
+ *    there until a dam or tidal station needs the spot: only then are they
+ *    moved, to the best free land (playtest 16: nothing else moves by itself).
+ * 3. The rest, biggest first, go to the best free spot (see spotScore), the
+ *    earliest on a tie.
+ * 4. A machine with no block of free tiles takes any free tiles (a fragmented,
  *    nearly full site), so a layout always exists; one that needs a zone and
  *    finds no spot there is marked misplaced.
  */
@@ -179,40 +187,39 @@ function computeLayout(s: SiteState): SiteMap {
     const zoneBonus = it.kind === 'generator' && !misplaced ? zoneBonusFor(it.type, cells, columns) : 0;
     placed.push({ key: it.key, kind: it.kind, id: it.id, type: it.type, size: it.size, cells, core: coreOf(cells, columns, it.size), zoneBonus, misplaced, pinned });
   };
-
-  const items = siteItems(s);
-  const rest: Item[] = [];
-  for (const it of items) {
-    const anchor = pins[it.key];
-    const cells = anchor === undefined ? null : cellsAt(anchor, it.size, columns);
-    if (cells && cells.every(free) && zoneAllows(it.type, cells, columns)) add(it, cells, true);
-    else rest.push(it);
-  }
   const needsZone = (it: Item) => {
     const z = zoneFor(it.type);
     return z && ZONES[z].required ? 1 : 0;
   };
-  // zone-bound first, then biggest first (playtest 15 bug: small ones placed
-  // first left gaps too scattered for a late big plant); ties keep a stable order
-  rest.sort((a, b) => needsZone(b) - needsZone(a) || b.size - a.size || a.order - b.order);
-  for (const it of rest) {
+  const reserved = (c: number) => {
+    const t = terrainOfCell(c, columns);
+    return t === 'river' || t === 'coast';
+  };
+  const pinCells = (it: Item) => {
+    const anchor = pins[it.key];
+    const cells = anchor === undefined ? null : cellsAt(anchor, it.size, columns);
+    return cells && cells.every((c) => c < capacity) && zoneAllows(it.type, cells, columns) ? cells : null;
+  };
+
+  /** Places one machine at its best free spot; tiles in `soft` (machines that may give way) cost a little. */
+  const placeAuto = (it: Item, soft: Set<number> = new Set()) => {
     let best: number[] | null = null;
     let bestScore = -Infinity;
     for (let anchor = 0; anchor < capacity; anchor++) {
       if (!free(anchor)) continue;
       const cells = cellsAt(anchor, it.size, columns);
       if (!cells || !cells.every(free)) continue;
-      const score = spotScore(it.type, cells, columns);
-      if (score !== null && score > bestScore) {
+      const base = spotScore(it.type, cells, columns);
+      if (base === null) continue;
+      const bumped = soft.size ? cells.filter((c) => soft.has(c)).length : 0;
+      const score = base - bumped * 0.5;
+      if (score > bestScore) {
         best = cells;
         bestScore = score;
-        if (score >= BEST_SCORE[needsZone(it)]) break; // nothing can beat it: stop early
+        if (score >= maxScore(it.type)) break; // nothing can beat it: stop early
       }
     }
-    if (best) {
-      add(it, best, false);
-      continue;
-    }
+    if (best) return add(it, best, false);
     // no allowed block: any free block, else any free tiles
     let cells: number[] | null = null;
     for (let anchor = 0; anchor < capacity && !cells; anchor++) {
@@ -224,7 +231,28 @@ function computeLayout(s: SiteState): SiteMap {
       for (let c = 0; c < capacity && cells.length < it.size; c++) if (free(c)) cells.push(c);
     }
     add(it, cells, false, needsZone(it) === 1);
+  };
+  // zone-bound first, then biggest first (playtest 15 bug: small ones placed
+  // first left gaps too scattered for a late big plant); ties keep a stable order
+  const order = (a: Item, b: Item) => needsZone(b) - needsZone(a) || b.size - a.size || a.order - b.order;
+
+  const rest: Item[] = [];
+  const mayGiveWay: { it: Item; cells: number[] }[] = [];
+  for (const it of siteItems(s)) {
+    const cells = pinCells(it);
+    if (!cells) rest.push(it);
+    else if (!needsZone(it) && cells.some(reserved)) mayGiveWay.push({ it, cells });
+    else if (cells.every(free)) add(it, cells, true);
+    else rest.push(it);
   }
+  const soft = new Set(mayGiveWay.flatMap((m) => m.cells));
+  for (const it of rest.filter((x) => needsZone(x)).sort(order)) placeAuto(it, soft);
+  const later = rest.filter((x) => !needsZone(x));
+  for (const m of mayGiveWay) {
+    if (m.cells.every(free)) add(m.it, m.cells, true);
+    else later.push(m.it);
+  }
+  for (const it of later.sort(order)) placeAuto(it);
   return { columns, capacity, placed };
 }
 
@@ -310,4 +338,30 @@ export function moveOnMap(s: SiteState, key: string, anchor: number): Record<str
 /** Top-left tile of a placed machine's block. */
 export function anchorOf(p: Placed, columns = MAP_COLUMNS): number {
   return p.core.y * columns + p.core.x;
+}
+
+/**
+ * The saved positions after the layout settles: every machine pinned where it
+ * stands (a block shape only), keys of machines that are gone dropped. Machines
+ * on the map then never move by themselves (playtest 16). Returns the same
+ * object when nothing changed.
+ */
+export function settledPins(s: SiteState): Record<string, number> {
+  const map = layoutSite(s);
+  const old = s.mapPins ?? {};
+  const next: Record<string, number> = {};
+  for (const p of map.placed) {
+    if (p.misplaced) continue;
+    const anchor = anchorOf(p, map.columns);
+    const block = cellsAt(anchor, p.size, map.columns);
+    if (block && block.every((c, i) => c === p.cells[i])) next[p.key] = anchor;
+  }
+  const keys = Object.keys(next);
+  const same = keys.length === Object.keys(old).length && keys.every((k) => old[k] === next[k]);
+  if (same) return old;
+  // every machine pinned where it stands: the layout with the new pins is this one
+  if (keys.length === map.placed.length) {
+    layouts.set(signature({ ...s, mapPins: next }), { ...map, placed: map.placed.map((p) => ({ ...p, pinned: true })) });
+  }
+  return next;
 }

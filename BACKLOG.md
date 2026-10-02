@@ -525,10 +525,15 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** a small tooltip (hover and keyboard focus, `role=tooltip`) naming the zone, the bonus and the rule, for example "Sunny plateau: +20% energy, because the whole Solar Panel stands on it". The 📍 tooltip says the same and that the Map tab is where machines are moved.
 **Acceptance:** both marks show the tooltip on hover and focus (component tests).
 
-### 1.17 — New solar and wind built on their bonus zone; machines stay put once built — CODE — Not started
+### 1.17 — New solar and wind built on their bonus zone; machines stay put once built — CODE — Done
 **Goal:** apply playtest 16 feedback: a new Solar Panel or Wind Turbine goes onto a free plateau or ridge spot when there is one; machines already on the map never move by themselves.
 **Details:** placement of new machines prefers the bonus zone for solar and wind (hydro and tidal already go to theirs). Each new machine, generator or producer, is saved where it lands (`mapPins`), so building, scrapping or expanding never moves others. Old saves are pinned the first time the map changes. The player can still move anything.
 **Acceptance:** a new solar lands fully on a free plateau spot when one exists (tests); existing machines keep their tiles after new builds and scraps (tests); the simulator gets the bonus.
+**Notes:**
+- Every machine is pinned where it lands (`deriveRates` settles the pins), and pins of scrapped machines are dropped.
+- **One exception to "never moves":** machines other than dams may stand on the river (and others than tidal stations on the coast) when the site is crowded. They give way only when a new dam or station needs that spot; otherwise an early crowded site would block hydro for good (the simulator's first dam slipped from 5 h to 24 h). The zone text says so.
+- **Starting land:** the first row is plain, and the first room expansion (about 17 min) opens a windy ridge and a sunny plateau. Early rates are unchanged and the zones arrive almost at once.
+- **Simulator:** it now reaches "Own 50 generators at once" on purpose at the end, by building Solar Panels; before, it only got there by chance. About 112.6 h to 100%, no stalls.
 
 ### 1.16 — Drag and drop to move machines on the map — CODE — Not started
 **Goal:** apply playtest 16 feedback: drag a machine to a new spot.
