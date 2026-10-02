@@ -130,7 +130,7 @@ function spotScore(type: string, cells: number[], columns: number): number | nul
   for (const c of cells) {
     const t = terrainOfCell(c, columns);
     if (t === zone) continue;
-    if (t === 'river' || t === 'coast') score -= 1;
+    if (t !== 'plain' && ZONES[t].required) score -= 1;
     else if (t !== 'plain') score -= 0.2;
   }
   return score;
@@ -194,9 +194,10 @@ function computeLayout(s: SiteState): SiteMap {
     const z = zoneFor(it.type);
     return z && ZONES[z].required ? 1 : 0;
   };
+  // land only some machines may need: the river, the coast, the Exclusion Zone
   const reserved = (c: number) => {
     const t = terrainOfCell(c, columns);
-    return t === 'river' || t === 'coast';
+    return t !== 'plain' && ZONES[t].required;
   };
   const pinCells = (it: Item) => {
     const anchor = pins[it.key];

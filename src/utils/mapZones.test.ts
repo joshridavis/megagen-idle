@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../data/initialState';
-import { DETAILS, MAP_COLUMNS, MIN_ZONE_RUN, ZONES } from '../data/map';
+import { DETAILS, EXCLUSION_START_ROW, MAP_COLUMNS, MIN_ZONE_RUN, ZONES } from '../data/map';
 import { GeneratorType, type Generator } from '../types/generator';
 import type { GameState } from '../types/state';
 import { getBuildBlock } from './generatorSystem';
@@ -225,5 +225,29 @@ describe('expansion preview (1.06)', () => {
       for (let c = 13; c < 23; c++) if (terrainAt(c % MAP_COLUMNS, Math.floor(c / MAP_COLUMNS)) === t) count++;
       expect(count).toBe(n);
     }
+  });
+});
+
+describe('the Exclusion Zone (1.23)', () => {
+  it('fills every land tile from its first row down, but not the river or coast', () => {
+    for (let x = 0; x < MAP_COLUMNS; x++) {
+      expect(['exclusion', 'river', 'coast']).toContain(terrainAt(x, EXCLUSION_START_ROW));
+      expect(terrainAt(x, EXCLUSION_START_ROW - 1)).not.toBe('exclusion');
+    }
+  });
+
+  it('fictional generators must stand there; others may, until it is needed', () => {
+    const top = EXCLUSION_START_ROW * MAP_COLUMNS;
+    const inZone = cellsAt(top, 16)!;
+    const outside = cellsAt(0, 16)!;
+    expect(zoneAllows(GeneratorType.FUSION, inZone)).toBe(true);
+    expect(zoneAllows(GeneratorType.FUSION, outside)).toBe(false);
+    expect(zoneAllows(GeneratorType.COAL, inZone)).toBe(true);
+    expect(zoneBonusFor(GeneratorType.SUPERNOVA, cellsAt(top, 25)!)).toBe(ZONES.exclusion.bonus);
+  });
+
+  it('is only reachable with the last room tiers', () => {
+    expect(hasSpotFor(site([], 458), GeneratorType.FUSION)).toBe(false);
+    expect(hasSpotFor(site([], 638), GeneratorType.FUSION)).toBe(true);
   });
 });

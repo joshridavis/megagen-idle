@@ -58,6 +58,9 @@ import tileRidge from './sprites/map/ridge.png';
 import tileRiver from './sprites/map/river.png';
 import tileCoast from './sprites/map/coast.png';
 import tileSea from './sprites/map/sea.png';
+import tileExclusion from './sprites/map/exclusion.png';
+import decoWarning from './sprites/map/deco_warning.png';
+import decoPylon from './sprites/map/deco_pylon.png';
 import tileCoalfield from './sprites/map/coalfield.png';
 import tileOutcrop from './sprites/map/outcrop.png';
 import tileOilfield from './sprites/map/oilfield.png';
@@ -169,6 +172,9 @@ export const sprites = {
   tile_river: tileRiver,
   tile_coast: tileCoast,
   tile_sea: tileSea,
+  tile_exclusion: tileExclusion,
+  deco_warning: decoWarning,
+  deco_pylon: decoPylon,
   tile_coalfield: tileCoalfield,
   tile_outcrop: tileOutcrop,
   tile_oilfield: tileOilfield,

@@ -48,7 +48,7 @@ export const GUIDE: GuideSection[] = [
     paragraphs: [
       'The Map tab shows your site: one tile for each unit of room, and every machine covering as many tiles as the room it takes. Fenced land at the bottom is the next room expansion.',
       'Zones boost the machines that suit them, when the whole machine stands on them: sunny plateau (Solar Panels +20%), windy ridge (Wind Turbines +20%), coal field (Coal Mines +20%), rocky outcrop (Quarries, Metal and Uranium Mines +20%), oil and gas field (Gas Wells and Oil Rigs +20%).',
-      'Hydropower Dams must be built on the river and Tidal Power Stations on the coast (+10% when fully on it). Other machines may stand there until a dam or station needs the spot.',
+      'Hydropower Dams must be built on the river and Tidal Power Stations on the coast, and Fusion Reactors and Micro-Supernovas in the Exclusion Zone that the last room expansions open (+10% when fully inside). Other machines may stand there until one of those needs the spot.',
       'New machines go to a free spot on their zone when there is one; after that they stay put. Drag a machine to move it, or click it and then a tile. ⭐ marks a machine on its bonus zone.',
     ],
   },

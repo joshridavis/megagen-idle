@@ -9,7 +9,8 @@ import type { ProducerId } from '../types/resource';
 import type { GameState, ResourceId } from '../types/state';
 import { getBonuses, getClickValue } from '../utils/bonuses';
 import { NO_MODS } from '../utils/effectMods';
-import { withPlacementMods } from '../utils/siteMap';
+import { hasSpotFor, layoutSite, terrainOfCell, withPlacementMods } from '../utils/siteMap';
+import { zoneFor } from '../utils/mapTerrain';
 import { getCompletion } from '../utils/completion';
 import {
   buildGenerator,
@@ -24,7 +25,7 @@ import {
 } from '../utils/generatorSystem';
 import { buildProducer, getProducerBlock } from '../utils/producerSystem';
 import { canStartResearch, getResearchDuration, getUnlockedGeneratorTypes, startResearch } from '../utils/researchSystem';
-import { getFuelUseRates, getProductionRates } from '../utils/resourceSystem';
+import { canAfford, getFuelUseRates, getProductionRates } from '../utils/resourceSystem';
 import { canExpandRoom, expandRoom, getNextRoomTier } from '../utils/roomSystem';
 import { advanceTime } from '../utils/simulation';
 import { buyPerk, canDeliver, claimContract, deliverContract, perkCost, updateContracts } from '../utils/contracts';
@@ -75,6 +76,36 @@ const T0 = 1_700_000_000_000;
 
 /** Energy per second per unit of room, the greedy player's measure of a generator. */
 const perRoom = (t: GeneratorType) => GENERATORS[t].energyPerSecond / GENERATORS[t].roomCost;
+
+/**
+ * When a zone-bound generator finds no free spot, scraps the weakest plants
+ * standing in that zone (at most 6, each clearly weaker per room) until it
+ * would fit. Returns the state after scrapping, or null if that does not help
+ * or the build is not affordable anyway.
+ */
+function makeZoneSpot(s: GameState, t: GeneratorType, b: Bonuses): GameState | null {
+  const stats = getGeneratorStats(t, b);
+  if (s.energy < stats.energyCost * 1.1 || !canAfford(s.resources, stats.buildCost)) return null;
+  const zone = zoneFor(t);
+  if (!zone) return null;
+  const onZone = new Set(
+    layoutSite(s)
+      .placed.filter((p) => p.kind === 'generator' && p.cells.some((c) => terrainOfCell(c) === zone))
+      .map((p) => p.id),
+  );
+  // only machines that belong in the zone block it: the others make way by themselves
+  const victims = s.activeGenerators
+    .filter((g) => onZone.has(g.id) && zoneFor(g.type) === zone && perRoom(g.type) * 1.5 <= perRoom(t) && !isBeingRaised(s, g))
+    .sort((x, y) => perRoom(x.type) - perRoom(y.type))
+    .slice(0, 6);
+  const ids: string[] = [];
+  for (const g of victims) {
+    ids.push(g.id);
+    const tried = scrapGenerators(s, ids);
+    if (hasSpotFor(tried, t)) return tried;
+  }
+  return null;
+}
 
 /** The highest-level generator of a type that is not maxed yet: the one the completionist raises. */
 function isBeingRaised(s: GameState, g: GameState['activeGenerators'][number]): boolean {
@@ -169,7 +200,15 @@ function act(s: GameState, now: number): GameState {
       s = buildGenerator(s, t, unlocked, bonuses());
       return s;
     }
-    if (block === 'site') continue; // its zone is full (1.05): build something else
+    if (block === 'site') {
+      // its zone is full (1.05): make room there by scrapping weaker plants in the zone (1.23)
+      const made = makeZoneSpot(s, t, bonuses());
+      if (made) {
+        const built = buildGenerator(made, t, unlocked, bonuses());
+        if (built !== made) return built;
+      }
+      continue;
+    }
     if (block === 'room') {
       const weakest = [...s.activeGenerators].sort((a, b) => perRoom(a.type) - perRoom(b.type))[0];
       if (weakest && perRoom(t) >= 1.5 * perRoom(weakest.type)) {
@@ -189,6 +228,12 @@ function act(s: GameState, now: number): GameState {
             const tried = scrapGenerators(s, scrap);
             const built = buildGenerator(tried, t, unlocked, bonuses());
             if (built !== tried) return built;
+            // room is free now, but its zone may still be full (1.23)
+            if (getBuildBlock(tried, t, unlocked, bonuses()) === 'site') {
+              const made = makeZoneSpot(tried, t, bonuses());
+              const built2 = made && buildGenerator(made, t, unlocked, bonuses());
+              if (made && built2 && built2 !== made) return built2;
+            }
           }
         }
       }

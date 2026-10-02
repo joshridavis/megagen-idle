@@ -741,6 +741,12 @@ const oilfieldTile = () => terrainTile(C.mud, C.khaki, C.brown5, (c) => {
   c.circle(11, 5, 1, C.ink);
   c.set(5, 9, C.purple);
 });
+// the Exclusion Zone (1.23): a dark shielded floor with a glowing grid
+const exclusionTile = () => terrainTile(C.plum, C.purple, C.ink, (c) => {
+  c.rect(0, 7, 15, 1, C.purple); // grid lines
+  c.rect(7, 0, 1, 15, C.purple);
+  c.set(7, 7, C.cyan);
+});
 function seaTile() {
   const c = new Canvas(16, 16);
   c.rect(0, 0, 16, 16, C.navy);
@@ -839,6 +845,18 @@ const decoBoat = deco((c) => {
   c.polygon([[3, 10], [13, 10], [11, 13], [5, 13]], C.brown3);
   c.rect(8, 3, 1, 7, C.brown4);
   c.polygon([[9, 3], [9, 9], [13, 9]], C.white);
+});
+const decoWarning = deco((c) => {
+  c.rect(7, 9, 2, 5, C.grey4); // post
+  c.polygon([[8, 2], [3, 10], [13, 10]], C.yellow);
+  c.rect(8, 5, 1, 3, C.ink);
+  c.set(8, 9, C.ink);
+});
+const decoPylon = deco((c) => {
+  c.rect(6, 4, 4, 10, C.grey3);
+  c.rect(6, 4, 4, 1, C.grey1);
+  c.circle(8, 3, 2, C.cyan);
+  c.rect(5, 13, 6, 1, C.grey5);
 });
 const decoBuoy = deco((c) => {
   c.circle(8, 10, 3, C.red);
@@ -1060,6 +1078,7 @@ const DRAW = {
   tile_river: riverTile,
   tile_coast: coastTile,
   tile_sea: seaTile,
+  tile_exclusion: exclusionTile,
   tile_coalfield: coalfieldTile,
   tile_outcrop: outcropTile,
   tile_oilfield: oilfieldTile,
@@ -1080,6 +1099,8 @@ const DRAW = {
   deco_driftwood: decoDriftwood,
   deco_boat: decoBoat,
   deco_buoy: decoBuoy,
+  deco_warning: decoWarning,
+  deco_pylon: decoPylon,
   achievement_unlocked: () => trophy(C.yellow, C.lemon, C.brown3),
   achievement_locked: () => trophy(C.grey5, C.grey4, C.grey6),
   sighting_spaceship: spaceship,
