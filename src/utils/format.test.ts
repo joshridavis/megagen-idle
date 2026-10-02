@@ -75,3 +75,26 @@ describe('formatHours', () => {
     expect(formatHours(5400)).toBe('90 minutes');
   });
 });
+
+describe('round values keep their zeros (playtest 11 bug: 360,722 showed as 36K)', () => {
+  it('never drops zeros from the whole-number part', () => {
+    expect(formatNumber(360_722)).toBe('360K');
+    expect(formatNumber(100_000)).toBe('100K');
+    expect(formatNumber(50_000)).toBe('50K');
+    expect(formatNumber(200_000_000)).toBe('200M');
+    expect(formatNumber(10_000)).toBe('10K');
+    expect(formatNumber(1_000)).toBe('1K');
+    expect(formatNumber(1_500)).toBe('1.5K');
+    expect(formatNumber(2e17, 'scientific')).toBe('2e17');
+    expect(formatNumber(3e17, 'short')).toBe('3e17');
+  });
+
+  it('matches full notation to 3 significant digits for many values', () => {
+    for (let n = 1000; n < 1e12; n = Math.floor(n * 1.37) + 7) {
+      const short = formatNumber(n);
+      const value = parseFloat(short) * 1000 ** ['', 'K', 'M', 'B'].indexOf(short.replace(/[\d.]/g, ''));
+      expect(value, `${n} -> ${short}`).toBeLessThanOrEqual(n);
+      expect(value, `${n} -> ${short}`).toBeGreaterThan(n * 0.99);
+    }
+  });
+});
