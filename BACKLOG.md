@@ -85,6 +85,11 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.10 Readable event notices: longer toasts, exact effect on hover, saved log (playtest 15 feedback)
 0. 1.11 Pet bonuses shown in the click and rate breakdowns (playtest 15 bug)
 0. 1.05 Larger, detailed map: terrain zones, rivers and coast, moving machines (playtest 14 and 15 feedback) → CHECKPOINT 16
+0. 1.14 Tooltips on the map ⭐ and the 📍 placement marks (playtest 16 feedback)
+0. 1.17 New solar and wind built on their bonus zone; machines stay put once built (playtest 16 feedback)
+0. 1.16 Drag and drop to move machines on the map (playtest 16 feedback)
+0. 1.15 More variety in the small map details (playtest 16 feedback)
+0. 1.18 Producer zones: fields and outcrops that boost mines, quarries and wells (playtest 16 feedback) → CHECKPOINT
 0. 1.06 Map polish: expansions grow the map, simulator and balance (playtest 14 feedback)
 0. 0.67 Public release plan: accounts and cloud saves (moved up: playtest 15, the website needs accounts)
 0. 1.12 Map events you can watch on the map (playtest 15 feedback)
@@ -514,6 +519,31 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
   - No coal or gas field zone for producers yet (producer bonuses would need a per-producer production change).
 - **New sprites:** tile_plateau, tile_ridge, tile_river, tile_coast, tile_sea, deco_rock, deco_tuft, deco_flower.
 - **Simulator:** about 114 h to 100% (was 112). Layouts are cached; a full run takes about 7 s.
+
+### 1.14 — Tooltips on the map ⭐ and the 📍 placement marks — CODE — Not started
+**Goal:** apply playtest 16 feedback: hovering the ⭐ on the map or the 📍 in Your generators explains it.
+**Details:** a small tooltip (hover and keyboard focus, `role=tooltip`) naming the zone, the bonus and the rule, for example "Sunny plateau: +20% energy, because the whole Solar Panel stands on it". The 📍 tooltip says the same and that the Map tab is where machines are moved.
+**Acceptance:** both marks show the tooltip on hover and focus (component tests).
+
+### 1.17 — New solar and wind built on their bonus zone; machines stay put once built — CODE — Not started
+**Goal:** apply playtest 16 feedback: a new Solar Panel or Wind Turbine goes onto a free plateau or ridge spot when there is one; machines already on the map never move by themselves.
+**Details:** placement of new machines prefers the bonus zone for solar and wind (hydro and tidal already go to theirs). Each new machine, generator or producer, is saved where it lands (`mapPins`), so building, scrapping or expanding never moves others. Old saves are pinned the first time the map changes. The player can still move anything.
+**Acceptance:** a new solar lands fully on a free plateau spot when one exists (tests); existing machines keep their tiles after new builds and scraps (tests); the simulator gets the bonus.
+
+### 1.16 — Drag and drop to move machines on the map — CODE — Not started
+**Goal:** apply playtest 16 feedback: drag a machine to a new spot.
+**Details:** pointer events (mouse, pen and touch), so it works on phones too: press on a machine, drag, and the footprint preview follows the pointer (green or red, bright on bonus tiles); release on a valid spot to move. Click-then-click still works, and keyboard users keep the select-then-tile flow. No new dependency.
+**Acceptance:** dragging moves a machine to a valid spot and does nothing on an invalid one (component tests with pointer events); a plain click still selects.
+
+### 1.15 — More variety in the small map details — CODE — Not started
+**Goal:** apply playtest 16 feedback: more kinds of small objects on the map.
+**Details:** new generic detail sprites, chosen by terrain: bushes, tree stumps, mushrooms and logs on plain land; cacti and dry grass on plateaus; boulders and wind-bent grass on ridges; reeds and lily pads on the river; shells and driftwood on the coast; an occasional boat or buoy on the sea. Still seeded, so the map looks the same on every visit, and drawn under machines.
+**Acceptance:** every terrain has at least two kinds of details (test); sprites in the manifest and the generic asset script.
+
+### 1.18 — Producer zones: fields and outcrops that boost mines, quarries and wells — CODE — Not started
+**Goal:** apply playtest 16 feedback: zones that boost producers, like the generator zones.
+**Details:** new terrain patches: a coal field (Coal Mines +20%), a rocky outcrop (Quarries and Metal Mines +20%), and an oil and gas field (Gas Wells and Oil Rigs +20%), when the whole producer stands on it. New producers are placed on a free spot of their zone when there is one, like solar and wind (1.17). The bonus shows in the resource breakdown as "Placement on the map", with ⭐ on the map. New tile sprites for the new zones.
+**Acceptance:** production rises only for producers fully on their zone (tests); the breakdown total matches the real rate; the simulator gets the bonus; old saves load.
 
 ### 1.06 — Map polish: expansions grow the map, simulator and balance — CODE — Not started
 **Goal:** finish the map: room expansions open new land with its own terrain mix, and the simulator places machines sensibly.
@@ -966,4 +996,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 13 (v0.13.0) | 0.95, 0.96, 0.85, 0.86, 0.92 | 2026-10-02 | Contract deadlines fine (still watching the feature); unclear why two contracts showed "Not enough yet" and one did not. Pet bonuses and feed-then-wait make sense; add a short animation when clicking a pet. One effect event per 2 hours fine for now. Achievements next. Bug: meteor shower meteors fall in the wrong direction. | 0.97-0.99; 0.65 moved up |
 | 14 (v0.14.0) | 0.98, 0.97, 0.99, 0.65, 0.87 | 2026-10-02 | Achievement rewards should be cosmetic. The achievement list is fine for now. Contract wording much clearer. Release order not decided; prefers easiest to hardest, to reach production as soon as possible. Perk shop unclear: is the number on Buy a cost or an amount, how are points earned, is each contract 1 point? Add an "upgradable first" sort. Future: a map showing the builds, movable, with zones that suit some machines (sunny, windy) and sizes that matter; prioritize by impact. Notifications (browser, later mobile) for research done, level up and so on, handled carefully so they are not annoying. | 1.00-1.07 (map placed before fictional generators and statistics, as the highest-impact item); 0.34 and 0.39 moved up |
 | 15 (v0.15.0) | 1.00, 1.03, 1.01, 1.02, 1.04 | 2026-10-02 | "Website" means a real site with sign-up and log-in and saves in the cloud, not in the browser. The map should be larger and more detailed, with varied terrain. Wants random events that only happen on the map and visibly do something there. Planned zones good; hydro must need a river and tidal the coast. Map decorations welcome. Amber accent did nothing. Mixed American and British English: use one (American, the larger market). Bug: coal plant #32 drawn as a huge box over other machines. Event messages vanish too fast; hovering an effect should say exactly what it does. An event seemed missing from the log. The Wheel Hamster's click bonus seemed to do nothing (+2 instead of +3). | 1.08-1.13; 1.05 widened; 0.67 moved up |
-| 16 (v0.16.0) | 1.08, 1.09, 1.10, 1.11, 1.05 | 2026-10-02 | (waiting for owner) | |
+| 16 (v0.16.0) | 1.08, 1.09, 1.10, 1.11, 1.05 | 2026-10-02 | The ⭐ and 📍 marks need a tooltip on hover. Map size fine for now; more variety in the small objects would help. +20% and +10% are worth moving machines for. Wants drag and drop. Solar and wind should go onto their bonus zones automatically when built, but not move afterwards. Yes to producer zones (for example a coal field for coal mines). | 1.14-1.18 |
