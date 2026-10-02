@@ -105,6 +105,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.26 Dedicated pixel designs and animations for map events (playtest 19 feedback)
 0. 1.27 Map events rarer; Exclusion Zone hint on the map (playtest 19 feedback)
 0. 1.28 Much costlier contract perks (playtest 19 feedback) → HOTFIX v0.19.1
+0. 1.29 Map events halfway between the old and new pace (playtest 19.1 feedback) → HOTFIX v0.19.2
 0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
 0. 0.39 Statistics panel (moved up)
@@ -956,6 +957,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** tests with a fake service for the buttons, the redirect call and the username dialog; no secrets in the repository.
 **Notes:** the code is done and tested with fakes. The owner turns it on with section 9b of `docs/PUBLIC_RELEASE.md` (register the Google and Discord OAuth apps, paste the keys into Supabase, add `VITE_AUTH_PROVIDERS`, rerun the deploy). The live sign-in check rides with 0.68's live test.
 
+### 1.29 — Map events halfway between the old and new pace — CODE — Done
+**Goal:** apply playtest 19.1 feedback: after 1.27, map events were too rare to judge the new designs; they should sit between the v0.19.0 and v0.19.1 pace.
+**Details:** `MAP_RATE_PER_HOUR` is now the midpoint of the two: common 4.1, uncommon 2.05, rare 0.8, legendary 0.16 per hour while the Map tab is open. That is about 17 events an hour, one every 3 to 4 minutes (v0.19.0: about one every 3; v0.19.1: one every 4 to 5).
+**Acceptance:** the rates are the midpoint; build and tests pass.
+
 ### 1.28 — Much costlier contract perks — CODE — Done
 **Goal:** apply playtest 19 feedback: maxing every perk shop item was "way too easy" and should be significantly harder.
 **Details:**
@@ -1160,4 +1166,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 17 (v0.17.0) | 1.14, 1.17, 1.16, 1.15, 1.18 | 2026-10-02 | Drag and drop feels right on computer and phone. The "makes way for a new dam" rule is clear and fair. +20% for producers is worth moving them; averaging is clear. Next: accounts and cloud saves for the website (before map events and decorations). Bug: the 📍 tooltip opens to the side and is cut off. Bug: a 1-tile-wide strip of sunny plateau can never give a Solar Panel its bonus. Active bonuses get long: let it be opened and closed. | 1.19, 1.20, 1.21; 0.67 next |
 | 18 (v0.18.0) | 1.19, 1.20, 1.21, 0.67, 1.06 (and 0.68 built, waiting for setup) | 2026-10-02 | Supabase is fine; setup in docs/PUBLIC_RELEASE.md done. Sign-in: email, plus Google and Discord as options. Usernames 3–20 letters, digits or _: fine. Keep the license "all rights reserved" (no one may use the project or assets as theirs). Next: 1. fictional generators (may need a map upgrade too), 2. map events and decorations. Scrapping should refund 10% of the building cost; for an upgraded machine, 10% of everything spent on it. | 1.22, 1.23, 1.24; 0.34 widened and moved first |
 | 19 (v0.19.0) | 1.22, 1.24, 0.34, 1.23, 1.12 | 2026-10-02 | Fusion and the Micro-Supernova feel like a satisfying late game. The Exclusion Zone limit sounds good, but they could not see it on the map. Map events a bit too frequent; make them slightly rarer. Bugs: the delivery truck and the birds move backwards; emoji look odd, so they want dedicated designs and animations. Maxing contract perks is way too easy. Next after the fixes: map decorations and browser notifications. This run: only the fixes and feedback, no new features. | 1.25-1.28 (hotfix v0.19.1) |
-| 19.1 (v0.19.1, hotfix) | 1.25, 1.26, 1.27, 1.28 | 2026-10-02 | (waiting for owner) | |
+| 19.1 (v0.19.1, hotfix) | 1.25, 1.26, 1.27, 1.28 | 2026-10-02 | Map events now too rare to judge the new designs: set them between the old and new pace. New perk prices are about right. Build nothing else from the backlog until told. | 1.29 (hotfix v0.19.2) |
+| 19.2 (v0.19.2, hotfix) | 1.29 | 2026-10-02 | (waiting for owner) | |
