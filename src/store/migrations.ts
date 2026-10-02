@@ -7,7 +7,7 @@ import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 14;
+export const SAVE_VERSION = 15;
 
 type AnySave = Record<string, unknown>;
 
@@ -53,6 +53,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   12: (save) => save,
   // 0.92: energy pets (fresh state from defaults below).
   13: (save) => save,
+  // 0.65: achievements and their counters (filled from defaults; unlocks are checked on load).
+  14: (save) => save,
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */
@@ -95,5 +97,7 @@ export function pickSaved(s: GameState): GameState {
     activeEffects: s.activeEffects,
     contracts: s.contracts,
     pets: s.pets,
+    achievements: s.achievements,
+    stats: s.stats,
   };
 }

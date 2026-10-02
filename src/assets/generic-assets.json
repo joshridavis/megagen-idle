@@ -69,6 +69,8 @@
     "sprites/resources/oil.png",
     "sprites/resources/stone.png",
     "sprites/resources/uranium.png",
+    "sprites/ui/achievement_locked.png",
+    "sprites/ui/achievement_unlocked.png",
     "sprites/ui/capacity_building.png",
     "sprites/ui/capacity_critical.png",
     "sprites/ui/capacity_empty.png",

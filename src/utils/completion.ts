@@ -1,4 +1,5 @@
 import { GENERATOR_TYPES, GENERATORS, UPGRADES } from '../data/generators';
+import { ACHIEVEMENTS } from '../data/achievements';
 import { CONTRACT_MILESTONES, PERK_IDS, PERKS } from '../data/contracts';
 import { PETS } from '../data/pets';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
@@ -30,7 +31,8 @@ export interface CompletionPart {
  * Overall = done / total over all entries; each part lists its entries for the completion log.
  */
 export function getCompletion(
-  state: Pick<GameState, 'completedResearch' | 'records' | 'expansionLevel' | 'producers'> & Partial<Pick<GameState, 'contracts' | 'pets'>>,
+  state: Pick<GameState, 'completedResearch' | 'records' | 'expansionLevel' | 'producers'> &
+    Partial<Pick<GameState, 'contracts' | 'pets' | 'achievements'>>,
 ): { parts: CompletionPart[]; done: number; total: number; ratio: number } {
   const maxOf = (t: GeneratorType) => GENERATORS[t].maxLevel ?? UPGRADES.maxLevel;
   const part = (label: string, items: CompletionItem[]): CompletionPart => ({
@@ -95,6 +97,11 @@ export function getCompletion(
         label: state.pets?.owned[p.id] ? p.name : '???',
         done: (state.pets?.owned[p.id]?.stage ?? 0) >= 3,
       })),
+    ),
+    // Achievements (0.65); bonus ones do not count
+    part(
+      'Achievements',
+      ACHIEVEMENTS.filter((a) => !a.bonus).map((a) => ({ id: `ach-${a.id}`, label: a.name, done: state.achievements?.[a.id] !== undefined })),
     ),
   ];
   const done = parts.reduce((s, p) => s + p.done, 0);

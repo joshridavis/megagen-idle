@@ -125,6 +125,13 @@ export interface PetsState {
   pets: { owned: Partial<Record<string, OwnedPet>>; active: string | null };
 }
 
+export interface AchievementsState {
+  /** Unlocked achievements with their unlock time (0.65). */
+  achievements: Record<string, number>;
+  /** Counters only achievements use. */
+  stats: { clicks: number; returns: number };
+}
+
 export type GameState = EnergyState &
   ResourceState &
   GeneratorState &
@@ -133,4 +140,5 @@ export type GameState = EnergyState &
   SettingsState &
   EventsState &
   ContractsState &
-  PetsState;
+  PetsState &
+  AchievementsState;
