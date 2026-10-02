@@ -27,6 +27,11 @@ import { advanceTime } from '../utils/simulation';
 import { buyPerk, canDeliver, claimContract, deliverContract, perkCost, updateContracts } from '../utils/contracts';
 import { CONTRACT_MILESTONES, PERK_IDS } from '../data/contracts';
 import { seededRng } from '../utils/rng';
+import { PETS } from '../data/pets';
+import { EVENTS_BY_ID } from '../data/events';
+import { addPet, canFeed, feedCost, feedPet, setActivePet, updatePets } from '../utils/pets';
+import { eventRatePerHour } from '../utils/randomEvents';
+import { deriveRates } from '../utils/simulation';
 
 export interface SimOptions {
   /** Simulated hours to run at most. */
@@ -186,6 +191,16 @@ function act(s: GameState, now: number): GameState {
         Object.entries(c.resources ?? {}).every(([rid, n]) => s.resources[rid as ResourceId] - (n ?? 0) >= (nextTier.resources[rid as ResourceId] ?? 0)));
     if (keepsTier) s = deliverContract(s, c.id);
   }
+  // 4c. pets (0.92): feed any pet that can grow when it keeps room-tier savings;
+  // keep the adult with the biggest energy-type bonus active
+  for (const def of PETS) {
+    const cost = feedCost(s, def.id);
+    if (cost === null || !canFeed(s, def.id)) continue;
+    const left = def.food === 'energy' ? s.energy - cost : s.resources[def.food] - cost;
+    const reserveFood = savingForRoom && nextTier ? (def.food === 'energy' ? nextTier.energy : (nextTier.resources[def.food] ?? 0)) : 0;
+    if (left >= reserveFood) s = feedPet(s, def.id, now);
+  }
+  if (s.pets.owned.cat) s = setActivePet(s, 'cat');
   // 5. room
   const tier = getNextRoomTier(s.expansionLevel);
   if (tier && s.roomCapacity - s.roomUsed < 10 && canExpandRoom(s)) s = expandRoom(s, undefined, now);
@@ -249,6 +264,12 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
     for (let n = 5; n <= s.contracts.done; n += 5) hit(`contracts5:${n}`, `${n} contracts`);
     for (const n of CONTRACT_MILESTONES) if (s.contracts.done >= n) hit(`contracts:${n}`, `${n} contracts completed`);
     if (PERK_IDS.every((id) => perkCost(s, id) === null)) hit('perks:all', 'Every contract perk bought');
+    for (const def of PETS) {
+      const pet = s.pets.owned[def.id];
+      if (pet) hit(`pet:${def.id}`, `Pet found: ${def.name}`);
+      if (pet && pet.stage >= 2) hit(`petYoung:${def.id}`, `${def.name} young`);
+      if (pet && pet.stage >= 3) hit(`petAdult:${def.id}`, `${def.name} fully grown`);
+    }
     for (const id of PRODUCER_IDS) if ((s.producers[id] ?? 0) > 0) hit(`producer:${id}`, `Has ${/^[AEIOU]/.test(PRODUCERS[id].name) ? 'an' : 'a'} ${PRODUCERS[id].name}`);
     for (let i = 1; i <= s.expansionLevel; i++) hit(`room:${i}`, `Room expansion ${i} of ${ROOM_TIERS.length}`);
     s.completedResearch.forEach((id, i) => {
@@ -270,6 +291,15 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
     t += o.stepSeconds * 1000;
     s = { ...advanceTime(s, o.stepSeconds, t).state, lastSavedTimestamp: t };
     s = updateContracts(s, t, rng).state;
+    // pets: condition finds and growth; event pets join at their expected time (no random events in the simulator)
+    const petsBefore = s.pets;
+    s = updatePets(s, t).state;
+    for (const def of PETS) {
+      if (def.find.kind !== 'event' || s.pets.owned[def.id]) continue;
+      const ev = EVENTS_BY_ID[def.find.eventId];
+      if ((t - T0) / 3_600_000 >= 1 / eventRatePerHour(ev)) s = addPet(s, def.id, t);
+    }
+    if (s.pets !== petsBefore) s = deriveRates(s);
   }
   const hours = (t - T0) / 3_600_000;
   const times = [0, ...milestones.map((m) => m.hours), hours].sort((a, b) => a - b);

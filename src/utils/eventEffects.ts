@@ -6,9 +6,14 @@ import { getProductionRates } from './resourceSystem';
 import { getBonuses } from './bonuses';
 import { formatNumber } from './format';
 import { RESOURCE_NAMES } from '../data/resources';
+import { PETS_BY_ID, type PetId } from '../data/pets';
+import { addPet } from './pets';
 
 /** Whether an event's extra condition holds. */
-export function meetsRequirement(def: EventDef, s: Pick<GameState, 'activeGenerators' | 'currentResearch' | 'resources' | 'producers'>): boolean {
+export function meetsRequirement(
+  def: EventDef,
+  s: Pick<GameState, 'activeGenerators' | 'currentResearch' | 'resources' | 'producers'> & Partial<Pick<GameState, 'pets'>>,
+): boolean {
   switch (def.requires) {
     case 'research-running':
       return s.currentResearch !== null;
@@ -18,6 +23,8 @@ export function meetsRequirement(def: EventDef, s: Pick<GameState, 'activeGenera
       return s.resources.naturalGas >= 1 || s.resources.oil >= 1;
     case 'coal-mine':
       return (s.producers.coalMine ?? 0) > 0;
+    case 'pet-missing':
+      return def.effect?.kind === 'find-pet' && !s.pets?.owned[def.effect.pet];
     default:
       return true;
   }
@@ -80,5 +87,7 @@ export function applyEventEffect(s: GameState, def: EventDef, now: number, rng: 
       }
       return { state: { ...s, resources }, text: lost.length ? `${def.text} −${lost.join(', −')}.` : def.text };
     }
+    case 'find-pet':
+      return { state: addPet(s, e.pet as PetId, now), text: `${def.text} New pet: ${PETS_BY_ID[e.pet as PetId]?.name}!` };
   }
 }

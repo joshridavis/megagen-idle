@@ -45,10 +45,12 @@ export type EventEffect =
   /** One random running generator switches off until the player turns it on. */
   | { kind: 'grid-fault' }
   /** Lose a share (capped by MAX_LOSS_FRACTION) of each listed resource. */
-  | { kind: 'lose-resource'; resources: ResourceId[]; fraction: number };
+  | { kind: 'lose-resource'; resources: ResourceId[]; fraction: number }
+  /** A pet joins you (0.92). Only rolls while that pet is not found yet. */
+  | { kind: 'find-pet'; pet: string };
 
 /** Extra conditions for an event to roll. */
-export type EventRequirement = 'research-running' | 'two-running' | 'gas-or-oil' | 'coal-mine';
+export type EventRequirement = 'research-running' | 'two-running' | 'gas-or-oil' | 'coal-mine' | 'pet-missing';
 
 /** At most this many events per live tick, and per return from time away. */
 export const MAX_EVENTS_PER_TICK = 1;
@@ -225,6 +227,26 @@ export const EVENTS: EventDef[] = [
     when: 'anytime',
     negative: true,
     effect: { kind: 'timed', minutes: 10, energy: -0.1 },
+  },
+  // ---- Pet finds (0.92): rare, and only until that pet is found. ----
+  {
+    id: 'firefly_swarm',
+    name: 'Firefly swarm',
+    text: 'A swarm of fireflies settled by your solar panels. It wants to stay!',
+    rarity: 'rare',
+    when: 'foreground',
+    requiresBuilt: [GeneratorType.SOLAR],
+    requires: 'pet-missing',
+    effect: { kind: 'find-pet', pet: 'firefly' },
+  },
+  {
+    id: 'stray_cat',
+    name: 'Stray cat',
+    text: 'A crackling stray cat wandered in and curled up by a generator.',
+    rarity: 'rare',
+    when: 'anytime',
+    requires: 'pet-missing',
+    effect: { kind: 'find-pet', pet: 'cat' },
   },
   // ---- Not random: the Grid Contracts boost reward (0.86) reuses the timed effects. ----
   {

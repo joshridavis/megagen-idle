@@ -18,7 +18,7 @@ export interface RollOptions {
   catchUp?: boolean;
 }
 
-type EventState = Pick<GameState, 'activeGenerators' | 'currentResearch' | 'resources' | 'producers'>;
+type EventState = Pick<GameState, 'activeGenerators' | 'currentResearch' | 'resources' | 'producers'> & Partial<Pick<GameState, 'pets'>>;
 
 /** Events that may happen now. */
 export function eligibleEvents(state: EventState, opts: RollOptions, events: EventDef[] = EVENTS): EventDef[] {
@@ -34,7 +34,8 @@ export function eligibleEvents(state: EventState, opts: RollOptions, events: Eve
 
 /** Average times per hour an event happens (0.85: effect events rarer, negative ones a little rarer still). */
 export function eventRatePerHour(e: EventDef): number {
-  return RARITY_PER_HOUR[e.rarity] * (e.effect ? EFFECT_RATE_FACTOR : 1) * (e.negative ? NEGATIVE_RATE_FACTOR : 1);
+  const effectFactor = e.effect && e.effect.kind !== 'find-pet' ? EFFECT_RATE_FACTOR : 1;
+  return RARITY_PER_HOUR[e.rarity] * effectFactor * (e.negative ? NEGATIVE_RATE_FACTOR : 1);
 }
 
 /** Chance that an event with this hourly rate happens at least once in `seconds`. */

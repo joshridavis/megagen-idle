@@ -51,6 +51,30 @@ import sightingCat from './sprites/events/cat.png';
 import sightingUfo from './sprites/events/ufo.png';
 import sightingWhale from './sprites/events/whale.png';
 import sightingMeteor from './sprites/events/meteor.png';
+import petHamster1 from './sprites/pets/hamster_1.png';
+import petHamster2 from './sprites/pets/hamster_2.png';
+import petHamster3 from './sprites/pets/hamster_3.png';
+import petFirefly1 from './sprites/pets/firefly_1.png';
+import petFirefly2 from './sprites/pets/firefly_2.png';
+import petFirefly3 from './sprites/pets/firefly_3.png';
+import petTortoise1 from './sprites/pets/tortoise_1.png';
+import petTortoise2 from './sprites/pets/tortoise_2.png';
+import petTortoise3 from './sprites/pets/tortoise_3.png';
+import petEel1 from './sprites/pets/eel_1.png';
+import petEel2 from './sprites/pets/eel_2.png';
+import petEel3 from './sprites/pets/eel_3.png';
+import petRobodog1 from './sprites/pets/robodog_1.png';
+import petRobodog2 from './sprites/pets/robodog_2.png';
+import petRobodog3 from './sprites/pets/robodog_3.png';
+import petCat1 from './sprites/pets/cat_1.png';
+import petCat2 from './sprites/pets/cat_2.png';
+import petCat3 from './sprites/pets/cat_3.png';
+import petBeetle1 from './sprites/pets/beetle_1.png';
+import petBeetle2 from './sprites/pets/beetle_2.png';
+import petBeetle3 from './sprites/pets/beetle_3.png';
+import petJellyfish1 from './sprites/pets/jellyfish_1.png';
+import petJellyfish2 from './sprites/pets/jellyfish_2.png';
+import petJellyfish3 from './sprites/pets/jellyfish_3.png';
 
 export const sprites = {
   energy_icon: energyIcon,
@@ -103,6 +127,30 @@ export const sprites = {
   sighting_ufo: sightingUfo,
   sighting_whale: sightingWhale,
   sighting_meteor: sightingMeteor,
+  pet_hamster_1: petHamster1,
+  pet_hamster_2: petHamster2,
+  pet_hamster_3: petHamster3,
+  pet_firefly_1: petFirefly1,
+  pet_firefly_2: petFirefly2,
+  pet_firefly_3: petFirefly3,
+  pet_tortoise_1: petTortoise1,
+  pet_tortoise_2: petTortoise2,
+  pet_tortoise_3: petTortoise3,
+  pet_eel_1: petEel1,
+  pet_eel_2: petEel2,
+  pet_eel_3: petEel3,
+  pet_robodog_1: petRobodog1,
+  pet_robodog_2: petRobodog2,
+  pet_robodog_3: petRobodog3,
+  pet_cat_1: petCat1,
+  pet_cat_2: petCat2,
+  pet_cat_3: petCat3,
+  pet_beetle_1: petBeetle1,
+  pet_beetle_2: petBeetle2,
+  pet_beetle_3: petBeetle3,
+  pet_jellyfish_1: petJellyfish1,
+  pet_jellyfish_2: petJellyfish2,
+  pet_jellyfish_3: petJellyfish3,
 } as const;
 
 export type SpriteId = keyof typeof sprites;

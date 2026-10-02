@@ -1,5 +1,6 @@
 import { GENERATOR_TYPES, GENERATORS, UPGRADES } from '../data/generators';
 import { CONTRACT_MILESTONES, PERK_IDS, PERKS } from '../data/contracts';
+import { PETS } from '../data/pets';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { RESEARCH } from '../data/research';
 import { ROOM_TIERS } from '../data/rooms';
@@ -29,7 +30,7 @@ export interface CompletionPart {
  * Overall = done / total over all entries; each part lists its entries for the completion log.
  */
 export function getCompletion(
-  state: Pick<GameState, 'completedResearch' | 'records' | 'expansionLevel' | 'producers'> & Partial<Pick<GameState, 'contracts'>>,
+  state: Pick<GameState, 'completedResearch' | 'records' | 'expansionLevel' | 'producers'> & Partial<Pick<GameState, 'contracts' | 'pets'>>,
 ): { parts: CompletionPart[]; done: number; total: number; ratio: number } {
   const maxOf = (t: GeneratorType) => GENERATORS[t].maxLevel ?? UPGRADES.maxLevel;
   const part = (label: string, items: CompletionItem[]): CompletionPart => ({
@@ -81,6 +82,19 @@ export function getCompletion(
           done: (state.contracts?.perks[id] ?? 0) > lv,
         })),
       ),
+    ),
+    // Energy pets (0.92)
+    part(
+      'Pets found',
+      PETS.map((p) => ({ id: `pet-${p.id}`, label: state.pets?.owned[p.id] ? p.name : '???', done: !!state.pets?.owned[p.id] })),
+    ),
+    part(
+      'Pets fully grown',
+      PETS.map((p) => ({
+        id: `pet-adult-${p.id}`,
+        label: state.pets?.owned[p.id] ? p.name : '???',
+        done: (state.pets?.owned[p.id]?.stage ?? 0) >= 3,
+      })),
     ),
   ];
   const done = parts.reduce((s, p) => s + p.done, 0);

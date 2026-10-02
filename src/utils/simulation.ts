@@ -4,6 +4,7 @@ import { SIM_STEP_SECONDS } from '../data/time';
 import { getBonuses, getEnergyBonuses } from './bonuses';
 import { getPlayerLevel } from './playerLevel';
 import { expireEffects, getEffectMods } from './effectMods';
+import { withPetMods } from './pets';
 import { calculateEnergyRate } from './energyGeneration';
 import { completeResearch, getGrantedProducers, researchFinishTime } from './researchSystem';
 import type { ResourceId, GameState } from '../types/state';
@@ -47,7 +48,7 @@ export function advanceTime(
     const effects = expireEffects(s.activeEffects, stepStart);
     if (effects !== s.activeEffects) s = deriveRates({ ...s, activeEffects: effects });
     const bonuses = getBonuses(s.completedResearch);
-    const produced = accrueResources(s.resources, s.producers, dt, bonuses, getEffectMods(s.activeEffects));
+    const produced = accrueResources(s.resources, s.producers, dt, bonuses, withPetMods(getEffectMods(s.activeEffects), s));
     const fuel = burnFuel(produced, s.activeGenerators, dt, bonuses);
     s = { ...s, resources: fuel.resources, activeGenerators: fuel.generators };
     if (fuel.deactivated.length) {
@@ -82,7 +83,7 @@ function finishResearch(s: GameState, now: number, report: TimeReport): GameStat
  * generators and research bonuses. The single place these are calculated.
  */
 export function deriveRates(state: GameState): GameState {
-  const energyPerSecond = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state), getEffectMods(state.activeEffects));
+  const energyPerSecond = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state), withPetMods(getEffectMods(state.activeEffects), state));
   const granted = getGrantedProducers(state.completedResearch);
   const roomUsed =
     state.activeGenerators.reduce((sum, g) => sum + (GENERATORS[g.type]?.roomCost ?? 0), 0) +

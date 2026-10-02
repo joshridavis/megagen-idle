@@ -112,6 +112,19 @@ export interface ContractsState {
   };
 }
 
+/** A pet the player has found (0.92). */
+export interface OwnedPet {
+  /** 1 baby, 2 young, 3 adult. */
+  stage: number;
+  /** While growing: when it reaches the next stage (epoch ms). */
+  growUntil: number | null;
+  foundAt: number;
+}
+
+export interface PetsState {
+  pets: { owned: Partial<Record<string, OwnedPet>>; active: string | null };
+}
+
 export type GameState = EnergyState &
   ResourceState &
   GeneratorState &
@@ -119,4 +132,5 @@ export type GameState = EnergyState &
   RoomState &
   SettingsState &
   EventsState &
-  ContractsState;
+  ContractsState &
+  PetsState;

@@ -6,6 +6,7 @@ import { LIVE_TICK_MAX_SECONDS, WELCOME_BACK_MIN_SECONDS } from '../../data/time
 import type { Resources } from '../../types/state';
 import { buildAwayReport, levelsGained, takeAwaySnapshot } from '../../utils/awayReport';
 import { deriveRates } from '../../utils/simulation';
+import { petClickBonus } from '../../utils/pets';
 import type { Celebration } from '../types';
 import { pickSaved } from '../migrations';
 import type { SliceCreator, TransientState } from '../types';
@@ -94,7 +95,7 @@ export const createEnergySlice =
     clickEnergy: () =>
       set(
         (s) => {
-          const gained = getClickValue(s.completedResearch, s.energyPerSecond);
+          const gained = getClickValue(s.completedResearch, s.energyPerSecond, petClickBonus(s));
           const lifetimeEnergy = s.lifetimeEnergy + gained;
           const next = { energy: s.energy + gained, lifetimeEnergy, ...withCelebrations(s, [], lifetimeEnergy, Date.now()) };
           // a level-up changes the energy bonus

@@ -5,6 +5,7 @@ import type { LogEntry } from '../utils/eventLog';
 import type { LogActions } from './slices/logSlice';
 import type { EventActions } from './slices/eventSlice';
 import type { ContractActions } from './slices/contractSlice';
+import type { PetActions } from './slices/petSlice';
 import type { EnergyActions } from './slices/energySlice';
 import type { ResourceActions } from './slices/resourceSlice';
 import type { GeneratorActions } from './slices/generatorSlice';
@@ -66,6 +67,7 @@ export type GameStore = GameState &
   LogActions &
   EventActions &
   ContractActions &
+  PetActions &
   CoreActions;
 
 /** Slice creator typed for the combined store with devtools + persist. */

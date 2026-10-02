@@ -28,6 +28,7 @@ export function tick(now = Date.now(), maxSeconds = MAX_OFFLINE_SECONDS, catchUp
   const visible = typeof document === 'undefined' || document.visibilityState === 'visible';
   useStore.getState().rollRandomEvents(delta, { foreground: visible && !catchUp, catchUp }, Math.random, now);
   useStore.getState().tickContracts(now);
+  useStore.getState().tickPets(now);
   return delta;
 }
 

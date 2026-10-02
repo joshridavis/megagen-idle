@@ -87,6 +87,15 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: 'pets',
+    title: 'Pets',
+    icon: 'pet_hamster_3',
+    paragraphs: [
+      'Eight energy pets can join you. Each one is found its own way: a player level, a building, a research, contracts, or a rare event. Unfound pets show a hint.',
+      'Feed a pet energy or a resource and it grows over a few hours, from baby to young to adult, even while you are away. Your active pet gives a bonus that grows with it; change the active pet at any time.',
+    ],
+  },
+  {
     id: 'level',
     title: 'Player level',
     icon: 'research_check',
