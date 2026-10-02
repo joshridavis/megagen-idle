@@ -30,12 +30,17 @@ export interface WelcomeBackReport {
   completedResearch: string[];
   /** IDs of generators switched off for lack of fuel. */
   outOfFuel: string[];
+  /** Player level before and after, when it rose while away (0.90). */
+  levels?: { from: number; to: number };
 }
+
+/** A research id, or a player level reached (0.90). */
+export type Celebration = { kind?: 'research'; id: string; at: number } | { kind: 'level'; level: number; at: number };
 
 /** Transient UI events: never saved. */
 export interface TransientState {
-  /** Research completed during live play, waiting to be celebrated (oldest first). */
-  celebrations: { id: string; at: number }[];
+  /** Live research completions and player level-ups waiting to be celebrated (oldest first). */
+  celebrations: Celebration[];
   welcomeBack: WelcomeBackReport | null;
   /** Set while the tab is hidden (0.79). */
   awaySnapshot: AwaySnapshot | null;

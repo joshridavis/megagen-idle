@@ -4,9 +4,10 @@ import { STARTING_RESOURCES } from '../data/resources';
 import type { Generator } from '../types/generator';
 import type { GameState } from '../types/state';
 import { recordsFromGenerators } from '../utils/records';
+import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 9;
+export const SAVE_VERSION = 10;
 
 type AnySave = Record<string, unknown>;
 
@@ -42,6 +43,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   7: (save) => ({ ...save, lifetimeEnergy: Math.max(0, Number(save.energy) || 0) }),
   // 0.84: random events seen (empty) and the reduce-motion setting (filled from defaults below).
   8: (save) => ({ ...save, seenEvents: {} }),
+  // 0.40: players with an existing save have already learned the basics: no walkthrough.
+  9: (save) => ({ ...save, settings: { ...(save.settings as object), tutorial: { step: TUTORIAL_DONE, replay: false } } }),
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */

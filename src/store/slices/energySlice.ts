@@ -4,7 +4,9 @@ import { advanceTime } from '../../utils/simulation';
 import { RESOURCE_IDS } from '../../data/resources';
 import { LIVE_TICK_MAX_SECONDS, WELCOME_BACK_MIN_SECONDS } from '../../data/time';
 import type { Resources } from '../../types/state';
-import { buildAwayReport, takeAwaySnapshot } from '../../utils/awayReport';
+import { buildAwayReport, levelsGained, takeAwaySnapshot } from '../../utils/awayReport';
+import { deriveRates } from '../../utils/simulation';
+import type { Celebration } from '../types';
 import { pickSaved } from '../migrations';
 import type { SliceCreator, TransientState } from '../types';
 
@@ -17,6 +19,25 @@ export interface EnergyActions {
   markVisible: (now?: number) => void;
   /** Manual click: adds the click value (research can boost it later). */
   clickEnergy: () => void;
+}
+
+/**
+ * Queues live celebrations: finished research, then the player level reached
+ * (0.90). Several quick level-ups show as one, for the highest level.
+ */
+function withCelebrations(
+  s: { celebrations: Celebration[]; lifetimeEnergy: number },
+  research: string[],
+  lifetimeAfter: number,
+  now: number,
+): { celebrations?: Celebration[] } {
+  const levels = levelsGained(s.lifetimeEnergy, lifetimeAfter);
+  const added: Celebration[] = research.map((id) => ({ id, at: now }));
+  if (!added.length && !levels) return {};
+  // keep the one on screen (index 0); later pending level-ups merge into the new one
+  const queue = levels ? s.celebrations.filter((c, i) => i === 0 || c.kind !== 'level') : s.celebrations;
+  if (levels) added.push({ kind: 'level', level: levels.to, at: now });
+  return { celebrations: [...queue, ...added] };
 }
 
 export const createEnergySlice =
@@ -56,6 +77,7 @@ export const createEnergySlice =
                     ) as Resources,
                     completedResearch: report.completedResearch,
                     outOfFuel: report.deactivated,
+                    levels: levelsGained(s.lifetimeEnergy, state.lifetimeEnergy),
                   },
                 }
               : {};
@@ -63,9 +85,7 @@ export const createEnergySlice =
             ...pickSaved(state),
             ...welcome,
             lastSavedTimestamp: now,
-            ...(live && report.completedResearch.length
-              ? { celebrations: [...s.celebrations, ...report.completedResearch.map((id) => ({ id, at: now }))] }
-              : {}),
+            ...(live ? withCelebrations(s, report.completedResearch, state.lifetimeEnergy, now) : {}),
           };
         },
         undefined,
@@ -75,7 +95,10 @@ export const createEnergySlice =
       set(
         (s) => {
           const gained = getClickValue(s.completedResearch, s.energyPerSecond);
-          return { energy: s.energy + gained, lifetimeEnergy: s.lifetimeEnergy + gained };
+          const lifetimeEnergy = s.lifetimeEnergy + gained;
+          const next = { energy: s.energy + gained, lifetimeEnergy, ...withCelebrations(s, [], lifetimeEnergy, Date.now()) };
+          // a level-up changes the energy bonus
+          return next.celebrations ? { ...next, ...deriveRates({ ...pickSaved(s), ...next }) } : next;
         },
         undefined,
         'energy/click',

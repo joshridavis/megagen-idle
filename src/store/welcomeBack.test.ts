@@ -1,8 +1,11 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it , vi } from 'vitest';
 import { createInitialState } from '../data/initialState';
 import { GeneratorType } from '../types/generator';
 import { deriveRates } from '../utils/simulation';
 import { useStore } from '.';
+
+// These tests check other mechanics at fixed rates: no player level bonus (0.90).
+vi.mock('../data/playerLevel', async (orig) => ({ ...(await orig<object>()), ENERGY_BONUS_PER_LEVEL: 0 }));
 
 const T0 = 1_700_000_000_000;
 

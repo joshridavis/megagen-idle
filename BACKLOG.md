@@ -59,8 +59,15 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.66 Perfection (completion) tracker, visible to the player (moved up: playtest 10 feedback)
 0. 0.38 Event log and notifications (moved up: needed by random events)
 0. 0.84 Random events: framework and sightings (playtest 10 feedback) → CHECKPOINT
+0. 0.89 Fix: short numbers lost their zeros (playtest 11 bug)
+0. 0.93 Fix: research chains jump rows in the tree (playtest 11 bug)
+0. 0.94 Research tree lines as a trunk with branches (playtest 11 feedback)
+0. 0.90 Player level reward, celebration and welcome-back line (playtest 11 feedback)
+0. 0.91 Sightings stay longer on screen (playtest 11 feedback)
+0. 0.40 First-run onboarding and in-game guide (moved up and widened: playtest 11 feedback) → CHECKPOINT
 0. 0.85 Random events with effects (playtest 10 feedback)
 0. 0.86 Grid Contracts: a second activity (playtest 10 feedback)
+0. 0.92 Energy pets: collect and grow (playtest 11 feedback)
 0. 0.87 Multi-platform release plan: website, Steam, mobile (playtest 10 feedback)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
@@ -87,7 +94,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 23. 0.34 Late-game fictional generators
 24. (0.38 moved to the top, playtest 10)
 25. 0.39 Statistics panel → CHECKPOINT 5
-26. 0.40 First-run onboarding
+26. (0.40 moved to the top, playtest 11)
 27. 0.41 Responsive layout and keyboard access
 28. 0.42 Performance pass
 29. 0.43 Visual polish pass
@@ -376,6 +383,17 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Data and logic:** all numbers go in `src/data/contracts.ts`; game rules are pure functions with tests.
 **Acceptance:** contracts generate, progress, complete and expire correctly online and offline (unit tests); the reward choice works; completion includes the new parts; the simulator models contracts and reports the hours they add.
 
+### 0.92 — Energy pets: collect and grow — CODE — Not started
+**Goal:** apply playtest 11 feedback: another light activity besides contracts. The player collects pets and grows them. Pets fit the energy theme (no dragons and the like) and stay simple.
+**Details:**
+- **Pets:** about 8 pets on the energy theme, for example a hamster on a wheel, an electric eel, a firefly swarm, a solar tortoise, a wind-up robot dog, a static-charged cat, a glowing jellyfish and a magnetic beetle.
+- **Finding pets:** each is found through a rare event (0.84 framework), a contract reward (0.86), or a milestone such as building a type or reaching a player level.
+- **Growing:** a pet grows through 3 stages (baby, young, adult) by being "fed" energy or a resource over real time, offline too.
+- **Bonus:** one active pet gives a small themed bonus that grows with its stage, for example the eel +2/4/6% hydro and tidal output.
+- **Display and completion:** a Pets panel shows the collection, with unfound pets as silhouettes. Completion counts pets found and pets fully grown.
+- **Data and sprites:** all numbers go in `src/data/pets.ts`; sprites (3 stages each) go through the manifest and the generic script.
+**Acceptance:** finding, feeding and growing work online and offline (unit tests); one active pet's bonus is applied and shown; completion includes pets; save migration.
+
 ### 0.87 — Multi-platform release plan: website, Steam, mobile — CODE — Not started
 **Goal:** apply playtest 10 feedback: the owner wants to release on a dedicated website, on Steam and on mobile, with Melvor Idle-style saves across devices. This item makes a plan so the rollout goes smoothly. It builds no packages.
 **Details:** write `docs/RELEASE_PLAN.md` covering:
@@ -389,6 +407,50 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Timeline:** an order of steps, each with its blocking owner action.
 - **Code now:** also add the `src/platform/` interface with the web implementation only, so later wrappers plug in without touching game logic.
 **Acceptance:** the plan document is reviewed in the PR; the platform interface is in place with web implementation and tests; nothing needs secrets or platform tooling.
+
+### 0.89 — Fix: short numbers lost their zeros — CODE — Done
+**Goal:** fix the playtest 11 bug: 360,722 energy showed as "36K" in short notation.
+**Details:** `threeSig` in `src/utils/format.ts` trimmed trailing zeros even when there was no decimal point. So "360" became "36", and likewise 100K showed as "1K" and 200M as "2M". Trim zeros only after a decimal point.
+**Acceptance:** regression tests for round values (360K, 100K, 50K, 200M, 2e17) plus a sweep check that short notation always agrees with the full number to 3 significant digits.
+
+### 0.93 — Fix: research chains jump rows in the tree — CODE — Done
+**Goal:** fix the playtest 11 bug: Geared Crank, Kinetic Capture and Grid Tap were drawn on the Hydropower row instead of continuing Flywheel's line.
+**Details:** the layout packed every column from the top, so a lone child moved to the first free row. Now each node takes the free row nearest the average row of its prerequisites.
+**Acceptance:** the click chain stays on one row (test); a lone child sits on its parent's row (test); no overlaps.
+
+### 0.94 — Research tree lines as a trunk with branches — CODE — Done
+**Goal:** apply playtest 11 feedback (the owner's sketch): a parent's lines should leave as one trunk that splits into its children, not as a fan of curves.
+**Details:** lines between neighbouring columns are drawn squared off, with rounded corners: out of the parent, along a vertical trunk in the gap, then into each child. When several parents in one column have bent lines, each gets its own trunk position; lower parents take the left positions, so lines do not share or cross trunks. Lines that skip columns or cross branches stay as faint curves.
+**Acceptance:** a screenshot check of the whole tree shows no shared trunks; build and tests pass.
+
+### 0.90 — Player level reward, celebration and welcome-back line — CODE — Done
+**Goal:** apply playtest 11 feedback on player levels.
+**Details:**
+- **Reward:** each player level above 1 gives +0.1% energy from all generators. The value and a cap are in `src/data/playerLevel.ts`. It shows in the energy breakdown tooltip and the Bonuses panel as "Player level N".
+- **Celebration:** a level-up during live play gets a celebration like "Research complete!", reusing that component and its queue; the small badge goes.
+- **Welcome back:** the welcome-back summary after time away lists the levels gained, for example "Player level 12 → 15".
+- **Simulator:** it applies the bonus.
+**Acceptance:** the bonus is applied in the energy rate and the breakdown (unit tests); a live level-up queues one celebration per level reached; the away report includes levels gained (tests); the simulator still meets its targets.
+**Notes:**
+- **Bonus:** applied through `getEnergyBonuses` (research plus level) in `deriveRates`, on the generator cards and in the breakdown and Bonuses panel. Rates are re-derived when a level is reached (tick or click).
+- **Celebration:** the research celebration now also shows "Level up!". Several quick level-ups merge into one for the highest level. The small badge is gone.
+- **Welcome back:** shows "Player level A → B".
+- **Tests:** tests of other mechanics turn the bonus off with `vi.mock`.
+- **Simulator:** 100% in about 66.5 h (was 81.5 h).
+
+### 0.91 — Sightings stay longer on screen — CODE — Done
+**Goal:** apply playtest 11 feedback: the owner's game recorded an Aurora that the owner never noticed, so sightings should be harder to miss.
+**Details:**
+- **Duration:** every sighting lasts at least 15 seconds, and moving ones cross the screen more slowly (durations in `src/data/events.ts`).
+- **Hidden tab:** a sighting that rolls while the tab is hidden waits until the tab is visible again, so it is not played to nobody.
+- **Notice afterwards:** after a sighting, a small "✨ You spotted: Aurora" notice stays in the event log and as a toast, so a player who looked away still learns about it.
+- **Frequency:** unchanged (owner: about one per hour of on-screen play is right).
+**Acceptance:** duration minimum enforced by a data test; a sighting started while hidden is shown only when visible (test); the toast appears for sightings.
+**Notes:**
+- **Duration:** every sighting lasts 15–20 s (`MIN_SIGHTING_MS`), so moving ones cross more slowly. The shooting star and meteor shower show several streaks over that time.
+- **Hidden tab:** the timer runs only while the page is visible, so a sighting waits for the player to return.
+- **Notice:** a "You spotted: …!" toast appears when one ends.
+- **Frequency:** unchanged.
 
 ### 0.48 — Offline cap to 24 hours — CODE — Done
 **Goal:** apply playtest 1 feedback: offline gains should be credited for up to 24 hours, not 8.
@@ -559,10 +621,17 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** lifetime energy, current rate, per-generator and per-type contribution with percentages, resource rates, total play time, time of last offline gain. Derived from selectors, with nothing new persisted beyond lifetime totals.
 **Acceptance:** numbers match the simulation within rounding; unit tests for the aggregations.
 
-### 0.40 — First-run onboarding — CODE — Not started
-**Goal:** a new player understands the loop without being told.
-**Details:** on a fresh save, a short, skippable sequence: click to make energy, then build your first generator, then start your first research. Highlights the relevant UI, one step at a time, dismissible, never repeats once completed (stored in settings). No modal walls of text.
-**Acceptance:** appears only on a fresh save; skipping works; reset brings it back; smoke test covers the first step.
+### 0.40 — First-run onboarding and in-game guide — CODE — Done
+**Goal:** a new player understands the loop without being told. Playtest 11: the game also needs player info, like a tutorial or game guide.
+**Details:**
+- **Onboarding:** on a fresh save, a short, skippable sequence: click to make energy, then build your first generator, then start your first research. It highlights the relevant UI, one step at a time, is dismissible, and never repeats once completed (stored in settings). No modal walls of text.
+- **Guide:** a **Guide** (❓) tab or panel with short illustrated sections. It covers energy and clicking, generators and room, fuel, producers and resources, research and the research level, upgrades, offline progress (24 hours), player level, completion, random events and saves. The text is written in data (`src/data/guide.ts`) so it is easy to update as features arrive.
+- **Replay:** a "Replay the tutorial" button in Settings.
+**Acceptance:** onboarding appears only on a fresh save; skipping works; reset and replay bring it back; every guide section renders; a smoke test covers the first onboarding step.
+**Notes:**
+- **Walkthrough:** 4 steps (click, build a Solar Panel, start research, "you're set"). A card under the click button highlights the target with a pulsing outline, using `data-tutorial` attributes. Steps move on when done; on a replay they move with "Next".
+- **Saving:** the step is in `settings.tutorial` (save version 10). Older saves skip the walkthrough; Reset brings it back.
+- **Guide:** a new Guide tab with 10 sections from `src/data/guide.ts`, plus a "Replay the tutorial" button there and in Settings.
 
 ### 0.41 — Responsive layout and keyboard access — CODE — Not started
 **Goal:** the game is usable on a phone browser and by keyboard.
@@ -655,4 +724,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 8 (v0.8.0) | 0.75 | 2026-10-01 | Add the save-on-close safeguard. Room bar looks good (animation not seen yet). Research chip location odd: make it float at the bottom without hiding the version. 8 room tiers fine for now. +15% all-producer output sounds useful. The tree should start from 3 basic research, one starting resource upgrades. Long-term target: at least 200 hours of play for 100% completion. | 0.76-0.78; 200 h target added to 0.35 and 0.47 |
 | 9 (v0.9.0) | 0.32 | 2026-10-01 | Research tree lines hard to follow: split into the three starting branches. Bug: "You were away for 1m 1s" after switching tabs. Bug: build-card tooltip shows over the card above and is unreadable. 100% completion must include building every generator type and upgrading each to max level. | 0.79-0.82 |
 | 10 (v0.10.0) | 0.79, 0.80, 0.81, 0.82, 0.33 | 2026-10-01 | Branch layout is right. Oil and Nuclear feel like a real step up; uranium pace and level 9/10 gates fine for now. Reach 200 h with a mix of content (larger share) and slower pacing; content should include a new mode or activity, not only research and machines. 100% completion must be visible to the player (like Melvor Idle). More click-power research. Random events: a large variety, some cosmetic (e.g. a spaceship, foreground only), some with positive or negative effects (some also while idle); all rare, some much rarer. Saves like Melvor Idle: automatic cloud and local saves, load either on any device. Future release on Steam, a dedicated website and mobile. Report hours to 100% every version. Player levels based on lifetime energy. | 0.83-0.88; 0.66 and 0.38 moved up; 0.67, 0.68 and 0.47 updated |
-| 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-01 | (waiting for owner) | |
+| 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-02 | Player level reward: yes but small, about +0.1% per level. About one sighting per hour is right for the common ones. Planned effect events approved. Grid Contracts fine; another activity idea: collect and grow pets that fit the energy theme. An Aurora was recorded as seen but went unnoticed: sightings should stay longer. Bug: 360,722 energy showed as 36K. Level-up needs a celebration like research, and levels gained belong in the welcome-back summary. Add player info: tutorial or game guide. Click research chain drawn on the wrong row. Tree lines should leave each parent as one trunk that splits into its children (sketch). The guide is meant to teach new players how the game works. | 0.89-0.94; 0.40 moved up and widened |
+| 12 (v0.12.0) | 0.89, 0.93, 0.94, 0.90, 0.91, 0.40 | 2026-10-02 | (waiting for owner) | |

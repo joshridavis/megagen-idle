@@ -17,12 +17,13 @@ const LABEL: Record<BonusType, string> = {
   fuelEfficiency: '🔥 Less fuel burned',
 };
 
-const pct = (n: number) => `${Math.round(n * 100)}%`;
+const pct = (n: number) => `${+(n * 100).toFixed(1)}%`;
 
 /** Lists every active permanent bonus, its total and where it comes from. */
 export default function BonusesPanel() {
   const completed = useStore((s) => s.completedResearch);
-  const lines = useMemo(() => getBonusSummary(completed), [completed]);
+  const lifetime = useStore((s) => s.lifetimeEnergy);
+  const lines = useMemo(() => getBonusSummary(completed, lifetime), [completed, lifetime]);
   return (
     <section aria-label="Bonuses" className="mb-4 rounded-lg bg-slate-800 p-3">
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Active bonuses</h2>

@@ -7,5 +7,8 @@
 export const LEVEL_SCALE = 0.05;
 export const LEVEL_EXPONENT = 5.3;
 export const MAX_PLAYER_LEVEL = 99;
-/** How long the level-up badge stays visible. */
-export const LEVEL_UP_MS = 4000;
+
+/** Each player level above 1 adds this much energy from all generators (playtest 11: about 0.1%). */
+export const ENERGY_BONUS_PER_LEVEL = 0.001;
+/** Upper limit of the player level energy bonus. */
+export const PLAYER_LEVEL_BONUS_CAP = 0.1;

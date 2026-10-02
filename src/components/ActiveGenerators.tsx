@@ -3,7 +3,7 @@ import { sprites } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { useStore } from '../store';
 import type { Generator } from '../types/generator';
-import { getBonuses } from '../utils/bonuses';
+import { getEnergyBonuses } from '../utils/bonuses';
 import { getGeneratorOutput } from '../utils/energyGeneration';
 import { getUpgradeBlock, getUpgradeCost, maxLevel, upgradeGain } from '../utils/generatorSystem';
 import CostList from './CostList';
@@ -17,7 +17,7 @@ function UpgradeButton({ generatorId, name }: { generatorId: string; name: strin
   const upgrade = useStore((s) => s.upgradeGenerator);
   const fmt = useNumberFormat();
   const g = state.activeGenerators.find((x) => x.id === generatorId)!;
-  const bonuses = getBonuses(state.completedResearch);
+  const bonuses = getEnergyBonuses(state);
   const cost = getUpgradeCost(g.type, g.level, bonuses);
   const block = getUpgradeBlock(state, generatorId, bonuses);
   const gain = upgradeGain(g.type, g.level) * (1 + bonuses.globalEnergy);
@@ -63,7 +63,8 @@ export default function ActiveGenerators() {
   const [dragId, setDragId] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const completed = useStore((s) => s.completedResearch);
-  const bonuses = useMemo(() => getBonuses(completed), [completed]);
+  const lifetime = useStore((s) => s.lifetimeEnergy);
+  const bonuses = useMemo(() => getEnergyBonuses({ completedResearch: completed, lifetimeEnergy: lifetime }), [completed, lifetime]);
   const fmt = useNumberFormat();
   return (
     <section aria-label="Your generators" className="w-full">

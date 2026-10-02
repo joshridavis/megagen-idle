@@ -34,7 +34,8 @@ export interface TreeLayout {
  * are stacked as horizontal bands, in data order of their roots. A node's
  * column is one past its deepest prerequisite (globally, so every edge points
  * right). Inside a band, a column is ordered by the average row of in-band
- * prerequisites (fewer crossings), then level requirement, then data order.
+ * prerequisites, then level requirement, then data order; each node then takes
+ * the free row nearest that average (playtest 11: chains stay on one line).
  * Unknown prerequisites are ignored; cycles are guarded (rejected in 0.45).
  */
 export function computeResearchLayout(nodes: LayoutInput[]): TreeLayout {
@@ -88,11 +89,19 @@ export function computeResearchLayout(nodes: LayoutInput[]): TreeLayout {
           return { n, index, bary };
         })
         .sort((a, b) => a.bary - b.bary || a.n.requiredLevel - b.n.requiredLevel || a.index - b.index);
-      column.forEach(({ n }, r) => {
+      // Each node takes the free row nearest its prerequisites' rows, so a
+      // lone child stays beside its parent instead of jumping to the top.
+      const taken = new Set<number>();
+      column.forEach(({ n, bary }) => {
+        const want = bary < 0 ? 0 : Math.round(bary);
+        let r = want;
+        for (let d = 0; taken.has(r); d++) r = want + (d % 2 ? -(d + 1) / 2 : d / 2 + 1);
+        if (r < 0) for (r = 0; taken.has(r); r++);
+        taken.add(r);
         local[n.id] = r;
         positions[n.id] = { col: c, row: nextRow + r, band: bandIndex };
+        rows = Math.max(rows, r + 1);
       });
-      rows = Math.max(rows, column.length);
     }
     bands.push({ root, startRow: nextRow, rows });
     nextRow += rows;

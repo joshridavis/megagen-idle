@@ -1,7 +1,8 @@
 import { GENERATORS } from '../data/generators';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { SIM_STEP_SECONDS } from '../data/time';
-import { getBonuses } from './bonuses';
+import { getBonuses, getEnergyBonuses } from './bonuses';
+import { getPlayerLevel } from './playerLevel';
 import { calculateEnergyRate } from './energyGeneration';
 import { completeResearch, getGrantedProducers, researchFinishTime } from './researchSystem';
 import type { ResourceId, GameState } from '../types/state';
@@ -50,7 +51,9 @@ export function advanceTime(
       for (const id of fuel.depleted) if (!report.depleted.includes(id)) report.depleted.push(id);
     }
     const gained = s.energyPerSecond * dt;
+    const levelBefore = getPlayerLevel(s.lifetimeEnergy ?? 0).level;
     s = { ...s, energy: s.energy + gained, lifetimeEnergy: (s.lifetimeEnergy ?? 0) + gained };
+    if (getPlayerLevel(s.lifetimeEnergy).level !== levelBefore) s = deriveRates(s); // level bonus changed
     report.energyGained += gained;
     report.seconds += dt;
     s = finishResearch(s, endTime - left * 1000, report);
@@ -74,7 +77,7 @@ function finishResearch(s: GameState, now: number, report: TimeReport): GameStat
  * generators and research bonuses. The single place these are calculated.
  */
 export function deriveRates(state: GameState): GameState {
-  const energyPerSecond = calculateEnergyRate(state.activeGenerators, getBonuses(state.completedResearch));
+  const energyPerSecond = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state));
   const granted = getGrantedProducers(state.completedResearch);
   const roomUsed =
     state.activeGenerators.reduce((sum, g) => sum + (GENERATORS[g.type]?.roomCost ?? 0), 0) +

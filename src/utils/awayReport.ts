@@ -1,5 +1,6 @@
 import { RESOURCE_IDS } from '../data/resources';
 import type { GameState, Resources } from '../types/state';
+import { getPlayerLevel } from './playerLevel';
 
 /** State captured when the tab was hidden (0.79). */
 export interface AwaySnapshot {
@@ -9,6 +10,14 @@ export interface AwaySnapshot {
   completedResearch: string[];
   /** Generators already switched off for lack of fuel when hidden. */
   outOfFuel: string[];
+  lifetimeEnergy: number;
+}
+
+/** Levels gained between two lifetime energy totals, or undefined if none. */
+export function levelsGained(before: number, after: number): { from: number; to: number } | undefined {
+  const from = getPlayerLevel(before).level;
+  const to = getPlayerLevel(after).level;
+  return to > from ? { from, to } : undefined;
 }
 
 export function takeAwaySnapshot(s: GameState, now: number): AwaySnapshot {
@@ -18,6 +27,7 @@ export function takeAwaySnapshot(s: GameState, now: number): AwaySnapshot {
     resources: { ...s.resources },
     completedResearch: [...s.completedResearch],
     outOfFuel: s.activeGenerators.filter((g) => g.outOfFuel && !g.isActive).map((g) => g.id),
+    lifetimeEnergy: s.lifetimeEnergy,
   };
 }
 
@@ -31,5 +41,6 @@ export function buildAwayReport(snap: AwaySnapshot, s: GameState, now: number) {
     resourcesGained: Object.fromEntries(RESOURCE_IDS.map((id) => [id, s.resources[id] - snap.resources[id]])) as Resources,
     completedResearch: s.completedResearch.filter((id) => !snap.completedResearch.includes(id)),
     outOfFuel: s.activeGenerators.filter((g) => g.outOfFuel && !g.isActive && !snap.outOfFuel.includes(g.id)).map((g) => g.id),
+    levels: levelsGained(snap.lifetimeEnergy, s.lifetimeEnergy),
   };
 }

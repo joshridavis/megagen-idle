@@ -22,6 +22,7 @@ export default function SettingsPanel() {
   const notation = useStore((s) => s.settings.notation);
   const reduceMotion = useStore((s) => s.settings.reduceMotion);
   const setReduceMotion = useStore((s) => s.setReduceMotion);
+  const replayTutorial = useStore((s) => s.replayTutorial);
   const setNotation = useStore((s) => s.setNotation);
   const resetGame = useStore((s) => s.resetGame);
   const [resetStep, setResetStep] = useState<0 | 1 | 2>(0);
@@ -93,6 +94,13 @@ export default function SettingsPanel() {
             </span>
           </span>
         </label>
+      </div>
+      <div className="rounded-lg bg-slate-800 p-4">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Tutorial</h2>
+        <button type="button" onClick={replayTutorial} className="min-h-11 rounded bg-slate-600 px-4 py-2 font-semibold hover:bg-slate-500">
+          Replay the tutorial
+        </button>
+        <p className="mt-2 text-xs text-slate-400">The Guide tab explains every part of the game.</p>
       </div>
       <div className="rounded-lg bg-slate-800 p-4">
         <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-400">Save</h2>

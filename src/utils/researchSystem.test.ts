@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it , vi } from 'vitest';
 import { GENERATORS } from '../data/generators';
 import { createInitialState } from '../data/initialState';
 import { BONUS_CAPS, RESEARCH, RESEARCH_BY_ID } from '../data/research';
@@ -18,6 +18,9 @@ import {
   startResearch,
 } from './researchSystem';
 import { advanceTime } from './simulation';
+
+// These tests check other mechanics at fixed rates: no player level bonus (0.90).
+vi.mock('../data/playerLevel', async (orig) => ({ ...(await orig<object>()), ENERGY_BONUS_PER_LEVEL: 0 }));
 
 const T0 = 1_700_000_000_000;
 const solar = { id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 };

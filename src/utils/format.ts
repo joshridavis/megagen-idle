@@ -23,7 +23,9 @@ export const SCIENTIFIC_THRESHOLD = 1e15;
 function threeSig(x: number): string {
   const digits = x >= 100 ? 0 : x >= 10 ? 1 : 2;
   const f = 10 ** digits;
-  return (Math.floor(x * f + 1e-9) / f).toFixed(digits).replace(/\.?0+$/, '');
+  const text = (Math.floor(x * f + 1e-9) / f).toFixed(digits);
+  // trim zeros after the decimal point only: "1.50" -> "1.5", but "360" stays "360"
+  return digits ? text.replace(/\.?0+$/, '') : text;
 }
 
 function scientific(abs: number): string {

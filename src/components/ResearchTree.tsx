@@ -37,6 +37,26 @@ export default function ResearchTree() {
   const width = PAD * 2 + layout.cols * NODE_W + Math.max(0, layout.cols - 1) * GAP_X;
   const height = PAD * 2 + layout.bands.length * BAND_HEAD + layout.rows * NODE_H + Math.max(0, layout.rows - 1) * GAP_Y;
   const current = state.currentResearch;
+  // Each parent with a bent line gets its own trunk position in the gap, so two
+  // parents in one column never share a vertical line (playtest 11).
+  const trunkSlot = useMemo(() => {
+    const parentsByCol = new Map<number, string[]>();
+    for (const e of layout.edges) {
+      const a = layout.positions[e.from];
+      const b = layout.positions[e.to];
+      if (e.crossBranch || b.col !== a.col + 1 || a.row === b.row) continue;
+      const list = parentsByCol.get(a.col) ?? [];
+      if (!list.includes(e.from)) list.push(e.from);
+      parentsByCol.set(a.col, list);
+    }
+    const slot: Record<string, number> = {};
+    for (const list of parentsByCol.values()) {
+      // lower parents take the left slots, so their lines never cross an upper parent's trunk
+      list.sort((x, y) => layout.positions[y].row - layout.positions[x].row);
+      list.forEach((id, i) => (slot[id] = (i + 1) / (list.length + 1)));
+    }
+    return slot;
+  }, [layout]);
 
   return (
     <section aria-label="Research" className="w-full">
@@ -83,12 +103,24 @@ export default function ResearchTree() {
               const y1 = a.y + NODE_H / 2;
               const x2 = b.x;
               const y2 = b.y + NODE_H / 2;
-              const mid = (x1 + x2) / 2;
               const done = state.completedResearch.includes(from);
+              // Playtest 11: one trunk per parent. Lines leave the parent, share a
+              // vertical trunk in the gap next to it, then turn into each child.
+              // Edges that skip columns or cross branches stay as soft curves.
+              const adjacent = !crossBranch && x2 - x1 <= GAP_X + 1;
+              const trunk = x1 + GAP_X * (trunkSlot[from] ?? 0.5);
+              const r = Math.min(8, Math.abs(y2 - y1) / 2);
+              const dir = y2 > y1 ? 1 : -1;
+              const d =
+                y1 === y2
+                  ? `M${x1},${y1} H${x2}`
+                  : adjacent
+                    ? `M${x1},${y1} H${trunk - r} Q${trunk},${y1} ${trunk},${y1 + dir * r} V${y2 - dir * r} Q${trunk},${y2} ${trunk + r},${y2} H${x2}`
+                    : `M${x1},${y1} C${(x1 + x2) / 2},${y1} ${(x1 + x2) / 2},${y2} ${x2},${y2}`;
               return (
                 <path
                   key={`${from}-${to}`}
-                  d={`M${x1},${y1} C${mid},${y1} ${mid},${y2} ${x2},${y2}`}
+                  d={d}
                   fill="none"
                   stroke={done ? '#59c135' : '#8b93af'}
                   strokeOpacity={crossBranch ? 0.45 : 1}

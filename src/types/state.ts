@@ -13,6 +13,8 @@ export interface Settings {
   notation: NumberNotation;
   /** Turns off the random-event animations (0.84); events are still recorded. */
   reduceMotion: boolean;
+  /** First-run walkthrough (0.40): current step (TUTORIAL_DONE when finished); replay steps with "Next". */
+  tutorial: { step: number; replay: boolean };
 }
 
 export interface EnergyState {

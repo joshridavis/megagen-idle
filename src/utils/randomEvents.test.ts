@@ -80,3 +80,18 @@ describe('random events (0.84)', () => {
     expect(useStore.getState().rollRandomEvents(60, fg, () => 0, 2000)).toEqual([]);
   });
 });
+
+describe('sightings are hard to miss (0.91, playtest 11)', () => {
+  it('every sighting lasts at least the minimum', async () => {
+    const { MIN_SIGHTING_MS } = await import('../data/events');
+    for (const e of EVENTS.filter((x) => x.animation)) expect(e.durationMs ?? 0, e.id).toBeGreaterThanOrEqual(MIN_SIGHTING_MS);
+  });
+
+  it('ending a sighting leaves a "You spotted" notice', () => {
+    useStore.getState().resetGame();
+    useStore.setState({ activeSighting: { id: 'aurora', at: 0 }, toasts: [] });
+    useStore.getState().dismissSighting();
+    expect(useStore.getState().activeSighting).toBeNull();
+    expect(useStore.getState().toasts.at(-1)!.text).toBe('You spotted: Aurora!');
+  });
+});

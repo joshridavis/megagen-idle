@@ -1,6 +1,7 @@
 import { BASE_CLICK_VALUE } from '../data/player';
 import { BONUS_CAPS, RESEARCH_BY_ID } from '../data/research';
 import { NO_BONUSES, type Bonuses } from '../types/bonus';
+import { playerLevelEnergyBonus } from './playerLevel';
 
 /** Sums the effects of completed research. Bonuses of one type add together, then caps apply. */
 export function getBonuses(completedResearch: string[]): Bonuses {
@@ -24,4 +25,13 @@ export function getBonuses(completedResearch: string[]): Bonuses {
 export function getClickValue(completedResearch: string[], energyPerSecond = 0): number {
   const b = getBonuses(completedResearch);
   return BASE_CLICK_VALUE * (1 + b.clickPower) + b.clickRateShare * Math.max(0, energyPerSecond);
+}
+
+/**
+ * Bonuses for energy output: research plus the player level bonus (0.90).
+ * Use wherever generator output is calculated or shown.
+ */
+export function getEnergyBonuses(s: { completedResearch: string[]; lifetimeEnergy?: number }): Bonuses {
+  const b = getBonuses(s.completedResearch);
+  return { ...b, globalEnergy: b.globalEnergy + playerLevelEnergyBonus(s.lifetimeEnergy ?? 0) };
 }

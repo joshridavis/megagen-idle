@@ -34,7 +34,7 @@ describe('player level (0.88)', () => {
     expect(s.lifetimeEnergy).toBe(0);
     const { state } = advanceTime(s, 3600, 3_600_000);
     expect(state.lifetimeEnergy).toBeCloseTo(state.energy);
-    expect(state.lifetimeEnergy).toBeCloseTo(0.5 * 3600);
+    expect(state.lifetimeEnergy).toBeGreaterThanOrEqual(0.5 * 3600); // plus the small level bonus
   });
 
   it('clicks add to lifetime energy', () => {
