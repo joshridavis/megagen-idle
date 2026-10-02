@@ -78,6 +78,24 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: 'contracts',
+    title: 'Grid Contracts',
+    icon: 'capacity_filled',
+    paragraphs: [
+      'From research level 3, customers send contracts: supply energy, deliver materials, or produce an amount of energy before a deadline. New offers arrive over time, even while you are away.',
+      'When a contract is done, pick a reward: materials, a temporary energy boost, or Contract Points. Spend points in the perk shop on permanent perks, such as an extra contract slot. Missing a deadline costs nothing but the reward.',
+    ],
+  },
+  {
+    id: 'pets',
+    title: 'Pets',
+    icon: 'pet_hamster_3',
+    paragraphs: [
+      'Eight energy pets can join you. Each one is found its own way: a player level, a building, a research, contracts, or a rare event. Unfound pets show a hint.',
+      'Feed a pet energy or a resource and it grows over a few hours, from baby to young to adult, even while you are away. Your active pet gives a bonus that grows with it; change the active pet at any time.',
+    ],
+  },
+  {
     id: 'level',
     title: 'Player level',
     icon: 'research_check',
@@ -100,8 +118,9 @@ export const GUIDE: GuideSection[] = [
     title: 'Random events',
     icon: 'sighting_spaceship',
     paragraphs: [
-      'Now and then something unexpected passes by while you watch the game. Some sightings are common, some are very rare.',
-      'Every sighting you discover is listed in the Completion tab. The event log at the bottom of the screen shows what happened this session.',
+      'Now and then something unexpected passes by while you watch the game. Some sightings are common, some are very rare. Every sighting you discover is listed in the Completion tab.',
+      'Other events change the game for a while, even while you are away: a sunny spell or strong winds boost your output, a grant or a rich seam gives you energy or metal, and overcast skies or a grid fault set you back a little. Negative events are a bit rarer and never take anything away for good.',
+      'Running events show under your energy with the time left, and in the energy and resource tooltips. The event log at the bottom of the screen lists what happened this session.',
     ],
   },
 ];

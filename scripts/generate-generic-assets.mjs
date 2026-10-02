@@ -630,6 +630,144 @@ function meteor() {
   return c;
 }
 
+// ---------- pets (0.92): adult drawn at 32x32, baby and young scaled down ----------
+
+function hamster() {
+  const c = new Canvas(32, 32);
+  c.circle(16, 16, 14, C.grey4); // wheel
+  c.circle(16, 16, 12, C.navy);
+  for (let a = 0; a < 8; a++) c.line(16, 16, 16 + Math.cos((a * Math.PI) / 4) * 12, 16 + Math.sin((a * Math.PI) / 4) * 12, C.grey5);
+  c.circle(16, 21, 6, C.orange); // body
+  c.circle(19, 17, 4, C.orange); // head
+  c.circle(20, 20, 3, C.cream); // belly
+  c.set(20, 16, C.ink);
+  c.circle(17, 13, 1.5, C.amber); // ear
+  c.outline(C.ink);
+  return c;
+}
+
+function firefly() {
+  const c = new Canvas(32, 32);
+  for (const [x, y] of [[8, 9], [22, 7], [14, 18], [25, 21], [7, 24]]) {
+    c.circle(x, y, 4, C.lime, 90); // glow
+    c.rect(x - 1, y - 1, 3, 2, C.ink); // body
+    c.rect(x - 1, y + 1, 3, 2, C.lemon); // light
+    c.set(x - 2, y - 2, C.sky);
+    c.set(x + 2, y - 2, C.sky);
+  }
+  return c;
+}
+
+function tortoise() {
+  const c = new Canvas(32, 32);
+  c.polygon([[4, 22], [9, 11], [23, 11], [28, 22]], C.forest); // shell
+  c.polygon([[9, 13], [16, 11], [23, 13], [21, 19], [11, 19]], C.navy); // solar panel shell
+  c.line(16, 12, 16, 19, C.sky);
+  c.line(10, 16, 22, 16, C.sky);
+  c.rect(26, 18, 5, 4, C.lime); // head
+  c.set(29, 19, C.ink);
+  for (const x of [7, 22]) c.rect(x, 22, 3, 4, C.lime); // legs
+  c.outline(C.ink);
+  return c;
+}
+
+function eel() {
+  const c = new Canvas(32, 32);
+  for (let x = 2; x < 30; x++) {
+    const y = 16 + Math.round(Math.sin(x / 4) * 5);
+    c.rect(x, y - 2, 1, 5, C.teal);
+    c.set(x, y + 2, C.sky);
+  }
+  c.circle(29, 16 + Math.round(Math.sin(29 / 4) * 5), 3, C.teal); // head
+  c.set(30, 15 + Math.round(Math.sin(29 / 4) * 5), C.white);
+  c.line(10, 3, 13, 8, C.yellow); // sparks
+  c.line(13, 8, 11, 9, C.yellow);
+  c.line(21, 26, 24, 30, C.yellow);
+  c.outline(C.ink);
+  return c;
+}
+
+function robodog() {
+  const c = new Canvas(32, 32);
+  c.rect(6, 13, 16, 9, C.grey2); // body
+  c.rect(6, 13, 16, 2, C.grey1);
+  c.rect(20, 7, 9, 8, C.grey2); // head
+  c.rect(26, 9, 2, 2, C.cyan); // eye
+  c.rect(20, 5, 2, 3, C.grey3); // ear
+  for (const x of [7, 11, 16, 19]) c.rect(x, 22, 2, 5, C.grey4); // legs
+  c.circle(12, 10, 3, C.amber); // wind-up key
+  c.rect(11, 10, 2, 4, C.amber);
+  c.line(4, 13, 2, 9, C.grey3); // tail
+  c.outline(C.ink);
+  return c;
+}
+
+function staticCat() {
+  const c = new Canvas(32, 32);
+  c.circle(14, 21, 8, C.grey5); // body
+  c.circle(22, 13, 6, C.grey5); // head
+  c.polygon([[17, 9], [18, 3], [21, 8]], C.grey5); // ears
+  c.polygon([[23, 8], [26, 3], [27, 9]], C.grey5);
+  c.set(20, 13, C.lime);
+  c.set(24, 13, C.lime);
+  c.line(6, 22, 3, 14, C.grey5); // tail
+  c.line(4, 5, 7, 8, C.yellow); // static sparks
+  c.line(28, 20, 31, 18, C.yellow);
+  c.line(9, 12, 7, 10, C.sky);
+  c.outline(C.ink);
+  return c;
+}
+
+function beetle() {
+  const c = new Canvas(32, 32);
+  c.circle(16, 18, 9, C.red); // shell
+  c.line(16, 9, 16, 27, C.darkRed);
+  c.circle(16, 8, 4, C.ink); // head
+  c.rect(10, 3, 4, 2, C.grey3); // magnet antenna (horseshoe)
+  c.rect(18, 3, 4, 2, C.grey3);
+  c.rect(10, 1, 2, 3, C.red);
+  c.rect(20, 1, 2, 3, C.blue);
+  for (const y of [14, 18, 22]) {
+    c.line(6, y, 8, y, C.ink);
+    c.line(24, y, 26, y, C.ink);
+  }
+  c.circle(12, 15, 1.5, C.ink);
+  c.circle(20, 20, 1.5, C.ink);
+  c.outline(C.ink);
+  return c;
+}
+
+function jellyfish() {
+  const c = new Canvas(32, 32);
+  c.circle(16, 12, 9, C.mint, 160); // bell glow
+  c.circle(16, 12, 7, C.cyan);
+  c.rect(9, 12, 15, 4, C.cyan);
+  c.circle(13, 10, 2, C.white);
+  for (const x of [10, 14, 18, 22]) {
+    for (let y = 16; y < 30; y++) c.set(x + Math.round(Math.sin(y / 2 + x) * 1), y, C.lime);
+  }
+  c.outline(C.teal);
+  return c;
+}
+
+/** A 32x32 sprite scaled down (nearest neighbour) and centred near the bottom, for baby and young pets. */
+function scaledPet(src, factor) {
+  const c = new Canvas(32, 32);
+  const size = Math.round(32 * factor);
+  const ox = Math.round((32 - size) / 2);
+  const oy = 32 - size - 1;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const px = src.getRGBA(Math.floor(x / factor), Math.floor(y / factor));
+      if (px[3] > 0) c.setRGBA(ox + x, oy + y, px);
+    }
+  }
+  return c;
+}
+
+const PET_DRAW = { hamster, firefly, tortoise, eel, robodog, cat: staticCat, beetle, jellyfish };
+const PET_STAGE_SCALE = { 1: 0.55, 2: 0.78, 3: 1 };
+
 /** The same sprite desaturated by 40%, snapped back onto the AAP-64 palette. */
 export function inactiveVariant(src) {
   const c = new Canvas(src.width, src.height);
@@ -693,6 +831,11 @@ const DRAW = {
 /** Draws one manifest sprite by ID. Inactive variants derive from the active one. */
 export function drawSprite(id) {
   if (id.endsWith('_inactive')) return inactiveVariant(drawSprite(id.slice(0, -'_inactive'.length)));
+  const pet = id.match(/^pet_(\w+)_(\d)$/);
+  if (pet && PET_DRAW[pet[1]]) {
+    const adult = PET_DRAW[pet[1]]();
+    return Number(pet[2]) === 3 ? adult : scaledPet(adult, PET_STAGE_SCALE[pet[2]]);
+  }
   const fn = DRAW[id];
   if (!fn) throw new Error(`No generic drawing for sprite "${id}"`);
   return fn();

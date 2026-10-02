@@ -1,11 +1,11 @@
 /**
  * Player level from lifetime energy (0.88, playtest 10). Level L needs
- * LEVEL_SCALE x (L - 1)^LEVEL_EXPONENT lifetime energy, so the first levels
- * come within minutes and level 99 at roughly 200 hours of today's content
- * (checked with the balance simulator; retuned in 0.47).
+ * LEVEL_SCALE x (L - 1)^LEVEL_EXPONENT lifetime energy. Playtest 12: level 2
+ * needs 200 energy (100 s of fast clicking), so no level comes in seconds;
+ * level 99 needs about 2.5 billion, near the 200 h target (balance simulator).
  */
-export const LEVEL_SCALE = 0.05;
-export const LEVEL_EXPONENT = 5.3;
+export const LEVEL_SCALE = 200;
+export const LEVEL_EXPONENT = 3.56;
 export const MAX_PLAYER_LEVEL = 99;
 
 /** Each player level above 1 adds this much energy from all generators (playtest 11: about 0.1%). */

@@ -22,6 +22,9 @@ export const createInitialState = (now = Date.now()): GameState => ({
   roomUsed: 3, // the three starting producers
   expansionLevel: 0,
   lastExpansionAt: null,
-  settings: { notation: 'short', reduceMotion: false, tutorial: { step: 0, replay: false } },
+  settings: { notation: 'short', reduceMotion: false, tutorial: { step: 0, replay: false }, generatorSort: 'custom' },
   seenEvents: {},
+  activeEffects: [],
+  contracts: { open: [], nextOfferAt: 0, done: 0, points: 0, perks: {}, seq: 0 },
+  pets: { owned: {}, active: null },
 });

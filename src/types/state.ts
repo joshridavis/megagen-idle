@@ -1,12 +1,16 @@
 import type { Generator, GeneratorType } from './generator';
 import type { ProducerId } from './resource';
 import type { CurrentResearch } from './research';
+import type { ActiveEffect } from '../utils/effectMods';
 
 export type ResourceId = 'coal' | 'stone' | 'metal' | 'naturalGas' | 'oil' | 'uranium';
 
 export type Resources = Record<ResourceId, number>;
 
 export type NumberNotation = 'short' | 'scientific' | 'full';
+
+/** How "Your generators" is shown (0.96); 'custom' is the saved fuel-priority order. */
+export type GeneratorSort = 'custom' | 'output-desc' | 'output-asc' | 'level-desc' | 'level-asc' | 'type';
 
 /** Player preferences. No audio settings: audio is out of scope. */
 export interface Settings {
@@ -15,6 +19,7 @@ export interface Settings {
   reduceMotion: boolean;
   /** First-run walkthrough (0.40): current step (TUTORIAL_DONE when finished); replay steps with "Next". */
   tutorial: { step: number; replay: boolean };
+  generatorSort: GeneratorSort;
 }
 
 export interface EnergyState {
@@ -73,6 +78,59 @@ export interface SettingsState {
 /** Random events seen so far (0.84): count and first time, kept for collections and achievements. */
 export interface EventsState {
   seenEvents: Record<string, { count: number; firstSeen: number }>;
+  /** Timed event effects in progress (0.85), each with its end time. */
+  activeEffects: ActiveEffect[];
 }
 
-export type GameState = EnergyState & ResourceState & GeneratorState & ResearchState & RoomState & SettingsState & EventsState;
+/** One Grid Contract (0.86). */
+export interface Contract {
+  id: string;
+  kind: 'energy' | 'resources' | 'produce';
+  /** What to hand over (energy and resources contracts). */
+  energy?: number;
+  resources?: Partial<Record<ResourceId, number>>;
+  /** Energy to produce from `startLifetime` on (produce contracts). */
+  produce?: number;
+  startLifetime?: number;
+  /** Size, 1-3: sets the Contract Points reward. */
+  tier: number;
+  deadline: number;
+  /** 'complete' waits for the player to pick a reward. */
+  status: 'open' | 'complete';
+}
+
+export interface ContractsState {
+  contracts: {
+    open: Contract[];
+    /** When the next offer fills an empty slot (epoch ms). */
+    nextOfferAt: number;
+    done: number;
+    points: number;
+    perks: Partial<Record<'slot' | 'deadline' | 'rewards' | 'offers', number>>;
+    /** Counter for contract ids. */
+    seq: number;
+  };
+}
+
+/** A pet the player has found (0.92). */
+export interface OwnedPet {
+  /** 1 baby, 2 young, 3 adult. */
+  stage: number;
+  /** While growing: when it reaches the next stage (epoch ms). */
+  growUntil: number | null;
+  foundAt: number;
+}
+
+export interface PetsState {
+  pets: { owned: Partial<Record<string, OwnedPet>>; active: string | null };
+}
+
+export type GameState = EnergyState &
+  ResourceState &
+  GeneratorState &
+  ResearchState &
+  RoomState &
+  SettingsState &
+  EventsState &
+  ContractsState &
+  PetsState;

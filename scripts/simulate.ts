@@ -52,7 +52,7 @@ ${targetRows.join('\n')}
 
 | Time | Milestone |
 |---|---|
-${r.milestones.filter((m) => !/^level\d+:/.test(m.id)).map((m) => `| ${h(m.hours)} | ${m.label} |`).join('\n')}
+${r.milestones.filter((m) => !/^(level\d+|contracts5|petYoung):/.test(m.id)).map((m) => `| ${h(m.hours)} | ${m.label} |`).join('\n')}
 
 ## Energy over time
 

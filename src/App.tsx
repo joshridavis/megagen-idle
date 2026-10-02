@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { sprites, type SpriteId } from './assets';
+import ActiveEffects from './components/ActiveEffects';
 import ActiveGenerators from './components/ActiveGenerators';
 import ClickButton from './components/ClickButton';
 import CompletionPanel from './components/CompletionPanel';
+import ContractsPanel from './components/ContractsPanel';
+import PetsPanel from './components/PetsPanel';
 import DepletionWarning from './components/DepletionWarning';
 import EnergyDisplay from './components/EnergyDisplay';
 import EventLog from './components/EventLog';
@@ -24,11 +27,13 @@ import { useStore } from './store';
 import { formatCompletion, getCompletion } from './utils/completion';
 import { useIdleEngine } from './utils/idleEngine';
 
-type Tab = 'generators' | 'producers' | 'research' | 'completion' | 'guide' | 'settings';
+type Tab = 'generators' | 'producers' | 'research' | 'contracts' | 'pets' | 'completion' | 'guide' | 'settings';
 const TABS: { id: Tab; label: string; icon: SpriteId }[] = [
   { id: 'generators', label: 'Generators', icon: 'solar_panel' },
   { id: 'producers', label: 'Producers', icon: 'producer_mine' },
   { id: 'research', label: 'Research', icon: 'research_advanced' },
+  { id: 'contracts', label: 'Contracts', icon: 'capacity_filled' },
+  { id: 'pets', label: 'Pets', icon: 'pet_hamster_3' },
   { id: 'completion', label: 'Completion', icon: 'research_check' },
   { id: 'guide', label: 'Guide', icon: 'research_energy' },
   { id: 'settings', label: 'Settings', icon: 'research_materials' },
@@ -48,12 +53,13 @@ export default function App() {
       <header className="flex flex-col items-center gap-4">
         <h1 className="text-3xl font-bold tracking-tight">MegaGen Idle</h1>
         <EnergyDisplay />
+        <ActiveEffects />
         <ClickButton />
         <TutorialCoach />
         <DepletionWarning />
       </header>
       <ResourceDisplay />
-      <nav role="tablist" aria-label="Sections" className="flex gap-1 border-b border-slate-700 sm:gap-2">
+      <nav role="tablist" aria-label="Sections" className="flex gap-1 overflow-x-auto border-b border-slate-700 sm:gap-2">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -98,6 +104,10 @@ export default function App() {
           </div>
         ) : tab === 'research' ? (
           <ResearchTree />
+        ) : tab === 'contracts' ? (
+          <ContractsPanel />
+        ) : tab === 'pets' ? (
+          <PetsPanel />
         ) : tab === 'completion' ? (
           <CompletionPanel />
         ) : tab === 'guide' ? (

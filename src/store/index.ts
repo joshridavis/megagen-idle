@@ -10,6 +10,8 @@ import { createRoomSlice } from './slices/roomSlice';
 import { createSettingsSlice } from './slices/settingsSlice';
 import { createLogSlice } from './slices/logSlice';
 import { createEventSlice } from './slices/eventSlice';
+import { createContractSlice } from './slices/contractSlice';
+import { createPetSlice } from './slices/petSlice';
 import { deriveEvents } from '../utils/eventLog';
 import { deriveRates } from '../utils/simulation';
 import { gameStorage } from './storage';
@@ -34,6 +36,8 @@ export const useStore = create<GameStore>()(
           ...createSettingsSlice(init)(...a),
           ...createLogSlice()(...a),
           ...createEventSlice(init)(...a),
+          ...createContractSlice(init)(...a),
+          ...createPetSlice(init)(...a),
           welcomeBack: null,
           resetGame: () =>
             set(

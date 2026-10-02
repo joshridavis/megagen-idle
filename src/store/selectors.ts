@@ -3,6 +3,7 @@ import type { GameState } from '../types/state';
 import { getBonuses } from '../utils/bonuses';
 import { getUnlockedGeneratorTypes } from '../utils/researchSystem';
 import { getFuelUseRates, getProductionRates } from '../utils/resourceSystem';
+import { getEffectMods } from '../utils/effectMods';
 
 /** Typed selectors. Components read state and derived values through these. */
 export const selectEnergy = (s: GameState) => s.energy;
@@ -15,7 +16,7 @@ export const getUnlockedGenerators = (s: Pick<GameState, 'completedResearch'>): 
 /** Active research bonuses. Not a stable reference: use inside useMemo or with completedResearch. */
 export const selectBonuses = (s: Pick<GameState, 'completedResearch'>) => getBonuses(s.completedResearch);
 /** Derived, not stable references: call inside useMemo, not as a store selector. */
-export const selectProductionRates = (s: Pick<GameState, 'producers' | 'completedResearch'>) =>
-  getProductionRates(s.producers, getBonuses(s.completedResearch));
+export const selectProductionRates = (s: Pick<GameState, 'producers' | 'completedResearch' | 'activeEffects'>) =>
+  getProductionRates(s.producers, getBonuses(s.completedResearch), getEffectMods(s.activeEffects));
 export const selectFuelUseRates = (s: Pick<GameState, 'activeGenerators' | 'completedResearch'>) =>
   getFuelUseRates(s.activeGenerators, getBonuses(s.completedResearch));

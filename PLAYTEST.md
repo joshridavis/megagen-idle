@@ -1,6 +1,6 @@
-# Playtest 12 (v0.12.0): number fix, tutorial and guide, level rewards, clearer tree, longer sightings (after item 0.40)
+# Playtest 13 (v0.13.0): random events with effects, Grid Contracts, energy pets, generator sorting, slower early levels (after item 0.92)
 
-The version at the bottom of the screen should read **v0.12.0**.
+The version at the bottom of the screen should read **v0.13.0**.
 
 ## How to play
 
@@ -11,50 +11,54 @@ Your save carries over.
 
 ## Estimated play time
 
-- **100% completion: about 66.5 hours** (simulated idle player), down from about 82.
-  - Why: the new player-level bonus (+0.1% per level, about +7% by the end) compounds through the long upgrade stretch at the end.
-  - The target is still 200+. Effect events, Grid Contracts, pets and fictional generators come next and add time.
+- **100% completion: about 97 hours** (simulated idle player), up from about 67.5. Contracts and pets added most of it. Target: 200+.
 - **Milestones:**
-  - First Wind about 2.4 h, Coal about 2.6 h, Hydro about 5.3 h.
-  - First Gas about 11.4 h, Oil about 17.4 h, Nuclear about 44 h.
-  - Player level 15 at about 3 h, 30 at about 12 h, 49 at about 30 h, and about 72 at 100%.
+  - First Wind about 2.4 h, Coal about 3.5 h, Hydro about 5.8 h.
+  - First Gas about 16.4 h, Oil about 17.4 h, Nuclear about 44 h.
+  - First 10 contracts about 15 h; every contract perk about 26 h; all pets found by about 50 h and grown by about 60 h; 200 contracts about 97 h.
+  - Player level 7 at 4 h, 33 at 32 h, about 85 at 100%.
+- Gas plants now come later (16 h instead of 11 h), because contracts compete for your energy. It is still inside the target range.
 
 ## New since last playtest
 
 - **Your feedback:**
-  - **Bug fixed: numbers lost their zeros.** 360,722 showed as "36K"; it now shows "360K". The same bug made 100K look like "1K" and 200M like "2M".
-  - **Bug fixed: click research in the wrong place.** Geared Crank, Kinetic Capture and Grid Tap now continue Flywheel's row.
-  - **Tree lines as in your sketch.** Each research sends one trunk line that splits into its children, instead of many curves starting at the same spot. Two parents in one column never share a trunk.
-  - **Player level reward:** +0.1% energy from all generators per level (shown in the energy tooltip and the Bonuses panel).
-  - **Level-up celebration** like "Research complete!".
-  - **Levels in welcome back:** the welcome-back summary now shows "Player level A → B".
-  - **Sightings are harder to miss.**
-    - Each one now stays 15–20 seconds and moves more slowly.
-    - If the tab is hidden, it waits for you.
-    - When it ends, a "You spotted: …!" notice appears.
-  - **Guide for new players.**
-    - A new game starts with a short tutorial: click, build a Solar Panel, start your first research. It is a small card under the click button that highlights what to do next; you can skip it.
-    - The new **Guide** tab explains every part of the game. "Replay the tutorial" is in the Guide and in Settings.
+  - **Early player levels are harder.** Level 2 now needs 200 energy (about 100 seconds of fast clicking), so you can no longer click from level 1 to 5 in seconds. Level-ups are still celebrated.
+  - **Sort "Your generators".** A "Sort by" menu: your order (fuel priority), most or least energy/s, highest or lowest level, or type. Sorting is for viewing only; fuel still goes in your order.
+  - **Negative events are slightly rarer than positive ones** (75% of the rate).
+- **Random events with effects.**
+  - 7 good events: sunny spell, strong winds, rich seam, coal find, government grant, eureka, volunteer crew.
+  - 6 bad events: overcast, calm air, coal shortage, grid fault, pipe leak, equipment wear.
+  - They can happen while you are away. Running effects show as green or red chips under your energy, with time left, and in the energy and resource tooltips.
+  - Bad events are mild: nothing is lost for good, and fuel losses are capped at 10%.
+- **Grid Contracts** (new Contracts tab, from research level 3).
+  - Customers order energy, materials, or energy produced before a deadline. Up to 3 at a time; a new offer arrives every 30 minutes, also while you are away.
+  - When one is done, pick a reward: materials, a +25% energy boost, or Contract Points.
+  - Points buy permanent perks: an extra slot, longer deadlines, better rewards, faster offers.
+- **Energy pets** (new Pets tab).
+  - 8 pets: Wheel Hamster, Firefly Swarm, Solar Tortoise, Electric Eel, Wind-up Robot Dog, Static Cat, Magnetic Beetle and Glowing Jellyfish.
+  - Each is found its own way; unfound pets show a silhouette and a hint. Two are found through rare events.
+  - Feed a pet and it grows for a few hours (baby → young → adult). Your active pet gives a themed bonus that grows with it.
+- **Completion** now also counts contract milestones (10/50/100/200), contract perks, pets found and pets grown.
+- **Guide** has new sections for contracts and pets. On phones the tab bar now scrolls sideways (8 tabs).
 
 ## Things to try
 
-1. Look at your energy and resources in short notation. Do the numbers now match "Full" notation (to 3 digits)?
-2. Open the Research tab. Are the lines easier to follow now? Is the click chain in the right place?
-3. Hover over the energy rate: is "Player level N" listed? Watch for a "Level up!" celebration.
-4. Close the game for a while and come back. Does the summary show your new player level?
-5. Open the Guide tab. Is anything unclear or missing? Try "Replay the tutorial".
-6. To see the tutorial as a new player would: Settings → export your save first, then Reset game, then play the first steps. Import your save again afterwards.
-7. Leave the game on screen and wait for a sighting. Is it easier to notice now?
+1. Click from a fresh start (or watch your level): level 2 should take a while now.
+2. Build a few generators and try each "Sort by" option. Does fuel still behave as before?
+3. Wait for an effect event (about one every 2 hours). Do the chips under your energy and the tooltip lines make sense?
+4. Reach research level 3 and open Contracts. Deliver one, produce one, and try each reward type. Buy a perk.
+5. Open Pets. Find the Wheel Hamster (player level 8) and feed it. Come back after 2 hours: is it young?
+6. Open Completion and look at the new parts.
 
 ## Known issues
 
-- Early player levels come very fast (levels 2–10 in the first hour), so the first minutes show several level-up celebrations. Quick ones merge into one.
-- The event log is for this session only.
+- On a phone the tab bar needs a sideways scroll to reach Guide and Settings.
+- Contract sizes come from your output at the time the offer appears, so an offer can feel easy or hard after a big change.
 - Placeholder art.
 
 ## Questions for you
 
-1. Are early level-up celebrations too frequent? Should the first few levels (2–5) level up silently?
-2. Is the Guide's text clear, and is there a topic you would add?
-3. The tree now uses squared-off trunk lines. Do you like them better than the old curves?
-4. Next are effect events: sunny spell, strong winds, rich seam, grant, eureka and volunteer crew on the plus side; overcast, calm air, coal shortage, grid fault, pipe leak and equipment wear on the minus side. Should negative events be rarer than positive ones?
+1. Do contracts feel like a fun second activity, or like a chore? Are a 30-minute offer timer and 2–4 hour deadlines right?
+2. Are the pet bonuses meaningful, and is "feed, then wait" the right kind of growing?
+3. Is about one effect event every 2 hours a good pace, or too rare or too frequent?
+4. 100% is now about 97 h. Which should come next: the fictional late-game generators (fusion, micro-supernova), more real-world methods (geothermal, biomass, wave, orbital solar), or achievements?

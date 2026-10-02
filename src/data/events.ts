@@ -1,4 +1,5 @@
 import { GeneratorType } from '../types/generator';
+import type { ResourceId } from '../types/state';
 
 /**
  * Random events (0.84, playtest 10). Each event rolls on its own; its tier
@@ -24,6 +25,33 @@ export const RARITY_LABEL: Record<Rarity, string> = {
 /** Every sighting stays on screen at least this long (ms), so it is hard to miss (playtest 11). */
 export const MIN_SIGHTING_MS = 15000;
 
+/** Effect events (0.85) roll at this share of their tier's rate, so they stay rare. */
+export const EFFECT_RATE_FACTOR = 0.5;
+/** Negative effect events roll a little less often than positive ones (playtest 12). */
+export const NEGATIVE_RATE_FACTOR = 0.75;
+/** A negative event never takes more than this share of a resource. */
+export const MAX_LOSS_FRACTION = 0.1;
+
+/** What an effect event does (0.85). Timed effects are saved with an end time. */
+export type EventEffect =
+  /** For `minutes`: energy from `generator` (or all generators) and/or production of `resource` (or all) changes by the fractions given. */
+  | { kind: 'timed'; minutes: number; energy?: number; generator?: GeneratorType; production?: number; resource?: ResourceId }
+  /** Energy equal to `minutes` of current output (at least `min`). */
+  | { kind: 'grant-energy'; minutes: number; min: number }
+  /** A resource equal to `minutes` of its production (at least `min`). */
+  | { kind: 'grant-resource'; resource: ResourceId; minutes: number; min: number }
+  /** The running research moves this share of its duration closer to done. */
+  | { kind: 'research-boost'; fraction: number }
+  /** One random running generator switches off until the player turns it on. */
+  | { kind: 'grid-fault' }
+  /** Lose a share (capped by MAX_LOSS_FRACTION) of each listed resource. */
+  | { kind: 'lose-resource'; resources: ResourceId[]; fraction: number }
+  /** A pet joins you (0.92). Only rolls while that pet is not found yet. */
+  | { kind: 'find-pet'; pet: string };
+
+/** Extra conditions for an event to roll. */
+export type EventRequirement = 'research-running' | 'two-running' | 'gas-or-oil' | 'coal-mine' | 'pet-missing';
+
 /** At most this many events per live tick, and per return from time away. */
 export const MAX_EVENTS_PER_TICK = 1;
 export const MAX_EVENTS_PER_CATCH_UP = 3;
@@ -37,14 +65,18 @@ export interface EventDef {
   /** Shown in the event log. */
   text: string;
   rarity: Rarity;
-  /** 'foreground' only rolls while the game screen is visible; 'anytime' also while idle or away. */
-  when: 'foreground' | 'anytime';
+  /** 'foreground' only rolls while the game screen is visible; 'anytime' also while idle or away; 'never' is not random (rewards). */
+  when: 'foreground' | 'anytime' | 'never';
   /** Needs at least one of each built (on or off). */
   requiresBuilt?: GeneratorType[];
   /** Cosmetic sightings have an animation and no effect. */
   animation?: SightingAnimation;
   /** Animation length, ms. */
   durationMs?: number;
+  /** Effect events (0.85) change the game; sightings have none. */
+  effect?: EventEffect;
+  negative?: boolean;
+  requires?: EventRequirement;
 }
 
 export const EVENTS: EventDef[] = [
@@ -77,6 +109,154 @@ export const EVENTS: EventDef[] = [
     durationMs: 20000,
   },
   { id: 'ufo', name: 'UFO', text: 'A UFO hovered, beamed something up, and vanished. Nobody will believe you.', rarity: 'legendary', when: 'foreground', animation: 'beam', durationMs: 18000 },
+  // ---- Effect events (0.85, playtest 10). Some help, some hurt; negative ones never remove anything permanently. ----
+  {
+    id: 'sunny_spell',
+    name: 'Sunny spell',
+    text: 'Clear skies: +50% energy from solar panels for 10 minutes.',
+    rarity: 'common',
+    when: 'anytime',
+    requiresBuilt: [GeneratorType.SOLAR],
+    effect: { kind: 'timed', minutes: 10, energy: 0.5, generator: GeneratorType.SOLAR },
+  },
+  {
+    id: 'strong_winds',
+    name: 'Strong winds',
+    text: 'A strong breeze: +50% energy from wind turbines for 10 minutes.',
+    rarity: 'common',
+    when: 'anytime',
+    requiresBuilt: [GeneratorType.WIND],
+    effect: { kind: 'timed', minutes: 10, energy: 0.5, generator: GeneratorType.WIND },
+  },
+  {
+    id: 'rich_seam',
+    name: 'Rich seam',
+    text: 'Your miners hit a rich seam of metal.',
+    rarity: 'common',
+    when: 'anytime',
+    effect: { kind: 'grant-resource', resource: 'metal', minutes: 15, min: 30 },
+  },
+  {
+    id: 'coal_find',
+    name: 'Coal find',
+    text: 'An old coal store turned up behind the mine.',
+    rarity: 'uncommon',
+    when: 'anytime',
+    effect: { kind: 'grant-resource', resource: 'coal', minutes: 20, min: 20 },
+  },
+  {
+    id: 'grant',
+    name: 'Government grant',
+    text: 'The government rewards your clean energy work.',
+    rarity: 'uncommon',
+    when: 'anytime',
+    effect: { kind: 'grant-energy', minutes: 10, min: 200 },
+  },
+  {
+    id: 'eureka',
+    name: 'Eureka!',
+    text: 'A breakthrough in the lab: your current research jumps ahead.',
+    rarity: 'uncommon',
+    when: 'anytime',
+    requires: 'research-running',
+    effect: { kind: 'research-boost', fraction: 0.1 },
+  },
+  {
+    id: 'volunteer_crew',
+    name: 'Volunteer crew',
+    text: 'Volunteers help out: +50% output from all producers for 15 minutes.',
+    rarity: 'uncommon',
+    when: 'anytime',
+    effect: { kind: 'timed', minutes: 15, production: 0.5 },
+  },
+  {
+    id: 'overcast',
+    name: 'Overcast',
+    text: 'Grey clouds roll in: −30% energy from solar panels for 10 minutes.',
+    rarity: 'common',
+    when: 'anytime',
+    negative: true,
+    requiresBuilt: [GeneratorType.SOLAR],
+    effect: { kind: 'timed', minutes: 10, energy: -0.3, generator: GeneratorType.SOLAR },
+  },
+  {
+    id: 'calm_air',
+    name: 'Calm air',
+    text: 'Not a breath of wind: −30% energy from wind turbines for 10 minutes.',
+    rarity: 'common',
+    when: 'anytime',
+    negative: true,
+    requiresBuilt: [GeneratorType.WIND],
+    effect: { kind: 'timed', minutes: 10, energy: -0.3, generator: GeneratorType.WIND },
+  },
+  {
+    id: 'coal_shortage',
+    name: 'Coal shortage',
+    text: 'A flooded shaft: −20% coal production for 15 minutes.',
+    rarity: 'uncommon',
+    when: 'anytime',
+    negative: true,
+    requires: 'coal-mine',
+    effect: { kind: 'timed', minutes: 15, production: -0.2, resource: 'coal' },
+  },
+  {
+    id: 'grid_fault',
+    name: 'Grid fault',
+    text: 'A fault tripped one of your generators. Turn it back on in your generator list.',
+    rarity: 'rare',
+    when: 'anytime',
+    negative: true,
+    requires: 'two-running',
+    effect: { kind: 'grid-fault' },
+  },
+  {
+    id: 'pipe_leak',
+    name: 'Pipe leak',
+    text: 'A leaking pipe cost you some fuel.',
+    rarity: 'uncommon',
+    when: 'anytime',
+    negative: true,
+    requires: 'gas-or-oil',
+    effect: { kind: 'lose-resource', resources: ['naturalGas', 'oil'], fraction: 0.1 },
+  },
+  {
+    id: 'equipment_wear',
+    name: 'Equipment wear',
+    text: 'Worn parts slow everything down: −10% energy from all generators for 10 minutes.',
+    rarity: 'uncommon',
+    when: 'anytime',
+    negative: true,
+    effect: { kind: 'timed', minutes: 10, energy: -0.1 },
+  },
+  // ---- Pet finds (0.92): rare, and only until that pet is found. ----
+  {
+    id: 'firefly_swarm',
+    name: 'Firefly swarm',
+    text: 'A swarm of fireflies settled by your solar panels. It wants to stay!',
+    rarity: 'rare',
+    when: 'foreground',
+    requiresBuilt: [GeneratorType.SOLAR],
+    requires: 'pet-missing',
+    effect: { kind: 'find-pet', pet: 'firefly' },
+  },
+  {
+    id: 'stray_cat',
+    name: 'Stray cat',
+    text: 'A crackling stray cat wandered in and curled up by a generator.',
+    rarity: 'rare',
+    when: 'anytime',
+    requires: 'pet-missing',
+    effect: { kind: 'find-pet', pet: 'cat' },
+  },
+  // ---- Not random: the Grid Contracts boost reward (0.86) reuses the timed effects. ----
+  {
+    id: 'contract_boost',
+    name: 'Contract bonus',
+    text: 'A grateful customer: +25% energy from all generators for 30 minutes.',
+    rarity: 'common',
+    when: 'never',
+    effect: { kind: 'timed', minutes: 30, energy: 0.25 },
+  },
 ];
 
 export const EVENTS_BY_ID: Record<string, EventDef> = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

@@ -50,3 +50,19 @@ describe('player level (0.88)', () => {
     expect(migrateSave(v7, 7).lifetimeEnergy).toBe(12345);
   });
 });
+
+describe('early levels take real effort (0.95, playtest 12)', () => {
+  it('level 2 needs at least 100 seconds of fast clicking at the base click value', async () => {
+    const { BASE_CLICK_VALUE } = await import('../data/player');
+    const clicksPerSecond = 2;
+    expect(energyForLevel(2) / (clicksPerSecond * BASE_CLICK_VALUE)).toBeGreaterThanOrEqual(100);
+    expect(getPlayerLevel(100 * clicksPerSecond * BASE_CLICK_VALUE - 1).level).toBe(1);
+  });
+
+  it('a lower level after a curve change is not celebrated', () => {
+    useStore.getState().resetGame();
+    useStore.setState({ lifetimeEnergy: 500, celebrations: [] });
+    useStore.getState().clickEnergy();
+    expect(useStore.getState().celebrations).toEqual([]);
+  });
+});

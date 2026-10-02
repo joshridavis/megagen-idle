@@ -1,13 +1,15 @@
 import { GENERATORS, UPGRADES } from '../data/generators';
 import { NO_BONUSES, type Bonuses } from '../types/bonus';
 import type { Generator, GeneratorType } from '../types/generator';
+import { NO_MODS, type EffectMods } from './effectMods';
 
 /** Energy per second of one active generator, with bonuses applied. */
-export function getGeneratorOutput(generator: Generator, bonuses: Bonuses = NO_BONUSES): number {
+export function getGeneratorOutput(generator: Generator, bonuses: Bonuses = NO_BONUSES, mods: EffectMods = NO_MODS): number {
   if (!generator.isActive) return 0;
   const def = GENERATORS[generator.type];
   if (!def) return 0;
-  return baseOutput(generator) * (1 + bonuses.globalEnergy);
+  const boost = bonuses.globalEnergy + mods.allEnergy + (mods.generator[generator.type] ?? 0);
+  return baseOutput(generator) * Math.max(0, 1 + boost);
 }
 
 /** Output multiplier from upgrade level: 1 at level 1, +outputPerLevel per level. */
@@ -21,8 +23,8 @@ export function baseOutput(generator: Generator): number {
 }
 
 /** Total energy per second of all active generators. */
-export function calculateEnergyRate(generators: Generator[], bonuses: Bonuses = NO_BONUSES): number {
-  return generators.reduce((sum, g) => sum + getGeneratorOutput(g, bonuses), 0);
+export function calculateEnergyRate(generators: Generator[], bonuses: Bonuses = NO_BONUSES, mods: EffectMods = NO_MODS): number {
+  return generators.reduce((sum, g) => sum + getGeneratorOutput(g, bonuses, mods), 0);
 }
 
 /** Energy per second per unit of room: how well a type uses space. */

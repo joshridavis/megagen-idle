@@ -31,7 +31,7 @@ describe('save migrations', () => {
     expect(s.lastSavedTimestamp).toBe(1_700_000_000_000);
     // fields added later get fresh-save defaults
     expect(s.expansionLevel).toBe(0);
-    expect(s.settings).toEqual({ notation: 'short', reduceMotion: false, tutorial: { step: TUTORIAL_DONE, replay: false } });
+    expect(s.settings).toEqual({ notation: 'short', reduceMotion: false, tutorial: { step: TUTORIAL_DONE, replay: false }, generatorSort: 'custom' });
   });
 
   it('tolerates garbage without throwing', () => {

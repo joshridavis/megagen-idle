@@ -22,9 +22,9 @@ export function getBonuses(completedResearch: string[]): Bonuses {
  * Energy per manual click: the base value with click power boosts, plus a
  * share of the current energy/s from late click research (0.83).
  */
-export function getClickValue(completedResearch: string[], energyPerSecond = 0): number {
+export function getClickValue(completedResearch: string[], energyPerSecond = 0, petBonus = 0): number {
   const b = getBonuses(completedResearch);
-  return BASE_CLICK_VALUE * (1 + b.clickPower) + b.clickRateShare * Math.max(0, energyPerSecond);
+  return BASE_CLICK_VALUE * (1 + b.clickPower + petBonus) + b.clickRateShare * Math.max(0, energyPerSecond);
 }
 
 /**
