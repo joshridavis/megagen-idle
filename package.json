@@ -13,6 +13,7 @@
     "test": "vitest run",
     "generate:assets": "node scripts/generate-generic-assets.mjs",
     "check:assets": "node scripts/check-assets.mjs",
+    "notices": "node scripts/third-party-notices.mjs",
     "test:e2e": "playwright test",
     "simulate": "tsx scripts/simulate.ts"
   },

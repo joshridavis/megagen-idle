@@ -979,10 +979,16 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** 0% on a fresh save (except what starts owned), 100% only when everything is done; tests for the aggregation.
 **Notes:** new Completion tab. It shows the overall % (one decimal, rounded down) and one row per part with a bar and its share of the total. Each row expands to list every entry, done or not; generator rows show their best level out of the max. The % also shows on the tab button. Achievements (0.65), sightings (0.84) and contracts (0.86) add their own parts when they arrive.
 
-### 0.67 — Public release plan: accounts and cloud saves — CODE — Not started
+### 0.67 — Public release plan: accounts and cloud saves — CODE — Done
 **Goal:** owner request (playtest 5): make the game available to the public with sign-up, usernames, passwords, log-in and a per-account save. Accounts are for both cloud saves and leaderboards (playtest 6). Saves work like Melvor Idle (playtest 10). The game saves automatically to the cloud and locally. The player can load either the local or the cloud save, on the same device or another one: for example, play on a computer, then open the mobile app and load that save.
 **Details:** GitHub Pages hosts static files only, so accounts need a hosted backend. This item writes `docs/PUBLIC_RELEASE.md`: options compared (e.g. Supabase, Firebase, a small server), recommended choice, data model (user, save blob, version), security (hashed passwords handled by the provider, no secrets in the repo, rate limits), privacy (what is stored, deleting an account), cheating considerations for an idle game (matters for leaderboards: server-side plausibility checks on submitted scores), leaderboard design, a LICENSE file and an in-game credits screen (AAP-64 palette by Adigun A. Polack, open-source libraries), cost estimate, and the exact one-time steps the owner must do (create the project, add the public keys as GitHub repository variables). Also adds a save-sync abstraction in code (`SaveBackend` interface with the current IndexedDB implementation) so a cloud backend can plug in later without touching game logic.
 **Acceptance:** plan document reviewed in the PR; the abstraction is in place with the local backend and tests; nothing requires secrets.
+**Notes:**
+- **Plan:** `docs/PUBLIC_RELEASE.md` recommends Supabase, comparing it with Firebase, PlayFab and a small server. It covers the data model, security, privacy, cheating and leaderboards, sync, costs, the 15-minute owner setup and open decisions. `docs/supabase-schema.sql` has the tables, row-level security and `delete_my_account()`, ready to paste.
+- **Code:** `src/store/saveBackend.ts` has `SaveBackend`, the IndexedDB local backend, `summarize` and `chooseSave` (conflict rule), with tests.
+- **Credits:** Settings → Credits.
+- **Licenses:** `THIRD_PARTY_NOTICES.md` comes from the new `npm run notices`. `LICENSE` reserves all rights, a safe default for a game meant for sale; the owner may change it.
+- **Measured:** a late-game save is about 11 KB.
 
 ### 0.68 — Accounts and cloud saves — CODE — Not started (needs owner setup)
 **Goal:** implement 0.67's plan once the owner has created the backend project.
