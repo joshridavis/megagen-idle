@@ -417,7 +417,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** the layout packed every column from the top, so a lone child moved to the first free row. Now each node takes the free row nearest the average row of its prerequisites.
 **Acceptance:** the click chain stays on one row (test); a lone child sits on its parent's row (test); no overlaps.
 
-### 0.90 — Player level reward, celebration and welcome-back line — CODE — Not started
+### 0.90 — Player level reward, celebration and welcome-back line — CODE — Done
 **Goal:** apply playtest 11 feedback on player levels.
 **Details:**
 - **Reward:** each player level above 1 gives +0.1% energy from all generators. The value and a cap are in `src/data/playerLevel.ts`. It shows in the energy breakdown tooltip and the Bonuses panel as "Player level N".
@@ -425,6 +425,12 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Welcome back:** the welcome-back summary after time away lists the levels gained, for example "Player level 12 → 15".
 - **Simulator:** it applies the bonus.
 **Acceptance:** the bonus is applied in the energy rate and the breakdown (unit tests); a live level-up queues one celebration per level reached; the away report includes levels gained (tests); the simulator still meets its targets.
+**Notes:**
+- **Bonus:** applied through `getEnergyBonuses` (research plus level) in `deriveRates`, on the generator cards and in the breakdown and Bonuses panel. Rates are re-derived when a level is reached (tick or click).
+- **Celebration:** the research celebration now also shows "Level up!". Several quick level-ups merge into one for the highest level. The small badge is gone.
+- **Welcome back:** shows "Player level A → B".
+- **Tests:** tests of other mechanics turn the bonus off with `vi.mock`.
+- **Simulator:** 100% in about 66.5 h (was 81.5 h).
 
 ### 0.91 — Sightings stay longer on screen — CODE — Not started
 **Goal:** apply playtest 11 feedback: the owner's game recorded an Aurora that the owner never noticed, so sightings should be harder to miss.

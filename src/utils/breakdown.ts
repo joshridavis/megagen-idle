@@ -4,6 +4,7 @@ import { RESEARCH_BY_ID } from '../data/research';
 import type { BonusType } from '../types/research';
 import type { GameState, ResourceId } from '../types/state';
 import { getBonuses } from './bonuses';
+import { getPlayerLevel, playerLevelEnergyBonus } from './playerLevel';
 import { baseOutput } from './energyGeneration';
 import { getFuelUseRates, getProductionRates } from './resourceSystem';
 
@@ -39,11 +40,17 @@ export function breakdownFromResearch(base: number, completedResearch: string[],
 }
 
 /** Energy per second: base from running generators, then research boosts. */
-export function getEnergyBreakdown(state: Pick<GameState, 'activeGenerators' | 'completedResearch'>): RateBreakdown {
+export function getEnergyBreakdown(
+  state: Pick<GameState, 'activeGenerators' | 'completedResearch'> & { lifetimeEnergy?: number },
+): RateBreakdown {
   const base = state.activeGenerators
     .filter((g) => g.isActive)
     .reduce((sum, g) => sum + baseOutput(g), 0);
-  return breakdownFromResearch(base, state.completedResearch, 'globalEnergy');
+  const research = breakdownFromResearch(base, state.completedResearch, 'globalEnergy');
+  const level = playerLevelEnergyBonus(state.lifetimeEnergy ?? 0);
+  if (level <= 0) return research;
+  const lv = getPlayerLevel(state.lifetimeEnergy ?? 0).level;
+  return { ...research, modifiers: [...research.modifiers, { source: `Player level ${lv}`, percent: level, amount: base * level }], total: research.total + base * level };
 }
 
 /** Energy per click: base click value, click power boosts, then the energy/s share (capped). */

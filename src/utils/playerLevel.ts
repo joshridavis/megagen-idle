@@ -1,4 +1,4 @@
-import { LEVEL_EXPONENT, LEVEL_SCALE, MAX_PLAYER_LEVEL } from '../data/playerLevel';
+import { ENERGY_BONUS_PER_LEVEL, LEVEL_EXPONENT, LEVEL_SCALE, MAX_PLAYER_LEVEL, PLAYER_LEVEL_BONUS_CAP } from '../data/playerLevel';
 
 /** Lifetime energy needed to reach `level` (level 1 needs nothing). */
 export function energyForLevel(level: number): number {
@@ -26,4 +26,9 @@ export function getPlayerLevel(lifetimeEnergy: number): PlayerLevel {
   const current = energyForLevel(level);
   const next = isMax ? current : energyForLevel(level + 1);
   return { level, current, next, progress: isMax ? 1 : (e - current) / (next - current), isMax };
+}
+
+/** Energy bonus from the player level (0.90): +0.1% per level above 1, capped. */
+export function playerLevelEnergyBonus(lifetimeEnergy: number): number {
+  return Math.min(PLAYER_LEVEL_BONUS_CAP, (getPlayerLevel(lifetimeEnergy).level - 1) * ENERGY_BONUS_PER_LEVEL);
 }

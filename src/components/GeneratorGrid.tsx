@@ -1,7 +1,7 @@
 import { GENERATOR_TYPES } from '../data/generators';
 import { useStore } from '../store';
 import { getUnlockedGenerators } from '../store/selectors';
-import { getBonuses } from '../utils/bonuses';
+import { getEnergyBonuses } from '../utils/bonuses';
 import { getBuildBlock } from '../utils/generatorSystem';
 import GeneratorCard from './GeneratorCard';
 
@@ -9,7 +9,7 @@ export default function GeneratorGrid() {
   // Subscribe to the inputs that decide whether each card can be built.
   const state = useStore((s) => s);
   const unlocked = getUnlockedGenerators(state);
-  const bonuses = getBonuses(state.completedResearch);
+  const bonuses = getEnergyBonuses(state);
   return (
     <section aria-label="Build generators" className="w-full">
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Build</h2>

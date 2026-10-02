@@ -67,6 +67,11 @@ export default function WelcomeBack() {
               🎓 Research complete: {RESEARCH_BY_ID[id]?.name ?? id}
             </li>
           ))}
+          {report.levels && (
+            <li className="text-sky-300" data-testid="welcome-levels">
+              ⭐ Player level {report.levels.from} → {report.levels.to}
+            </li>
+          )}
           {outOfFuel.length > 0 && (
             <li className="text-red-300">⚠️ Ran out of fuel and switched off: {outOfFuel.join(', ')}</li>
           )}

@@ -16,9 +16,10 @@ export default function EnergyDisplay() {
   const fmt = useNumberFormat();
   const generators = useStore((s) => s.activeGenerators);
   const completed = useStore((s) => s.completedResearch);
+  const lifetime = useStore((s) => s.lifetimeEnergy);
   const breakdown = useMemo(
-    () => getEnergyBreakdown({ activeGenerators: generators, completedResearch: completed }),
-    [generators, completed],
+    () => getEnergyBreakdown({ activeGenerators: generators, completedResearch: completed, lifetimeEnergy: lifetime }),
+    [generators, completed, lifetime],
   );
   const boost = breakdown.modifiers.reduce((sum, m) => sum + (m.percent ?? 0), 0);
   return (
