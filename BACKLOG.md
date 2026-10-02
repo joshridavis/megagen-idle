@@ -64,8 +64,8 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.94 Research tree lines as a trunk with branches (playtest 11 feedback)
 0. 0.90 Player level reward, celebration and welcome-back line (playtest 11 feedback)
 0. 0.91 Sightings stay longer on screen (playtest 11 feedback)
-0. 0.40 First-run onboarding and in-game guide (moved up and widened: playtest 11 feedback)
-0. 0.85 Random events with effects (playtest 10 feedback) → CHECKPOINT
+0. 0.40 First-run onboarding and in-game guide (moved up and widened: playtest 11 feedback) → CHECKPOINT
+0. 0.85 Random events with effects (playtest 10 feedback)
 0. 0.86 Grid Contracts: a second activity (playtest 10 feedback)
 0. 0.92 Energy pets: collect and grow (playtest 11 feedback)
 0. 0.87 Multi-platform release plan: website, Steam, mobile (playtest 10 feedback)
@@ -725,3 +725,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 9 (v0.9.0) | 0.32 | 2026-10-01 | Research tree lines hard to follow: split into the three starting branches. Bug: "You were away for 1m 1s" after switching tabs. Bug: build-card tooltip shows over the card above and is unreadable. 100% completion must include building every generator type and upgrading each to max level. | 0.79-0.82 |
 | 10 (v0.10.0) | 0.79, 0.80, 0.81, 0.82, 0.33 | 2026-10-01 | Branch layout is right. Oil and Nuclear feel like a real step up; uranium pace and level 9/10 gates fine for now. Reach 200 h with a mix of content (larger share) and slower pacing; content should include a new mode or activity, not only research and machines. 100% completion must be visible to the player (like Melvor Idle). More click-power research. Random events: a large variety, some cosmetic (e.g. a spaceship, foreground only), some with positive or negative effects (some also while idle); all rare, some much rarer. Saves like Melvor Idle: automatic cloud and local saves, load either on any device. Future release on Steam, a dedicated website and mobile. Report hours to 100% every version. Player levels based on lifetime energy. | 0.83-0.88; 0.66 and 0.38 moved up; 0.67, 0.68 and 0.47 updated |
 | 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-02 | Player level reward: yes but small, about +0.1% per level. About one sighting per hour is right for the common ones. Planned effect events approved. Grid Contracts fine; another activity idea: collect and grow pets that fit the energy theme. An Aurora was recorded as seen but went unnoticed: sightings should stay longer. Bug: 360,722 energy showed as 36K. Level-up needs a celebration like research, and levels gained belong in the welcome-back summary. Add player info: tutorial or game guide. Click research chain drawn on the wrong row. Tree lines should leave each parent as one trunk that splits into its children (sketch). The guide is meant to teach new players how the game works. | 0.89-0.94; 0.40 moved up and widened |
+| 12 (v0.12.0) | 0.89, 0.93, 0.94, 0.90, 0.91, 0.40 | 2026-10-02 | (waiting for owner) | |
