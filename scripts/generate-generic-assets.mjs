@@ -691,6 +691,84 @@ function decoFlower() {
   return c;
 }
 
+// more details (1.15): a few pixels each, drawn over a tile
+const deco = (draw) => () => {
+  const c = new Canvas(16, 16);
+  draw(c);
+  return c;
+};
+const decoBush = deco((c) => {
+  c.circle(8, 10, 4, C.darkGreen);
+  c.circle(6, 9, 2, C.green);
+  c.set(10, 8, C.lime);
+});
+const decoStump = deco((c) => {
+  c.rect(5, 9, 6, 4, C.brown4);
+  c.rect(5, 8, 6, 1, C.brown2);
+  c.set(7, 8, C.brown3);
+});
+const decoMushroom = deco((c) => {
+  c.rect(7, 10, 2, 3, C.cream);
+  c.rect(5, 8, 6, 2, C.red);
+  c.set(6, 8, C.white);
+  c.set(9, 9, C.white);
+});
+const decoLog = deco((c) => {
+  c.rect(3, 10, 10, 3, C.brown3);
+  c.rect(3, 10, 10, 1, C.brown2);
+  c.rect(12, 10, 1, 3, C.brown1);
+});
+const decoCactus = deco((c) => {
+  c.rect(7, 5, 2, 9, C.green);
+  c.rect(4, 8, 2, 3, C.green);
+  c.rect(5, 10, 2, 1, C.green);
+  c.rect(10, 7, 2, 3, C.green);
+  c.rect(9, 9, 2, 1, C.green);
+  c.set(7, 6, C.lime);
+});
+const decoDryGrass = deco((c) => {
+  for (const x of [4, 6, 8, 10, 12]) c.line(x, 13, x + (x % 4 ? 1 : -1), 9, C.brown1);
+});
+const decoBoulder = deco((c) => {
+  c.circle(8, 10, 4, C.grey4);
+  c.rect(5, 8, 3, 1, C.grey2);
+  c.rect(4, 13, 9, 1, C.grey5);
+});
+const decoBentGrass = deco((c) => {
+  for (const x of [4, 7, 10]) c.line(x, 13, x + 3, 8, C.mint);
+});
+const decoReeds = deco((c) => {
+  for (const x of [5, 8, 11]) c.rect(x, 6 + (x % 3), 1, 8 - (x % 3), C.green);
+  c.rect(5, 5, 1, 2, C.brown3);
+  c.rect(11, 6, 1, 2, C.brown3);
+});
+const decoLily = deco((c) => {
+  c.circle(8, 9, 3, C.green);
+  c.set(8, 7, C.blue);
+  c.set(9, 8, C.blue);
+  c.set(7, 9, C.white);
+});
+const decoShell = deco((c) => {
+  c.polygon([[5, 12], [8, 7], [11, 12]], C.brown1);
+  c.line(8, 8, 8, 12, C.brown2);
+  c.line(6, 11, 8, 8, C.brown2);
+});
+const decoDriftwood = deco((c) => {
+  c.line(3, 12, 12, 9, C.khaki);
+  c.line(3, 13, 12, 10, C.mud);
+  c.set(9, 8, C.khaki);
+});
+const decoBoat = deco((c) => {
+  c.polygon([[3, 10], [13, 10], [11, 13], [5, 13]], C.brown3);
+  c.rect(8, 3, 1, 7, C.brown4);
+  c.polygon([[9, 3], [9, 9], [13, 9]], C.white);
+});
+const decoBuoy = deco((c) => {
+  c.circle(8, 10, 3, C.red);
+  c.rect(5, 10, 7, 1, C.white);
+  c.rect(8, 5, 1, 3, C.grey3);
+});
+
 function lockedTile() {
   const c = new Canvas(16, 16);
   c.rect(0, 0, 16, 16, C.mud);
@@ -904,6 +982,20 @@ const DRAW = {
   deco_rock: decoRock,
   deco_tuft: decoTuft,
   deco_flower: decoFlower,
+  deco_bush: decoBush,
+  deco_stump: decoStump,
+  deco_mushroom: decoMushroom,
+  deco_log: decoLog,
+  deco_cactus: decoCactus,
+  deco_drygrass: decoDryGrass,
+  deco_boulder: decoBoulder,
+  deco_bentgrass: decoBentGrass,
+  deco_reeds: decoReeds,
+  deco_lily: decoLily,
+  deco_shell: decoShell,
+  deco_driftwood: decoDriftwood,
+  deco_boat: decoBoat,
+  deco_buoy: decoBuoy,
   achievement_unlocked: () => trophy(C.yellow, C.lemon, C.brown3),
   achievement_locked: () => trophy(C.grey5, C.grey4, C.grey6),
   sighting_spaceship: spaceship,

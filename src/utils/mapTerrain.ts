@@ -1,6 +1,6 @@
 import {
   COAST_COLUMNS,
-  DETAIL_CHANCE,
+  DETAILS,
   FIXED_PATCHES,
   MAP_COLUMNS,
   MAP_SEED,
@@ -11,6 +11,7 @@ import {
   RIVER_START_COLUMN,
   RIVER_WIDTH,
   ZONES,
+  type Detail,
   type Terrain,
   type Zone,
 } from '../data/map';
@@ -44,16 +45,11 @@ export function terrainAt(x: number, y: number): Terrain {
   return 'plain';
 }
 
-export type Detail = 'rock' | 'tuft' | 'flower' | null;
-
-/** A small decoration drawn on a land tile, or null. Purely cosmetic. */
-export function detailAt(x: number, y: number): Detail {
-  const t = terrainAt(x, y);
-  if (t === 'river' || t === 'coast' || tileHash(x, y, 1) >= DETAIL_CHANCE) return null;
-  const pick = tileHash(x, y, 2);
-  if (t === 'ridge') return pick < 0.6 ? 'rock' : 'tuft';
-  if (t === 'plateau') return pick < 0.5 ? 'rock' : 'flower';
-  return pick < 0.5 ? 'tuft' : pick < 0.8 ? 'flower' : 'rock';
+/** A small decoration drawn on a tile (x >= MAP_COLUMNS is the open sea), or null. Purely cosmetic. */
+export function detailAt(x: number, y: number): Detail | null {
+  const d = DETAILS[x >= MAP_COLUMNS ? 'sea' : terrainAt(x, y)];
+  if (tileHash(x, y, 1) >= d.chance) return null;
+  return d.kinds[Math.floor(tileHash(x, y, 2) * d.kinds.length)];
 }
 
 /** The zone a generator type needs or prefers, if any. */

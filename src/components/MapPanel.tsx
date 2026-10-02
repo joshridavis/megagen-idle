@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { sprites, type SpriteId } from '../assets';
 import { GENERATORS } from '../data/generators';
-import { LOCKED_PREVIEW_ROWS, MIN_MAP_ROWS, SEA_COLUMNS, ZONES, type Terrain, type Zone } from '../data/map';
+import { LOCKED_PREVIEW_ROWS, MIN_MAP_ROWS, SEA_COLUMNS, ZONES, type Detail, type Terrain, type Zone } from '../data/map';
 import { PRODUCERS } from '../data/producers';
 import { useStore } from '../store';
 import type { GeneratorType } from '../types/generator';
@@ -24,7 +24,7 @@ const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
   river: 'tile_river',
   coast: 'tile_coast',
 };
-const DETAIL_SPRITE = { rock: 'deco_rock', tuft: 'deco_tuft', flower: 'deco_flower' } as const;
+const detailSprite = (d: Detail) => `deco_${d}` as SpriteId;
 const TERRAIN_NAME: Record<Terrain, string> = { plain: 'Plain', plateau: ZONES.plateau.name, ridge: ZONES.ridge.name, river: ZONES.river.name, coast: ZONES.coast.name };
 const pctBonus = (b: number) => `+${Math.round(b * 100)}%`;
 
@@ -216,7 +216,13 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
             const x = i % viewColumns;
             const y = Math.floor(i / viewColumns);
             if (x >= map.columns) {
-              return <img key={i} src={sprites.tile_sea} alt="" className="pixelated aspect-square w-full" data-terrain="sea" />;
+              const sd = detailAt(x, y);
+              return (
+                <div key={i} className="relative aspect-square w-full" data-terrain="sea">
+                  <img src={sprites.tile_sea} alt="" className="pixelated absolute inset-0 h-full w-full" />
+                  {sd && <img src={sprites[detailSprite(sd)]} alt="" className="pixelated absolute inset-0 h-full w-full" data-detail={sd} />}
+                </div>
+              );
             }
             const c = y * map.columns + x;
             const t = terrainAt(x, y);
@@ -234,7 +240,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                 onClick={() => clickTile(c)}
               >
                 <img src={sprites[TERRAIN_SPRITE[t]]} alt="" className="pixelated absolute inset-0 h-full w-full" />
-                {d && <img src={sprites[DETAIL_SPRITE[d]]} alt="" className="pixelated absolute inset-0 h-full w-full" />}
+                {d && <img src={sprites[detailSprite(d)]} alt="" className="pixelated absolute inset-0 h-full w-full" data-detail={d} />}
                 {locked && <div className="absolute inset-0 bg-slate-950/55" />}
                 {target && <div className={`absolute inset-0 ${best ? 'bg-emerald-300/45' : 'bg-emerald-200/15'}`} data-testid={best ? 'best-spot' : undefined} />}
               </div>

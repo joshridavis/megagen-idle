@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../data/initialState';
-import { MAP_COLUMNS, ZONES } from '../data/map';
+import { DETAILS, MAP_COLUMNS, ZONES } from '../data/map';
 import { GeneratorType, type Generator } from '../types/generator';
 import type { GameState } from '../types/state';
 import { getBuildBlock } from './generatorSystem';
@@ -29,10 +29,16 @@ describe('map terrain (1.05)', () => {
     expect(terrainAt(16, 0)).toBe('plateau');
   });
 
-  it('puts details only on land', () => {
-    for (let y = 0; y < 20; y++) for (let x = 0; x < MAP_COLUMNS; x++) {
-      if (['river', 'coast'].includes(terrainAt(x, y))) expect(detailAt(x, y)).toBeNull();
+  it('every terrain has at least two kinds of details, and each appears on the map (1.15)', () => {
+    for (const d of Object.values(DETAILS)) expect(d.kinds.length).toBeGreaterThanOrEqual(2);
+    const seen = new Set<string>();
+    for (let y = 0; y < 60; y++) for (let x = 0; x < MAP_COLUMNS + 2; x++) {
+      const d = detailAt(x, y);
+      if (!d) continue;
+      seen.add(d);
+      expect(DETAILS[x >= MAP_COLUMNS ? 'sea' : terrainAt(x, y)].kinds).toContain(d);
     }
+    expect([...seen].sort()).toEqual([...new Set(Object.values(DETAILS).flatMap((d) => d.kinds))].sort());
   });
 });
 

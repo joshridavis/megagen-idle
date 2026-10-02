@@ -15,8 +15,35 @@ export const LOCKED_PREVIEW_ROWS = 3;
 export const MIN_MAP_ROWS = 10;
 /** Seed for the scattered details (rocks, tufts, flowers): the same map on every visit. */
 export const MAP_SEED = 1505;
-/** Share of plain, plateau and ridge tiles that get a small detail drawn on them. */
-export const DETAIL_CHANCE = 0.16;
+/** Small details drawn on tiles (1.05, more kinds in 1.15, playtest 16). Cosmetic only. */
+export type Detail =
+  | 'rock'
+  | 'tuft'
+  | 'flower'
+  | 'bush'
+  | 'stump'
+  | 'mushroom'
+  | 'log'
+  | 'cactus'
+  | 'drygrass'
+  | 'boulder'
+  | 'bentgrass'
+  | 'reeds'
+  | 'lily'
+  | 'shell'
+  | 'driftwood'
+  | 'boat'
+  | 'buoy';
+
+/** Per terrain (and the open sea): how often a tile gets a detail, and which kinds, picked evenly. */
+export const DETAILS: Record<Terrain | 'sea', { chance: number; kinds: Detail[] }> = {
+  plain: { chance: 0.2, kinds: ['tuft', 'flower', 'rock', 'bush', 'stump', 'mushroom', 'log'] },
+  plateau: { chance: 0.18, kinds: ['rock', 'flower', 'cactus', 'drygrass'] },
+  ridge: { chance: 0.18, kinds: ['rock', 'tuft', 'boulder', 'bentgrass'] },
+  river: { chance: 0.1, kinds: ['reeds', 'lily'] },
+  coast: { chance: 0.12, kinds: ['shell', 'driftwood'] },
+  sea: { chance: 0.05, kinds: ['boat', 'buoy'] },
+};
 
 export type Terrain = 'plain' | 'plateau' | 'ridge' | 'river' | 'coast';
 export type Zone = Exclude<Terrain, 'plain'>;
