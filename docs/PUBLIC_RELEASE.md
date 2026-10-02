@@ -64,7 +64,7 @@ The database setup is in `docs/supabase-schema.sql`, ready to paste.
 ## 5. Security
 
 - **Passwords** are handled by Supabase Auth (hashed and salted). The game never sees or stores them.
-- **The key in the game is public by design:** the project URL and the "anon public" key.
+- **The key in the game is public by design:** the project URL and the "publishable" key (older projects call it the "anon public" key).
   - All protection comes from row-level security: every save row is readable and writable only by its owner (`auth.uid() = user_id`).
   - The secret "service role" key is never used by the game and never goes in the repository.
 - **The keys are not committed:**
@@ -114,10 +114,10 @@ About 15 minutes. Nothing here needs a credit card.
 4. Open **Authentication → URL Configuration**:
    - **Site URL:** `https://joshridavis.github.io/megagen-idle/`
    - **Redirect URLs:** add the same address. Add `http://localhost:5173` too, for testing locally.
-5. Open **Project Settings → API** (or **Data API**) and copy the **Project URL** and the **anon public** key. Do not copy the `service_role` key.
+5. Open **Project Settings → API** (or **Data API**) and copy the **Project URL** and the **publishable** key (`sb_publishable_…`; older projects show an **anon public** key instead, which works the same). Do not copy the secret or `service_role` key.
 6. In GitHub, open the repository **Settings → Secrets and variables → Actions → Variables** tab, and click **New repository variable** twice:
    - `VITE_SUPABASE_URL` = the Project URL
-   - `VITE_SUPABASE_ANON_KEY` = the anon public key
+   - `VITE_SUPABASE_ANON_KEY` = the publishable (or anon public) key
 7. Tell me it is done. The accounts code is already in the game (0.68), switched off. The next deploy turns it on: Settings shows "Account and cloud saves". I then run a live test (sign up, confirm, sync between two browsers, delete) and fix anything it finds.
 
 **Optional, later:**
