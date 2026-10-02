@@ -6,7 +6,7 @@ import type { GameState } from '../types/state';
 import { recordsFromGenerators } from '../utils/records';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 7;
+export const SAVE_VERSION = 9;
 
 type AnySave = Record<string, unknown>;
 
@@ -38,6 +38,10 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   5: (save) => ({ ...save, records: recordsFromGenerators((save.activeGenerators as Generator[] | undefined) ?? []) }),
   // 0.33: oil and uranium, Oil Rig and Uranium Mine (filled from defaults below).
   6: (save) => save,
+  // 0.88: lifetime energy for the player level; the best estimate for an old save is its current energy.
+  7: (save) => ({ ...save, lifetimeEnergy: Math.max(0, Number(save.energy) || 0) }),
+  // 0.84: random events seen (empty) and the reduce-motion setting (filled from defaults below).
+  8: (save) => ({ ...save, seenEvents: {} }),
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */
@@ -62,6 +66,7 @@ export function pickSaved(s: GameState): GameState {
     energy: s.energy,
     energyPerSecond: s.energyPerSecond,
     lastSavedTimestamp: s.lastSavedTimestamp,
+    lifetimeEnergy: s.lifetimeEnergy,
     resources: s.resources,
     producers: s.producers,
     depletedResources: s.depletedResources,
@@ -75,5 +80,6 @@ export function pickSaved(s: GameState): GameState {
     expansionLevel: s.expansionLevel,
     lastExpansionAt: s.lastExpansionAt,
     settings: s.settings,
+    seenEvents: s.seenEvents,
   };
 }

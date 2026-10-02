@@ -9,6 +9,7 @@ const BONUS_TEXT: Record<BonusType, string> = {
   researchSpeed: 'faster research',
   globalEnergy: 'energy from all generators',
   clickPower: 'energy per click',
+  clickRateShare: 'of your energy/s added to each click',
   resourceProduction: 'output from all producers',
   metalProduction: 'metal from mines',
   stoneProduction: 'stone from quarries',

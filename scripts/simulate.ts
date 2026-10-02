@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { PACING_TARGETS, STALL_HOURS } from '../src/data/pacingTargets';
 import { DEFAULT_SIM, runBalanceSim } from '../src/sim/balanceSim';
 import { formatNumber } from '../src/utils/format';
+import { getPlayerLevel } from '../src/utils/playerLevel';
 import pkg from '../package.json';
 
 const started = Date.now();
@@ -55,11 +56,11 @@ ${r.milestones.filter((m) => !/^level\d+:/.test(m.id)).map((m) => `| ${h(m.hours
 
 ## Energy over time
 
-| Time | Energy/s | Completion | Room |
-|---|---|---|---|
+| Time | Energy/s | Completion | Room | Player level |
+|---|---|---|---|---|
 ${r.samples
   .filter((_, i, a) => i % Math.max(1, Math.floor(a.length / 20)) === 0 || i === a.length - 1)
-  .map((x) => `| ${h(x.hours)} | ${formatNumber(x.energyPerSecond, 'short', 1)} | ${Math.round(x.completion * 100)}% | ${x.room} |`)
+  .map((x) => `| ${h(x.hours)} | ${formatNumber(x.energyPerSecond, 'short', 1)} | ${Math.round(x.completion * 100)}% | ${x.room} | ${getPlayerLevel(x.lifetimeEnergy).level} |`)
   .join('\n')}
 
 ## Notes and changes

@@ -3,6 +3,7 @@ import type { SliceCreator } from '../types';
 
 export interface SettingsActions {
   setNotation: (notation: NumberNotation) => void;
+  setReduceMotion: (on: boolean) => void;
 }
 
 export const createSettingsSlice =
@@ -10,4 +11,5 @@ export const createSettingsSlice =
   (set) => ({
     ...initial,
     setNotation: (notation) => set((s) => ({ settings: { ...s.settings, notation } }), undefined, 'settings/notation'),
+    setReduceMotion: (reduceMotion) => set((s) => ({ settings: { ...s.settings, reduceMotion } }), undefined, 'settings/reduceMotion'),
   });

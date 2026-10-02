@@ -1,6 +1,14 @@
 {
   "generic": [
     "sprites/energy_currency_icon_32.png",
+    "sprites/events/balloon.png",
+    "sprites/events/birds.png",
+    "sprites/events/cat.png",
+    "sprites/events/meteor.png",
+    "sprites/events/paper_plane.png",
+    "sprites/events/spaceship.png",
+    "sprites/events/ufo.png",
+    "sprites/events/whale.png",
     "sprites/generators/coal_plant.png",
     "sprites/generators/coal_plant_inactive.png",
     "sprites/generators/gas_plant.png",

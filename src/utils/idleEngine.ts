@@ -24,6 +24,9 @@ export function tick(now = Date.now(), maxSeconds = MAX_OFFLINE_SECONDS, catchUp
   const { lastSavedTimestamp, applyIdleGains } = useStore.getState();
   const delta = computeDeltaSeconds(lastSavedTimestamp, now, maxSeconds);
   applyIdleGains(delta, now, { catchUp });
+  // Random events (0.84): sightings only while the game is on screen.
+  const visible = typeof document === 'undefined' || document.visibilityState === 'visible';
+  useStore.getState().rollRandomEvents(delta, { foreground: visible && !catchUp, catchUp }, Math.random, now);
   return delta;
 }
 

@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { sprites, type SpriteId } from './assets';
 import ActiveGenerators from './components/ActiveGenerators';
 import ClickButton from './components/ClickButton';
+import CompletionPanel from './components/CompletionPanel';
 import DepletionWarning from './components/DepletionWarning';
 import EnergyDisplay from './components/EnergyDisplay';
+import EventLog from './components/EventLog';
 import GeneratorGrid from './components/GeneratorGrid';
 import ProducerPanel from './components/ProducerPanel';
 import ResearchCelebration from './components/ResearchCelebration';
@@ -12,16 +14,20 @@ import ResearchTree from './components/ResearchTree';
 import ResourceDisplay from './components/ResourceDisplay';
 import RoomPanel from './components/RoomPanel';
 import SettingsPanel from './components/SettingsPanel';
+import Sightings from './components/Sightings';
+import Toasts from './components/Toasts';
 import VersionFooter from './components/VersionFooter';
 import WelcomeBack from './components/WelcomeBack';
 import { useStore } from './store';
+import { formatCompletion, getCompletion } from './utils/completion';
 import { useIdleEngine } from './utils/idleEngine';
 
-type Tab = 'generators' | 'producers' | 'research' | 'settings';
+type Tab = 'generators' | 'producers' | 'research' | 'completion' | 'settings';
 const TABS: { id: Tab; label: string; icon: SpriteId }[] = [
   { id: 'generators', label: 'Generators', icon: 'solar_panel' },
   { id: 'producers', label: 'Producers', icon: 'producer_mine' },
   { id: 'research', label: 'Research', icon: 'research_advanced' },
+  { id: 'completion', label: 'Completion', icon: 'research_check' },
   { id: 'settings', label: 'Settings', icon: 'research_materials' },
 ];
 
@@ -29,6 +35,8 @@ export default function App() {
   useIdleEngine();
   const [tab, setTab] = useState<Tab>('generators');
   const researching = useStore((s) => s.currentResearch !== null);
+  // Completion % on its tab, always visible (like Melvor Idle's completion log).
+  const completion = useStore((s) => formatCompletion(getCompletion(s).ratio));
   return (
     <main
       className={`mx-auto flex min-h-screen max-w-6xl flex-col gap-6 p-4 sm:p-6 ${researching ? 'pb-28 sm:pb-28' : ''}`}
@@ -57,6 +65,14 @@ export default function App() {
               <img src={sprites[t.icon]} alt="" width={20} height={20} className="pixelated h-5 w-5 object-contain" data-testid={`tab-icon-${t.id}`} />
               {/* On phones only the active tab shows its label; the rest show their icon. */}
               <span className={tab === t.id ? undefined : 'sr-only sm:not-sr-only'}>{t.label}</span>
+              {t.id === 'completion' && (
+                <span
+                  className={`font-mono text-xs text-sky-200 ${tab === t.id ? 'hidden sm:inline' : ''}`}
+                  data-testid="completion-tab-pct"
+                >
+                  {completion}
+                </span>
+              )}
             </span>
           </button>
         ))}
@@ -77,10 +93,13 @@ export default function App() {
           </div>
         ) : tab === 'research' ? (
           <ResearchTree />
+        ) : tab === 'completion' ? (
+          <CompletionPanel />
         ) : (
           <SettingsPanel />
         )}
       </div>
+      <EventLog />
       <VersionFooter />
       {researching && (
         <div
@@ -93,6 +112,8 @@ export default function App() {
         </div>
       )}
       <ResearchCelebration />
+      <Toasts />
+      <Sightings />
       <WelcomeBack />
     </main>
   );

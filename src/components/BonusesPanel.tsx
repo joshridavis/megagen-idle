@@ -6,6 +6,7 @@ import { getBonusSummary } from '../utils/bonusSummary';
 const LABEL: Record<BonusType, string> = {
   globalEnergy: '⚡ Energy from all generators',
   clickPower: '👆 Energy per click',
+  clickRateShare: '👆 Energy/s added to each click',
   buildDiscount: '🏗️ Cheaper building',
   researchSpeed: '⏩ Faster research',
   researchCostReduction: '💰 Cheaper research',

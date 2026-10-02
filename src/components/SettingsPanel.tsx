@@ -20,6 +20,8 @@ export default function SettingsPanel() {
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
   const [pending, setPending] = useState<GameState | null>(null);
   const notation = useStore((s) => s.settings.notation);
+  const reduceMotion = useStore((s) => s.settings.reduceMotion);
+  const setReduceMotion = useStore((s) => s.setReduceMotion);
   const setNotation = useStore((s) => s.setNotation);
   const resetGame = useStore((s) => s.resetGame);
   const [resetStep, setResetStep] = useState<0 | 1 | 2>(0);
@@ -75,6 +77,23 @@ export default function SettingsPanel() {
           ))}
         </div>
       </fieldset>
+      <div className="rounded-lg bg-slate-800 p-4">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Motion</h2>
+        <label className="flex min-h-11 cursor-pointer items-center gap-3">
+          <input
+            type="checkbox"
+            checked={reduceMotion}
+            onChange={(e) => setReduceMotion(e.target.checked)}
+            className="h-5 w-5 accent-sky-400"
+          />
+          <span>
+            Reduce motion
+            <span className="block text-xs text-slate-400">
+              Turns off random-event animations. Events still happen, and show as a notice instead.
+            </span>
+          </span>
+        </label>
+      </div>
       <div className="rounded-lg bg-slate-800 p-4">
         <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-400">Save</h2>
         <p className="mb-3 text-sm text-slate-300">

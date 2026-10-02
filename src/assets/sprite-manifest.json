@@ -40,5 +40,13 @@
   "research_progress_segment": { "file": "research/progress_segment.png", "width": 8, "height": 8 },
   "research_lock": { "file": "research/lock.png", "width": 16, "height": 16 },
   "research_check": { "file": "research/check.png", "width": 16, "height": 16 },
-  "research_panel_bg": { "file": "research/panel_bg.png", "width": 128, "height": 128 }
+  "research_panel_bg": { "file": "research/panel_bg.png", "width": 128, "height": 128 },
+  "sighting_spaceship": { "file": "events/spaceship.png", "width": 32, "height": 16 },
+  "sighting_birds": { "file": "events/birds.png", "width": 32, "height": 16 },
+  "sighting_balloon": { "file": "events/balloon.png", "width": 16, "height": 24 },
+  "sighting_paper_plane": { "file": "events/paper_plane.png", "width": 16, "height": 16 },
+  "sighting_cat": { "file": "events/cat.png", "width": 24, "height": 16 },
+  "sighting_ufo": { "file": "events/ufo.png", "width": 32, "height": 24 },
+  "sighting_whale": { "file": "events/whale.png", "width": 48, "height": 24 },
+  "sighting_meteor": { "file": "events/meteor.png", "width": 16, "height": 16 }
 }

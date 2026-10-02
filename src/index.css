@@ -158,3 +158,57 @@ body {
     display: none;
   }
 }
+
+/* Player level-up badge (0.88). */
+@keyframes level-up {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.8);
+  }
+  15%,
+  80% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.level-up {
+  animation: level-up 4s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .level-up {
+    animation: none;
+  }
+}
+
+/* Random-event sightings (0.84). Durations come from --dur. */
+.sighting-fly-right { top: 18%; animation: fly-right var(--dur) linear forwards; }
+.sighting-fly-left { top: 12%; animation: fly-left var(--dur) linear forwards; }
+@keyframes fly-right { from { left: -12%; transform: translateY(0); } 50% { transform: translateY(-20px); } to { left: 112%; transform: translateY(0); } }
+@keyframes fly-left { from { left: 112%; transform: translateY(0); } 50% { transform: translateY(15px); } to { left: -15%; transform: translateY(0); } }
+.sighting-rise { left: 70%; animation: rise var(--dur) ease-in forwards; }
+@keyframes rise { from { top: 105%; transform: translateX(0); } 25% { transform: translateX(-20px); } 50% { transform: translateX(15px); } 75% { transform: translateX(-10px); } to { top: -15%; transform: translateX(0); } }
+.sighting-walk { top: 4px; animation: walk var(--dur) linear forwards; }
+@keyframes walk { from { left: -10%; } to { left: 105%; } }
+.sighting-swim { bottom: 6%; animation: swim var(--dur) ease-in-out forwards; }
+@keyframes swim { from { left: -20%; transform: translateY(20px); opacity: 0; } 20%, 80% { opacity: 1; transform: translateY(0); } to { left: 105%; transform: translateY(20px); opacity: 0; } }
+.sighting-beam { left: calc(50% - 3rem); top: 10%; animation: beam var(--dur) ease-in-out forwards; }
+@keyframes beam { 0% { opacity: 0; transform: translateY(-40px); } 15%, 85% { opacity: 1; transform: translateY(0); } 50% { transform: translateX(10px); } 100% { opacity: 0; transform: translate(200px, -80px) scale(0.3); } }
+.sighting-fall { top: -10%; opacity: 0; animation: fall 1.8s ease-in forwards; }
+@keyframes fall { 0% { opacity: 1; transform: translate(0, 0); } 100% { opacity: 0; transform: translate(-40vw, 60vh); } }
+.sighting-streak { right: 10%; top: 8%; transform: rotate(-30deg); animation: streak var(--dur) ease-out forwards; }
+@keyframes streak { 0% { opacity: 0; translate: 0 0; } 10% { opacity: 1; } 100% { opacity: 0; translate: -50vw 25vh; } }
+.sighting-glow {
+  background: linear-gradient(180deg, rgba(89, 193, 53, 0.35), rgba(36, 159, 222, 0.25) 40%, rgba(122, 9, 250, 0.15) 70%, transparent);
+  animation: glow var(--dur) ease-in-out forwards;
+}
+@keyframes glow { 0%, 100% { opacity: 0; } 30%, 70% { opacity: 1; } 50% { opacity: 0.7; } }
+.sighting-arc {
+  background: radial-gradient(closest-side, transparent 78%, rgba(234, 50, 60, 0.35) 80%, rgba(255, 162, 20, 0.35) 83%, rgba(255, 200, 37, 0.35) 86%, rgba(89, 193, 53, 0.35) 89%, rgba(36, 159, 222, 0.35) 92%, rgba(122, 9, 250, 0.3) 95%, transparent 97%);
+  animation: glow var(--dur) ease-in-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  [class*='sighting-'] { animation: none; display: none; }
+}

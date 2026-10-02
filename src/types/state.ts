@@ -11,6 +11,8 @@ export type NumberNotation = 'short' | 'scientific' | 'full';
 /** Player preferences. No audio settings: audio is out of scope. */
 export interface Settings {
   notation: NumberNotation;
+  /** Turns off the random-event animations (0.84); events are still recorded. */
+  reduceMotion: boolean;
 }
 
 export interface EnergyState {
@@ -19,6 +21,8 @@ export interface EnergyState {
   energyPerSecond: number;
   /** Epoch ms of the last time idle gains were applied. */
   lastSavedTimestamp: number;
+  /** All energy ever produced (generators, clicks, offline); never lowered by spending. Sets the player level (0.88). */
+  lifetimeEnergy: number;
 }
 
 export interface ResourceState {
@@ -64,4 +68,9 @@ export interface SettingsState {
 }
 
 /** Everything that is saved. */
-export type GameState = EnergyState & ResourceState & GeneratorState & ResearchState & RoomState & SettingsState;
+/** Random events seen so far (0.84): count and first time, kept for collections and achievements. */
+export interface EventsState {
+  seenEvents: Record<string, { count: number; firstSeen: number }>;
+}
+
+export type GameState = EnergyState & ResourceState & GeneratorState & ResearchState & RoomState & SettingsState & EventsState;

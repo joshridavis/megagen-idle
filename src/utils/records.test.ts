@@ -58,7 +58,7 @@ describe('completion with max levels (0.82)', () => {
   it('counts a type only at max level, and scrapping does not lower it', () => {
     const s = createInitialState(0);
     const part = (st: GameState) => getCompletion(st).parts.find((p) => p.label === 'Generator types at max level')!;
-    expect(part(s)).toEqual({ label: 'Generator types at max level', done: 0, total: GENERATOR_TYPES.length });
+    expect(part(s)).toMatchObject({ label: 'Generator types at max level', done: 0, total: GENERATOR_TYPES.length });
     const max = GENERATORS.solar.maxLevel ?? UPGRADES.maxLevel;
     const almost = { ...s, records: { builtTypes: [GeneratorType.SOLAR], bestLevel: { solar: max - 1 } } };
     expect(part(almost).done).toBe(0);

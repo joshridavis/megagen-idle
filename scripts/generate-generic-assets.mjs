@@ -539,6 +539,97 @@ function panelBg() {
   return c;
 }
 
+// ---------- random-event sightings (0.84) ----------
+
+function spaceship() {
+  const c = new Canvas(32, 16);
+  c.polygon([[2, 9], [10, 5], [24, 5], [31, 9], [24, 12], [10, 12]], C.grey2); // hull
+  c.polygon([[10, 5], [24, 5], [26, 8], [8, 8]], C.grey1);
+  c.circle(17, 5, 4, C.cyan); // canopy
+  c.rect(14, 3, 3, 2, C.white);
+  c.rect(0, 8, 3, 3, C.orange); // engine flame
+  c.set(0, 9, C.yellow);
+  c.rect(12, 12, 2, 2, C.lime);
+  c.rect(20, 12, 2, 2, C.lime);
+  c.outline(C.ink);
+  return c;
+}
+
+function birds() {
+  const c = new Canvas(32, 16);
+  for (const [x, y] of [[2, 6], [12, 2], [14, 10], [24, 5]]) {
+    c.line(x, y, x + 3, y + 2, C.ink);
+    c.line(x + 3, y + 2, x + 6, y, C.ink);
+  }
+  return c;
+}
+
+function balloon() {
+  const c = new Canvas(16, 24);
+  c.circle(8, 7, 6, C.red);
+  c.rect(5, 3, 2, 2, C.orange);
+  c.polygon([[7, 13], [9, 13], [8, 15]], C.darkRed);
+  c.line(8, 15, 7, 23, C.grey3);
+  c.outline(C.ink);
+  return c;
+}
+
+function paperPlane() {
+  const c = new Canvas(16, 16);
+  c.polygon([[1, 8], [15, 3], [7, 10]], C.white);
+  c.polygon([[7, 10], [15, 3], [9, 13]], C.grey2);
+  c.outline(C.grey5);
+  return c;
+}
+
+function cat() {
+  const c = new Canvas(24, 16);
+  c.rect(5, 6, 13, 6, C.orange); // body
+  c.rect(16, 3, 6, 6, C.orange); // head
+  c.polygon([[16, 3], [17, 0], [18, 3]], C.orange); // ears
+  c.polygon([[20, 3], [21, 0], [22, 3]], C.orange);
+  c.set(18, 5, C.ink);
+  c.set(20, 5, C.ink);
+  c.line(5, 7, 1, 2, C.orange); // tail
+  for (const x of [6, 9, 13, 16]) c.rect(x, 12, 2, 3, C.orange); // legs
+  c.rect(8, 7, 2, 4, C.amber); // stripes
+  c.rect(12, 7, 2, 4, C.amber);
+  c.outline(C.ink);
+  return c;
+}
+
+function ufo() {
+  const c = new Canvas(32, 24);
+  c.circle(16, 8, 6, C.mint); // dome
+  c.polygon([[2, 12], [8, 8], [24, 8], [30, 12], [24, 15], [8, 15]], C.grey3); // saucer
+  c.polygon([[8, 8], [24, 8], [27, 11], [5, 11]], C.grey2);
+  for (const x of [8, 14, 20, 26]) c.rect(x - 1, 12, 2, 2, C.yellow);
+  c.polygon([[12, 16], [20, 16], [24, 23], [8, 23]], C.lime, 110); // beam
+  c.outline(C.ink);
+  return c;
+}
+
+function whale() {
+  const c = new Canvas(48, 24);
+  c.polygon([[4, 14], [10, 6], [30, 5], [40, 10], [40, 18], [10, 20]], C.navy); // body
+  c.polygon([[10, 16], [36, 16], [40, 18], [10, 20]], C.sky); // belly
+  c.polygon([[40, 12], [47, 6], [46, 12], [47, 18]], C.navy); // tail
+  c.set(14, 11, C.white);
+  c.line(18, 4, 16, 0, C.cyan); // spout
+  c.line(18, 4, 20, 0, C.cyan);
+  c.outline(C.ink);
+  return c;
+}
+
+function meteor() {
+  const c = new Canvas(16, 16);
+  c.line(0, 0, 10, 10, C.amber);
+  c.line(1, 0, 11, 10, C.yellow);
+  c.circle(12, 12, 3, C.orange);
+  c.circle(12, 12, 1.5, C.lemon);
+  return c;
+}
+
 /** The same sprite desaturated by 40%, snapped back onto the AAP-64 palette. */
 export function inactiveVariant(src) {
   const c = new Canvas(src.width, src.height);
@@ -577,6 +668,14 @@ const DRAW = {
   producer_oil_rig: oilRig,
   producer_uranium_mine: uraniumMine,
   room_expansion: roomExpansion,
+  sighting_spaceship: spaceship,
+  sighting_birds: birds,
+  sighting_balloon: balloon,
+  sighting_paper_plane: paperPlane,
+  sighting_cat: cat,
+  sighting_ufo: ufo,
+  sighting_whale: whale,
+  sighting_meteor: meteor,
   capacity_empty: () => capacity(C.grey6, null, C.grey4),
   capacity_filled: () => capacity(C.green, C.lime, C.forest),
   capacity_critical: () => capacity(C.red, C.orange, C.darkRed),

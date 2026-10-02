@@ -43,6 +43,14 @@ import researchProgressSegment from './sprites/research/progress_segment.png';
 import researchLock from './sprites/research/lock.png';
 import researchCheck from './sprites/research/check.png';
 import researchPanelBg from './sprites/research/panel_bg.png';
+import sightingSpaceship from './sprites/events/spaceship.png';
+import sightingBirds from './sprites/events/birds.png';
+import sightingBalloon from './sprites/events/balloon.png';
+import sightingPaperPlane from './sprites/events/paper_plane.png';
+import sightingCat from './sprites/events/cat.png';
+import sightingUfo from './sprites/events/ufo.png';
+import sightingWhale from './sprites/events/whale.png';
+import sightingMeteor from './sprites/events/meteor.png';
 
 export const sprites = {
   energy_icon: energyIcon,
@@ -87,6 +95,14 @@ export const sprites = {
   research_lock: researchLock,
   research_check: researchCheck,
   research_panel_bg: researchPanelBg,
+  sighting_spaceship: sightingSpaceship,
+  sighting_birds: sightingBirds,
+  sighting_balloon: sightingBalloon,
+  sighting_paper_plane: sightingPaperPlane,
+  sighting_cat: sightingCat,
+  sighting_ufo: sightingUfo,
+  sighting_whale: sightingWhale,
+  sighting_meteor: sightingMeteor,
 } as const;
 
 export type SpriteId = keyof typeof sprites;

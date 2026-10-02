@@ -16,6 +16,7 @@ export interface BonusLine {
 const ORDER: BonusType[] = [
   'globalEnergy',
   'clickPower',
+  'clickRateShare',
   'buildDiscount',
   'researchSpeed',
   'researchCostReduction',
