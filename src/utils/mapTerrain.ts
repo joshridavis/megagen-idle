@@ -1,5 +1,6 @@
 import {
   COAST_COLUMNS,
+  MIN_ZONE_RUN,
   DETAILS,
   FIXED_PATCHES,
   MAP_COLUMNS,
@@ -31,11 +32,15 @@ export function riverColumn(y: number): number {
   return RIVER_START_COLUMN + RIVER_OFFSETS[Math.floor(y / RIVER_BEND_ROWS) % RIVER_OFFSETS.length];
 }
 
-/** Terrain of the tile at column `x`, row `y`. Fixed for every save (1.05). */
-export function terrainAt(x: number, y: number): Terrain {
+/** The river or the coast at a tile, which cut through any patch; else null. */
+function waterAt(x: number, y: number): 'river' | 'coast' | null {
   if (x >= MAP_COLUMNS - COAST_COLUMNS) return 'coast';
   const r = riverColumn(y);
-  if (x >= r && x < r + RIVER_WIDTH) return 'river';
+  return x >= r && x < r + RIVER_WIDTH ? 'river' : null;
+}
+
+/** The zone (or plain) of the patch a tile belongs to, before the river and coast cut through it. */
+function patchAt(x: number, y: number): Terrain {
   const px = Math.floor(x / PATCH_SIZE[0]);
   const py = Math.floor(y / PATCH_SIZE[1]);
   const fixed = FIXED_PATCHES[`${px},${py}`];
@@ -46,6 +51,32 @@ export function terrainAt(x: number, y: number): Terrain {
     roll -= chance;
   }
   return 'plain';
+}
+
+/** Tiles of a zone in one row, side by side, of the patch that holds (x, y): its land left after the water. */
+function zoneRun(x: number, y: number): number {
+  const p0 = Math.floor(x / PATCH_SIZE[0]) * PATCH_SIZE[0];
+  let run = 0;
+  for (let i = p0; i < Math.min(p0 + PATCH_SIZE[0], MAP_COLUMNS); i++) {
+    if (waterAt(i, y)) {
+      if (i > x) break;
+      run = 0;
+    } else run++;
+  }
+  return run;
+}
+
+/**
+ * Terrain of the tile at column `x`, row `y`. Fixed for every save (1.05).
+ * Where the river or coast leaves a zone narrower than MIN_ZONE_RUN tiles in
+ * a row, that sliver is plain: no machine could stand fully on it, so its
+ * bonus could never be had (playtest 17).
+ */
+export function terrainAt(x: number, y: number): Terrain {
+  const water = waterAt(x, y);
+  if (water) return water;
+  const patch = patchAt(x, y);
+  return patch !== 'plain' && zoneRun(x, y) < MIN_ZONE_RUN ? 'plain' : patch;
 }
 
 /** A small decoration drawn on a tile (x >= MAP_COLUMNS is the open sea), or null. Purely cosmetic. */

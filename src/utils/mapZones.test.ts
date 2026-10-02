@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../data/initialState';
-import { DETAILS, MAP_COLUMNS, ZONES } from '../data/map';
+import { DETAILS, MAP_COLUMNS, MIN_ZONE_RUN, ZONES } from '../data/map';
 import { GeneratorType, type Generator } from '../types/generator';
 import type { GameState } from '../types/state';
 import { getBuildBlock } from './generatorSystem';
@@ -23,6 +23,21 @@ describe('map terrain (1.05)', () => {
       expect(row.filter((t) => t === 'river').length).toBeGreaterThanOrEqual(4);
       expect(row.slice(-3).every((t) => t === 'coast')).toBe(true);
       expect(row).toEqual(Array.from({ length: MAP_COLUMNS }, (_, x) => terrainAt(x, y)));
+    }
+  });
+
+  it('never leaves a zone sliver too narrow for a whole machine (playtest 17)', () => {
+    for (let y = 0; y < 60; y++) {
+      for (let x = 0; x < MAP_COLUMNS; x++) {
+        const t = terrainAt(x, y);
+        if (t === 'plain' || t === 'river' || t === 'coast') continue;
+        // the run of this zone in this row, around x
+        let a = x;
+        let b = x;
+        while (a > 0 && terrainAt(a - 1, y) === t) a--;
+        while (b < MAP_COLUMNS - 1 && terrainAt(b + 1, y) === t) b++;
+        expect(b - a + 1, `${t} at ${x},${y}`).toBeGreaterThanOrEqual(MIN_ZONE_RUN);
+      }
     }
   });
 

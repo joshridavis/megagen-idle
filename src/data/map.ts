@@ -133,6 +133,12 @@ export const RIVER_BEND_ROWS = 3;
 export const RIVER_OFFSETS = [0, 1, 2, 2, 1, 0, -1, -2, -2, -1];
 /** Plateau and ridge come in patches of this size (columns x rows). */
 export const PATCH_SIZE: [number, number] = [4, 3];
+/**
+ * Narrowest piece of a zone left in a row after the river and coast cut a
+ * patch: the widest machine that wants a zone (a Wind Turbine) is 3 tiles, so
+ * narrower slivers become plain land (playtest 17).
+ */
+export const MIN_ZONE_RUN = 3;
 /** Chance a patch is each zone; the rest is plain. Checked in this order. */
 export const PATCH_CHANCES: [Zone, number][] = [
   ['plateau', 0.2],
