@@ -10,7 +10,7 @@ export type Resources = Record<ResourceId, number>;
 export type NumberNotation = 'short' | 'scientific' | 'full';
 
 /** How "Your generators" is shown (0.96); 'custom' is the saved fuel-priority order. */
-export type GeneratorSort = 'custom' | 'output-desc' | 'output-asc' | 'level-desc' | 'level-asc' | 'type';
+export type GeneratorSort = 'custom' | 'upgradable' | 'output-desc' | 'output-asc' | 'level-desc' | 'level-asc' | 'type';
 
 /** Player preferences. No audio settings: audio is out of scope. */
 export interface Settings {

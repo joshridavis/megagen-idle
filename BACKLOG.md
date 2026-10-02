@@ -76,6 +76,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.65 Achievements (moved up: playtest 13 feedback)
 0. 0.87 Multi-platform release plan: website, Steam, mobile (playtest 10 feedback) → CHECKPOINT
 0. 1.00 Clearer contract perk shop (playtest 14 feedback)
+0. 1.03 Sort generators by "upgradable first" (playtest 14 feedback)
 0. 1.01 Cosmetic rewards for achievements (playtest 14 feedback)
 0. 1.02 Release plan ordered from easiest to hardest (playtest 14 feedback)
 0. 0.34 Late-game fictional generators (moved up)
@@ -454,6 +455,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Guide:** updated to match.
 **Acceptance:** the shop shows the explanation, the costs say "points", and the button names the shortfall (component tests). The points reward on a card matches `contractRewards`.
 **Notes:** a "How Contract Points work" box (choose points as the reward; ★/★★/★★★ = 1/2/3; the button number is the price). Buttons read "Buy for N points" or "Costs N points · need M more". Each perk shows its effect now and next (`perkEffectText`), and multi-level perks say "level 1 of 2". Contract cards show "🏅 N pts". The header reads "N Contract Points", and the Guide is updated.
+
+### 1.03 — Sort generators by "upgradable first" — CODE — Done
+**Goal:** apply playtest 14 feedback: a sort that shows first the generators the player can afford to upgrade right now.
+**Details:** a new "Upgradable first" option in the Sort by menu. Upgrades affordable now come first, then generators not yet at max level, then maxed ones; ties keep your order. It re-sorts as energy and resources change and uses the same rule as the Upgrade button. View only; fuel priority is unchanged.
+**Acceptance:** sorting order unit tests.
 
 ### 1.01 — Cosmetic rewards for achievements — CODE — Not started
 **Goal:** apply playtest 14 feedback: achievements give cosmetic rewards, nothing that changes balance.
@@ -841,4 +847,4 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-02 | Player level reward: yes but small, about +0.1% per level. About one sighting per hour is right for the common ones. Planned effect events approved. Grid Contracts fine; another activity idea: collect and grow pets that fit the energy theme. An Aurora was recorded as seen but went unnoticed: sightings should stay longer. Bug: 360,722 energy showed as 36K. Level-up needs a celebration like research, and levels gained belong in the welcome-back summary. Add player info: tutorial or game guide. Click research chain drawn on the wrong row. Tree lines should leave each parent as one trunk that splits into its children (sketch). The guide is meant to teach new players how the game works. | 0.89-0.94; 0.40 moved up and widened |
 | 12 (v0.12.0) | 0.89, 0.93, 0.94, 0.90, 0.91, 0.40 | 2026-10-02 | Level-ups stay celebrated, but early levels must be harder (no clicking from level 1 to 4 or 5 in seconds). Guide clear. Prefers the squared-off tree lines. Negative events slightly rarer than positive ones. Add sorting to "Your generators" (e.g. by energy per second). | 0.95, 0.96; 0.85 updated |
 | 13 (v0.13.0) | 0.95, 0.96, 0.85, 0.86, 0.92 | 2026-10-02 | Contract deadlines fine (still watching the feature); unclear why two contracts showed "Not enough yet" and one did not. Pet bonuses and feed-then-wait make sense; add a short animation when clicking a pet. One effect event per 2 hours fine for now. Achievements next. Bug: meteor shower meteors fall in the wrong direction. | 0.97-0.99; 0.65 moved up |
-| 14 (v0.14.0) | 0.98, 0.97, 0.99, 0.65, 0.87 | 2026-10-02 | Achievement rewards should be cosmetic. The achievement list is fine for now. Contract wording much clearer. Release order not decided; prefers easiest to hardest, to reach production as soon as possible. Perk shop unclear: is the number on Buy a cost or an amount, how are points earned, is each contract 1 point? | 1.00-1.02; 0.34 and 0.39 moved up |
+| 14 (v0.14.0) | 0.98, 0.97, 0.99, 0.65, 0.87 | 2026-10-02 | Achievement rewards should be cosmetic. The achievement list is fine for now. Contract wording much clearer. Release order not decided; prefers easiest to hardest, to reach production as soon as possible. Perk shop unclear: is the number on Buy a cost or an amount, how are points earned, is each contract 1 point? Add an "upgradable first" sort. | 1.00-1.03; 0.34 and 0.39 moved up |
