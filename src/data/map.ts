@@ -1,4 +1,5 @@
 import { GeneratorType } from '../types/generator';
+import type { ProducerId } from '../types/resource';
 
 /**
  * Site map (1.04, playtest 14; larger with terrain in 1.05, playtest 15).
@@ -15,16 +16,48 @@ export const LOCKED_PREVIEW_ROWS = 3;
 export const MIN_MAP_ROWS = 10;
 /** Seed for the scattered details (rocks, tufts, flowers): the same map on every visit. */
 export const MAP_SEED = 1505;
-/** Share of plain, plateau and ridge tiles that get a small detail drawn on them. */
-export const DETAIL_CHANCE = 0.16;
+/** Small details drawn on tiles (1.05, more kinds in 1.15, playtest 16). Cosmetic only. */
+export type Detail =
+  | 'rock'
+  | 'tuft'
+  | 'flower'
+  | 'bush'
+  | 'stump'
+  | 'mushroom'
+  | 'log'
+  | 'cactus'
+  | 'drygrass'
+  | 'boulder'
+  | 'bentgrass'
+  | 'reeds'
+  | 'lily'
+  | 'shell'
+  | 'driftwood'
+  | 'boat'
+  | 'buoy';
 
-export type Terrain = 'plain' | 'plateau' | 'ridge' | 'river' | 'coast';
+/** Per terrain (and the open sea): how often a tile gets a detail, and which kinds, picked evenly. */
+export const DETAILS: Record<Terrain | 'sea', { chance: number; kinds: Detail[] }> = {
+  plain: { chance: 0.2, kinds: ['tuft', 'flower', 'rock', 'bush', 'stump', 'mushroom', 'log'] },
+  plateau: { chance: 0.18, kinds: ['rock', 'flower', 'cactus', 'drygrass'] },
+  ridge: { chance: 0.18, kinds: ['rock', 'tuft', 'boulder', 'bentgrass'] },
+  river: { chance: 0.1, kinds: ['reeds', 'lily'] },
+  coast: { chance: 0.12, kinds: ['shell', 'driftwood'] },
+  coalfield: { chance: 0.15, kinds: ['rock', 'drygrass'] },
+  outcrop: { chance: 0.2, kinds: ['boulder', 'rock'] },
+  oilfield: { chance: 0.12, kinds: ['drygrass', 'stump'] },
+  sea: { chance: 0.05, kinds: ['boat', 'buoy'] },
+};
+
+export type Terrain = 'plain' | 'plateau' | 'ridge' | 'river' | 'coast' | 'coalfield' | 'outcrop' | 'oilfield';
 export type Zone = Exclude<Terrain, 'plain'>;
 
 export interface ZoneDef {
   name: string;
   /** Generator types this zone suits. */
   generators: GeneratorType[];
+  /** Producers this zone suits (1.18): their output rises by the bonus. */
+  producers?: ProducerId[];
   /** Energy bonus (fraction) when the whole machine stands inside the zone. */
   bonus: number;
   /** True if those generators can only be built here (playtest 15). */
@@ -52,15 +85,39 @@ export const ZONES: Record<Zone, ZoneDef> = {
     generators: [GeneratorType.HYDRO],
     bonus: 0.1,
     required: true,
-    description: 'Hydropower Dams must be built across the river; fully on it, they make 10% more.',
+    description: 'Hydropower Dams must be built across the river; fully on it, they make 10% more. Other machines may stand here until a dam needs the spot.',
   },
   coast: {
     name: 'Coast',
     generators: [GeneratorType.TIDAL],
     bonus: 0.1,
     required: true,
-    description: 'Tidal Power Stations must be built on the coast; fully on it, they make 10% more.',
+    description: 'Tidal Power Stations must be built on the coast; fully on it, they make 10% more. Other machines may stand here until a station needs the spot.',
   },
+  coalfield: {
+    name: 'Coal field',
+    generators: [],
+    producers: ['coalMine'],
+    bonus: 0.2,
+    required: false,
+    description: 'Coal near the surface: Coal Mines standing fully on it dig 20% more.',
+  },
+  outcrop: {
+    name: 'Rocky outcrop',
+    generators: [],
+    producers: ['quarry', 'mine', 'uraniumMine'],
+    bonus: 0.2,
+    required: false,
+    description: 'Bare rock: Quarries, Metal Mines and Uranium Mines standing fully on it dig 20% more.',
+  },
+  oilfield: {
+    name: 'Oil and gas field',
+    generators: [],
+    producers: ['gasWell', 'oilRig'],
+    bonus: 0.2,
+    required: false,
+    description: 'Pockets underground: Gas Wells and Oil Rigs standing fully on it pump 20% more.',
+  }
 };
 
 /** A machine that needs a zone must have at least this share of its tiles on it. */
@@ -76,10 +133,27 @@ export const RIVER_BEND_ROWS = 3;
 export const RIVER_OFFSETS = [0, 1, 2, 2, 1, 0, -1, -2, -2, -1];
 /** Plateau and ridge come in patches of this size (columns x rows). */
 export const PATCH_SIZE: [number, number] = [4, 3];
-/** Chance a patch is plateau, and ridge; the rest is plain. */
-export const PATCH_CHANCES = { plateau: 0.25, ridge: 0.25 };
+/** Chance a patch is each zone; the rest is plain. Checked in this order. */
+export const PATCH_CHANCES: [Zone, number][] = [
+  ['plateau', 0.2],
+  ['ridge', 0.2],
+  ['coalfield', 0.1],
+  ['outcrop', 0.1],
+  ['oilfield', 0.08],
+];
 /**
- * Patches fixed at the top of the map: plain land where the first machines go,
- * with a plateau and a ridge close by for the player to move solar and wind onto.
+ * Patches fixed at the top of the map: the starting land is plain, and the
+ * first room expansion opens a windy ridge and a sunny plateau next to it.
  */
-export const FIXED_PATCHES: Record<string, Terrain> = { '0,0': 'plain', '1,0': 'plateau', '2,0': 'plain', '0,1': 'ridge', '4,1': 'plateau' };
+export const FIXED_PATCHES: Record<string, Terrain> = {
+  '0,0': 'plain',
+  '1,0': 'plain',
+  '2,0': 'plain',
+  '3,0': 'ridge',
+  '4,0': 'plateau',
+  '0,1': 'ridge',
+  '1,1': 'plateau',
+  '4,1': 'outcrop',
+  '2,2': 'coalfield',
+  '0,2': 'oilfield',
+};

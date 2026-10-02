@@ -1,6 +1,6 @@
 import {
   COAST_COLUMNS,
-  DETAIL_CHANCE,
+  DETAILS,
   FIXED_PATCHES,
   MAP_COLUMNS,
   MAP_SEED,
@@ -11,10 +11,12 @@ import {
   RIVER_START_COLUMN,
   RIVER_WIDTH,
   ZONES,
+  type Detail,
   type Terrain,
   type Zone,
 } from '../data/map';
 import type { GeneratorType } from '../types/generator';
+import type { ProducerId } from '../types/resource';
 
 /** A stable pseudo-random number in [0, 1) for a tile, from the map seed. */
 export function tileHash(x: number, y: number, salt = 0): number {
@@ -38,22 +40,19 @@ export function terrainAt(x: number, y: number): Terrain {
   const py = Math.floor(y / PATCH_SIZE[1]);
   const fixed = FIXED_PATCHES[`${px},${py}`];
   if (fixed) return fixed;
-  const roll = tileHash(px, py, 7);
-  if (roll < PATCH_CHANCES.plateau) return 'plateau';
-  if (roll < PATCH_CHANCES.plateau + PATCH_CHANCES.ridge) return 'ridge';
+  let roll = tileHash(px, py, 7);
+  for (const [zone, chance] of PATCH_CHANCES) {
+    if (roll < chance) return zone;
+    roll -= chance;
+  }
   return 'plain';
 }
 
-export type Detail = 'rock' | 'tuft' | 'flower' | null;
-
-/** A small decoration drawn on a land tile, or null. Purely cosmetic. */
-export function detailAt(x: number, y: number): Detail {
-  const t = terrainAt(x, y);
-  if (t === 'river' || t === 'coast' || tileHash(x, y, 1) >= DETAIL_CHANCE) return null;
-  const pick = tileHash(x, y, 2);
-  if (t === 'ridge') return pick < 0.6 ? 'rock' : 'tuft';
-  if (t === 'plateau') return pick < 0.5 ? 'rock' : 'flower';
-  return pick < 0.5 ? 'tuft' : pick < 0.8 ? 'flower' : 'rock';
+/** A small decoration drawn on a tile (x >= MAP_COLUMNS is the open sea), or null. Purely cosmetic. */
+export function detailAt(x: number, y: number): Detail | null {
+  const d = DETAILS[x >= MAP_COLUMNS ? 'sea' : terrainAt(x, y)];
+  if (tileHash(x, y, 1) >= d.chance) return null;
+  return d.kinds[Math.floor(tileHash(x, y, 2) * d.kinds.length)];
 }
 
 /** The zone a generator type needs or prefers, if any. */
@@ -62,7 +61,7 @@ export function zoneFor(type: string): Zone | null {
   if (zoneOfType.has(type)) return zoneOfType.get(type)!;
   let zone: Zone | null = null;
   for (const [id, z] of Object.entries(ZONES) as [Zone, (typeof ZONES)[Zone]][]) {
-    if (z.generators.includes(type as GeneratorType)) zone = id;
+    if (z.generators.includes(type as GeneratorType) || z.producers?.includes(type as ProducerId)) zone = id;
   }
   zoneOfType.set(type, zone);
   return zone;

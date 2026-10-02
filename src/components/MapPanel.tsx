@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { sprites, type SpriteId } from '../assets';
 import { GENERATORS } from '../data/generators';
-import { LOCKED_PREVIEW_ROWS, MIN_MAP_ROWS, SEA_COLUMNS, ZONES, type Terrain, type Zone } from '../data/map';
+import { LOCKED_PREVIEW_ROWS, MIN_MAP_ROWS, SEA_COLUMNS, ZONES, type Detail, type Terrain, type Zone } from '../data/map';
 import { PRODUCERS } from '../data/producers';
 import { useStore } from '../store';
 import type { GeneratorType } from '../types/generator';
@@ -15,6 +15,7 @@ import { cellsAt, getPlacementBonuses, layoutSite, moveTargets, zoneAllows, zone
 import { GENERATOR_SPRITES } from './generatorSprites';
 import { PRODUCER_SPRITES } from './producerSprites';
 import { useNumberFormat } from './useNumberFormat';
+import { zoneTipText } from './zoneTip';
 
 const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
   plain: 'tile_ground',
@@ -22,10 +23,17 @@ const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
   ridge: 'tile_ridge',
   river: 'tile_river',
   coast: 'tile_coast',
+  coalfield: 'tile_coalfield',
+  outcrop: 'tile_outcrop',
+  oilfield: 'tile_oilfield',
 };
-const DETAIL_SPRITE = { rock: 'deco_rock', tuft: 'deco_tuft', flower: 'deco_flower' } as const;
-const TERRAIN_NAME: Record<Terrain, string> = { plain: 'Plain', plateau: ZONES.plateau.name, ridge: ZONES.ridge.name, river: ZONES.river.name, coast: ZONES.coast.name };
+const detailSprite = (d: Detail) => `deco_${d}` as SpriteId;
+const TERRAIN_NAME = (t: Terrain) => (t === 'plain' ? 'Plain' : ZONES[t].name);
 const pctBonus = (b: number) => `+${Math.round(b * 100)}%`;
+const plural = (name: string) => (name.endsWith('y') ? `${name.slice(0, -1)}ies` : `${name}s`);
+/** The machines a zone suits, e.g. "Quarries, Metal Mines, Uranium Mines". */
+const zoneSuits = (z: Zone) =>
+  [...ZONES[z].generators.map((g) => GENERATORS[g].name), ...(ZONES[z].producers ?? []).map((p) => PRODUCERS[p].name)].map(plural).join(', ');
 
 /**
  * Site map (1.04; terrain, zones and moving in 1.05, playtest 14 and 15).
@@ -42,6 +50,10 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const [selected, setSelected] = useState<string | null>(null);
   const [hoverCell, setHoverCell] = useState<number | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  /** A drag in progress (1.16): which machine, where it was grabbed, and whether it has moved yet. */
+  const drag = useRef<{ key: string; grabX: number; grabY: number; x: number; y: number; moved: boolean } | null>(null);
+  const dragged = useRef(false);
   const next = getNextRoomTier(state.expansionLevel);
   const siteRows = Math.ceil(map.capacity / map.columns);
   const rows = Math.max(MIN_MAP_ROWS, siteRows + (next ? LOCKED_PREVIEW_ROWS : 1));
@@ -63,7 +75,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
       const g = state.activeGenerators.find((x) => x.id === p.id)!;
       return `${nameOf(p)} · Lv ${g.level} · ${g.isActive ? `+${fmt.rate(getGeneratorOutput(g, bonuses, mods))} energy/s` : 'off'} · ${p.cells.length} tiles${where}`;
     }
-    return `${nameOf(p)} · ${p.cells.length} tile${p.cells.length > 1 ? 's' : ''}`;
+    return `${nameOf(p)} · ${p.cells.length} tile${p.cells.length > 1 ? 's' : ''}${where}`;
   };
   const tileInfo = (c: number) => {
     const t = terrainAt(c % map.columns, Math.floor(c / map.columns));
@@ -90,8 +102,58 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const ghostBonus = ghost && sel?.kind === 'generator' ? zoneBonusFor(sel.type, ghost, map.columns) : 0;
 
   const pick = (p: Placed) => {
+    if (dragged.current) {
+      dragged.current = false; // the click that ends a drag is not a selection
+      return;
+    }
     setNote(null);
     setSelected((k) => (k === p.key ? null : p.key));
+  };
+  /** The site cell under a pointer position, or null outside the site columns. */
+  const cellAt = (clientX: number, clientY: number) => {
+    const r = gridRef.current?.getBoundingClientRect();
+    if (!r || r.width === 0 || r.height === 0) return null;
+    const x = Math.floor(((clientX - r.left) / r.width) * viewColumns);
+    const y = Math.floor(((clientY - r.top) / r.height) * rows);
+    return x < 0 || y < 0 || x >= map.columns || y >= rows ? null : { x, y };
+  };
+  const anchorFor = (clientX: number, clientY: number) => {
+    const d = drag.current;
+    const at = cellAt(clientX, clientY);
+    if (!d || !at) return null;
+    const x = at.x - d.grabX;
+    const y = at.y - d.grabY;
+    return x < 0 || y < 0 || x >= map.columns ? null : y * map.columns + x;
+  };
+  // drag and drop (1.16): pointer events, so mouse, pen and touch all work
+  const startDrag = (p: Placed, e: ReactPointerEvent) => {
+    if (e.button !== 0) return;
+    const at = cellAt(e.clientX, e.clientY);
+    if (!at) return;
+    drag.current = { key: p.key, grabX: at.x - p.core.x, grabY: at.y - p.core.y, x: e.clientX, y: e.clientY, moved: false };
+    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+  };
+  const moveDrag = (e: ReactPointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    if (!d.moved && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) return;
+    if (!d.moved) {
+      d.moved = true;
+      setNote(null);
+      setSelected(d.key);
+    }
+    setHoverCell(anchorFor(e.clientX, e.clientY));
+  };
+  const endDrag = (e: ReactPointerEvent) => {
+    const d = drag.current;
+    const anchor = anchorFor(e.clientX, e.clientY);
+    drag.current = null;
+    if (!d?.moved) return;
+    dragged.current = true;
+    setHoverCell(null);
+    if (anchor !== null) clickTile(anchor);
+    else setNote('Dropped outside your site: nothing moved.');
+    setSelected(null); // a drop always ends the move, whether or not it was allowed
   };
   const clickTile = (c: number) => {
     if (!sel) return;
@@ -111,7 +173,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     }
   };
 
-  const legend: (Terrain | 'sea')[] = ['plain', 'plateau', 'ridge', 'river', 'coast', 'sea'];
+  const legend: (Terrain | 'sea')[] = ['plain', 'plateau', 'ridge', 'river', 'coast', 'coalfield', 'outcrop', 'oilfield', 'sea'];
 
   return (
     <section aria-label="Site map" className="flex flex-col gap-3">
@@ -119,7 +181,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
           Your site ({used}/{map.capacity} tiles)
         </h2>
-        <span className="text-xs text-slate-400">One tile per unit of room. Click a machine, then a tile, to move it.</span>
+        <span className="text-xs text-slate-400">One tile per unit of room. Drag a machine to move it (or click it, then a tile).</span>
       </div>
       <div className="min-h-10 text-sm text-sky-200" aria-live="polite" data-testid="map-info">
         {sel ? (
@@ -154,13 +216,20 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
           className="relative grid"
           style={{ gridTemplateColumns: `repeat(${viewColumns}, minmax(20px, 1fr))`, minWidth: viewColumns * 20 }}
           data-testid="site-map"
-          onMouseLeave={() => setHoverCell(null)}
+          ref={gridRef}
+          onMouseLeave={() => !drag.current && setHoverCell(null)}
         >
           {Array.from({ length: rows * viewColumns }, (_, i) => {
             const x = i % viewColumns;
             const y = Math.floor(i / viewColumns);
             if (x >= map.columns) {
-              return <img key={i} src={sprites.tile_sea} alt="" className="pixelated aspect-square w-full" data-terrain="sea" />;
+              const sd = detailAt(x, y);
+              return (
+                <div key={i} className="relative aspect-square w-full" data-terrain="sea">
+                  <img src={sprites.tile_sea} alt="" className="pixelated absolute inset-0 h-full w-full" />
+                  {sd && <img src={sprites[detailSprite(sd)]} alt="" className="pixelated absolute inset-0 h-full w-full" data-detail={sd} />}
+                </div>
+              );
             }
             const c = y * map.columns + x;
             const t = terrainAt(x, y);
@@ -178,7 +247,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                 onClick={() => clickTile(c)}
               >
                 <img src={sprites[TERRAIN_SPRITE[t]]} alt="" className="pixelated absolute inset-0 h-full w-full" />
-                {d && <img src={sprites[DETAIL_SPRITE[d]]} alt="" className="pixelated absolute inset-0 h-full w-full" />}
+                {d && <img src={sprites[detailSprite(d)]} alt="" className="pixelated absolute inset-0 h-full w-full" data-detail={d} />}
                 {locked && <div className="absolute inset-0 bg-slate-950/55" />}
                 {target && <div className={`absolute inset-0 ${best ? 'bg-emerald-300/45' : 'bg-emerald-200/15'}`} data-testid={best ? 'best-spot' : undefined} />}
               </div>
@@ -218,14 +287,33 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                   type="button"
                   onFocus={() => setHover(p.key)}
                   onClick={() => pick(p)}
+                  onPointerDown={(e) => startDrag(p, e)}
+                  onPointerMove={moveDrag}
+                  onPointerUp={endDrag}
+                  onPointerCancel={() => {
+                    drag.current = null;
+                  }}
+                  draggable={false}
+                  style={{ ...pct(p.core.x, p.core.y, p.core.w, p.core.h), touchAction: 'none' }}
                   aria-label={info(p)}
                   aria-pressed={selected === p.key}
                   data-testid={`map-${p.key}`}
-                  className="absolute z-10 flex items-center justify-center"
-                  style={pct(p.core.x, p.core.y, p.core.w, p.core.h)}
+                  className="group absolute z-10 flex cursor-grab items-center justify-center hover:z-30 focus-visible:z-30 active:cursor-grabbing"
                 >
                   <img src={sprites[spriteOf(p)]} alt="" className="pixelated pointer-events-none max-h-full max-w-full object-contain p-0.5" />
-                  {p.zoneBonus > 0 && <span className="pointer-events-none absolute right-0 top-0 text-[10px] leading-none">⭐</span>}
+                  {p.zoneBonus > 0 && (
+                    <span className="group/star absolute right-0 top-0 text-[10px] leading-none" data-testid={`star-${p.key}`}>
+                      ⭐
+                      <span
+                        role="tooltip"
+                        className={`pointer-events-none absolute right-0 z-40 hidden w-48 rounded border border-slate-600 bg-slate-950 p-2 text-left text-xs leading-snug text-slate-100 shadow-xl group-hover/star:block group-focus-visible:block ${
+                          p.core.y > rows / 2 ? 'bottom-full mb-1' : 'top-full mt-1'
+                        }`}
+                      >
+                        {zoneTipText(p.type, p.zoneBonus)}
+                      </span>
+                    </span>
+                  )}
                 </button>
               </div>
             );
@@ -245,10 +333,10 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
         {legend.map((t) => (
           <li key={t} className="flex items-center gap-1">
             <img src={sprites[t === 'sea' ? 'tile_sea' : TERRAIN_SPRITE[t]]} alt="" width={14} height={14} className="pixelated" />
-            {t === 'sea' ? 'Sea' : TERRAIN_NAME[t]}
+            {t === 'sea' ? 'Sea' : TERRAIN_NAME(t)}
             {t !== 'sea' && t !== 'plain' && (
               <span className="text-slate-400">
-                ({ZONES[t].required ? `${GENERATORS[ZONES[t].generators[0]].name}s only` : `${pctBonus(ZONES[t].bonus)} ${GENERATORS[ZONES[t].generators[0]].name}s`})
+                ({ZONES[t].required ? `${zoneSuits(t)} only` : `${pctBonus(ZONES[t].bonus)} ${zoneSuits(t)}`})
               </span>
             )}
           </li>

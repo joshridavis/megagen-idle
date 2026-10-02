@@ -10,7 +10,7 @@ import { getPlayerLevel, playerLevelEnergyBonus } from './playerLevel';
 import { baseOutput, calculateEnergyRate } from './energyGeneration';
 import { getFuelUseRates, getProductionRates } from './resourceSystem';
 import { activePetBonus, withPetMods } from './pets';
-import { getPlacementBonuses } from './siteMap';
+import { getPlacementBonuses, getProducerPlacement } from './siteMap';
 import type { PetsState } from '../types/state';
 
 type Pets = PetsState['pets'];
@@ -123,7 +123,13 @@ export function getClickBreakdown(completedResearch: string[], energyPerSecond =
  * (after fuel efficiency) as a negative modifier.
  */
 export function getResourceBreakdown(
-  state: Pick<GameState, 'producers' | 'activeGenerators' | 'completedResearch'> & { activeEffects?: ActiveEffect[]; pets?: Pets },
+  state: Pick<GameState, 'producers' | 'activeGenerators' | 'completedResearch'> & {
+    activeEffects?: ActiveEffect[];
+    pets?: Pets;
+    /** With these, map placement bonuses count too (1.18). */
+    roomCapacity?: number;
+    mapPins?: Record<string, number>;
+  },
   id: ResourceId,
 ): RateBreakdown {
   const base = getProductionRates(state.producers)[id];
@@ -139,6 +145,10 @@ export function getResourceBreakdown(
   const pet = state.pets ? activePetBonus({ pets: state.pets }) : null;
   if (pet && pet.value > 0 && base > 0 && pet.def.bonus.kind === 'production' && (!pet.def.bonus.resource || pet.def.bonus.resource === id)) {
     boosts.push({ source: petSource(pet.def.name), percent: pet.value, amount: base * pet.value });
+  }
+  if (state.roomCapacity !== undefined && base > 0) {
+    const placed = getProducerPlacement({ ...state, roomCapacity: state.roomCapacity })[id] ?? 0;
+    if (placed > 0) boosts.push({ source: 'Placement on the map', percent: placed, amount: base * placed });
   }
   const bonuses = getBonuses(state.completedResearch);
   const burn = getFuelUseRates(state.activeGenerators, bonuses)[id];

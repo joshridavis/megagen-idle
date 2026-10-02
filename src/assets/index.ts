@@ -52,9 +52,26 @@ import tileRidge from './sprites/map/ridge.png';
 import tileRiver from './sprites/map/river.png';
 import tileCoast from './sprites/map/coast.png';
 import tileSea from './sprites/map/sea.png';
+import tileCoalfield from './sprites/map/coalfield.png';
+import tileOutcrop from './sprites/map/outcrop.png';
+import tileOilfield from './sprites/map/oilfield.png';
 import decoRock from './sprites/map/deco_rock.png';
 import decoTuft from './sprites/map/deco_tuft.png';
 import decoFlower from './sprites/map/deco_flower.png';
+import decoBush from './sprites/map/deco_bush.png';
+import decoStump from './sprites/map/deco_stump.png';
+import decoMushroom from './sprites/map/deco_mushroom.png';
+import decoLog from './sprites/map/deco_log.png';
+import decoCactus from './sprites/map/deco_cactus.png';
+import decoDrygrass from './sprites/map/deco_drygrass.png';
+import decoBoulder from './sprites/map/deco_boulder.png';
+import decoBentgrass from './sprites/map/deco_bentgrass.png';
+import decoReeds from './sprites/map/deco_reeds.png';
+import decoLily from './sprites/map/deco_lily.png';
+import decoShell from './sprites/map/deco_shell.png';
+import decoDriftwood from './sprites/map/deco_driftwood.png';
+import decoBoat from './sprites/map/deco_boat.png';
+import decoBuoy from './sprites/map/deco_buoy.png';
 import sightingSpaceship from './sprites/events/spaceship.png';
 import sightingBirds from './sprites/events/birds.png';
 import sightingBalloon from './sprites/events/balloon.png';
@@ -140,9 +157,26 @@ export const sprites = {
   tile_river: tileRiver,
   tile_coast: tileCoast,
   tile_sea: tileSea,
+  tile_coalfield: tileCoalfield,
+  tile_outcrop: tileOutcrop,
+  tile_oilfield: tileOilfield,
   deco_rock: decoRock,
   deco_tuft: decoTuft,
   deco_flower: decoFlower,
+  deco_bush: decoBush,
+  deco_stump: decoStump,
+  deco_mushroom: decoMushroom,
+  deco_log: decoLog,
+  deco_cactus: decoCactus,
+  deco_drygrass: decoDrygrass,
+  deco_boulder: decoBoulder,
+  deco_bentgrass: decoBentgrass,
+  deco_reeds: decoReeds,
+  deco_lily: decoLily,
+  deco_shell: decoShell,
+  deco_driftwood: decoDriftwood,
+  deco_boat: decoBoat,
+  deco_buoy: decoBuoy,
   sighting_spaceship: sightingSpaceship,
   sighting_birds: sightingBirds,
   sighting_balloon: sightingBalloon,
