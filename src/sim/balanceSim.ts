@@ -32,6 +32,8 @@ import { EVENTS_BY_ID } from '../data/events';
 import { addPet, canFeed, feedCost, feedPet, setActivePet, updatePets } from '../utils/pets';
 import { eventRatePerHour } from '../utils/randomEvents';
 import { deriveRates } from '../utils/simulation';
+import { unlockAchievements } from '../utils/achievements';
+import { ACHIEVEMENTS } from '../data/achievements';
 
 export interface SimOptions {
   /** Simulated hours to run at most. */
@@ -264,6 +266,7 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
     for (let n = 5; n <= s.contracts.done; n += 5) hit(`contracts5:${n}`, `${n} contracts`);
     for (const n of CONTRACT_MILESTONES) if (s.contracts.done >= n) hit(`contracts:${n}`, `${n} contracts completed`);
     if (PERK_IDS.every((id) => perkCost(s, id) === null)) hit('perks:all', 'Every contract perk bought');
+    for (const a of ACHIEVEMENTS) if (s.achievements[a.id] !== undefined) hit(`ach:${a.id}`, `Achievement: ${a.name}`);
     for (const def of PETS) {
       const pet = s.pets.owned[def.id];
       if (pet) hit(`pet:${def.id}`, `Pet found: ${def.name}`);
@@ -300,6 +303,7 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
       if ((t - T0) / 3_600_000 >= 1 / eventRatePerHour(ev)) s = addPet(s, def.id, t);
     }
     if (s.pets !== petsBefore) s = deriveRates(s);
+    s = unlockAchievements(s, t).state;
   }
   const hours = (t - T0) / 3_600_000;
   const times = [0, ...milestones.map((m) => m.hours), hours].sort((a, b) => a - b);

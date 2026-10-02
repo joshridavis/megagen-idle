@@ -1,5 +1,6 @@
 import { sprites, type SpriteId } from '../assets';
-import { GROW_HOURS, PET_STAGES, PETS, type PetDef } from '../data/pets';
+import { useEffect, useState } from 'react';
+import { GROW_HOURS, PET_PARTICLES, PET_REACT_MS, PET_STAGES, PETS, type PetDef, type PetId } from '../data/pets';
 import { RESOURCE_NAMES } from '../data/resources';
 import { useStore } from '../store';
 import { formatDuration } from '../utils/format';
@@ -15,6 +16,41 @@ function bonusText(def: PetDef, value: number): string {
   if (b.kind === 'energy') return `${pct} energy from all generators`;
   if (b.kind === 'production') return `${pct} ${b.resource ? RESOURCE_NAMES[b.resource].toLowerCase() : 'output from all producers'}`;
   return `${pct} energy from ${def.description.split('Boosts ')[1]?.replace('.', '') ?? 'some generators'}`;
+}
+
+/** An owned pet's picture: clicking it plays a short reaction (0.99), unless Reduce motion is on. */
+function PetPicture({ id, stage, name }: { id: PetId; stage: number; name: string }) {
+  const reduceMotion = useStore((s) => s.settings.reduceMotion);
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => {
+    if (!playing) return;
+    const t = setTimeout(() => setPlaying(false), PET_REACT_MS);
+    return () => clearTimeout(t);
+  }, [playing]);
+  return (
+    <button
+      type="button"
+      onClick={() => !playing && !reduceMotion && setPlaying(true)}
+      aria-label={`Pet ${name}`}
+      title={`Pet ${name}`}
+      className="relative shrink-0 rounded"
+      data-testid={`pet-picture-${id}`}
+      data-playing={playing}
+    >
+      <img src={sprites[sprite(id, stage)]} alt="" width={64} height={64} className={`pixelated ${playing ? 'pet-react' : ''}`} />
+      {playing &&
+        [0, 1, 2, 3, 4].map((i) => (
+          <span
+            key={i}
+            aria-hidden="true"
+            className="pet-particle pointer-events-none absolute text-sm text-yellow-300"
+            style={{ left: `${10 + i * 18}%`, animationDelay: `${i * 150}ms` }}
+          >
+            {PET_PARTICLES[id]}
+          </span>
+        ))}
+    </button>
+  );
 }
 
 /** Energy pets (0.92): collection, feeding and growth, one active pet. */
@@ -56,7 +92,7 @@ export default function PetsPanel() {
               data-testid={`pet-${def.id}`}
             >
               <div className="flex items-center gap-3">
-                <img src={sprites[sprite(def.id, pet.stage)]} alt="" width={64} height={64} className="pixelated" />
+                <PetPicture id={def.id} stage={pet.stage} name={def.name} />
                 <div className="min-w-0">
                   <div className="font-semibold">{def.name}</div>
                   <div className="text-xs text-amber-300">

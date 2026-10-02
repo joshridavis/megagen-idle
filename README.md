@@ -55,3 +55,4 @@ The game saves automatically in your browser (IndexedDB). In the **Settings** ta
 - `CLAUDE.md` — project rules for Claude Code sessions.
 - `PLAYTEST.md` — what to try in the current playtest build.
 - `GETTING_STARTED.md` — owner setup steps.
+- `docs/RELEASE_PLAN.md` — plan for the website, Steam and mobile releases.

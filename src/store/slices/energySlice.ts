@@ -53,7 +53,12 @@ export const createEnergySlice =
           const snap = s.awaySnapshot;
           if (!snap) return {};
           const report = buildAwayReport(snap, s, now);
-          return { awaySnapshot: null, ...(report.awaySeconds >= WELCOME_BACK_MIN_SECONDS ? { welcomeBack: report } : {}) };
+          return {
+            awaySnapshot: null,
+            ...(report.awaySeconds >= WELCOME_BACK_MIN_SECONDS
+              ? { welcomeBack: report, stats: { ...s.stats, returns: (s.stats?.returns ?? 0) + 1 } }
+              : {}),
+          };
         },
         undefined,
         'energy/visible',
@@ -85,6 +90,7 @@ export const createEnergySlice =
           return {
             ...pickSaved(state),
             ...welcome,
+            ...(welcome.welcomeBack ? { stats: { ...s.stats, returns: (s.stats?.returns ?? 0) + 1 } } : {}),
             lastSavedTimestamp: now,
             ...(live ? withCelebrations(s, report.completedResearch, state.lifetimeEnergy, now) : {}),
           };
@@ -97,7 +103,12 @@ export const createEnergySlice =
         (s) => {
           const gained = getClickValue(s.completedResearch, s.energyPerSecond, petClickBonus(s));
           const lifetimeEnergy = s.lifetimeEnergy + gained;
-          const next = { energy: s.energy + gained, lifetimeEnergy, ...withCelebrations(s, [], lifetimeEnergy, Date.now()) };
+          const next = {
+            energy: s.energy + gained,
+            lifetimeEnergy,
+            stats: { ...s.stats, clicks: (s.stats?.clicks ?? 0) + 1 },
+            ...withCelebrations(s, [], lifetimeEnergy, Date.now()),
+          };
           // a level-up changes the energy bonus
           return next.celebrations ? { ...next, ...deriveRates({ ...pickSaved(s), ...next }) } : next;
         },

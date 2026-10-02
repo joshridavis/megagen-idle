@@ -44,6 +44,19 @@ export interface PetDef {
 }
 
 export const PET_STAGES = ['Baby', 'Young', 'Adult'] as const;
+/** How long a pet's reaction plays when clicked (0.99, ms). */
+export const PET_REACT_MS = 2500;
+/** Particles a pet shows when clicked. */
+export const PET_PARTICLES: Record<PetId, string> = {
+  hamster: '❤',
+  firefly: '✦',
+  tortoise: '☀',
+  eel: '⚡',
+  robodog: '⚙',
+  cat: '⚡',
+  beetle: '✧',
+  jellyfish: '✦',
+};
 /** Hours to grow after feeding: to young, to adult. */
 export const GROW_HOURS: [number, number] = [2, 8];
 

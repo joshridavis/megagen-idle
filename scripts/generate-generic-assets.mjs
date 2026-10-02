@@ -630,6 +630,22 @@ function meteor() {
   return c;
 }
 
+// ---------- achievements (0.65) ----------
+
+function trophy(cup, shine, base) {
+  const c = new Canvas(24, 24);
+  c.polygon([[5, 3], [19, 3], [17, 12], [12, 15], [7, 12]], cup); // cup
+  c.rect(7, 4, 3, 6, shine);
+  c.rect(1, 4, 4, 2, cup); // handles
+  c.rect(1, 4, 2, 6, cup);
+  c.rect(19, 4, 4, 2, cup);
+  c.rect(21, 4, 2, 6, cup);
+  c.rect(11, 15, 2, 4, cup); // stem
+  c.rect(7, 19, 10, 3, base); // base
+  c.outline(C.ink);
+  return c;
+}
+
 // ---------- pets (0.92): adult drawn at 32x32, baby and young scaled down ----------
 
 function hamster() {
@@ -806,6 +822,8 @@ const DRAW = {
   producer_oil_rig: oilRig,
   producer_uranium_mine: uraniumMine,
   room_expansion: roomExpansion,
+  achievement_unlocked: () => trophy(C.yellow, C.lemon, C.brown3),
+  achievement_locked: () => trophy(C.grey5, C.grey4, C.grey6),
   sighting_spaceship: spaceship,
   sighting_birds: birds,
   sighting_balloon: balloon,

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { MAX_OFFLINE_SECONDS, TICK_INTERVAL_MS } from '../data/time';
+import { platform } from '../platform';
 import { useStore } from '../store';
 
 /**
@@ -25,7 +26,7 @@ export function tick(now = Date.now(), maxSeconds = MAX_OFFLINE_SECONDS, catchUp
   const delta = computeDeltaSeconds(lastSavedTimestamp, now, maxSeconds);
   applyIdleGains(delta, now, { catchUp });
   // Random events (0.84): sightings only while the game is on screen.
-  const visible = typeof document === 'undefined' || document.visibilityState === 'visible';
+  const visible = !platform.isBackground();
   useStore.getState().rollRandomEvents(delta, { foreground: visible && !catchUp, catchUp }, Math.random, now);
   useStore.getState().tickContracts(now);
   useStore.getState().tickPets(now);
@@ -46,23 +47,19 @@ export const useIdleEngine = (): void => {
     };
     // Background tabs throttle the heartbeat to about once a minute; summarise
     // the whole hidden period once, on return (0.79).
-    const onVisibility = () => {
-      const store = useStore.getState();
-      if (document.visibilityState === 'hidden') {
-        tick();
-        store.markHidden(Date.now());
-      } else {
-        tick();
-        useStore.getState().markVisible(Date.now());
-      }
+    const onBackground = (hidden: boolean) => {
+      tick();
+      if (hidden) useStore.getState().markHidden(Date.now());
+      else useStore.getState().markVisible(Date.now());
     };
-    document.addEventListener('visibilitychange', onVisibility);
+    // through the platform layer (0.87), so a desktop or mobile wrapper can report pause and resume
+    const offBackground = platform.onBackground(onBackground);
     const persistApi = useStore.persist;
     let unsub: (() => void) | undefined;
     if (!persistApi || persistApi.hasHydrated()) start();
     else unsub = persistApi.onFinishHydration(start);
     return () => {
-      document.removeEventListener('visibilitychange', onVisibility);
+      offBackground();
       unsub?.();
       if (interval) clearInterval(interval);
     };

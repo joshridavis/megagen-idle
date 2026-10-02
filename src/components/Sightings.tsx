@@ -59,7 +59,7 @@ export default function Sightings() {
           <div
             key={i}
             className="sighting-streak absolute h-0.5 w-24 bg-gradient-to-r from-transparent to-white"
-            style={{ right: `${8 + ((i * 23) % 40)}%`, top: `${5 + ((i * 11) % 20)}%`, animationDelay: `${i * 3000}ms` }}
+            style={{ left: `${8 + ((i * 23) % 45)}%`, top: `${5 + ((i * 11) % 20)}%`, animationDelay: `${i * 3000}ms` }}
           />
         ))}
       {def.animation === 'fall' &&
@@ -67,7 +67,7 @@ export default function Sightings() {
           <div
             key={i}
             className="sighting-fall absolute w-8"
-            style={{ left: `${45 + ((i * 37) % 50)}%`, animationDelay: `${i * 1200}ms` }}
+            style={{ left: `${2 + ((i * 37) % 55)}%`, animationDelay: `${i * 1200}ms` }}
           >
             {img}
           </div>

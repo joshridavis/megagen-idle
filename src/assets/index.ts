@@ -43,6 +43,8 @@ import researchProgressSegment from './sprites/research/progress_segment.png';
 import researchLock from './sprites/research/lock.png';
 import researchCheck from './sprites/research/check.png';
 import researchPanelBg from './sprites/research/panel_bg.png';
+import achievementUnlocked from './sprites/ui/achievement_unlocked.png';
+import achievementLocked from './sprites/ui/achievement_locked.png';
 import sightingSpaceship from './sprites/events/spaceship.png';
 import sightingBirds from './sprites/events/birds.png';
 import sightingBalloon from './sprites/events/balloon.png';
@@ -119,6 +121,8 @@ export const sprites = {
   research_lock: researchLock,
   research_check: researchCheck,
   research_panel_bg: researchPanelBg,
+  achievement_unlocked: achievementUnlocked,
+  achievement_locked: achievementLocked,
   sighting_spaceship: sightingSpaceship,
   sighting_birds: sightingBirds,
   sighting_balloon: sightingBalloon,

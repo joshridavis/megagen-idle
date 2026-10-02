@@ -13,6 +13,7 @@ import { createEventSlice } from './slices/eventSlice';
 import { createContractSlice } from './slices/contractSlice';
 import { createPetSlice } from './slices/petSlice';
 import { deriveEvents } from '../utils/eventLog';
+import { unlockAchievements } from '../utils/achievements';
 import { deriveRates } from '../utils/simulation';
 import { gameStorage } from './storage';
 import type { GameStore } from './types';
@@ -39,6 +40,8 @@ export const useStore = create<GameStore>()(
           ...createContractSlice(init)(...a),
           ...createPetSlice(init)(...a),
           welcomeBack: null,
+          achievements: init.achievements,
+          stats: init.stats,
           resetGame: () =>
             set(
               (s) => ({ ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], activeSighting: null, eventEpoch: s.eventEpoch + 1 }),
@@ -77,6 +80,15 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
 // research, unlocks, fuel and room events come from the systems themselves.
 // A replaced game (load, reset, rehydration) is not an event.
 useStore.subscribe((next, prev) => {
+  // Achievements (0.65): unlock whatever the new state has reached. A loaded
+  // or reset game unlocks silently; live play gets a notice.
+  const earned = unlockAchievements(next, Date.now());
+  if (earned.unlocked.length) {
+    useStore.setState({ achievements: earned.state.achievements }, undefined, 'achievements/unlock');
+    if (next.eventEpoch === prev.eventEpoch) {
+      next.logEvents(earned.unlocked.map((d) => ({ kind: 'achievement' as const, text: `Achievement unlocked: ${d.name}!`, toast: true })));
+    }
+  }
   if (next.eventEpoch !== prev.eventEpoch) return;
   const entries = deriveEvents(prev, next);
   if (entries.length) next.logEvents(entries);

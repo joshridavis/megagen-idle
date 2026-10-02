@@ -96,6 +96,15 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: 'achievements',
+    title: 'Achievements',
+    icon: 'achievement_unlocked',
+    paragraphs: [
+      'Achievements unlock by themselves as you play: total energy, generators, research, contracts, pets and more. The Achievements tab shows your progress toward each one.',
+      'Bonus achievements depend on luck or play style (sightings, events, clicking, coming back) and do not count toward 100% completion.',
+    ],
+  },
+  {
     id: 'level',
     title: 'Player level',
     icon: 'research_check',

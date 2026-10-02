@@ -6,7 +6,7 @@ import { RESEARCH, RESEARCH_BY_ID } from '../data/research';
 import type { ProducerId } from '../types/resource';
 import type { GameState, ResourceId } from '../types/state';
 
-export type LogKind = 'research' | 'unlock' | 'fuel' | 'room' | 'event';
+export type LogKind = 'research' | 'unlock' | 'fuel' | 'room' | 'event' | 'achievement';
 
 export interface LogEntry {
   id: string;
