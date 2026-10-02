@@ -9,6 +9,8 @@ import {
   isRoomNearlyFull,
   lastExpansionSize,
 } from '../utils/roomSystem';
+import { ZONES, type Zone } from '../data/map';
+import { expansionTerrain } from '../utils/siteMap';
 import CostList from './CostList';
 import { useNumberFormat } from './useNumberFormat';
 
@@ -134,6 +136,14 @@ export default function RoomPanel() {
               Expansion {next.tier} of {ROOM_TIERS.length}:{' '}
             </span>
             <strong>+{next.capacity} room</strong>
+          </div>
+          <div className="text-xs text-slate-400" data-testid="expansion-land">
+            New land:{' '}
+            {Object.entries(expansionTerrain(state.roomCapacity, next.capacity))
+              .sort((a, b) => b[1] - a[1])
+              .map(([t, n]) => `${n} ${t === 'plain' ? 'plain' : ZONES[t as Zone].name.toLowerCase()}`)
+              .join(', ')}{' '}
+            (see the Map tab)
           </div>
           <div>
             <span className="text-slate-400">Cost: </span>

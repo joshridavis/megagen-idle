@@ -6,7 +6,7 @@ import type { GameState } from '../types/state';
 import { getBuildBlock } from './generatorSystem';
 import { detailAt, terrainAt } from './mapTerrain';
 import { migrateSave } from '../store/migrations';
-import { cellsAt, getPlacementBonuses, getProducerPlacement, hasSpotFor, layoutSite, moveOnMap, moveTargets, withPlacementMods, zoneAllows, zoneBonusFor } from './siteMap';
+import { cellsAt, expansionTerrain, getPlacementBonuses, getProducerPlacement, hasSpotFor, layoutSite, moveOnMap, moveTargets, withPlacementMods, zoneAllows, zoneBonusFor } from './siteMap';
 import { getProductionRates } from './resourceSystem';
 import { getResourceBreakdown } from './breakdown';
 import { NO_MODS } from './effectMods';
@@ -210,5 +210,20 @@ describe('producer zones (1.18)', () => {
     const s = site([], 200, { producers: { ...createInitialState(0).producers, quarry: 3 } });
     const quarries = layoutSite(s).placed.filter((p) => p.id === 'quarry');
     expect(quarries.some((p) => p.zoneBonus === ZONES.outcrop.bonus)).toBe(true);
+  });
+});
+
+describe('expansion preview (1.06)', () => {
+  it('counts the new land by terrain, matching the map', () => {
+    const land = expansionTerrain(13, 10);
+    expect(Object.values(land).reduce((a, b) => a + (b ?? 0), 0)).toBe(10);
+    // tiles 13..22 of the first row: a windy ridge, a sunny plateau, and the start of the coast
+    expect(land.ridge).toBe(3);
+    expect(land.plateau).toBe(4);
+    for (const [t, n] of Object.entries(land)) {
+      let count = 0;
+      for (let c = 13; c < 23; c++) if (terrainAt(c % MAP_COLUMNS, Math.floor(c / MAP_COLUMNS)) === t) count++;
+      expect(count).toBe(n);
+    }
   });
 });

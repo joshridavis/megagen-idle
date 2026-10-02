@@ -95,7 +95,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.21 Active bonuses can be opened and closed (playtest 17 feedback)
 0. 0.67 Public release plan: accounts and cloud saves (moved up: playtest 15 and 17, the website needs accounts)
 0. 0.68 Accounts and cloud saves (needs owner setup, see 0.67; skipped until then)
-0. 1.06 Map polish: expansions grow the map, simulator and balance (playtest 14 feedback)
+0. 1.06 Map polish: expansions grow the map, simulator and balance (playtest 14 feedback) → CHECKPOINT 18
 0. 1.12 Map events you can watch on the map (playtest 15 feedback)
 0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback) → CHECKPOINT
@@ -578,7 +578,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** the panel opens and closes from its header, which shows the count. Closed, it keeps a one-line summary of each bonus (icon and total). The choice is remembered on this device.
 **Acceptance:** opening, closing, the summary and remembering are covered by a component test.
 
-### 1.06 — Map polish: expansions grow the map, simulator and balance — CODE — Not started
+### 1.06 — Map polish: expansions grow the map, simulator and balance — CODE — Done
 **Goal:** finish the map: room expansions open new land with its own terrain mix, and the simulator places machines sensibly.
 **Details:**
 - **Expansions:** each room tier unlocks a named area (for example "North Ridge", windy) with a preview before buying.
@@ -586,6 +586,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Display:** a mini-map in the Generators tab and a zone legend.
 - **Guide:** a Map section.
 **Acceptance:** the simulator report includes placement bonuses; no stalls; expansion areas have tests.
+**Notes:**
+- **Expansions:** the Room panel previews the land the next expansion opens, by terrain (for example "36 plain, 24 river, 12 windy ridge"). It replaces named areas, since the site grows row by row through a single landscape.
+- **Simulator:** placement on zones was already handled by 1.17 (new machines go to their zone), so the simulator gets the bonuses. About 110 h, no stalls.
+- **Guide:** the Map section explains zones, the river and coast rule, placement and moving. The Map tab already has the zone legend.
+- **Skipped:** the mini-map in the Generators tab; the Map tab covers it and the owner has not asked for it.
 
 ### 1.07 — Browser notifications, opt-in and rate-limited — CODE — Not started
 **Goal:** apply playtest 14 feedback: notify the player outside the game (browser notifications now, mobile later) when something worth coming back for happens, such as a research done or a level up. Handled carefully, because too many notifications are annoying.
