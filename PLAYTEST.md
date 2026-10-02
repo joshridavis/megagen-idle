@@ -25,7 +25,7 @@ Your save carries over.
     - Coming next: terrain zones (sunny, windy, river, coast…) that boost the machines that suit them, and moving machines around.
   - **Cosmetic achievement rewards.**
     - 16 achievements unlock a **title**, which you can show under your player level.
-    - Having 5, 15, 25 or 36 achievements unlocks a new **accent colour** for the top bar.
+    - Having 5, 15, 25 or 36 achievements unlocks a new **accent color** for the top bar.
     - Pick them in the new Cosmetics box at the top of the Achievements tab. They change nothing in the game.
   - **Clearer perk shop.**
     - A "How Contract Points work" box: choose points as a contract's reward; ★ = 1, ★★ = 2, ★★★ = 3 points.
@@ -39,14 +39,14 @@ Your save carries over.
 
 1. Open the Map. Do your machines look right? Hover over a few and click one.
 2. Buy a room expansion and watch the fenced land turn into ground.
-3. Open Achievements → Cosmetics. Pick a title and, if you have 5 achievements, a colour.
+3. Open Achievements → Cosmetics. Pick a title and, if you have 5 achievements, a color.
 4. Open Contracts. Is the perk shop clear now?
 5. In Your generators, choose "Upgradable first".
 
 ## Known issues
 
 - Machines can't be moved yet, and the map has no terrain yet (next item).
-- Some odd-sized machines (3, 5 tiles) have L-shaped footprints, so their picture can overlap a neighbour's corner.
+- Some odd-sized machines (3, 5 tiles) have L-shaped footprints, so their picture can overlap a neighbor's corner.
 - Placeholder art.
 
 ## Questions for you
@@ -54,4 +54,4 @@ Your save carries over.
 1. Does the map feel like the right base for zones and moving machines? Should the map be wider or taller?
 2. Which zones would you like? Planned: sunny plateau, windy ridge, river, coast, coal or gas field, and plain.
 3. Should hydro need a river and tidal need the coast (real constraints), or should zones only give bonuses?
-4. Are the titles and colours a nice reward, or would you like other cosmetics (for example map decorations)?
+4. Are the titles and colors a nice reward, or would you like other cosmetics (for example map decorations)?

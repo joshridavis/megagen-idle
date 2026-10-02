@@ -14,7 +14,7 @@ export const RESOURCE_ICONS: Record<ResourceId, SpriteId> = {
 };
 
 /** Resource amounts with icons; amounts the player cannot afford are red. */
-/** Text colour for fuel use: amber, kept distinct from the red "cannot afford". */
+/** Text color for fuel use: amber, kept distinct from the red "cannot afford". */
 export const FUEL_CLASS = 'text-amber-300';
 
 export default function CostList({

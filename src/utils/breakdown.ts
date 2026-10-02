@@ -9,6 +9,13 @@ import { getEffectMods, type ActiveEffect } from './effectMods';
 import { getPlayerLevel, playerLevelEnergyBonus } from './playerLevel';
 import { baseOutput, calculateEnergyRate } from './energyGeneration';
 import { getFuelUseRates, getProductionRates } from './resourceSystem';
+import { activePetBonus, withPetMods } from './pets';
+import type { PetsState } from '../types/state';
+
+type Pets = PetsState['pets'];
+
+/** The active pet as a row, named so players can see it working (playtest 15). */
+const petSource = (name: string) => `${name} (pet)`;
 
 export interface RateModifier {
   /** Where the boost comes from, e.g. a research name. */
@@ -43,7 +50,7 @@ export function breakdownFromResearch(base: number, completedResearch: string[],
 
 /** Energy per second: base from running generators, then research boosts. */
 export function getEnergyBreakdown(
-  state: Pick<GameState, 'activeGenerators' | 'completedResearch'> & { lifetimeEnergy?: number; activeEffects?: ActiveEffect[] },
+  state: Pick<GameState, 'activeGenerators' | 'completedResearch'> & { lifetimeEnergy?: number; activeEffects?: ActiveEffect[]; pets?: Pets },
 ): RateBreakdown {
   const running = state.activeGenerators.filter((g) => g.isActive);
   const base = running.reduce((sum, g) => sum + baseOutput(g), 0);
@@ -61,14 +68,30 @@ export function getEnergyBreakdown(
     const affected = e.generator ? running.filter((g) => g.type === e.generator).reduce((sum, g) => sum + baseOutput(g), 0) : base;
     modifiers.push({ source: `${def.name} (event)`, percent: e.energy, amount: affected * e.energy });
   }
+  const pet = state.pets ? activePetBonus({ pets: state.pets }) : null;
+  if (pet && pet.value > 0) {
+    const b = pet.def.bonus;
+    const affected = b.kind === 'generator' ? running.filter((g) => b.generators.includes(g.type)).reduce((sum, g) => sum + baseOutput(g), 0) : b.kind === 'energy' ? base : 0;
+    if (affected > 0) modifiers.push({ source: petSource(pet.def.name), percent: pet.value, amount: affected * pet.value });
+  }
   // matches getGeneratorOutput, which never goes below 0 per generator
-  const total = calculateEnergyRate(state.activeGenerators, getEnergyBonuses(state), getEffectMods(state.activeEffects));
+  const total = calculateEnergyRate(
+    state.activeGenerators,
+    getEnergyBonuses(state),
+    withPetMods(getEffectMods(state.activeEffects), state.pets ? { pets: state.pets } : undefined),
+  );
   return { base, modifiers, total };
 }
 
 /** Energy per click: base click value, click power boosts, then the energy/s share (capped). */
-export function getClickBreakdown(completedResearch: string[], energyPerSecond = 0): RateBreakdown {
+export function getClickBreakdown(completedResearch: string[], energyPerSecond = 0, pets?: Pets): RateBreakdown {
   const power = breakdownFromResearch(BASE_CLICK_VALUE, completedResearch, 'clickPower');
+  const pet = pets ? activePetBonus({ pets }) : null;
+  if (pet && pet.def.bonus.kind === 'click' && pet.value > 0) {
+    const amount = BASE_CLICK_VALUE * pet.value;
+    power.modifiers.push({ source: petSource(pet.def.name), percent: pet.value, amount });
+    power.total += amount;
+  }
   const share = getBonuses(completedResearch).clickRateShare;
   if (share <= 0) return power;
   const raw = breakdownFromResearch(1, completedResearch, 'clickRateShare').total - 1;
@@ -86,7 +109,7 @@ export function getClickBreakdown(completedResearch: string[], energyPerSecond =
  * (after fuel efficiency) as a negative modifier.
  */
 export function getResourceBreakdown(
-  state: Pick<GameState, 'producers' | 'activeGenerators' | 'completedResearch'> & { activeEffects?: ActiveEffect[] },
+  state: Pick<GameState, 'producers' | 'activeGenerators' | 'completedResearch'> & { activeEffects?: ActiveEffect[]; pets?: Pets },
   id: ResourceId,
 ): RateBreakdown {
   const base = getProductionRates(state.producers)[id];
@@ -98,6 +121,10 @@ export function getResourceBreakdown(
     const e = def?.effect;
     if (e?.kind !== 'timed' || !e.production || (e.resource && e.resource !== id) || base <= 0) continue;
     boosts.push({ source: `${def.name} (event)`, percent: e.production, amount: base * e.production });
+  }
+  const pet = state.pets ? activePetBonus({ pets: state.pets }) : null;
+  if (pet && pet.value > 0 && base > 0 && pet.def.bonus.kind === 'production' && (!pet.def.bonus.resource || pet.def.bonus.resource === id)) {
+    boosts.push({ source: petSource(pet.def.name), percent: pet.value, amount: base * pet.value });
   }
   const bonuses = getBonuses(state.completedResearch);
   const burn = getFuelUseRates(state.activeGenerators, bonuses)[id];

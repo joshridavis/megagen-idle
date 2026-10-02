@@ -80,7 +80,7 @@ export class Canvas {
     }
   }
 
-  /** Draw a 1px outline around every opaque pixel, on transparent neighbours. */
+  /** Draw a 1px outline around every opaque pixel, on transparent neighbors. */
   outline(hex) {
     const marks = [];
     for (let y = 0; y < this.height; y++) {

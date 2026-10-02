@@ -30,7 +30,7 @@ body {
   }
 }
 
-/* Scrollbars in game colours (playtest 5). Firefox and current Chromium use
+/* Scrollbars in game colors (playtest 5). Firefox and current Chromium use
    scrollbar-color; older WebKit uses the ::-webkit-scrollbar rules. */
 * {
   scrollbar-width: thin;

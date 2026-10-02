@@ -23,7 +23,7 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
 0. 0.48 Offline cap to 24 hours (playtest 1 feedback)
-0. 0.49 Distinct colour for fuel use (playtest 2 feedback)
+0. 0.49 Distinct color for fuel use (playtest 2 feedback)
 0. 0.50 Generators cost energy (playtest 2 feedback)
 0. 0.51 Higher energy costs for building and research (playtest 3 feedback)
 0. 0.52 Longer research times that grow with level (playtest 3 feedback)
@@ -37,7 +37,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.59 Producer cost growth 20% (playtest 5 feedback)
 0. 0.60 Scrap producers (playtest 5 feedback)
 0. 0.61 Research rewards stand out (playtest 5 feedback)
-0. 0.62 Scrollbars in game colours (playtest 5 feedback)
+0. 0.62 Scrollbars in game colors (playtest 5 feedback)
 0. 0.63 Research-complete celebration (playtest 5 feedback)
 0. 0.64 Tab icons (playtest 5 feedback) → CHECKPOINT
 0. 0.69 Manual generator ordering (playtest 6 feedback)
@@ -80,9 +80,16 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.01 Cosmetic rewards for achievements (playtest 14 feedback)
 0. 1.02 Release plan ordered from easiest to hardest (playtest 14 feedback)
 0. 1.04 Site map: see your machines on a map (playtest 14 feedback) → CHECKPOINT
-0. 1.05 Map terrain zones and moving machines (playtest 14 feedback)
+0. 1.08 Map: machines no longer overlap (playtest 15 bug)
+0. 1.09 Amber accent visible; American English everywhere (playtest 15 feedback)
+0. 1.10 Readable event notices: longer toasts, exact effect on hover, saved log (playtest 15 feedback)
+0. 1.11 Pet bonuses shown in the click and rate breakdowns (playtest 15 bug)
+0. 1.05 Larger, detailed map: terrain zones, rivers and coast, moving machines (playtest 14 and 15 feedback) → CHECKPOINT
 0. 1.06 Map polish: expansions grow the map, simulator and balance (playtest 14 feedback)
-0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
+0. 0.67 Public release plan: accounts and cloud saves (moved up: playtest 15, the website needs accounts)
+0. 1.12 Map events you can watch on the map (playtest 15 feedback)
+0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
+0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback) → CHECKPOINT
 0. 0.34 Late-game fictional generators (moved up)
 0. 0.39 Statistics panel (moved up)
 1. 0.00 Bootstrap and repo verification
@@ -121,7 +128,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 34. 0.47 Balance re-tune and difficulty curve review
 35. (0.65 moved to the top, playtest 13)
 36. (0.66 moved to the top, playtest 10)
-37. 0.67 Public release plan: accounts and cloud saves (owner request, playtest 5)
+37. (0.67 moved to the top, playtest 15)
 38. 0.68 Accounts and cloud saves (needs owner setup, see 0.67)
 
 ---
@@ -187,10 +194,10 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** pure `getEnergyBreakdown(state)` in `src/utils/` returning base, a list of modifiers (source name, percent, energy per second it adds) and total; boosts come from research effects, so future boosts appear automatically. Built as a reusable rate-breakdown shape and tooltip so resources can use it later. Keyboard accessible (tooltip on focus too). Also shows the click value and its boost when click power is boosted.
 **Acceptance:** tooltip lists Basic Solar's +10% with its energy/s once it is completed, and shows only the base without boosts; unit tests for the breakdown; total matches the displayed rate.
 
-### 0.49 — Distinct colour for fuel use — CODE — Done
-**Goal:** apply playtest 2 feedback: the "Burns" line on a generator card must not look like the red "cannot afford" colour.
-**Details:** give fuel use (the card's "Burns" line, and negative resource rates caused by fuel) its own colour, such as amber, distinct from the red used for unaffordable costs. Keep red only for "you cannot afford this".
-**Acceptance:** the "Burns" text and the unaffordable-cost text use different colours; a UI test checks the fuel line does not use the red class.
+### 0.49 — Distinct color for fuel use — CODE — Done
+**Goal:** apply playtest 2 feedback: the "Burns" line on a generator card must not look like the red "cannot afford" color.
+**Details:** give fuel use (the card's "Burns" line, and negative resource rates caused by fuel) its own color, such as amber, distinct from the red used for unaffordable costs. Keep red only for "you cannot afford this".
+**Acceptance:** the "Burns" text and the unaffordable-cost text use different colors; a UI test checks the fuel line does not use the red class.
 
 ### 0.50 — Generators cost energy — CODE — Done
 **Goal:** apply playtest 2 feedback: give energy a use. Building a generator also costs energy, equal to what it produces in 10 minutes.
@@ -239,8 +246,8 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Details:** the "Gives" row becomes a highlighted reward box (green tint, 🎁 icon, "You get:" label), each reward on its own line with its own icon (⚡ unlocks a generator, ⛏️ grants a producer, 📈 a percentage boost). Research nodes show a small reward hint too (e.g. "🎁 Wind Turbine").
 **Acceptance:** UI test that the reward box lists every unlock, producer grant and boost of a research.
 
-### 0.62 — Scrollbars in game colours — CODE — Done
-**Goal:** apply playtest 5 feedback: the scrollbar on long lists (Your generators) uses browser default white and grey; it should match the game.
+### 0.62 — Scrollbars in game colors — CODE — Done
+**Goal:** apply playtest 5 feedback: the scrollbar on long lists (Your generators) uses browser default white and gray; it should match the game.
 **Details:** global scrollbar styling from the theme (slate track, sky/slate thumb, rounded) using `scrollbar-color`/`scrollbar-width` for Firefox and Chromium plus `::-webkit-scrollbar` rules for older WebKit. Applies to every scroll area (generator list, research tree, page).
 **Acceptance:** CSS present for both engines; screenshot check in the PR.
 
@@ -300,7 +307,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 
 ### 0.77 — Floating research chip — CODE — Done
 **Goal:** apply playtest 8 feedback: the research chip sits oddly between the energy display and the button; it should float at the bottom of the screen without ever covering the version footer.
-**Details:** the chip becomes `position: fixed` at the bottom centre (with safe-area padding on phones); while it shows, the page gets matching bottom padding so scrolling to the end reveals the footer above it. Same content and click behaviour as before.
+**Details:** the chip becomes `position: fixed` at the bottom center (with safe-area padding on phones); while it shows, the page gets matching bottom padding so scrolling to the end reveals the footer above it. Same content and click behavior as before.
 **Acceptance:** UI test that the chip is rendered in the floating container and the page gets bottom padding only while research runs; browser check that the footer is visible at the bottom of the scroll with the chip shown.
 
 ### 0.78 — Third starting research: Basic Mining — CODE — Done
@@ -315,7 +322,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 
 ### 0.80 — Fix: build-card tooltip unreadable — CODE — Done
 **Goal:** fix playtest 9 bug: hovering a lower build card shows its tooltip over the card above, see-through and hard to read.
-**Details:** locked cards fade with `opacity`, which also faded their tooltip and trapped it below neighbouring cards. Fade the card's content instead of the card, give tooltips a solid background, a border and a stacking order above every card.
+**Details:** locked cards fade with `opacity`, which also faded their tooltip and trapped it below neighboring cards. Fade the card's content instead of the card, give tooltips a solid background, a border and a stacking order above every card.
 **Acceptance:** tooltip of a locked card is fully opaque and above other cards (UI test checks the tooltip is outside the faded wrapper; screenshot in the PR).
 
 ### 0.81 — Research tree in branches — CODE — Done
@@ -484,12 +491,13 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Sprites:** new generic tile_ground and tile_locked.
 - **Deviation:** the layout is calculated each time instead of saved, so no save migration is needed yet. Saved positions arrive with moving machines in 1.05.
 
-### 1.05 — Map terrain zones and moving machines — CODE — Not started
-**Goal:** apply playtest 14 feedback: some areas suit some machines better, and the player can move machines on the map.
+### 1.05 — Larger, detailed map: terrain zones, rivers and coast, moving machines — CODE — Not started
+**Goal:** apply playtest 14 and 15 feedback: some areas suit some machines better, and the player can move machines on the map. Playtest 15: the map should be larger overall and more interesting to look at, not one repeated tile.
 **Details:**
+- **Size and look:** a larger map (wider and taller than today's grid, scrolling if needed) drawn with varied terrain tiles: grass, dirt, rock, sand, water, a river that winds across it and a coastline along one edge. Small details (rocks, tufts, ripples) are scattered with a fixed seed so the map looks the same on every visit. New tile sprites go in the manifest and the generic asset script.
 - **Zones:** terrain zones in `src/data/map.ts`: sunny plateau (solar +), windy ridge (wind +), river (hydro only, +), coast (tidal only, +), coal or gas field (producers +), and plain (neutral).
 - **Bonuses:** a machine gets its zone's bonus only if its whole footprint is inside the zone. Bonuses are moderate (+10–25%) and shown in the energy breakdown as "Placement".
-- **Restrictions:** a few machines need a zone (hydro on a river, tidal on the coast), which gives the map real decisions.
+- **Restrictions (confirmed in playtest 15):** hydro must be on the river and tidal must be on the coast. A machine built without a free spot of its zone waits unplaced until one is free (shown clearly), so building is never silently blocked.
 - **Moving:** drag a machine on desktop, or tap it then tap a target on a phone. Free, and the game checks for overlap. A "best spot" hint highlights good tiles for the selected machine.
 - **Game rules:** pure functions with tests.
 **Acceptance:** zone bonuses apply only with the whole footprint inside the zone (tests); moving checks overlap and zone rules; the bonus shows in the breakdown; existing saves keep working (machines start on plain unless placed).
@@ -513,17 +521,54 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Code:** a pure `selectNotifications(events, settings, history, now)` decides what to send, with tests. Sending goes through the platform layer (`platform.notify`), so a mobile wrapper can use native notifications later. A closed tab cannot notify on the web; the item notes this, and mobile push is planned with the app.
 **Acceptance:** nothing is sent without opt-in and permission; nothing is sent while visible; the rate limit and per-type switches work (unit tests); the summary text is correct.
 
+### 1.08 — Map: machines no longer overlap — CODE — Done
+**Goal:** fix the playtest 15 bug: a coal plant (#32) drew as a huge box over many other machines.
+**Details:** when a machine's footprint could not fit as one rectangle, its tiles were scattered and the drawn box spanned all of them. Now each machine picks an exact rectangle when one fits (for example 10 tiles = 5×2, 12 = 4×3), big machines are placed first, and every tile is drawn on its own with the sprite on the machine's main block, so a machine never covers another's tiles.
+**Acceptance:** tests check the shapes and that each machine's sprite sits inside its own tiles.
+
+### 1.09 — Amber accent visible; American English everywhere — CODE — Done
+**Goal:** apply playtest 15 feedback: the default Amber accent seemed to do nothing, and the text mixed American and British spelling.
+**Details:** Amber now draws a yellow ring around the energy display like the other accents. All text, comments and docs use American spelling (color, center, gray, behavior, and so on); `CLAUDE.md` gains a Language rule. The Gray clouds event keeps its id, so saves are unaffected.
+**Acceptance:** every accent changes the display; no British spellings remain in the UI.
+
+### 1.10 — Readable event notices: longer toasts, exact effect on hover, saved log — CODE — Done
+**Goal:** apply playtest 15 feedback: event messages disappeared too fast to read, the effect chips did not say exactly what they did, and an event seemed missing from the log.
+**Details:**
+- Event and achievement toasts stay 12 seconds (others 6), and pause while the pointer or focus is on them.
+- Each active effect chip has an ⓘ tooltip (hover or keyboard focus) with the name, the exact effect in numbers for your current machines (for example "−30% energy from Solar Panels: −0.15 energy/s from your 1 running") and the time left.
+- The event log is kept on this device across reloads (the latest 100 entries), so an event you missed is still there later. Reset clears it.
+**Acceptance:** tests for toast durations, the effect text and the saved log.
+
+### 1.11 — Pet bonuses shown in the click and rate breakdowns — CODE — Done
+**Goal:** fix the playtest 15 bug: the Wheel Hamster's +100% click bonus seemed to do nothing.
+**Details:** clicks did get the pet's bonus, but the "+2 per click" label, the click pop-up and the click breakdown ignored it, and so did the energy and resource breakdowns for other pets. All of them now include the active pet as a "(pet)" row, so the label and the pop-up match what a click really gives. The simulator also counts the click pet.
+**Acceptance:** tests check that the click breakdown with a pet matches the real click value and that a generator pet shows in energy/s with the right total.
+
+### 1.12 — Map events you can watch on the map — CODE — Not started
+**Goal:** apply playtest 15 feedback: some random events happen only while the Map tab is open and visibly do something on the map.
+**Details:**
+- **Events:** a handful, in `src/data/events.ts` with a `mapOnly` flag, for example: a flock of birds crossing (cosmetic), a lightning strike on a machine that briefly boosts it, a delivery truck driving to a producer that drops a small stack of resources, a river flood that slows hydro for a few minutes, a small fire on a coal plant to click and put out for a reward.
+- **Rolling:** only while the Map tab is visible, at a rate tuned so a player watching the map sees one every few minutes; rarity tiers as for other events.
+- **Display:** animated on the map at the affected machine or tile (CSS only, honoring reduced motion), with the usual toast and log entry. Clickable ones give their reward only when clicked.
+- **Rules:** picking and applying stay pure functions with tests.
+**Acceptance:** map events never roll on other tabs (tests); each event's effect matches its text; the sightings list in Completion includes them.
+
+### 1.13 — Map decorations as cosmetic rewards — CODE — Not started
+**Goal:** apply playtest 15 feedback: decorations make the map more personal.
+**Details:** decorations (trees, a pond, a windsock, a statue, a flag, lamp posts) unlocked by achievements, levels and contracts, with no effect on balance. The player places them on free tiles and can remove them; they take no room. New sprites go in the manifest and the generic asset script. Saved with a migration.
+**Acceptance:** unlocking and placing tested; decorations never block machines; old saves load.
+
 ### 1.01 — Cosmetic rewards for achievements — CODE — Done
 **Goal:** apply playtest 14 feedback: achievements give cosmetic rewards, nothing that changes balance.
 **Details:**
 - **Titles:** unlocking certain achievements gives a title, for example "Live Wire", "Grid Operator" or "Proud Keeper". The player picks one to show under the player level in the top bar.
-- **Accent colours:** at 5, 15, 25 and 36 achievements unlocked, a new accent colour for the top bar's energy number and level bar unlocks (amber is the default).
+- **Accent colors:** at 5, 15, 25 and 36 achievements unlocked, a new accent color for the top bar's energy number and level bar unlocks (amber is the default).
 - **Settings and saving:** the choices are in a Cosmetics section of the Achievements tab and saved in settings. Each achievement card says what it unlocks.
 - **No gameplay effect:** a test checks that rates are unchanged.
-**Acceptance:** titles and colours unlock with their achievements (unit tests); choosing one updates the top bar and survives a reload; locked ones cannot be chosen.
+**Acceptance:** titles and colors unlock with their achievements (unit tests); choosing one updates the top bar and survives a reload; locked ones cannot be chosen.
 **Notes:**
 - **Titles:** 16 title achievements; the chosen one shows under the player level.
-- **Accents:** 5 accent colours (amber, then emerald at 5, sky at 15, violet at 25, rose at 36 achievements) colour the energy number and outline the top bar.
+- **Accents:** 5 accent colors (amber, then emerald at 5, sky at 15, violet at 25, rose at 36 achievements) color the energy number and outline the top bar.
 - **Where:** a Cosmetics box at the top of the Achievements tab; cards say which title they unlock.
 - **Saving:** in `settings.cosmetics` (save version 16); the store refuses locked choices.
 - **No gameplay effect:** a test checks that rates are unchanged.
@@ -590,7 +635,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 
 ### 0.94 — Research tree lines as a trunk with branches — CODE — Done
 **Goal:** apply playtest 11 feedback (the owner's sketch): a parent's lines should leave as one trunk that splits into its children, not as a fan of curves.
-**Details:** lines between neighbouring columns are drawn squared off, with rounded corners: out of the parent, along a vertical trunk in the gap, then into each child. When several parents in one column have bent lines, each gets its own trunk position; lower parents take the left positions, so lines do not share or cross trunks. Lines that skip columns or cross branches stay as faint curves.
+**Details:** lines between neighboring columns are drawn squared off, with rounded corners: out of the parent, along a vertical trunk in the gap, then into each child. When several parents in one column have bent lines, each gets its own trunk position; lower parents take the left positions, so lines do not share or cross trunks. Lines that skip columns or cross branches stay as faint curves.
 **Acceptance:** a screenshot check of the whole tree shows no shared trunks; build and tests pass.
 
 ### 0.90 — Player level reward, celebration and welcome-back line — CODE — Done
@@ -893,12 +938,12 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 
 | Checkpoint | After item | Date | Owner feedback | Items created |
 |---|---|---|---|---|
-| 1 | 0.37 | 2026-10-01 | Works. Click value and click feedback feel right; colours suit the game. Offline cap should be 24 h, not 8 h. | 0.48 |
+| 1 | 0.37 | 2026-10-01 | Works. Click value and click feedback feel right; colors suit the game. Offline cap should be 24 h, not 8 h. | 0.48 |
 | 2 | 0.09 | 2026-10-01 | Works; layout readable; first Solar buildable at once is right; early metal pace fine for now. Fuel "Burns" line should not share the red of "not enough". Energy needs a use: building should cost energy equal to 10 minutes of the generator's output. | 0.49, 0.50 |
 | 3 | 0.16 | 2026-10-01 | Starting research is clear; first room expansion price good; tree background looks great. Energy costs (build and research) reached too easily: raise them. Research times far too short; each level must take longer than the previous. Show boosts (e.g. Basic Solar) and their effect when hovering the energy rate, later for resources too. | 0.51, 0.52, 0.53 |
 | 4 | 0.36 | 2026-10-01 | Costs and research times fine for now (longer playtests later). Tooltip good. Mid-tier generators feel like upgrades. Scrap: no refund, but add Cancel and a no-refund notice. Show a small release version. "Research level 2" looked like it rose before research finished. Construction animation looks odd: try another approach. Add ways to raise metal, stone, coal and gas income. Raise stone prices a bit. | 0.58, 0.54, 0.55, 0.56, 0.57; 0.31 moved up |
-| 5 (v0.5.0) | 0.31 | 2026-10-01 | Producer cost growth should be 20%. Producers should be scrappable. Research labels clear now. Room animation not seen yet. Make research rewards ("Gives") stand out. Scrollbar not in game colours. Celebrate research completion with an animation on any tab. Small images on tab buttons. Add to backlog: achievements, perfection tracker, public release with accounts. | 0.59-0.64; later 0.65-0.68 |
-| 6 (v0.6.0) | 0.64 | 2026-10-01 | Celebration and room animation not seen yet. Perfection tracker = 100% completion (confirmed). Accounts are for both cloud saves and leaderboards. Add manual ordering of generators. Scrapping producers should ask how many. Asked whether the sprites can be used legally (yes: drawn by our own script from shapes and AAP-64 colours; add LICENSE and credits before going public, see 0.67). | 0.69, 0.70; 0.66 and 0.67 updated |
+| 5 (v0.5.0) | 0.31 | 2026-10-01 | Producer cost growth should be 20%. Producers should be scrappable. Research labels clear now. Room animation not seen yet. Make research rewards ("Gives") stand out. Scrollbar not in game colors. Celebrate research completion with an animation on any tab. Small images on tab buttons. Add to backlog: achievements, perfection tracker, public release with accounts. | 0.59-0.64; later 0.65-0.68 |
+| 6 (v0.6.0) | 0.64 | 2026-10-01 | Celebration and room animation not seen yet. Perfection tracker = 100% completion (confirmed). Accounts are for both cloud saves and leaderboards. Add manual ordering of generators. Scrapping producers should ask how many. Asked whether the sprites can be used legally (yes: drawn by our own script from shapes and AAP-64 colors; add LICENSE and credits before going public, see 0.67). | 0.69, 0.70; 0.66 and 0.67 updated |
 | 7 (v0.7.0) | 0.30 | 2026-10-01 | List order as fuel priority is intuitive. Welcome-back detail fine; must mention completed research (it already does). Short notation as default (already). Boost research worth it: add ones for other resources (production and discounts). Say "24 hours" not "1d". Show running research on every tab with time left; running node should blink. Research celebration looks great. Room upgrade animation still looks weird (video not received); add more room tiers. | 0.71-0.75 |
 | 8 (v0.8.0) | 0.75 | 2026-10-01 | Add the save-on-close safeguard. Room bar looks good (animation not seen yet). Research chip location odd: make it float at the bottom without hiding the version. 8 room tiers fine for now. +15% all-producer output sounds useful. The tree should start from 3 basic research, one starting resource upgrades. Long-term target: at least 200 hours of play for 100% completion. | 0.76-0.78; 200 h target added to 0.35 and 0.47 |
 | 9 (v0.9.0) | 0.32 | 2026-10-01 | Research tree lines hard to follow: split into the three starting branches. Bug: "You were away for 1m 1s" after switching tabs. Bug: build-card tooltip shows over the card above and is unreadable. 100% completion must include building every generator type and upgrading each to max level. | 0.79-0.82 |
@@ -906,5 +951,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 11 (v0.11.0) | 0.83, 0.88, 0.66, 0.38, 0.84 | 2026-10-02 | Player level reward: yes but small, about +0.1% per level. About one sighting per hour is right for the common ones. Planned effect events approved. Grid Contracts fine; another activity idea: collect and grow pets that fit the energy theme. An Aurora was recorded as seen but went unnoticed: sightings should stay longer. Bug: 360,722 energy showed as 36K. Level-up needs a celebration like research, and levels gained belong in the welcome-back summary. Add player info: tutorial or game guide. Click research chain drawn on the wrong row. Tree lines should leave each parent as one trunk that splits into its children (sketch). The guide is meant to teach new players how the game works. | 0.89-0.94; 0.40 moved up and widened |
 | 12 (v0.12.0) | 0.89, 0.93, 0.94, 0.90, 0.91, 0.40 | 2026-10-02 | Level-ups stay celebrated, but early levels must be harder (no clicking from level 1 to 4 or 5 in seconds). Guide clear. Prefers the squared-off tree lines. Negative events slightly rarer than positive ones. Add sorting to "Your generators" (e.g. by energy per second). | 0.95, 0.96; 0.85 updated |
 | 13 (v0.13.0) | 0.95, 0.96, 0.85, 0.86, 0.92 | 2026-10-02 | Contract deadlines fine (still watching the feature); unclear why two contracts showed "Not enough yet" and one did not. Pet bonuses and feed-then-wait make sense; add a short animation when clicking a pet. One effect event per 2 hours fine for now. Achievements next. Bug: meteor shower meteors fall in the wrong direction. | 0.97-0.99; 0.65 moved up |
-| 14 (v0.14.0) | 0.98, 0.97, 0.99, 0.65, 0.87 | 2026-10-02 | Achievement rewards should be cosmetic. The achievement list is fine for now. Contract wording much clearer. Release order not decided; prefers easiest to hardest, to reach production as soon as possible. Perk shop unclear: is the number on Buy a cost or an amount, how are points earned, is each contract 1 point? Add an "upgradable first" sort. Future: a map showing the builds, movable, with zones that suit some machines (sunny, windy) and sizes that matter; prioritise by impact. Notifications (browser, later mobile) for research done, level up and so on, handled carefully so they are not annoying. | 1.00-1.07 (map placed before fictional generators and statistics, as the highest-impact item); 0.34 and 0.39 moved up |
-| 15 (v0.15.0) | 1.00, 1.03, 1.01, 1.02, 1.04 | 2026-10-02 | (waiting for owner) | |
+| 14 (v0.14.0) | 0.98, 0.97, 0.99, 0.65, 0.87 | 2026-10-02 | Achievement rewards should be cosmetic. The achievement list is fine for now. Contract wording much clearer. Release order not decided; prefers easiest to hardest, to reach production as soon as possible. Perk shop unclear: is the number on Buy a cost or an amount, how are points earned, is each contract 1 point? Add an "upgradable first" sort. Future: a map showing the builds, movable, with zones that suit some machines (sunny, windy) and sizes that matter; prioritize by impact. Notifications (browser, later mobile) for research done, level up and so on, handled carefully so they are not annoying. | 1.00-1.07 (map placed before fictional generators and statistics, as the highest-impact item); 0.34 and 0.39 moved up |
+| 15 (v0.15.0) | 1.00, 1.03, 1.01, 1.02, 1.04 | 2026-10-02 | "Website" means a real site with sign-up and log-in and saves in the cloud, not in the browser. The map should be larger and more detailed, with varied terrain. Wants random events that only happen on the map and visibly do something there. Planned zones good; hydro must need a river and tidal the coast. Map decorations welcome. Amber accent did nothing. Mixed American and British English: use one (American, the larger market). Bug: coal plant #32 drawn as a huge box over other machines. Event messages vanish too fast; hovering an effect should say exactly what it does. An event seemed missing from the log. The Wheel Hamster's click bonus seemed to do nothing (+2 instead of +3). | 1.08-1.13; 1.05 widened; 0.67 moved up |

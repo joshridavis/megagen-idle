@@ -13,7 +13,7 @@ export const LOG_ICONS: Record<LogKind, string> = {
 
 const time = (at: number) => new Date(at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-/** Collapsible list of what happened this session, newest first (0.38). */
+/** Collapsible list of what happened, newest first (0.38); kept across visits on this device. */
 export default function EventLog() {
   const log = useStore((s) => s.eventLog);
   const clear = useStore((s) => s.clearLog);
@@ -35,7 +35,7 @@ export default function EventLog() {
       </div>
       {open &&
         (log.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-400">Nothing yet this session.</p>
+          <p className="mt-2 text-sm text-slate-400">Nothing yet.</p>
         ) : (
           <ul id="event-log-list" className="mt-2 flex max-h-64 flex-col gap-1 overflow-y-auto text-sm" data-testid="event-log-list">
             {log.map((e) => (

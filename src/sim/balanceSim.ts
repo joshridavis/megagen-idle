@@ -29,7 +29,7 @@ import { CONTRACT_MILESTONES, PERK_IDS } from '../data/contracts';
 import { seededRng } from '../utils/rng';
 import { PETS } from '../data/pets';
 import { EVENTS_BY_ID } from '../data/events';
-import { addPet, canFeed, feedCost, feedPet, setActivePet, updatePets } from '../utils/pets';
+import { addPet, canFeed, feedCost, feedPet, petClickBonus, setActivePet, updatePets } from '../utils/pets';
 import { eventRatePerHour } from '../utils/randomEvents';
 import { deriveRates } from '../utils/simulation';
 import { unlockAchievements } from '../utils/achievements';
@@ -288,7 +288,7 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
     // time passes; the player clicks early on
     const clicking = (t - T0) / 60_000 < o.clickMinutes;
     if (clicking) {
-      const gained = o.clicksPerSecond * o.stepSeconds * getClickValue(s.completedResearch, s.energyPerSecond);
+      const gained = o.clicksPerSecond * o.stepSeconds * getClickValue(s.completedResearch, s.energyPerSecond, petClickBonus(s));
       s = { ...s, energy: s.energy + gained, lifetimeEnergy: s.lifetimeEnergy + gained };
     }
     t += o.stepSeconds * 1000;

@@ -83,7 +83,7 @@ describe('Generator UI loop', () => {
   });
 });
 
-describe('Fuel colour (playtest 2)', () => {
+describe('Fuel color (playtest 2)', () => {
   it('the Burns line is amber, not the red used for unaffordable costs', () => {
     useStore.setState(createInitialState(Date.now()));
     render(<App />);

@@ -74,34 +74,40 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
             />
           ))}
           {map.placed.map((p) => {
-            const xs = p.cells.map((c) => cellPos(c).x);
-            const ys = p.cells.map((c) => cellPos(c).y);
-            const x0 = Math.min(...xs);
-            const y0 = Math.min(...ys);
-            const w = Math.max(...xs) - x0 + 1;
-            const h = Math.max(...ys) - y0 + 1;
             const total = rows + lockedRows;
             const isGen = p.kind === 'generator';
+            const lit = hover === p.key;
+            const pct = (x: number, y: number, w: number, h: number) => ({
+              left: `${(x / map.columns) * 100}%`,
+              top: `${(y / total) * 100}%`,
+              width: `${(w / map.columns) * 100}%`,
+              height: `${(h / total) * 100}%`,
+            });
+            const select = () => (isGen ? onSelect(p.id) : setHover(p.key));
             return (
-              <button
-                key={p.key}
-                type="button"
-                onMouseEnter={() => setHover(p.key)}
-                onMouseLeave={() => setHover((k) => (k === p.key ? null : k))}
-                onFocus={() => setHover(p.key)}
-                onClick={() => (isGen ? onSelect(p.id) : setHover(p.key))}
-                aria-label={info(p)}
-                data-testid={`map-${p.key}`}
-                className={`absolute flex items-center justify-center rounded-sm border ${hover === p.key ? 'z-10 border-yellow-300 bg-yellow-300/20' : 'border-slate-900/60 bg-slate-900/30'}`}
-                style={{
-                  left: `${(x0 / map.columns) * 100}%`,
-                  top: `${(y0 / total) * 100}%`,
-                  width: `${(w / map.columns) * 100}%`,
-                  height: `${(h / total) * 100}%`,
-                }}
-              >
-                <img src={sprites[spriteOf(p)]} alt="" className="pixelated max-h-full max-w-full object-contain p-0.5" />
-              </button>
+              <div key={p.key} onMouseEnter={() => setHover(p.key)} onMouseLeave={() => setHover((k) => (k === p.key ? null : k))}>
+                {/* one tile at a time: a machine never covers tiles that are not its own (playtest 15 bug) */}
+                {p.cells.map((c) => (
+                  <div
+                    key={c}
+                    aria-hidden="true"
+                    onClick={select}
+                    className={`absolute cursor-pointer border ${lit ? 'z-10 border-yellow-300/80 bg-yellow-300/25' : 'border-slate-900/40 bg-slate-900/25'}`}
+                    style={pct(cellPos(c).x, cellPos(c).y, 1, 1)}
+                  />
+                ))}
+                <button
+                  type="button"
+                  onFocus={() => setHover(p.key)}
+                  onClick={select}
+                  aria-label={info(p)}
+                  data-testid={`map-${p.key}`}
+                  className="absolute z-10 flex items-center justify-center"
+                  style={pct(p.core.x, p.core.y, p.core.w, p.core.h)}
+                >
+                  <img src={sprites[spriteOf(p)]} alt="" className="pixelated max-h-full max-w-full object-contain p-0.5" />
+                </button>
+              </div>
             );
           })}
         </div>

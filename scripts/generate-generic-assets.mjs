@@ -789,7 +789,7 @@ function jellyfish() {
   return c;
 }
 
-/** A 32x32 sprite scaled down (nearest neighbour) and centred near the bottom, for baby and young pets. */
+/** A 32x32 sprite scaled down (nearest neighbor) and centerd near the bottom, for baby and young pets. */
 function scaledPet(src, factor) {
   const c = new Canvas(32, 32);
   const size = Math.round(32 * factor);

@@ -90,3 +90,7 @@ When asked to generate the next items:
 - Stay consistent with the game design above. Do not introduce mechanics (prestige, multiplayer, and so on) the owner has not asked for; list such ideas separately as "Suggestions". Do not write audio items.
 - Good sources of further work, in rough priority order: more real-world generation methods from the design (geothermal, biomass, wave, orbital solar), deeper research branches, more resource types and producers, quality-of-life features (bulk build, build queue, sorting and filtering), balance passes, test and performance work, and polish. Each must still be one session's worth of work.
 - Never mix build tools. This project uses Vite, not Webpack.
+
+## Language
+
+- Use **American English** everywhere: game text, code comments, docs and backlog (color, center, behavior, gray, -ize). Owner decision, playtest 15: the larger market decides.

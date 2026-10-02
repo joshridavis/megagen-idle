@@ -40,7 +40,7 @@ export default function AchievementsPanel() {
             </span>
           </label>
           <fieldset className="flex flex-col gap-1">
-            <legend className="text-xs text-slate-400">Accent colour</legend>
+            <legend className="text-xs text-slate-400">Accent color</legend>
             <div className="flex flex-wrap gap-2">
               {ACCENTS.map((x) => {
                 const open = canUseAccent(state, x.id);
