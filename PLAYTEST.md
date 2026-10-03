@@ -1,4 +1,34 @@
-# Playtest 19.1 (v0.19.1, hotfix): your playtest 19 fixes
+# Playtest 19.2 (v0.19.2, hotfix): map event pace
+
+The version at the bottom of the screen should read **v0.19.2**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 211 hours** (simulated, unchanged). Map events only happen while you watch the Map tab, so the simulator does not count them.
+
+## What changed (only what you asked for)
+
+- **Map events are halfway between the old and the new pace:** about 17 an hour while the Map tab is open, so one every 3 to 4 minutes.
+  - v0.19.0 had one about every 3 minutes; v0.19.1 had one every 4 to 5.
+- Nothing else changed. The new perk prices stay as they are.
+
+## Things to try
+
+1. Keep the Map tab open for 10 to 15 minutes. You should see 3 or 4 events: birds, lightning, a delivery truck, a fire, a flood, or (rarely) a falling star.
+
+## Questions for you
+
+1. Now that you can see them: do the new event designs and animations look good?
+2. Does the pace feel right now?
+
+---
+
+# Previous: Playtest 19.1 (v0.19.1)
 
 The version at the bottom of the screen should read **v0.19.1**.
 

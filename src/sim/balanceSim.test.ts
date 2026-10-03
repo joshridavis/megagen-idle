@@ -20,8 +20,10 @@ describe('balance simulator (0.35)', () => {
     expect(r.completion).toBe(1);
     expect(r.gaps).toEqual([]);
     expect(r.milestones.find((m) => m.id === 'firstGenerator')!.hours).toBeLessThan(2 / 60);
-    // map layouts (1.05) made a run take several seconds: allow it, within the 60 s budget above
-  }, 30_000);
+    // map layouts (1.05) made a run take several seconds: allow it, within the 60 s budget above.
+    // The runner timeout sits above that budget so the check above decides, even when the
+    // full suite runs in parallel (the 211 h run since 1.28 takes about 25 s alone).
+  }, 90_000);
 });
 
 describe('completion (0.66 groundwork)', () => {
