@@ -4,7 +4,9 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 **Starting point: the repository is empty.** There is no existing code and no existing art. Item 0.00 creates the project from scratch.
 
-**Scope:** every item here is done inside cloud sessions, with nothing waiting on the owner. Audio, AI-generated art and desktop/mobile packaging are out of scope (see "Out of scope"). Sprites are generic stand-ins made by a script.
+**Scope:** every item's code and config is done inside cloud sessions. Release work (Electron for Steam, Capacitor for Android and iOS, in-app purchases, the public website, store build configs, GitHub Actions workflows and `codemagic.yaml`) is in scope; a release item may wait on an owner step such as a store account or a secret, and names it. Audio, new hand-made or AI-generated art, secrets in the repo, and anything needing Xcode or Android Studio on a local machine are out of scope (see "Out of scope"). Sprites are generic stand-ins made by a script and ship as they are.
+
+**Public launch:** March 11, 2027 on Steam (Windows), Google Play, the App Store and megagenidle.com. Free part plus a one-time "Full Game" unlock and a cosmetic "Supporter Pack"; never pay-to-win, no ads, no premium currency (see `CLAUDE.md`).
 
 **Status values:** `Done` · `Not started` · `In progress` · `Partial` (with a note on what remains)
 
@@ -21,6 +23,20 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 ## Order of work
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
+
+**Launch priority (owner decision, 2026-10-03):** these come first, in this order. Items already `Done` are skipped, so the first open item is 0.41.
+
+0. 0.65 Achievements (launch priority; already Done)
+0. 0.41 Responsive layout and keyboard access (launch priority)
+0. 0.46 Crash recovery and error boundaries (launch priority)
+0. 0.43 Visual polish pass (launch priority)
+0. 0.39 Statistics panel (launch priority)
+0. 0.85 Random events with effects (launch priority; already Done)
+0. 0.86 Grid Contracts: a second activity (launch priority; already Done)
+0. 0.92 Energy pets: collect and grow (launch priority; already Done)
+0. 0.34 Late-game fictional generators, with two more room tiers (launch priority; already Done)
+
+**Earlier order** (history, then the remaining items):
 
 0. 0.48 Offline cap to 24 hours (playtest 1 feedback)
 0. 0.49 Distinct color for fuel use (playtest 2 feedback)
@@ -67,14 +83,14 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.40 First-run onboarding and in-game guide (moved up and widened: playtest 11 feedback) → CHECKPOINT
 0. 0.95 Player levels harder to gain early (playtest 12 feedback)
 0. 0.96 Sort your generator list (playtest 12 feedback)
-0. 0.85 Random events with effects (playtest 10 feedback)
-0. 0.86 Grid Contracts: a second activity (playtest 10 feedback)
-0. 0.92 Energy pets: collect and grow (playtest 11 feedback) → CHECKPOINT
+0. (0.85 moved to the top: launch priority)
+0. (0.86 moved to the top: launch priority)
+0. (0.92 moved to the top: launch priority) → CHECKPOINT
 0. 0.98 Fix: meteor shower and shooting stars fly the wrong way (playtest 13 bug)
 0. 0.97 Contracts explain delivery versus production (playtest 13 feedback)
 0. 0.99 Pets react when clicked (playtest 13 feedback)
-0. 0.65 Achievements (moved up: playtest 13 feedback)
-0. 0.87 Multi-platform release plan: website, Steam, mobile (playtest 10 feedback) → CHECKPOINT
+0. (0.65 moved to the top: launch priority)
+0. 0.87 Multi-platform release plan: website, Steam, mobile (playtest 10 feedback; superseded by the owner's launch guide) → CHECKPOINT
 0. 1.00 Clearer contract perk shop (playtest 14 feedback)
 0. 1.03 Sort generators by "upgradable first" (playtest 14 feedback)
 0. 1.01 Cosmetic rewards for achievements (playtest 14 feedback)
@@ -98,7 +114,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.06 Map polish: expansions grow the map, simulator and balance (playtest 14 feedback) → CHECKPOINT 18
 0. 1.22 Sign in with Google and Discord (playtest 18 feedback)
 0. 1.24 Scrapping refunds 10% of everything spent (playtest 18 feedback)
-0. 0.34 Late-game fictional generators, with two more room tiers (moved up: playtest 18, first priority)
+0. (0.34 moved to the top: launch priority)
 0. 1.23 Map upgrade: the Exclusion Zone for fictional generators (playtest 18 feedback)
 0. 1.12 Map events you can watch on the map (playtest 15 feedback; playtest 18: after the fictional generators) → CHECKPOINT 19
 0. 1.25 Map events and sightings face the way they move (playtest 19 bug)
@@ -115,7 +131,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.36 Smaller bonuses for the common map events; delivery grows with player level (playtest 19.4 feedback) → HOTFIX v0.19.5
 0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
-0. 0.39 Statistics panel (moved up)
+0. (0.39 moved to the top: launch priority)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
 3. 0.26 Clicker
@@ -142,13 +158,13 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 24. (0.38 moved to the top, playtest 10)
 25. (0.39 moved to the top, playtest 14)
 26. (0.40 moved to the top, playtest 11)
-27. 0.41 Responsive layout and keyboard access
+27. (0.41 moved to the top: launch priority)
 28. 0.42 Performance pass
-29. 0.43 Visual polish pass
+29. (0.43 moved to the top: launch priority)
 30. 0.18 Test coverage pass → CHECKPOINT 6
 31. 0.44 More real-world generation methods
 32. 0.45 Deeper research tree
-33. 0.46 Crash recovery and error boundaries
+33. (0.46 moved to the top: launch priority)
 34. 0.47 Balance re-tune and difficulty curve review
 35. (0.65 moved to the top, playtest 13)
 36. (0.66 moved to the top, playtest 10)
@@ -201,7 +217,11 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 
 - **Audio:** sound effects and music (original items 0.05, 0.06, 0.14, 0.15). Do not add audio code, hooks or settings.
 - **AI-generated art:** the original Stable Diffusion tasks (0.08, 0.12, 0.17). Stand-ins are used instead.
-- **Electron (desktop) and Capacitor (mobile) packaging:** needs signing and platform tooling on the owner's machine. The owner wants a Steam, website and mobile release later (playtest 10): item 0.87 plans it and lists the owner's steps; building the packages stays out of cloud sessions.
+- **New art:** no new hand-made or AI-generated art. The current generic sprites ship at launch as they are.
+- **Secrets in the repo:** signing keys, store credentials and API keys live in GitHub or Codemagic secrets, never in the repo.
+- **Local platform tooling:** anything that needs Xcode or Android Studio on a local machine. Store builds and signing run in GitHub Actions or Codemagic instead.
+
+Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with the launch decision (2026-10-03).
 
 ---
 
@@ -471,6 +491,7 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 - **Sprites:** 24 generic sprites under `sprites/pets/`.
 
 ### 0.87 — Multi-platform release plan: website, Steam, mobile — CODE — Done
+**Status note:** Superseded by the owner's launch guide.
 **Goal:** apply playtest 10 feedback: the owner wants to release on a dedicated website, on Steam and on mobile, with Melvor Idle-style saves across devices. This item makes a plan so the rollout goes smoothly. It builds no packages.
 **Details:** write `docs/RELEASE_PLAN.md` covering:
 - **Platforms:**

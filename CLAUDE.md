@@ -14,15 +14,25 @@ Core concepts:
 - **Research**: takes real time (offline too), costs energy and sometimes resources, and has a level requirement. It unlocks machines and gives permanent boosts (build discounts, cheaper research, global energy %). A global Research level rises as research completes.
 - **Machine skill tree**: starts basic and unlocks more efficient and complex methods through research.
 
+Public launch (owner decision): MegaGen Idle launches on **March 11, 2027** on Steam (Windows), Google Play, the App Store and the website megagenidle.com.
+
+Business model:
+
+- A free part of the game, plus a one-time **"Full Game"** unlock and a cosmetic **"Supporter Pack"**.
+- Never pay-to-win: nothing bought speeds up progress or gives a gameplay advantage. The Supporter Pack is cosmetic only.
+- No ads and no premium currency.
+
 ## Tech stack
 
 - TypeScript, React, Vite, Tailwind CSS
 - State: Zustand, persisted to IndexedDB through localforage
 - Tests: Vitest (unit); Playwright for browser smoke tests, with a jsdom fallback if its browsers cannot be installed in the cloud
-- Art: pixel art, palette AAP-64. For now all sprites are generic stand-ins made by a script; AI-generated art may replace them later
+- Art: pixel art, palette AAP-64. All sprites are generic stand-ins made by a script, and they ship at launch as they are
 - Audio: out of scope for now (no sound effects or music)
 - Web deploy: static Vite build to GitHub Pages through GitHub Actions
-- Desktop (Electron) and mobile (Capacitor) builds are out of scope
+- Desktop: Electron, packaged for Steam (Windows)
+- Mobile: Capacitor, for Android (Google Play) and iOS (App Store)
+- Store builds run in the cloud: GitHub Actions workflows and `codemagic.yaml`
 
 ## Cloud session rules (important)
 
@@ -31,9 +41,9 @@ You run in a cloud sandbox on a clone of this repository. Therefore:
 1. **All paths are relative to the repo root.** Write `src/store/index.ts`, never `/src/store/index.ts`. Older backlog text used leading slashes; treat them as repo-relative.
 2. **Work on a branch and open a PR.** Never push directly to `main`. Make small, meaningful commits. Do not run deploy scripts that push to `main`.
 3. **Audio is out of scope.** Do not add sound effects, music, audio hooks or audio settings. Out-of-scope items listed in `BACKLOG.md` are not built.
-   **Art is generic.** You cannot run AI image tools here (Stable Diffusion and similar). Sprites are simple generated stand-ins created by `scripts/generate-generic-assets.mjs`. Never try to install AI art or audio tools.
+   **Art is generic.** You cannot run AI image tools here (Stable Diffusion and similar). Sprites are simple generated stand-ins created by `scripts/generate-generic-assets.mjs`, and the current sprites ship as they are. Do not add new hand-made or AI-generated art. Never try to install AI art or audio tools.
 4. **Never overwrite real art.** A file under `src/assets/` may be regenerated only if it is listed in `src/assets/generic-assets.json`. Anything not listed is art the owner added by hand; leave it alone.
-5. **Electron and Capacitor packaging, signing, and anything needing Android Studio or Xcode is out of scope** unless the user explicitly asks for config files only.
+5. **Release work is in scope.** This covers Electron packaging for Steam, Capacitor packaging for Android and iOS, in-app purchase code, the public website, store build configs, GitHub Actions workflows and `codemagic.yaml`. Builds and signing run in the cloud (GitHub Actions, Codemagic), never on a local machine: anything that needs Xcode or Android Studio installed locally stays out of scope. Signing keys, store credentials and API keys are never committed; workflows read them from GitHub or Codemagic secrets, and the item notes which secret the owner must add. In-app purchases follow the business model above.
 6. **No secrets in the repo.** Do not add API keys or tokens.
 7. If the repo state does not match what the backlog says (a file is missing, an item marked Done looks incomplete), reconcile it with the smallest reasonable fix, describe it in the PR, and continue. Stop only if the project cannot build at all and you cannot fix it.
 
@@ -85,10 +95,10 @@ When asked to generate the next items:
 
 - Inspect the actual repo first. Do not write bug-fix items for code that does not exist yet; put the check in the Acceptance criteria of the feature item instead.
 - Keep the order of work stocked: if fewer than 5 `Not started` items remain, add more before continuing, so the run never ends for lack of work. Also write items after playtest feedback. Continue the version numbering (`0.xx`, two digits) and use the same template as existing items: Type, Status, Goal, Details, Acceptance criteria. Add at most 5 items at a time.
-- Every item must be completable inside a cloud session with no owner action.
+- Every item's code and config must be completable inside a cloud session. A release item may depend on an owner step (a store account, a secret added in GitHub or Codemagic); it names that step in its Details and still builds and tests everything that does not need it.
 - One item = one coherent change a single session can finish and test. New sprites needed by an item are added to the manifest and the generic asset script as part of that item.
 - Stay consistent with the game design above. Do not introduce mechanics (prestige, multiplayer, and so on) the owner has not asked for; list such ideas separately as "Suggestions". Do not write audio items.
-- Good sources of further work, in rough priority order: more real-world generation methods from the design (geothermal, biomass, wave, orbital solar), deeper research branches, more resource types and producers, quality-of-life features (bulk build, build queue, sorting and filtering), balance passes, test and performance work, and polish. Each must still be one session's worth of work.
+- Good sources of further work, in rough priority order: launch work (store packaging, in-app purchases, the website, release workflows) until the launch, then more real-world generation methods from the design (geothermal, biomass, wave, orbital solar), deeper research branches, more resource types and producers, quality-of-life features (bulk build, build queue, sorting and filtering), balance passes, test and performance work, and polish. Each must still be one session's worth of work.
 - Never mix build tools. This project uses Vite, not Webpack.
 
 ## Language
