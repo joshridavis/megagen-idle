@@ -8,16 +8,23 @@ import { sprites, type SpriteId } from '../assets';
 /** How often to roll map events while the Map tab is open (rolls use the real time passed, not this count). */
 export const MAP_EVENT_CHECK_MS = 5000;
 
+/** The flock: [left %, top %, wing-beat delay] per gull, the leader at the front. */
+const FLOCK: [number, number, string][] = [
+  [66, 25, '0s'],
+  [33, 0, '-0.15s'],
+  [0, 50, '-0.3s'],
+];
+
 /**
  * Pixel sprites for map events (playtest 19: no emoji). Everything that
  * moves faces right, the way it travels. Two frames swap for flaps and flames.
  */
-function Frames({ a, b, still, period }: { a: SpriteId; b: SpriteId; still: boolean; period: string }) {
+function Frames({ a, b, still, period, delay }: { a: SpriteId; b: SpriteId; still: boolean; period: string; delay?: string }) {
   if (still) return <img src={sprites[a]} alt="" className="pixelated h-full w-full" />;
   return (
     <span className="relative block h-full w-full" style={{ ['--frame' as string]: period }}>
-      <img src={sprites[a]} alt="" className="pixelated frame-a absolute inset-0 h-full w-full" />
-      <img src={sprites[b]} alt="" className="pixelated frame-b absolute inset-0 h-full w-full" />
+      <img src={sprites[a]} alt="" className="pixelated frame-a absolute inset-0 h-full w-full" style={{ animationDelay: delay }} />
+      <img src={sprites[b]} alt="" className="pixelated frame-b absolute inset-0 h-full w-full" style={{ animationDelay: delay }} />
     </span>
   );
 }
@@ -76,15 +83,20 @@ export default function MapEventLayer({
 
   switch (m.animation) {
     case 'flock':
+      // three gulls in a V, the leader in front (playtest 19.2: one big bird each, so they read as birds)
       return (
         <div
           aria-hidden="true"
           className={`pointer-events-none absolute z-30 ${anim}`}
-          style={{ top: `${(1 / rows) * 100}%`, left: reduceMotion ? '40%' : undefined, width: wide(4), height: `${(1 / rows) * 100}%` }}
+          style={{ top: `${(0.5 / rows) * 100}%`, left: reduceMotion ? '40%' : undefined, width: wide(3), height: `${(2 / rows) * 100}%` }}
           data-testid="map-event"
-          data-sprite="map_birds"
+          data-sprite="map_bird"
         >
-          <Frames a="map_birds_1" b="map_birds_2" still={reduceMotion} period="0.5s" />
+          {FLOCK.map(([x, y, delay], i) => (
+            <span key={i} className="absolute" style={{ left: `${x}%`, top: `${y}%`, width: '34%', height: '50%' }}>
+              <Frames a="map_bird_1" b="map_bird_2" still={reduceMotion} period="0.45s" delay={delay} />
+            </span>
+          ))}
         </div>
       );
     case 'flood':

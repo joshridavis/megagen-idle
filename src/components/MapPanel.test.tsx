@@ -118,7 +118,7 @@ describe('map events and the Exclusion Zone (playtest 19)', () => {
     useStore.setState(deriveRates(createInitialState(0)));
     const now = Date.now();
     for (const [id, sprite] of [
-      ['map_flock', 'map_birds'],
+      ['map_flock', 'map_bird'],
       ['map_delivery', 'map_truck'],
       ['map_fire', 'map_fire'],
     ] as const) {
