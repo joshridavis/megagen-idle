@@ -112,6 +112,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.33 Producers granted by research shown on the map (playtest 19.3 bug)
 0. 1.34 Level ups in the event log (playtest 19.3 feedback)
 0. 1.35 Lightning strikes stack per generator type (playtest 19.3 bug) → HOTFIX v0.19.4
+0. 1.36 Smaller bonuses for the common map events; delivery grows with player level (playtest 19.4 feedback) → HOTFIX v0.19.5
 0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
 0. 0.39 Statistics panel (moved up)
@@ -963,6 +964,14 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** tests with a fake service for the buttons, the redirect call and the username dialog; no secrets in the repository.
 **Notes:** the code is done and tested with fakes. The owner turns it on with section 9b of `docs/PUBLIC_RELEASE.md` (register the Google and Discord OAuth apps, paste the keys into Supabase, add `VITE_AUTH_PROVIDERS`, rerun the deploy). The live sign-in check rides with 0.68's live test.
 
+### 1.36 — Smaller bonuses for the common map events; delivery grows with player level — CODE — Done
+**Goal:** apply playtest 19.4 feedback. Map events now come more often, so the frequent ones should give smaller bonuses, and the delivery truck should bring more to higher-level players.
+**Details:**
+- **Lightning:** +25% for the struck type (was +50%), still 3 minutes per strike. Strikes on the same type still add time.
+- **Delivery truck:** brings 8 minutes of that producer's resource (was 15), at least 5. It already scaled with production; now it also grows 3% per player level above 1 (×1.6 at level 21, ×2.5 at level 51). This uses a new optional `perLevel` on `grant-resource` effects.
+- **Unchanged:** the fire (uncommon, needs a click), the flood (a penalty) and the birds and falling star (no bonus).
+**Acceptance:** tests for the new lightning bonus and the level scaling of the delivery.
+
 ### 1.35 — Lightning strikes stack per generator type — CODE — Done
 **Goal:** fix the playtest 19.3 bugs. A strike while a lightning boost was running reset the timer to 3 minutes instead of adding time. A strike on another type replaced the first boost, so that type lost its bonus.
 **Details:**
@@ -1220,4 +1229,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 19.1 (v0.19.1, hotfix) | 1.25, 1.26, 1.27, 1.28 | 2026-10-02 | Map events now too rare to judge the new designs: set them between the old and new pace. New perk prices are about right. Build nothing else from the backlog until told. | 1.29 (hotfix v0.19.2) |
 | 19.2 (v0.19.2, hotfix) | 1.29 | 2026-10-02 | The birds do not look like birds at all; fix them. Build nothing else from the backlog until told. | 1.30 (hotfix v0.19.3) |
 | 19.3 (v0.19.3, hotfix) | 1.30 | 2026-10-03 | Slow producers show "+0.00/s". Metal and stone costs too low everywhere they are used. Storage upgrades slightly harder. Research slightly longer. A Uranium Mine from research is missing from the map. Level ups should be in the event log. A second lightning strike adds no time, and strikes should respect the struck type. Nothing else from the backlog until told. | 1.31-1.35 (hotfix v0.19.4) |
-| 19.4 (v0.19.4, hotfix) | 1.31-1.35 | 2026-10-03 | (waiting for owner) | |
+| 19.4 (v0.19.4, hotfix) | 1.31-1.35 | 2026-10-03 | New metal and stone prices feel right; "storage upgrades" meant room expansions; research length now right. Map events are more frequent now, so their bonuses should be smaller. The truck should bring more to higher-level players. Nothing else from the backlog until told. | 1.36 (hotfix v0.19.5) |
+| 19.5 (v0.19.5, hotfix) | 1.36 | 2026-10-03 | (waiting for owner) | |

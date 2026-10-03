@@ -5,6 +5,7 @@ import type { Rng } from './rng';
 export type { ActiveEffect } from './effectMods';
 import { getProductionRates } from './resourceSystem';
 import { getBonuses } from './bonuses';
+import { getPlayerLevel } from './playerLevel';
 import { formatNumber } from './format';
 import { RESOURCE_NAMES } from '../data/resources';
 import { PETS_BY_ID, type PetId } from '../data/pets';
@@ -58,7 +59,8 @@ export function applyEventEffect(s: GameState, def: EventDef, now: number, rng: 
     }
     case 'grant-resource': {
       const rate = getProductionRates(s.producers, getBonuses(s.completedResearch))[e.resource];
-      const amount = Math.max(e.min, rate * e.minutes * 60);
+      const levelFactor = 1 + (e.perLevel ?? 0) * (getPlayerLevel(s.lifetimeEnergy ?? 0).level - 1);
+      const amount = Math.max(e.min, rate * e.minutes * 60) * levelFactor;
       return {
         state: { ...s, resources: { ...s.resources, [e.resource]: s.resources[e.resource] + amount } },
         text: `${def.text} +${fmt(amount)} ${RESOURCE_NAMES[e.resource].toLowerCase()}.`,

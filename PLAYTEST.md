@@ -1,4 +1,31 @@
-# Playtest 19.4 (v0.19.4, hotfix): your playtest 19.3 fixes
+# Playtest 19.5 (v0.19.5, hotfix): smaller map event bonuses
+
+The version at the bottom of the screen should read **v0.19.5**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 259 hours** (simulated, unchanged). Map events only happen while you watch the Map tab, so the simulator does not count them.
+
+## What changed (only what you asked for)
+
+- **Lightning:** +25% for the struck type (was +50%), for 3 minutes. A second strike on the same type still adds 3 more minutes.
+- **Delivery truck:**
+  - It brings 8 minutes of that producer's output (was 15). It already gave more as your producers grew.
+  - It now also gives 3% more for each player level above 1: about 1.6 times as much at level 21, and 2.5 times at level 51.
+- **Unchanged:** the fire (less common, and you have to click it), the flood, and the birds and falling star (no bonus).
+
+## Questions for you
+
+1. Do the lightning and truck bonuses feel right now?
+
+---
+
+# Previous: Playtest 19.4 (v0.19.4)
 
 The version at the bottom of the screen should read **v0.19.4**.
 
