@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDuration, formatNumber, formatRate } from './format';
+import { formatDuration, formatNumber, formatRate, formatRatePer, rateUnit } from './format';
 
 describe('formatNumber (short notation)', () => {
   it.each([
@@ -96,5 +96,18 @@ describe('round values keep their zeros (playtest 11 bug: 360,722 showed as 36K)
       expect(value, `${n} -> ${short}`).toBeLessThanOrEqual(n);
       expect(value, `${n} -> ${short}`).toBeGreaterThan(n * 0.99);
     }
+  });
+});
+
+describe('slow rates per minute or hour (playtest 19.3)', () => {
+  it('picks a unit that does not round to zero', () => {
+    expect(rateUnit(0)).toBe('s');
+    expect(rateUnit(0.8)).toBe('s');
+    expect(rateUnit(0.05)).toBe('min');
+    expect(rateUnit(0.0014)).toBe('h');
+    expect(formatRatePer(0.8)).toBe('0.80/s');
+    expect(formatRatePer(0.05)).toBe('3.00/min');
+    expect(formatRatePer(0.0014)).toBe('5.04/h');
+    expect(formatRatePer(0)).toBe('0.00/s');
   });
 });

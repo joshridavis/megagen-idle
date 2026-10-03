@@ -10,7 +10,7 @@ import {
   lastExpansionSize,
 } from '../utils/roomSystem';
 import { ZONES, type Zone } from '../data/map';
-import { expansionTerrain } from '../utils/siteMap';
+import { expansionTerrain, grantedTiles } from '../utils/siteMap';
 import CostList from './CostList';
 import { useNumberFormat } from './useNumberFormat';
 
@@ -139,7 +139,7 @@ export default function RoomPanel() {
           </div>
           <div className="text-xs text-slate-400" data-testid="expansion-land">
             New land:{' '}
-            {Object.entries(expansionTerrain(state.roomCapacity, next.capacity))
+            {Object.entries(expansionTerrain(state.roomCapacity + grantedTiles(state), next.capacity))
               .sort((a, b) => b[1] - a[1])
               .map(([t, n]) => `${n} ${t === 'plain' ? 'plain' : ZONES[t as Zone].name.toLowerCase()}`)
               .join(', ')}{' '}

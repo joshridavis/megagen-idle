@@ -107,6 +107,11 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.28 Much costlier contract perks (playtest 19 feedback) → HOTFIX v0.19.1
 0. 1.29 Map events halfway between the old and new pace (playtest 19.1 feedback) → HOTFIX v0.19.2
 0. 1.30 Birds that look like birds (playtest 19.2 feedback) → HOTFIX v0.19.3
+0. 1.31 Slow rates per minute or hour instead of "0.00/s" (playtest 19.3 feedback)
+0. 1.32 Balance: metal and stone costs x2, room expansions harder, research 25% longer (playtest 19.3 feedback)
+0. 1.33 Producers granted by research shown on the map (playtest 19.3 bug)
+0. 1.34 Level ups in the event log (playtest 19.3 feedback)
+0. 1.35 Lightning strikes stack per generator type (playtest 19.3 bug) → HOTFIX v0.19.4
 0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
 0. 0.39 Statistics panel (moved up)
@@ -958,6 +963,44 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 **Acceptance:** tests with a fake service for the buttons, the redirect call and the username dialog; no secrets in the repository.
 **Notes:** the code is done and tested with fakes. The owner turns it on with section 9b of `docs/PUBLIC_RELEASE.md` (register the Google and Discord OAuth apps, paste the keys into Supabase, add `VITE_AUTH_PROVIDERS`, rerun the deploy). The live sign-in check rides with 0.68's live test.
 
+### 1.35 — Lightning strikes stack per generator type — CODE — Done
+**Goal:** fix the playtest 19.3 bugs. A strike while a lightning boost was running reset the timer to 3 minutes instead of adding time. A strike on another type replaced the first boost, so that type lost its bonus.
+**Details:**
+- **Same type:** a strike on a type that already has a boost adds 3 minutes to the time left.
+- **Another type:** gets its own boost and timer; both run at once.
+- **Messages:** the log names the struck type ("Lightning struck a Coal Plant: +50% from your Coal Plants for 3 minutes."). The active-events chips name it too ("Lightning strike (Wind Turbine)").
+**Acceptance:** tests for adding time, separate types, and an ended boost starting fresh.
+
+### 1.34 — Level ups in the event log — CODE — Done
+**Goal:** apply playtest 19.3 feedback: level ups should appear in the event log.
+**Details:** each new player level ("Player level 12 reached: +1.1% energy from all generators") and research level ("Research level 5 reached") is logged, with a star icon. They are not toasts, so they add no pop-ups.
+**Acceptance:** a test logs both and nothing when nothing changes.
+
+### 1.33 — Producers granted by research shown on the map — CODE — Done
+**Goal:** fix the playtest 19.3 bug: a Uranium Mine from research did not appear on the map.
+**Details:**
+- **Cause:** by design, producers granted by research (Gas Well, Oil Rig, Uranium Mine and Deuterium Extractor, one each) take no room, so the map left them out.
+- **Fix:** they now stand on the map, and the site gains the tiles they cover (`grantedTiles`). They still use no room.
+- **Preview:** the room expansion preview starts after that land.
+**Acceptance:** a site map test places a granted Gas Well and grows the site by its size; checked in the running game.
+
+### 1.32 — Balance: costlier metal and stone, harder room, longer research — CODE — Done
+**Goal:** apply playtest 19.3 feedback: metal and stone costs are too low everywhere, room expansions ("storage upgrades") should be slightly harder, and research should take slightly longer.
+**Details:** the knobs are in `src/data/balance.ts` and are applied where the data is defined.
+- **`MATERIAL_COST_FACTOR` (2):** doubles every metal and stone cost: builds, upgrades (derived from the build cost), producers, research, room expansions and pet food. Starting metal and stone double too, so the first builds work the same.
+- **`ROOM_ENERGY_FACTOR` (1.2):** room expansions also cost 20% more energy.
+- **`RESEARCH_TIME_FACTOR` (1.25):** research takes 25% longer, rounded to whole minutes.
+- **Assumption:** there is no storage mechanic, so "storage upgrades" is read as the room expansions, the only capacity upgrade.
+- **Simulator speed:** the longer run took about 45 s in the test. Two speed-ups bring it back to about 30 s with the same results:
+  - research bonuses are cached per research list;
+  - the simulated player skips scrap-and-build attempts it cannot pay for, or that found no spot before.
+**Acceptance:** tests updated for the new costs; simulator: 100% at about 259 h (was 211 h), early milestones unchanged, no stalls.
+
+### 1.31 — Slow rates per minute or hour — CODE — Done
+**Goal:** apply playtest 19.3 feedback: a slow producer showed "+0.00/s", which looks wrong.
+**Details:** a rate under 0.1 a second shows per minute ("+4.40/min"), and under 1 a minute per hour ("+2.20/h"). This uses `formatRatePer` and `rateUnit` in `src/utils/format.ts`. The resource tooltip uses the same unit on every row ("Uranium per hour").
+**Acceptance:** unit tests for the unit choice; checked in the running game.
+
 ### 1.30 — Birds that look like birds — CODE — Done
 **Goal:** apply playtest 19.2 feedback: the map birds "don't look like birds at all" (tiny gray marks that read as lines).
 **Details:**
@@ -1176,4 +1219,5 @@ Later items (0.33, 0.34, 0.44) add their own rows here and extend the generator 
 | 19 (v0.19.0) | 1.22, 1.24, 0.34, 1.23, 1.12 | 2026-10-02 | Fusion and the Micro-Supernova feel like a satisfying late game. The Exclusion Zone limit sounds good, but they could not see it on the map. Map events a bit too frequent; make them slightly rarer. Bugs: the delivery truck and the birds move backwards; emoji look odd, so they want dedicated designs and animations. Maxing contract perks is way too easy. Next after the fixes: map decorations and browser notifications. This run: only the fixes and feedback, no new features. | 1.25-1.28 (hotfix v0.19.1) |
 | 19.1 (v0.19.1, hotfix) | 1.25, 1.26, 1.27, 1.28 | 2026-10-02 | Map events now too rare to judge the new designs: set them between the old and new pace. New perk prices are about right. Build nothing else from the backlog until told. | 1.29 (hotfix v0.19.2) |
 | 19.2 (v0.19.2, hotfix) | 1.29 | 2026-10-02 | The birds do not look like birds at all; fix them. Build nothing else from the backlog until told. | 1.30 (hotfix v0.19.3) |
-| 19.3 (v0.19.3, hotfix) | 1.30 | 2026-10-03 | (waiting for owner) | |
+| 19.3 (v0.19.3, hotfix) | 1.30 | 2026-10-03 | Slow producers show "+0.00/s". Metal and stone costs too low everywhere they are used. Storage upgrades slightly harder. Research slightly longer. A Uranium Mine from research is missing from the map. Level ups should be in the event log. A second lightning strike adds no time, and strikes should respect the struck type. Nothing else from the backlog until told. | 1.31-1.35 (hotfix v0.19.4) |
+| 19.4 (v0.19.4, hotfix) | 1.31-1.35 | 2026-10-03 | (waiting for owner) | |

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { STARTING_RESOURCES } from '../data/resources';
 import { EVENTS_BY_ID } from '../data/events';
 import { createInitialState } from '../data/initialState';
 import { GROW_HOURS, PETS, PETS_BY_ID } from '../data/pets';
@@ -76,7 +77,7 @@ describe('energy pets (0.92)', () => {
     expect(withCat.energyPerSecond).toBeCloseTo(0.5 * 1.01);
     const dog = addPet(s0(), 'robodog', 0);
     const plain = advanceTime(s0(), 3600, 3600_000).state.resources.stone;
-    expect(advanceTime(dog, 3600, 3600_000).state.resources.stone).toBeCloseTo(10 + (plain - 10) * 1.03);
+    expect(advanceTime(dog, 3600, 3600_000).state.resources.stone).toBeCloseTo(STARTING_RESOURCES.stone + (plain - STARTING_RESOURCES.stone) * 1.03);
     const ham = addPet(s0(), 'hamster', 0);
     expect(getClickValue([], 0, petClickBonus(ham))).toBeCloseTo(1.5);
   });

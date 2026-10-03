@@ -152,12 +152,21 @@ interface Item {
   order: number;
 }
 
-/** Every machine that takes room, with a stable key: generator ids, producers as "quarry-1", "quarry-2", ... */
+/**
+ * Tiles that come with producers granted by research (playtest 19.3: they
+ * were missing from the map). Granted producers take no room, so the site
+ * gets their land on top of the room capacity and they stand on it.
+ */
+export function grantedTiles(s: Pick<SiteState, 'producers' | 'completedResearch'>): number {
+  const granted = getGrantedProducers(s.completedResearch);
+  return PRODUCER_IDS.reduce((n, pid) => n + Math.min(granted[pid] ?? 0, s.producers[pid] ?? 0) * PRODUCERS[pid].roomCost, 0);
+}
+
+/** Every machine on the site, with a stable key: generator ids, producers as "quarry-1", "quarry-2", ... (granted producers too). */
 export function siteItems(s: SiteState): Item[] {
   const items: Item[] = s.activeGenerators.map((g, order) => ({ key: g.id, kind: 'generator', id: g.id, type: g.type, size: GENERATORS[g.type].roomCost, order }));
-  const granted = getGrantedProducers(s.completedResearch);
   for (const pid of PRODUCER_IDS) {
-    const count = Math.max(0, (s.producers[pid] ?? 0) - (granted[pid as ProducerId] ?? 0));
+    const count = Math.max(0, s.producers[pid] ?? 0);
     for (let i = 0; i < count; i++) {
       items.push({ key: `${pid}-${i + 1}`, kind: 'producer', id: pid, type: pid, size: PRODUCERS[pid].roomCost, order: items.length });
     }
@@ -179,7 +188,7 @@ export function siteItems(s: SiteState): Item[] {
  */
 function computeLayout(s: SiteState): SiteMap {
   const columns = MAP_COLUMNS;
-  const capacity = s.roomCapacity;
+  const capacity = s.roomCapacity + grantedTiles(s);
   const pins = s.mapPins ?? {};
   // a flat array, not a Set: layouts run thousands of times in the simulator
   const taken = new Uint8Array(Math.max(0, capacity));

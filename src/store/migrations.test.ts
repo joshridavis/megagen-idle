@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { STARTING_RESOURCES } from '../data/resources';
 import type { GameState } from '../types/state';
 import { createInitialState } from '../data/initialState';
 import { STARTING_ENERGY } from '../data/player';
@@ -26,7 +27,7 @@ describe('save migrations', () => {
     expect(s.energyPerSecond).toBe(1);
     expect('totalProductionPerSecond' in s).toBe(false);
     // pre-0.11 saves get at least the starting resources and producers
-    expect(s.resources).toEqual({ coal: 1, stone: 10, metal: 15, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 });
+    expect(s.resources).toEqual({ coal: 1, stone: STARTING_RESOURCES.stone, metal: STARTING_RESOURCES.metal, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 });
     expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 });
     expect(s.lastSavedTimestamp).toBe(1_700_000_000_000);
     // fields added later get fresh-save defaults

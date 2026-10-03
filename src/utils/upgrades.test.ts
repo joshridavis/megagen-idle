@@ -31,9 +31,9 @@ describe('generator upgrades (0.32)', () => {
     const build = getGeneratorStats(GeneratorType.WIND);
     expect(getUpgradeCost(GeneratorType.WIND, 1)).toEqual({
       energy: Math.ceil(build.energyCost * 1.6),
-      resources: { metal: Math.ceil(15 * 1.3), stone: Math.ceil(8 * 1.3) },
+      resources: { metal: Math.ceil(30 * 1.3), stone: Math.ceil(16 * 1.3) },
     });
-    expect(getUpgradeCost(GeneratorType.WIND, 4).resources.metal).toBe(Math.ceil(15 * 1.3 ** 4));
+    expect(getUpgradeCost(GeneratorType.WIND, 4).resources.metal).toBe(Math.ceil(30 * 1.3 ** 4));
     expect(getUpgradeCost(GeneratorType.WIND, 4).energy).toBe(Math.ceil(build.energyCost * 1.6 ** 4));
     expect(getUpgradeCost(GeneratorType.WIND, 2).energy).toBeGreaterThan(getUpgradeCost(GeneratorType.WIND, 1).energy);
   });

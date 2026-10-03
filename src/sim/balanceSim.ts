@@ -14,6 +14,7 @@ import { zoneFor } from '../utils/mapTerrain';
 import { getCompletion } from '../utils/completion';
 import {
   buildGenerator,
+  generatorScrapRefund,
   getBuildBlock,
   getGeneratorStats,
   getUpgradeBlock,
@@ -25,7 +26,7 @@ import {
 } from '../utils/generatorSystem';
 import { buildProducer, getProducerBlock } from '../utils/producerSystem';
 import { canStartResearch, getResearchDuration, getUnlockedGeneratorTypes, startResearch } from '../utils/researchSystem';
-import { canAfford, getFuelUseRates, getProductionRates } from '../utils/resourceSystem';
+import { addResources, canAfford, getFuelUseRates, getProductionRates } from '../utils/resourceSystem';
 import { canExpandRoom, expandRoom, getNextRoomTier } from '../utils/roomSystem';
 import { advanceTime } from '../utils/simulation';
 import { buyPerk, canDeliver, claimContract, deliverContract, perkCost, updateContracts } from '../utils/contracts';
@@ -98,14 +99,21 @@ function makeZoneSpot(s: GameState, t: GeneratorType, b: Bonuses): GameState | n
     .filter((g) => onZone.has(g.id) && zoneFor(g.type) === zone && perRoom(g.type) * 1.5 <= perRoom(t) && !isBeingRaised(s, g))
     .sort((x, y) => perRoom(x.type) - perRoom(y.type))
     .slice(0, 6);
+  // a search that found no spot fails again until the site changes (speed: it
+  // ran every step while a zone was full)
+  const site = [s.activeGenerators, s.producers, s.roomCapacity, s.mapPins];
+  if (zoneMiss && zoneMiss.type === t && zoneMiss.site.every((x, i) => x === site[i])) return null;
   const ids: string[] = [];
   for (const g of victims) {
     ids.push(g.id);
     const tried = scrapGenerators(s, ids);
     if (hasSpotFor(tried, t)) return tried;
   }
+  zoneMiss = { type: t, site };
   return null;
 }
+let zoneMiss: { type: GeneratorType; site: unknown[] } | null = null;
+let roomMiss: { type: GeneratorType; site: unknown[] } | null = null;
 
 /** The highest-level generator of a type that is not maxed yet: the one the completionist raises. */
 function isBeingRaised(s: GameState, g: GameState['activeGenerators'][number]): boolean {
@@ -223,8 +231,22 @@ function act(s: GameState, now: number): GameState {
             scrap.push(g.id);
             free += GENERATORS[g.type].roomCost;
           }
-          // nothing to gain if it still would not fit
-          if (free >= stats.roomCost) {
+          // nothing to gain if it still would not fit, or could not be paid for
+          // even with the scrap refunds; an attempt that found no spot fails
+          // again until the site changes (speed: layouts are slow on a big
+          // site, and this ran every step)
+          const site = [s.activeGenerators, s.producers, s.roomCapacity, s.mapPins];
+          const missed = roomMiss && roomMiss.type === t && roomMiss.site.every((x, i) => x === site[i]);
+          let refundEnergy = 0;
+          let refunded = s.resources;
+          for (const g of s.activeGenerators) {
+            if (!scrap.includes(g.id)) continue;
+            const r = generatorScrapRefund(g, bonuses());
+            refundEnergy += r.energy;
+            refunded = addResources(refunded, r.resources);
+          }
+          const payable = s.energy + refundEnergy >= stats.energyCost && canAfford(refunded, stats.buildCost);
+          if (free >= stats.roomCost && payable && !missed) {
             const tried = scrapGenerators(s, scrap);
             const built = buildGenerator(tried, t, unlocked, bonuses());
             if (built !== tried) return built;
@@ -233,6 +255,8 @@ function act(s: GameState, now: number): GameState {
               const made = makeZoneSpot(tried, t, bonuses());
               const built2 = made && buildGenerator(made, t, unlocked, bonuses());
               if (made && built2 && built2 !== made) return built2;
+              // remember only a missing spot, not a lack of energy or resources
+              if (!made && tried.energy >= stats.energyCost * 1.1 && canAfford(tried.resources, stats.buildCost)) roomMiss = { type: t, site };
             }
           }
         }

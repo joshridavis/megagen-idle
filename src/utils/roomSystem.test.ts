@@ -25,9 +25,10 @@ describe('room expansion', () => {
     const s = expandRoom(rich());
     expect(s.roomCapacity).toBe(23);
     expect(s.expansionLevel).toBe(1);
-    expect(s.energy).toBe(1e8 - 500);
-    expect(s.resources.metal).toBe(1e6 - 50);
-    expect(s.resources.stone).toBe(1e6 - 20);
+    // tier 1 is 500 energy, 50 metal, 20 stone, scaled since playtest 19.3 (energy x1.2, materials x2)
+    expect(s.energy).toBe(1e8 - 600);
+    expect(s.resources.metal).toBe(1e6 - 100);
+    expect(s.resources.stone).toBe(1e6 - 40);
   });
 
   it('tiers go in order and stop at the last', () => {

@@ -30,9 +30,10 @@ describe('research durations (playtest 3)', () => {
   });
 
   it('uses the playtest 3 durations', () => {
-    expect(RESEARCH_BY_ID.basic_solar.duration).toBe(10 * 60);
-    expect(RESEARCH_BY_ID.wind_power.duration).toBe(30 * 60);
-    expect(RESEARCH_BY_ID.fossil_fuels.duration).toBe(45 * 60);
+    // the playtest 3 durations, 25% longer since playtest 19.3, in whole minutes
+    expect(RESEARCH_BY_ID.basic_solar.duration).toBe(13 * 60);
+    expect(RESEARCH_BY_ID.wind_power.duration).toBe(38 * 60);
+    expect(RESEARCH_BY_ID.fossil_fuels.duration).toBe(56 * 60);
   });
 });
 

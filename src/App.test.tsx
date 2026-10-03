@@ -20,7 +20,7 @@ describe('App smoke test', () => {
   it('starts from the documented initial state', () => {
     const s = createInitialState(0);
     expect(s.energy).toBe(900); // exactly the first Solar Panel's cost
-    expect(s.resources).toEqual({ metal: 15, stone: 10, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 });
+    expect(s.resources).toEqual({ metal: 30, stone: 20, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 });
     expect(s.producers).toEqual({ quarry: 1, mine: 1, coalMine: 1, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 });
     expect(s.researchLevel).toBe(1);
     expect(s.activeGenerators).toEqual([]);
@@ -44,7 +44,7 @@ describe('Resource UI', () => {
   it('shows inventory with amounts and rates', () => {
     useStore.setState(createInitialState(Date.now()));
     render(<App />);
-    expect(screen.getByLabelText('Metal amount').textContent).toBe('15');
+    expect(screen.getByLabelText('Metal amount').textContent).toBe('30');
     expect(screen.getByTestId('resource-stone').textContent).toContain('+0.10/s');
   });
 
@@ -64,7 +64,7 @@ describe('Generator UI loop', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Build Solar Panel' }));
     const s = useStore.getState();
     expect(s.activeGenerators).toHaveLength(1);
-    expect(s.resources.metal).toBeCloseTo(5, 0);
+    expect(s.resources.metal).toBeCloseTo(10, 0);
     expect(screen.getByLabelText('Energy rate').textContent).toBe('+0.50/s');
     expect(screen.getByText('Running')).toBeTruthy();
 
@@ -154,8 +154,8 @@ describe('Room UI', () => {
   it('expands room from the panel', () => {
     useStore.setState({
       ...createInitialState(Date.now()),
-      energy: 600,
-      resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
+      energy: 720,
+      resources: { metal: 120, stone: 60, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
     });
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
@@ -209,7 +209,7 @@ describe('Mid-tier generators UI', () => {
   });
 
   it('shows the new room under construction after expanding, in a fixed-width bar', () => {
-    useStore.setState({ ...createInitialState(Date.now()), energy: 600, resources: { metal: 60, stone: 30, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } });
+    useStore.setState({ ...createInitialState(Date.now()), energy: 720, resources: { metal: 120, stone: 60, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } });
     render(<App />);
     expect(screen.queryByTestId('room-building')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Expand room (+10)' }));
@@ -279,7 +279,7 @@ describe('Research level label (playtest 4)', () => {
 
 describe('Producers (0.31)', () => {
   it('buys a quarry from the Producers tab: count, room and stone rate go up', () => {
-    useStore.setState({ ...createInitialState(Date.now()), energy: 1000, resources: { metal: 20, stone: 10, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } });
+    useStore.setState({ ...createInitialState(Date.now()), energy: 1000, resources: { metal: 40, stone: 20, coal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 } });
     render(<App />);
     fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
     expect(screen.getByTestId('producer-owned-quarry').textContent).toBe('1');

@@ -6,16 +6,23 @@ import { useStore } from '../store';
 import { selectResources } from '../store/selectors';
 import type { ResourceId } from '../types/state';
 import { getResourceBreakdown, type RateBreakdown } from '../utils/breakdown';
+import { rateUnit, RATE_UNIT_SECONDS, RATE_UNIT_WORD, type RateUnit } from '../utils/format';
 import BreakdownTooltip from './BreakdownTooltip';
 import { FUEL_CLASS, RESOURCE_ICONS } from './CostList';
 import { useNumberFormat } from './useNumberFormat';
 
 
+/** The breakdown in the rate's display unit, so every row of the tooltip uses the same one. */
+const inUnit = (b: RateBreakdown, unit: RateUnit): RateBreakdown => {
+  const k = RATE_UNIT_SECONDS[unit];
+  return { base: b.base * k, total: b.total * k, modifiers: b.modifiers.map((m) => ({ ...m, amount: m.amount * k })) };
+};
+
 export default function ResourceDisplay() {
   const resources = useStore(selectResources);
   const fmt = useNumberFormat();
   const formatRate = (perSecond: number) =>
-    `${perSecond > 0 ? '+' : perSecond < 0 ? '−' : ''}${fmt.rate(Math.abs(perSecond))}/s`;
+    `${perSecond > 0 ? '+' : perSecond < 0 ? '−' : ''}${fmt.ratePer(Math.abs(perSecond))}`;
   const producers = useStore((s) => s.producers);
   const generators = useStore((s) => s.activeGenerators);
   const completed = useStore((s) => s.completedResearch);
@@ -49,10 +56,10 @@ export default function ResourceDisplay() {
                 <span aria-label={`${RESOURCE_NAMES[id]} amount`}>{fmt.num(resources[id])}</span>{' '}
                 <BreakdownTooltip
                   id={`resource-breakdown-${id}`}
-                  title={`${RESOURCE_NAMES[id]} per second`}
+                  title={`${RESOURCE_NAMES[id]} per ${RATE_UNIT_WORD[rateUnit(breakdowns[id].total)]}`}
                   baseLabel={`Producers (${producerCount(id)})`}
-                  unit="/s"
-                  breakdown={breakdowns[id]}
+                  unit={`/${rateUnit(breakdowns[id].total)}`}
+                  breakdown={inUnit(breakdowns[id], rateUnit(breakdowns[id].total))}
                   emptyHint="No boosts yet. Materials research can add them."
                   align="left"
                 >

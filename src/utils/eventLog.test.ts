@@ -5,6 +5,7 @@ import { useStore } from '../store';
 import { GeneratorType, type Generator } from '../types/generator';
 import type { GameState } from '../types/state';
 import { appendLog, appendToasts, deriveEvents, stamp } from './eventLog';
+import { energyForLevel } from './playerLevel';
 
 const base = (): GameState => createInitialState(0);
 const coal = (id: string, on: boolean, outOfFuel = false): Generator => ({ id, type: GeneratorType.COAL, isActive: on, level: 1, outOfFuel });
@@ -61,5 +62,16 @@ describe('event log (0.38)', () => {
     expect(useStore.getState().eventLog.map((e) => e.text)).not.toContain('Research complete: Fossil Fuels 101');
     useStore.getState().resetGame();
     expect(useStore.getState().eventLog).toEqual([]);
+  });
+});
+
+describe('level ups in the event log (playtest 19.3)', () => {
+  it('logs a new player level and a new research level', () => {
+    const prev = createInitialState(0);
+    const next = { ...prev, lifetimeEnergy: energyForLevel(3), researchLevel: prev.researchLevel + 1 };
+    const texts = deriveEvents(prev, next).map((e) => e.text);
+    expect(texts).toContain('Player level 3 reached: +0.2% energy from all generators');
+    expect(texts).toContain(`Research level ${prev.researchLevel + 1} reached`);
+    expect(deriveEvents(next, next)).toEqual([]);
   });
 });

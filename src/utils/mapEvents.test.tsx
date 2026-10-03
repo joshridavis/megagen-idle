@@ -6,6 +6,9 @@ import { GeneratorType, type Generator } from '../types/generator';
 import { useStore } from '../store';
 import { getEffectMods } from './effectMods';
 import { applyMapEvent, pickMapTarget } from './mapEvents';
+import { layoutSite } from './siteMap';
+import type { GameState } from '../types/state';
+const layoutSiteFor = (st: GameState) => layoutSite(st).placed;
 import { eligibleEvents } from './randomEvents';
 import { deriveRates } from './simulation';
 import MapPanel from '../components/MapPanel';
@@ -37,6 +40,29 @@ describe('map events (1.12)', () => {
     expect(after.activeEffects).toEqual([{ id: 'map_lightning', until: 1000 + 3 * 60_000, generator: GeneratorType.COAL }]);
     expect(getEffectMods(after.activeEffects).generator.coal).toBe(0.5);
     expect(after.energyPerSecond).toBeCloseTo(s.energyPerSecond * 1.5);
+  });
+
+  it('another strike adds time to the same type, and a strike on another type boosts it separately (playtest 19.3)', () => {
+    const s = site([gen('gen-1', GeneratorType.COAL), gen('gen-2', GeneratorType.WIND)]);
+    const strike = (st: typeof s, key: string, now: number) => {
+      const p = layoutSiteFor(st).find((x) => x.key === key)!;
+      return applyMapEvent(st, { id: 'map_lightning', at: now, cells: p.cells, key, generatorType: p.type as GeneratorType }, now, first);
+    };
+    const one = strike(s, 'gen-1', 1000);
+    expect(one.text).toBe('Lightning struck a Coal Plant: +50% from your Coal Plants for 3 minutes.');
+    // a minute later, the same type again: 2 minutes were left, now 5
+    const two = strike(one.state, 'gen-1', 61_000);
+    expect(two.state.activeEffects).toEqual([{ id: 'map_lightning', until: 1000 + 6 * 60_000, generator: GeneratorType.COAL }]);
+    expect(two.text).toContain('runs 3 minutes longer');
+    // another type keeps the first boost and gets its own
+    const three = strike(two.state, 'gen-2', 61_000);
+    expect(three.state.activeEffects).toHaveLength(2);
+    const mods = getEffectMods(three.state.activeEffects, 61_000);
+    expect(mods.generator.coal).toBe(0.5);
+    expect(mods.generator.wind).toBe(0.5);
+    // an ended boost starts fresh
+    const late = strike(two.state, 'gen-1', 1000 + 7 * 60_000);
+    expect(late.state.activeEffects).toEqual([{ id: 'map_lightning', until: 1000 + 10 * 60_000, generator: GeneratorType.COAL }]);
   });
 
   it('a delivery brings the resource of the producer it drives to', () => {

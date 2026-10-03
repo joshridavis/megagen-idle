@@ -1,5 +1,6 @@
 import { GeneratorType } from '../types/generator';
 import type { ResourceId } from '../types/state';
+import { MATERIAL_COST_FACTOR } from './balance';
 
 /**
  * Energy pets (0.92, playtest 11): a light collection activity. Pets fit the
@@ -60,7 +61,7 @@ export const PET_PARTICLES: Record<PetId, string> = {
 /** Hours to grow after feeding: to young, to adult. */
 export const GROW_HOURS: [number, number] = [2, 8];
 
-export const PETS: PetDef[] = [
+const PET_DEFS: PetDef[] = [
   {
     id: 'hamster',
     name: 'Wheel Hamster',
@@ -150,5 +151,12 @@ export const PETS: PetDef[] = [
     feedCost: [500_000, 10_000_000],
   },
 ];
+
+/** The pets; feeding with metal or stone costs MATERIAL_COST_FACTOR times more (playtest 19.3). */
+export const PETS: PetDef[] = PET_DEFS.map((p) =>
+  p.food === 'metal' || p.food === 'stone'
+    ? { ...p, feedCost: [Math.round(p.feedCost[0] * MATERIAL_COST_FACTOR), Math.round(p.feedCost[1] * MATERIAL_COST_FACTOR)] }
+    : p,
+);
 
 export const PETS_BY_ID = Object.fromEntries(PETS.map((p) => [p.id, p])) as Record<PetId, PetDef>;

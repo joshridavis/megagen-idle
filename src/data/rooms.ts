@@ -1,4 +1,5 @@
 import type { ResourceAmounts } from '../types/resource';
+import { ROOM_ENERGY_FACTOR, scaleMaterials } from './balance';
 
 export interface RoomTier {
   tier: number;
@@ -21,7 +22,7 @@ export const ROOM_WARNING_RATIO = 0.9;
 export const EXPANSION_ANIMATION_MS = 2000;
 
 /** Expansions, bought in order. */
-export const ROOM_TIERS: RoomTier[] = [
+const ROOM_TIER_DEFS: RoomTier[] = [
   { tier: 1, capacity: 10, energy: 500, resources: { metal: 50, stone: 20 } },
   { tier: 2, capacity: 15, energy: 2000, resources: { metal: 150, stone: 80 } },
   { tier: 3, capacity: 25, energy: 8000, resources: { metal: 400, stone: 200 } },
@@ -35,3 +36,10 @@ export const ROOM_TIERS: RoomTier[] = [
   { tier: 9, capacity: 180, energy: 20_000_000, resources: { metal: 25_000, stone: 12_000, uranium: 40 } },
   { tier: 10, capacity: 240, energy: 80_000_000, resources: { metal: 50_000, stone: 25_000, uranium: 100, deuterium: 30 } },
 ];
+
+/** The expansions, slightly harder (playtest 19.3): energy x ROOM_ENERGY_FACTOR, metal and stone x MATERIAL_COST_FACTOR. */
+export const ROOM_TIERS: RoomTier[] = ROOM_TIER_DEFS.map((t) => ({
+  ...t,
+  energy: Math.round(t.energy * ROOM_ENERGY_FACTOR),
+  resources: scaleMaterials(t.resources),
+}));

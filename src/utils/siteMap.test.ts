@@ -4,7 +4,7 @@ import { createInitialState } from '../data/initialState';
 import { PRODUCERS } from '../data/producers';
 import { GeneratorType, type Generator } from '../types/generator';
 import type { GameState } from '../types/state';
-import { footprint, layoutSite } from './siteMap';
+import { footprint, grantedTiles, layoutSite } from './siteMap';
 import { deriveRates } from './simulation';
 
 const gen = (n: number, type: GeneratorType): Generator => ({ id: `gen-${n}`, type, isActive: true, level: 1 });
@@ -49,9 +49,15 @@ describe('site map (1.04)', () => {
     expect(map.placed.flatMap((p) => p.cells)).toHaveLength(room); // exactly full
   });
 
-  it('research-granted producers take no room and are not placed', () => {
+  it('research-granted producers stand on the map, on land that comes with them (playtest 19.3)', () => {
     const s = { ...createInitialState(0), completedResearch: ['fossil_fuels', 'gas_extraction'], producers: { ...createInitialState(0).producers, gasWell: 1 } };
-    expect(layoutSite(s).placed.some((p) => p.type === 'gasWell')).toBe(false);
+    const map = layoutSite(s);
+    expect(map.placed.some((p) => p.type === 'gasWell')).toBe(true);
+    // the granted well takes no room: the site grows by its tiles
+    expect(map.capacity).toBe(s.roomCapacity + PRODUCERS.gasWell.roomCost);
+    expect(grantedTiles(s)).toBe(PRODUCERS.gasWell.roomCost);
+    // a bought one takes room as usual
+    expect(grantedTiles({ ...s, producers: { ...s.producers, gasWell: 2 } })).toBe(PRODUCERS.gasWell.roomCost);
   });
 });
 
