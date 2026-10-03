@@ -1,4 +1,34 @@
-# Playtest 19.2 (v0.19.2, hotfix): map event pace
+# Playtest 19.3 (v0.19.3, hotfix): new birds
+
+The version at the bottom of the screen should read **v0.19.3**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 211 hours** (simulated, unchanged).
+
+## What changed (only what you asked for)
+
+- **The birds are redrawn.** Instead of four tiny gray marks, three gulls now fly over the map in a V.
+  - Each is about one tile in size, with a white body, gray wings with dark tips, a yellow beak and a dark outline.
+  - They flap their wings out of step and face the way they fly.
+- Nothing else changed.
+
+## Things to try
+
+1. Keep the Map tab open until the birds fly over (about one map event every 3 to 4 minutes; birds are one of the common ones).
+
+## Questions for you
+
+1. Do the birds look like birds now?
+
+---
+
+# Previous: Playtest 19.2 (v0.19.2)
 
 The version at the bottom of the screen should read **v0.19.2**.
 

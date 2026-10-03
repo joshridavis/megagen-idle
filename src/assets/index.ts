@@ -52,8 +52,8 @@ import researchPanelBg from './sprites/research/panel_bg.png';
 import achievementUnlocked from './sprites/ui/achievement_unlocked.png';
 import achievementLocked from './sprites/ui/achievement_locked.png';
 import tileGround from './sprites/map/ground.png';
-import mapBirds1 from './sprites/events/map_birds_1.png';
-import mapBirds2 from './sprites/events/map_birds_2.png';
+import mapBird1 from './sprites/events/map_bird_1.png';
+import mapBird2 from './sprites/events/map_bird_2.png';
 import mapTruck from './sprites/events/map_truck.png';
 import mapBolt from './sprites/events/map_bolt.png';
 import mapFire1 from './sprites/events/map_fire_1.png';
@@ -174,8 +174,8 @@ export const sprites = {
   achievement_unlocked: achievementUnlocked,
   achievement_locked: achievementLocked,
   tile_ground: tileGround,
-  map_birds_1: mapBirds1,
-  map_birds_2: mapBirds2,
+  map_bird_1: mapBird1,
+  map_bird_2: mapBird2,
   map_truck: mapTruck,
   map_bolt: mapBolt,
   map_fire_1: mapFire1,

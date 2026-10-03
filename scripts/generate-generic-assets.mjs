@@ -695,19 +695,49 @@ function meteor() {
 // ---------- map events (1.12; dedicated designs, playtest 19) ----------
 // Everything that moves faces right: it travels left to right.
 
-function mapBirds(wingsUp) {
-  const c = new Canvas(32, 16);
-  // side view, flying right: tail on the left, beak on the right
-  const up = ['...W.....', '....W....', '....WW...', 'TBBBBBHHb', '.........'];
-  const down = ['.........', 'TBBBBBHHb', '....WW...', '....W....', '...W.....'];
-  const colors = { W: C.grey5, T: C.grey5, B: C.ink, H: C.ink, b: C.amber };
-  for (const [x, y] of [[1, 1], [12, 6], [22, 2], [6, 10]]) {
-    (wingsUp ? up : down).forEach((row, dy) =>
-      [...row].forEach((ch, dx) => {
-        if (colors[ch]) c.set(x + dx, y + dy, colors[ch]);
-      }),
-    );
-  }
+/**
+ * One gull, side view, flying right (playtest 19.2: the flock of tiny marks
+ * did not read as birds). Frame 1 has the wing up, frame 2 down; the body
+ * stays on the same rows so the flap does not bob the bird.
+ */
+function mapBird(wingUp) {
+  const c = new Canvas(16, 16);
+  const up = [
+    '.KK...........',
+    '.KWW..........',
+    '..WWW.........',
+    '..WWWW........',
+    '...WWWW.......',
+    '....WWWW.HHH..',
+    '.....WWWHHHEH.',
+    'TT..BBBBBHHHkk',
+    'TTTBBBBBBBHH..',
+    '.T.Bgggggg....',
+    '....gggg......',
+  ];
+  const down = [
+    '..............',
+    '..............',
+    '..............',
+    '..............',
+    '..............',
+    '.........HHH..',
+    '........HHHEH.',
+    'TT..BBBBBHHHkk',
+    'TTTBBBBBBBHH..',
+    '.T.BgWWWWgg...',
+    '.....WWWW.....',
+    '......WWW.....',
+    '......KWW.....',
+    '......KK......',
+  ];
+  const colors = { K: C.grey5, W: C.grey3, B: C.white, H: C.white, T: C.grey2, g: C.grey1, E: C.ink, k: C.amber };
+  (wingUp ? up : down).forEach((row, y) =>
+    [...row].forEach((ch, x) => {
+      if (colors[ch]) c.set(x + 1, y + 1, colors[ch]);
+    }),
+  );
+  c.outline(C.ink);
   return c;
 }
 
@@ -1148,8 +1178,8 @@ const DRAW = {
   producer_deuterium_extractor: deuteriumExtractor,
   room_expansion: roomExpansion,
   tile_ground: groundTile,
-  map_birds_1: () => mapBirds(true),
-  map_birds_2: () => mapBirds(false),
+  map_bird_1: () => mapBird(true),
+  map_bird_2: () => mapBird(false),
   map_truck: mapTruck,
   map_bolt: mapBolt,
   map_fire_1: () => mapFire(true),
