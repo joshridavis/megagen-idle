@@ -64,6 +64,23 @@ export function formatRate(n: number, notation: NumberNotation = 'short'): strin
   return formatNumber(n, notation);
 }
 
+/**
+ * Slow rates read as "0.00/s" (playtest 19.3), so a rate under 0.1 a second
+ * is shown per minute, and under 1 a minute per hour.
+ */
+export type RateUnit = 's' | 'min' | 'h';
+export const RATE_UNIT_SECONDS: Record<RateUnit, number> = { s: 1, min: 60, h: 3600 };
+export const RATE_UNIT_WORD: Record<RateUnit, string> = { s: 'second', min: 'minute', h: 'hour' };
+export function rateUnit(perSecond: number): RateUnit {
+  const abs = Math.abs(perSecond);
+  if (abs === 0 || abs >= 0.1) return 's';
+  return abs * 60 >= 1 ? 'min' : 'h';
+}
+/** "0.80/s", "4.8/min", "5.04/h": the rate in `unit` (by default the one that suits it). */
+export function formatRatePer(perSecond: number, notation: NumberNotation = 'short', unit: RateUnit = rateUnit(perSecond)): string {
+  return `${formatRate(perSecond * RATE_UNIT_SECONDS[unit], notation)}/${unit}`;
+}
+
 /** Whole-hour limits as words: "24 hours", "1 hour", "90 minutes" if not whole hours. */
 export function formatHours(seconds: number): string {
   if (seconds % 3600 !== 0) return `${Math.round(seconds / 60)} minutes`;

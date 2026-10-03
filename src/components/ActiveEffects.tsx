@@ -1,4 +1,5 @@
 import { EVENTS_BY_ID } from '../data/events';
+import { GENERATORS } from '../data/generators';
 import { useStore } from '../store';
 import { describeEffect, effectiveDef } from '../utils/eventEffects';
 import { formatDuration } from '../utils/format';
@@ -24,21 +25,22 @@ export default function ActiveEffects() {
         const def = EVENTS_BY_ID[a.id];
         if (!def) return null;
         const exact = describeEffect(effectiveDef(def, a), { activeGenerators: generators, producers, completedResearch }, fmt.rate);
-        const tipId = `effect-tip-${a.id}`;
+        const key = a.generator ? `${a.id}-${a.generator}` : a.id;
+        const tipId = `effect-tip-${key}`;
         return (
-          <li key={a.id} className="group relative">
+          <li key={key} className="group relative">
             <span
               tabIndex={0}
               aria-describedby={tipId}
-              data-testid={`effect-chip-${a.id}`}
+              data-testid={`effect-chip-${key}`}
               className={`inline-block cursor-help rounded-full border px-3 py-1 text-xs font-semibold ${def.negative ? 'border-red-500/60 bg-red-950/60 text-red-200' : 'border-emerald-500/60 bg-emerald-950/60 text-emerald-200'}`}
             >
-              {def.negative ? '▼' : '▲'} {def.name} · {formatDuration((a.until - now) / 1000)} ⓘ
+              {def.negative ? '▼' : '▲'} {def.name}{a.generator ? ` (${GENERATORS[a.generator].name})` : ''} · {formatDuration((a.until - now) / 1000)} ⓘ
             </span>
             <span
               id={tipId}
               role="tooltip"
-              data-testid={`effect-tip-${a.id}`}
+              data-testid={`effect-tip-${key}`}
               className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 hidden w-72 -translate-x-1/2 rounded border border-slate-600 bg-slate-950 p-2 text-left text-xs text-slate-100 shadow-xl group-hover:block group-focus-within:block"
             >
               <span className="block font-semibold">{def.name}</span>

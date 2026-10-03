@@ -1,5 +1,6 @@
 import { describe, expect, it , vi } from 'vitest';
-import { GENERATOR_TYPES } from '../data/generators';
+import { GENERATOR_TYPES, GENERATORS } from '../data/generators';
+import { STARTING_RESOURCES } from '../data/resources';
 import { createInitialState } from '../data/initialState';
 import { NO_BONUSES } from '../types/bonus';
 import { GeneratorType, type Generator } from '../types/generator';
@@ -42,10 +43,10 @@ describe('energyGeneration', () => {
 
 describe('getGeneratorStats', () => {
   it('returns data-file values without bonuses', () => {
-    expect(getGeneratorStats(GeneratorType.WIND)).toMatchObject({ energyPerSecond: 0.8, roomCost: 3, buildCost: { metal: 15, stone: 8 } });
+    expect(getGeneratorStats(GeneratorType.WIND)).toMatchObject({ energyPerSecond: 0.8, roomCost: 3, buildCost: { metal: 30, stone: 16 } }); // x2 metal and stone since playtest 19.3
   });
   it('applies build discount, rounding costs up', () => {
-    expect(getGeneratorStats(GeneratorType.WIND, { ...NO_BONUSES, buildDiscount: 0.1 }).buildCost).toEqual({ metal: 14, stone: 8 });
+    expect(getGeneratorStats(GeneratorType.WIND, { ...NO_BONUSES, buildDiscount: 0.1 }).buildCost).toEqual({ metal: 27, stone: 15 });
   });
 });
 
@@ -55,7 +56,7 @@ describe('building', () => {
     expect(canBuildGenerator(s, GeneratorType.SOLAR, ALL)).toBe(true);
     const after = buildGenerator(s, GeneratorType.SOLAR, ALL);
     expect(after.activeGenerators).toHaveLength(1);
-    expect(after.resources.metal).toBe(5);
+    expect(after.resources.metal).toBe(STARTING_RESOURCES.metal - GENERATORS[GeneratorType.SOLAR].buildCost.metal!);
     expect(after.roomUsed).toBe(3 + 2);
     expect(after.energyPerSecond).toBeCloseTo(0.5);
   });
@@ -118,7 +119,7 @@ describe('energy over time', () => {
     let s = fresh({
       energy: 3600,
       producers: { quarry: 0, mine: 0, coalMine: 0, gasWell: 0, oilRig: 0, uraniumMine: 0, deuteriumExtractor: 0 },
-      resources: { metal: 20, stone: 15, coal: 5, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
+      resources: { metal: 40, stone: 30, coal: 5, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0 },
     });
     s = buildGenerator(s, GeneratorType.COAL, ALL);
     const { state } = advanceTime(s, 3600);

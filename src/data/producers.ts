@@ -1,9 +1,10 @@
 import type { ProducerDef, ProducerId } from '../types/resource';
+import { scaleMaterials } from './balance';
 
 /** Each producer bought costs this many times more than the previous one. */
 export const PRODUCER_COST_GROWTH = 1.2;
 
-export const PRODUCERS: Record<ProducerId, ProducerDef> = {
+const PRODUCER_DEFS: Record<ProducerId, ProducerDef> = {
   quarry: {
     id: 'quarry',
     name: 'Stone Quarry',
@@ -76,6 +77,14 @@ export const PRODUCERS: Record<ProducerId, ProducerDef> = {
     requiresResearch: 'heavy_water',
   },
 };
+
+/** The producers, with metal and stone costs scaled by MATERIAL_COST_FACTOR (playtest 19.3). */
+export const PRODUCERS = Object.fromEntries(
+  Object.entries(PRODUCER_DEFS).map(([id, def]) => [
+    id,
+    { ...def, baseCost: { ...def.baseCost, resources: scaleMaterials(def.baseCost.resources) } },
+  ]),
+) as Record<ProducerId, ProducerDef>;
 
 export const PRODUCER_IDS = Object.keys(PRODUCERS) as ProducerId[];
 

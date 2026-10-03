@@ -1,4 +1,56 @@
-# Playtest 19.3 (v0.19.3, hotfix): new birds
+# Playtest 19.4 (v0.19.4, hotfix): your playtest 19.3 fixes
+
+The version at the bottom of the screen should read **v0.19.4**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+Your save carries over.
+
+## Estimated play time
+
+- **100% completion: about 259 hours** (simulated; v0.19.3 was about 211).
+- **Milestones:**
+  - Early game unchanged: Wind 2.3 h, Coal 3.2 h, Hydro 5.5 h.
+  - Mid and late game slower: first Nuclear 55 h (was 44 h), first Fusion 118 h (was 79 h), every contract perk 174 h, first Micro-Supernova 217 h (was 176 h).
+
+## What changed (only what you asked for)
+
+1. **No more "+0.00/s".** A slow rate shows per minute or per hour instead, for example "+4.40/min" or "+2.20/h". The tooltip uses the same unit ("Uranium per hour").
+2. **Metal and stone cost twice as much, everywhere they are spent:** building generators and producers, upgrades, research, room expansions and pet food.
+   - A new game starts with twice the metal and stone, so the first builds work the same.
+   - Your save keeps what you have; only prices change.
+3. **Room expansions are slightly harder:** 20% more energy, on top of the doubled metal and stone.
+   - There is no separate storage upgrade in the game, so I took "storage upgrades" to mean room expansions. Tell me if you meant something else.
+4. **Research takes 25% longer** (for example, 10 minutes is now 13).
+5. **Bug: the Uranium Mine from research was missing on the map.**
+   - Producers that research gives you (Gas Well, Oil Rig, Uranium Mine, Deuterium Extractor) were free and took no room, so the map left them out.
+   - They now appear on the map, and your site gains the tiles they stand on, so they still cost you no room.
+6. **Level ups are in the event log:** "Player level 12 reached: +1.1% energy from all generators" and "Research level 5 reached".
+7. **Lightning:**
+   - A strike on a type that is already boosted adds 3 more minutes to its timer.
+   - A strike on another type gets its own boost, so both run at once (before, the second strike replaced the first).
+   - The log and the active-event chip name the struck type, for example "Lightning strike (Wind Turbine)".
+
+## Things to try
+
+1. Look at the resource bar: slow resources now show /min or /h.
+2. Check the new prices on generators, producers, research and the next room expansion.
+3. Open the Map tab: your Gas Well, Oil Rig or Uranium Mine from research should be there.
+4. Open the event log after a level up.
+5. Keep the Map tab open for lightning; watch the timer on the active-event chip after a second strike.
+
+## Questions for you
+
+1. Do the new metal and stone prices feel right, or too steep?
+2. Did "storage upgrades" mean room expansions?
+3. Is research now about the right length?
+
+---
+
+# Previous: Playtest 19.3 (v0.19.3)
 
 The version at the bottom of the screen should read **v0.19.3**.
 

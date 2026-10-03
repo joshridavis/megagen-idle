@@ -5,8 +5,9 @@ import { RESOURCE_NAMES } from '../data/resources';
 import { RESEARCH, RESEARCH_BY_ID } from '../data/research';
 import type { ProducerId } from '../types/resource';
 import type { GameState, ResourceId } from '../types/state';
+import { getPlayerLevel, playerLevelEnergyBonus } from './playerLevel';
 
-export type LogKind = 'research' | 'unlock' | 'fuel' | 'room' | 'event' | 'achievement';
+export type LogKind = 'research' | 'unlock' | 'fuel' | 'room' | 'event' | 'achievement' | 'level';
 
 export interface LogEntry {
   id: string;
@@ -35,7 +36,8 @@ export function appendToasts(toasts: LogEntry[], entries: LogEntry[], cap = TOAS
   return [...toasts, ...entries.filter((e) => e.toast)].slice(-cap);
 }
 
-type Snapshot = Pick<GameState, 'completedResearch' | 'activeGenerators' | 'roomCapacity' | 'roomUsed' | 'resources'>;
+type Snapshot = Pick<GameState, 'completedResearch' | 'activeGenerators' | 'roomCapacity' | 'roomUsed' | 'resources'> &
+  Partial<Pick<GameState, 'lifetimeEnergy' | 'researchLevel'>>;
 
 const startable = (completed: string[]) =>
   new Set(RESEARCH.filter((r) => !completed.includes(r.id) && r.prerequisites.every((p) => completed.includes(p))).map((r) => r.id));
@@ -65,6 +67,18 @@ export function deriveEvents(prev: Snapshot, next: Snapshot): LogInput[] {
     if (now.length) {
       out.push({ kind: 'unlock', text: `New research available: ${now.map((id) => RESEARCH_BY_ID[id].name).join(', ')}`, toast: false });
     }
+  }
+  // level ups (playtest 19.3): the player level and the research level
+  if (prev.lifetimeEnergy !== undefined && next.lifetimeEnergy !== undefined) {
+    const from = getPlayerLevel(prev.lifetimeEnergy).level;
+    const to = getPlayerLevel(next.lifetimeEnergy).level;
+    if (to > from) {
+      const bonus = Math.round(playerLevelEnergyBonus(next.lifetimeEnergy) * 1000) / 10;
+      out.push({ kind: 'level', text: `Player level ${to} reached${bonus > 0 ? `: +${bonus}% energy from all generators` : ''}`, toast: false });
+    }
+  }
+  if (prev.researchLevel !== undefined && next.researchLevel !== undefined && next.researchLevel > prev.researchLevel) {
+    out.push({ kind: 'level', text: `Research level ${next.researchLevel} reached`, toast: false });
   }
   // generators switched off for lack of fuel, one entry per fuel
   const wasOn = new Set(prev.activeGenerators.filter((g) => g.isActive).map((g) => g.id));

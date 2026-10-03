@@ -4,7 +4,20 @@ import { NO_BONUSES, type Bonuses } from '../types/bonus';
 import { playerLevelEnergyBonus } from './playerLevel';
 
 /** Sums the effects of completed research. Bonuses of one type add together, then caps apply. */
+// Cached by list: research lists are replaced, never changed in place, and the
+// simulator asks for the same list's bonuses millions of times.
+const bonusCache = new WeakMap<string[], Readonly<Bonuses>>();
+
 export function getBonuses(completedResearch: string[]): Bonuses {
+  let cached = bonusCache.get(completedResearch);
+  if (!cached) {
+    cached = Object.freeze(computeBonuses(completedResearch));
+    bonusCache.set(completedResearch, cached);
+  }
+  return cached;
+}
+
+function computeBonuses(completedResearch: string[]): Bonuses {
   const b: Bonuses = { ...NO_BONUSES };
   for (const id of completedResearch) {
     for (const e of RESEARCH_BY_ID[id]?.effects ?? []) b[e.type] += e.value;

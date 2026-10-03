@@ -1,5 +1,6 @@
 import { GeneratorType } from '../types/generator';
 import type { ResearchDef } from '../types/research';
+import { RESEARCH_TIME_FACTOR, scaleMaterials } from './balance';
 
 /** Generators available before any research (playtest 2: Solar from the start). */
 export const STARTING_GENERATORS: GeneratorType[] = [GeneratorType.SOLAR];
@@ -20,7 +21,7 @@ export const BONUS_CAPS = {
  * level requirement, and longer than each of its prerequisites. Durations are
  * in seconds. Checked by src/data/research.test.ts.
  */
-export const RESEARCH: ResearchDef[] = [
+const RESEARCH_DEFS: ResearchDef[] = [
   {
     id: 'basic_solar',
     name: 'Basic Solar',
@@ -487,5 +488,15 @@ export const RESEARCH: ResearchDef[] = [
     effects: [{ type: 'globalEnergy', value: 0.15 }],
   },
 ];
+
+/**
+ * The research list, with durations scaled by RESEARCH_TIME_FACTOR (to whole minutes) and
+ * metal and stone costs by MATERIAL_COST_FACTOR (playtest 19.3).
+ */
+export const RESEARCH: ResearchDef[] = RESEARCH_DEFS.map((r) => ({
+  ...r,
+  duration: Math.round((r.duration * RESEARCH_TIME_FACTOR) / 60) * 60, // whole minutes
+  cost: { ...r.cost, resources: r.cost.resources && scaleMaterials(r.cost.resources) },
+}));
 
 export const RESEARCH_BY_ID: Record<string, ResearchDef> = Object.fromEntries(RESEARCH.map((r) => [r.id, r]));

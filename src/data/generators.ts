@@ -1,4 +1,5 @@
 import { GeneratorType, type GeneratorDef } from '../types/generator';
+import { scaleMaterials } from './balance';
 
 /**
  * Every generator also costs energy: its base output over this many seconds.
@@ -18,7 +19,7 @@ export const UPGRADES = { maxLevel: 10, outputPerLevel: 0.25, costGrowth: 1.6, r
 export const SCRAP_REFUND_SHARE = 0.1;
 
 /** Generators, cheapest first. Costs in resources; maintenance in resources per hour. */
-export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
+const GENERATOR_DEFS: Record<GeneratorType, GeneratorDef> = {
   [GeneratorType.SOLAR]: {
     type: GeneratorType.SOLAR,
     requiredLevel: 1,
@@ -118,5 +119,10 @@ export const GENERATORS: Record<GeneratorType, GeneratorDef> = {
     maintenanceCost: { deuterium: 2 },
   },
 };
+
+/** The generators, with metal and stone costs scaled by MATERIAL_COST_FACTOR (playtest 19.3). */
+export const GENERATORS = Object.fromEntries(
+  Object.entries(GENERATOR_DEFS).map(([type, def]) => [type, { ...def, buildCost: scaleMaterials(def.buildCost) }]),
+) as Record<GeneratorType, GeneratorDef>;
 
 export const GENERATOR_TYPES = Object.values(GeneratorType);

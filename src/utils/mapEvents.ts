@@ -1,4 +1,5 @@
 import { EVENTS_BY_ID, type EventDef } from '../data/events';
+import { GENERATORS } from '../data/generators';
 import { MAP_COLUMNS, SEA_COLUMNS } from '../data/map';
 import { PRODUCERS } from '../data/producers';
 import type { GeneratorType } from '../types/generator';
@@ -73,11 +74,21 @@ export function applyMapEvent(s: GameState, ev: MapEventState, now: number, rng:
   if (def.effect.kind === 'grant-resource' && ev.producer) {
     d = { ...def, effect: { ...def.effect, resource: PRODUCERS[ev.producer].resource } };
   }
-  const applied = applyEventEffect(s, d, now, rng);
   if (def.effect.kind === 'timed' && ev.generatorType && !def.effect.generator) {
-    // save which type was struck with the effect, so it keeps boosting just that type
-    const activeEffects = (applied.state.activeEffects ?? []).map((a) => (a.id === def.id ? { ...a, generator: ev.generatorType } : a));
-    return { state: { ...applied.state, activeEffects }, text: applied.text };
+    // Saved with the struck type, so it boosts just that type (playtest 19.3):
+    // a strike on a type already boosted adds its time to the running boost,
+    // and a strike on another type gets its own boost and timer.
+    const type = ev.generatorType;
+    const list = s.activeEffects ?? [];
+    const running = list.find((a) => a.id === def.id && a.generator === type && a.until > now);
+    const until = (running ? running.until : now) + def.effect.minutes * 60_000;
+    const rest = list.filter((a) => !(a.id === def.id && a.generator === type));
+    const name = GENERATORS[type].name;
+    const pct = Math.round((def.effect.energy ?? 0) * 100);
+    const text = running
+      ? `Lightning struck a ${name} again: the +${pct}% for your ${name}s runs ${def.effect.minutes} minutes longer.`
+      : `Lightning struck a ${name}: +${pct}% from your ${name}s for ${def.effect.minutes} minutes.`;
+    return { state: { ...s, activeEffects: [...rest, { id: def.id, until, generator: type }] }, text };
   }
-  return applied;
+  return applyEventEffect(s, d, now, rng);
 }

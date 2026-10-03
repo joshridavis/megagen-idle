@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { STARTING_RESOURCES } from '../data/resources';
 import { createInitialState } from '../data/initialState';
 import { GeneratorType, type Generator } from '../types/generator';
 import type { Resources } from '../types/state';
@@ -62,8 +63,8 @@ describe('passive production', () => {
   it('accrues offline through the simulation', () => {
     const s = createInitialState(0);
     const { state } = advanceTime(s, 3600);
-    expect(state.resources.stone).toBeCloseTo(10 + 360);
-    expect(state.resources.metal).toBeCloseTo(15 + 240);
+    expect(state.resources.stone).toBeCloseTo(STARTING_RESOURCES.stone + 360);
+    expect(state.resources.metal).toBeCloseTo(STARTING_RESOURCES.metal + 240);
     expect(state.resources.coal).toBeCloseTo(180);
   });
 });

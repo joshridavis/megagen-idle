@@ -17,16 +17,16 @@ const rich = (over: Partial<GameState> = {}): GameState => ({
 describe('producer costs', () => {
   it('grow 20% per owned producer (playtest 5)', () => {
     expect(PRODUCER_COST_GROWTH).toBe(1.2);
-    expect(getProducerCost('quarry', 1)).toEqual({ energy: 720, resources: { metal: 18 } });
+    expect(getProducerCost('quarry', 1)).toEqual({ energy: 720, resources: { metal: 36 } });
   });
   it('grow by the growth factor per owned producer', () => {
-    expect(getProducerCost('quarry', 0)).toEqual({ energy: 600, resources: { metal: 15 } });
+    expect(getProducerCost('quarry', 0)).toEqual({ energy: 600, resources: { metal: 30 } });
     const third = getProducerCost('quarry', 2);
     expect(third.energy).toBe(Math.ceil(600 * PRODUCER_COST_GROWTH ** 2));
-    expect(third.resources.metal).toBe(Math.ceil(15 * PRODUCER_COST_GROWTH ** 2));
+    expect(third.resources.metal).toBe(Math.ceil(30 * PRODUCER_COST_GROWTH ** 2));
   });
   it('the build discount applies', () => {
-    expect(getProducerCost('mine', 0, { ...NO_BONUSES, buildDiscount: 0.5 })).toEqual({ energy: 450, resources: { stone: 10 } });
+    expect(getProducerCost('mine', 0, { ...NO_BONUSES, buildDiscount: 0.5 })).toEqual({ energy: 450, resources: { stone: 20 } });
   });
 });
 
