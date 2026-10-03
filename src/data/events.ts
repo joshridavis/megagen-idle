@@ -38,8 +38,11 @@ export type EventEffect =
   | { kind: 'timed'; minutes: number; energy?: number; generator?: GeneratorType; production?: number; resource?: ResourceId }
   /** Energy equal to `minutes` of current output (at least `min`). */
   | { kind: 'grant-energy'; minutes: number; min: number }
-  /** A resource equal to `minutes` of its production (at least `min`). */
-  | { kind: 'grant-resource'; resource: ResourceId; minutes: number; min: number }
+  /**
+   * A resource equal to `minutes` of its production (at least `min`); with
+   * `perLevel`, both grow by that share for each player level above 1.
+   */
+  | { kind: 'grant-resource'; resource: ResourceId; minutes: number; min: number; perLevel?: number }
   /** The running research moves this share of its duration closer to done. */
   | { kind: 'research-boost'; fraction: number }
   /** One random running generator switches off until the player turns it on. */
@@ -298,12 +301,13 @@ export const EVENTS: EventDef[] = [
   {
     id: 'map_lightning',
     name: 'Lightning strike',
-    text: 'Lightning struck one of your generators and supercharged it: +50% from that type for 3 minutes.',
+    text: 'Lightning struck one of your generators and supercharged it: +25% from that type for 3 minutes.',
     rarity: 'common',
     when: 'map',
     map: { animation: 'bolt', target: 'generator', durationMs: 6000 },
-    // the struck generator's type is saved with the effect
-    effect: { kind: 'timed', minutes: 3, energy: 0.5 },
+    // the struck generator's type is saved with the effect; +25% (was +50%):
+    // a common event should give a small bonus (playtest 19.4)
+    effect: { kind: 'timed', minutes: 3, energy: 0.25 },
   },
   {
     id: 'map_delivery',
@@ -312,8 +316,10 @@ export const EVENTS: EventDef[] = [
     rarity: 'common',
     when: 'map',
     map: { animation: 'truck', target: 'producer', durationMs: 9000 },
-    // the producer's own resource: 15 minutes of its production
-    effect: { kind: 'grant-resource', resource: 'metal', minutes: 15, min: 10 },
+    // the producer's own resource: 8 minutes of its production (was 15: a
+    // common event gives a small bonus), +3% per player level above 1, so
+    // higher-level players get more (playtest 19.4)
+    effect: { kind: 'grant-resource', resource: 'metal', minutes: 8, min: 5, perLevel: 0.03 },
   },
   {
     id: 'map_fire',

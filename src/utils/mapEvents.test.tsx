@@ -7,6 +7,7 @@ import { useStore } from '../store';
 import { getEffectMods } from './effectMods';
 import { applyMapEvent, pickMapTarget } from './mapEvents';
 import { layoutSite } from './siteMap';
+import { energyForLevel } from './playerLevel';
 import type { GameState } from '../types/state';
 const layoutSiteFor = (st: GameState) => layoutSite(st).placed;
 import { eligibleEvents } from './randomEvents';
@@ -38,8 +39,8 @@ describe('map events (1.12)', () => {
     expect(ev).toMatchObject({ key: 'gen-1', generatorType: GeneratorType.COAL });
     const after = deriveRates(applyMapEvent(s, ev, 1000, first).state);
     expect(after.activeEffects).toEqual([{ id: 'map_lightning', until: 1000 + 3 * 60_000, generator: GeneratorType.COAL }]);
-    expect(getEffectMods(after.activeEffects).generator.coal).toBe(0.5);
-    expect(after.energyPerSecond).toBeCloseTo(s.energyPerSecond * 1.5);
+    expect(getEffectMods(after.activeEffects).generator.coal).toBe(0.25);
+    expect(after.energyPerSecond).toBeCloseTo(s.energyPerSecond * 1.25);
   });
 
   it('another strike adds time to the same type, and a strike on another type boosts it separately (playtest 19.3)', () => {
@@ -49,7 +50,7 @@ describe('map events (1.12)', () => {
       return applyMapEvent(st, { id: 'map_lightning', at: now, cells: p.cells, key, generatorType: p.type as GeneratorType }, now, first);
     };
     const one = strike(s, 'gen-1', 1000);
-    expect(one.text).toBe('Lightning struck a Coal Plant: +50% from your Coal Plants for 3 minutes.');
+    expect(one.text).toBe('Lightning struck a Coal Plant: +25% from your Coal Plants for 3 minutes.');
     // a minute later, the same type again: 2 minutes were left, now 5
     const two = strike(one.state, 'gen-1', 61_000);
     expect(two.state.activeEffects).toEqual([{ id: 'map_lightning', until: 1000 + 6 * 60_000, generator: GeneratorType.COAL }]);
@@ -58,8 +59,8 @@ describe('map events (1.12)', () => {
     const three = strike(two.state, 'gen-2', 61_000);
     expect(three.state.activeEffects).toHaveLength(2);
     const mods = getEffectMods(three.state.activeEffects, 61_000);
-    expect(mods.generator.coal).toBe(0.5);
-    expect(mods.generator.wind).toBe(0.5);
+    expect(mods.generator.coal).toBe(0.25);
+    expect(mods.generator.wind).toBe(0.25);
     // an ended boost starts fresh
     const late = strike(two.state, 'gen-1', 1000 + 7 * 60_000);
     expect(late.state.activeEffects).toEqual([{ id: 'map_lightning', until: 1000 + 10 * 60_000, generator: GeneratorType.COAL }]);
@@ -73,6 +74,16 @@ describe('map events (1.12)', () => {
     const r = res[ev.producer as keyof typeof res];
     const after = applyMapEvent(s, ev, 0, first).state;
     expect(after.resources[r]).toBeGreaterThan(s.resources[r]);
+  });
+
+  it('a delivery brings more to a higher-level player (playtest 19.4)', () => {
+    const low = site([]);
+    const high = { ...low, lifetimeEnergy: energyForLevel(21) };
+    const ev = { id: 'map_delivery', at: 0, cells: [], producer: 'quarry' as const };
+    const got = (st: GameState) => applyMapEvent(st, ev, 0, first).state.resources.stone - st.resources.stone;
+    // 8 minutes of stone at level 1; +3% per level above 1, so x1.6 at level 21
+    expect(got(low)).toBeCloseTo(Math.max(5, 0.1 * 8 * 60));
+    expect(got(high)).toBeCloseTo(got(low) * 1.6);
   });
 
   it('a fire pays only if put out in time', () => {
