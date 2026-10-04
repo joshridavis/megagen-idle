@@ -188,6 +188,9 @@ body {
 .sighting-fly-left { top: 12%; animation: fly-left var(--dur) linear forwards; }
 @keyframes fly-right { from { left: -12%; transform: translateY(0); } 50% { transform: translateY(-20px); } to { left: 112%; transform: translateY(0); } }
 @keyframes fly-left { from { left: 112%; transform: translateY(0); } 50% { transform: translateY(15px); } to { left: -15%; transform: translateY(0); } }
+/* Each gull in the sighting flock drifts up and down on its own, so the flock never moves as one block. */
+.sighting-bob { animation: sighting-bob 1.8s ease-in-out infinite; }
+@keyframes sighting-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .sighting-rise { left: 70%; animation: rise var(--dur) ease-in forwards; }
 @keyframes rise { from { top: 105%; transform: translateX(0); } 25% { transform: translateX(-20px); } 50% { transform: translateX(15px); } 75% { transform: translateX(-10px); } to { top: -15%; transform: translateX(0); } }
 .sighting-walk { top: 4px; animation: walk var(--dur) linear forwards; }

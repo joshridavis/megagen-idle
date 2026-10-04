@@ -49,3 +49,18 @@ describe("Sightings (0.91)", () => {
     expect(useStore.getState().activeSighting).toBeNull();
   });
 });
+
+describe("Flock of birds sighting (owner request)", () => {
+  it("draws a flock of gulls that flap their wings", async () => {
+    useStore.getState().resetGame();
+    render(<Sightings />);
+    await act(async () => {
+      useStore.setState({ activeSighting: { id: "birds", at: 0 } });
+    });
+    const flock = screen.getByTestId("sighting-birds");
+    expect(flock.querySelectorAll(".sighting-bob")).toHaveLength(5);
+    // two wing frames per gull swap to animate the flap
+    expect(flock.querySelectorAll("img.frame-a")).toHaveLength(5);
+    expect(flock.querySelectorAll("img.frame-b")).toHaveLength(5);
+  });
+});
