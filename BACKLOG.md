@@ -135,6 +135,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.39 A tidy, readable map legend (owner request, after playtest 19.5)
 0. 1.40 A distinct emoji for every kind of event log entry (owner request, after playtest 19.6)
 0. 1.41 The research chip opens the running research's details (owner request, after playtest 19.6)
+0. 1.42 Active play time shown in Settings (owner request, after playtest 19.6)
 0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
 0. (0.39 moved to the top: launch priority)
@@ -1013,6 +1014,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The auto layout (`src/utils/siteMap.ts`) already seeks a bonus zone for solar and wind; it does the same for every newly assigned type. Zones that now serve several types (coal field, oil and gas field, coast) may need to be a little larger so they do not fill too quickly; check against the room tiers.
 - Update the zone descriptions, `zoneTipText`, the Guide and the expansion preview. Run `npm run simulate`: placement bonuses are not simulated, but state the estimate in the PR.
 **Acceptance:** a test that every `GeneratorType` and every producer id has a zone (`zoneFor` is never null); tests for the new assignments, the bonus and that required-zone machines still get their spots first; the build and all tests pass.
+
+### 1.42 — Active play time shown in Settings — CODE — Not started
+**Goal:** owner request: count how long the player has actually played (game open and in the foreground, not idle or offline time) and show it in hours in the Settings tab.
+**Details:**
+- **What counts:** only time while the game is visible and in use. Time while the game is in the background (`platform.isBackground()`), closed (offline gains), or with no input for `ACTIVE_IDLE_TIMEOUT_MS` (named constant, default 2 minutes; the player may have walked away with the tab open) does not count.
+- **State:** a saved `playTimeMs` number in the settings or energy slice (`src/types/state.ts`), default 0; old saves load with 0 (no migration beyond the default). Included in export/import and, later, cloud saves.
+- **Timestamp-based:** a pure `addPlayTime(playTimeMs, lastActiveAt, now, active)` in `src/utils/playTime.ts` returns the new total, clamping negative deltas to 0 and capping a single step at a named constant (for example 5 s) so a frozen tab or a clock jump cannot add hours. It is called from the existing tick, never by counting intervals. Last-input time comes from pointer, key and touch events (a small hook, UI-only, not saved).
+- **Display:** Settings gets a "Play time" row: hours with one decimal ("12.4 hours"), "Less than 0.1 hours" below that, and minutes under one hour is optional. Plain text with a tooltip: "Time you actually played; idle and offline time are not counted." Uses the shared number formatting and American English.
+- Reset game keeps or resets it with the rest of the save (follow the existing reset behavior and say which in the PR). Add it to the Statistics panel only if that is trivial.
+**Acceptance:** unit tests for `addPlayTime` (active adds time, background and inactive add nothing, negative delta, large gap capped, old save defaults to 0); a component test that Settings shows the formatted hours; saving and loading keeps the value.
 
 ### 1.41 — The research chip opens the running research's details — CODE — Not started
 **Goal:** owner request: clicking the sticky research progress chip (shown on every tab while research runs) opens the Research tab; it should also open the details popup of the running research, the same one shown when you click that research in the tree.
