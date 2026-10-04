@@ -65,7 +65,7 @@ export default function PetsPanel() {
   return (
     <section aria-label="Pets">
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="panel-title">
           Pets ({found}/{PETS.length})
         </h2>
         <span className="text-xs text-slate-400">One pet is active at a time and gives its bonus. Feed pets to grow them.</span>

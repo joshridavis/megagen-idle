@@ -1207,10 +1207,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Details:** profile with around 200 generators and a full research tree. Memoize selectors, avoid re-rendering the whole tree on every tick, batch store updates, decouple the 1-second tick from React renders where possible. Add a benchmark script or test asserting the tick stays under a set budget.
 **Acceptance:** measured improvement recorded in the PR; no behavior change; benchmark in CI.
 
-### 0.43 — Visual polish pass — CODE — Not started
+### 0.43 — Visual polish pass — CODE — Done
 **Goal:** the game looks deliberate rather than assembled.
 **Details:** consistent spacing, panel styling and typography from Tailwind theme tokens using the AAP-64 palette; consistent dark theme; number and progress-bar styling unified; subtle transitions on build, unlock and research completion (respecting reduced motion); a tidy top bar with energy, rate and room. No new mechanics.
 **Acceptance:** no regression in tests; screenshots or a description of before and after in the PR.
+**Notes:**
+- **Theme tokens and shared styles:** `@theme` in `src/index.css` names the AAP-64 colors the UI uses (`aap-yellow`, `aap-orange`, `aap-sky`, `aap-mint`, `aap-ink`, `aap-steel`). New `panel` and `panel-title` utilities replace 12 hand-written panel and 22 heading class lists, so every tab has the same card, padding and heading type. The dark theme and colors the owner approved are unchanged.
+- **Top bar:** energy, rate, room and player level now stay pinned at the top while scrolling (on phones too); toasts moved below it on phones. The tab bar fits one row on desktop, and the selected tab has an energy-yellow top edge.
+- **Transitions:** a new machine in "Your generators" fades in; a build card that unlocks during play glows twice (not when a game loads). Research completion keeps its celebration. All of it is off with reduced motion (the OS setting or the in-game one).
+- **Before and after:** before, the tabs wrapped to two rows at 1280 px and the energy total scrolled out of view on long lists; panels and headings differed slightly between tabs. Progress bars already shared `ProgressBar`; no change there.
 
 ### 0.18 — Test coverage pass — CODE — Not started
 **Goal:** fill gaps left by individual items.

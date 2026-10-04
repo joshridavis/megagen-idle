@@ -96,7 +96,7 @@ export default function ActiveGenerators() {
   return (
     <section aria-label="Your generators" className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Your generators ({generators.length})</h2>
+        <h2 className="panel-title">Your generators ({generators.length})</h2>
         {generators.length > 1 && (
           <label className="flex items-center gap-1 text-xs text-slate-400">
             Sort by
@@ -136,7 +136,7 @@ export default function ActiveGenerators() {
             return (
               <li
                 key={g.id}
-                className={`rounded-lg bg-slate-800 p-2 ${dragId === g.id ? 'opacity-50' : ''}`}
+                className={`appear rounded-lg bg-slate-800 p-2 ${dragId === g.id ? 'opacity-50' : ''}`}
                 data-testid={`generator-${g.id}`}
                 draggable={custom}
                 onDragStart={(e) => {

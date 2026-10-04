@@ -36,8 +36,8 @@ export default function AccountPanel({ providers = authProviders() }: { provider
   };
 
   return (
-    <div className="rounded-lg bg-slate-800 p-4" data-testid="account-panel">
-      <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-400">Account and cloud saves</h2>
+    <div className="panel" data-testid="account-panel">
+      <h2 className="mb-1 panel-title">Account and cloud saves</h2>
       {a.status === 'connecting' && <p className="text-sm text-slate-400">Connecting…</p>}
       {a.status === 'signedIn' && a.user && (
         <div className="space-y-2 text-sm">

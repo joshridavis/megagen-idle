@@ -45,7 +45,7 @@ export default function ResourceDisplay() {
 
   return (
     <section aria-label="Resources" className="w-full rounded-lg bg-slate-800 p-3">
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Resources</h2>
+      <h2 className="mb-2 panel-title">Resources</h2>
       <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {RESOURCE_IDS.map((id) => (
           <li key={id} className="flex items-center gap-2 rounded bg-slate-900/60 px-2 py-1" data-testid={`resource-${id}`}>

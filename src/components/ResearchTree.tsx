@@ -61,7 +61,7 @@ export default function ResearchTree() {
   return (
     <section aria-label="Research" className="w-full">
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Research</h2>
+        <h2 className="panel-title">Research</h2>
         <span className="text-right text-sm">
           <span data-testid="research-level-label" className="block">
             Your research level: <strong data-testid="research-level">{state.researchLevel}</strong>

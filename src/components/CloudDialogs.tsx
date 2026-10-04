@@ -44,7 +44,7 @@ function ChooseUsername() {
   };
   return (
     <Modal labelledBy="choose-username-title">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-2 rounded-lg bg-slate-800 p-4 shadow-xl">
+      <form onSubmit={submit} className="w-full max-w-sm space-y-2 panel shadow-xl">
         <h2 id="choose-username-title" className="text-lg font-semibold">
           Choose your username
         </h2>
@@ -94,7 +94,7 @@ function ChooseSave({ local, cloud, newer }: { local: SaveSummary; cloud: SaveSu
   const busy = useAccount((s) => s.busy);
   return (
     <Modal labelledBy="choose-save-title">
-      <div className="w-full max-w-lg rounded-lg bg-slate-800 p-4 shadow-xl">
+      <div className="w-full max-w-lg panel shadow-xl">
         <h2 id="choose-save-title" className="text-lg font-semibold">
           Which game do you want to keep?
         </h2>
@@ -121,7 +121,7 @@ function NewPassword() {
   };
   return (
     <Modal labelledBy="new-password-title">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-2 rounded-lg bg-slate-800 p-4 shadow-xl">
+      <form onSubmit={submit} className="w-full max-w-sm space-y-2 panel shadow-xl">
         <h2 id="new-password-title" className="text-lg font-semibold">
           Set a new password
         </h2>

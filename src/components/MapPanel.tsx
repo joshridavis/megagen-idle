@@ -209,7 +209,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   return (
     <section aria-label="Site map" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="panel-title">
           Your site ({used}/{map.capacity} tiles)
         </h2>
         <span className="text-xs text-slate-400">One tile per unit of room. Drag a machine to move it (or click it, then a tile).</span>

@@ -97,7 +97,7 @@ export default function RoomPanel() {
   return (
     <section aria-label="Room" className="w-full rounded-lg bg-slate-800 p-3">
       <div className="mb-2 flex items-baseline justify-between">
-        <h2 className="group relative text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="group relative panel-title">
           <span tabIndex={0} aria-describedby="room-help" className="cursor-help underline decoration-dotted underline-offset-2">
             Room
           </span>

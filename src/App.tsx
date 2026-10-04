@@ -78,17 +78,22 @@ export default function App() {
       className={`mx-auto flex min-h-screen max-w-6xl flex-col gap-6 p-4 sm:p-6 ${researching ? 'pb-28 sm:pb-28' : ''}`}
       data-testid="main"
     >
-      <header className="flex flex-col items-center gap-4">
+      <header className="-mb-2 flex flex-col items-center">
         <h1 className="text-3xl font-bold tracking-tight">MegaGen Idle</h1>
+      </header>
+      {/* The top bar (energy, rate, room, level) stays in view while scrolling (0.43). */}
+      <div className="sticky top-2 z-30 -mb-2 self-center" data-testid="top-bar">
         <EnergyDisplay />
+      </div>
+      <div className="flex flex-col items-center gap-4">
         <ActiveEffects />
         <ClickButton />
         <TutorialCoach />
         <DepletionWarning />
-      </header>
+      </div>
       <ResourceDisplay />
       {/* Tabs wrap onto a second row on narrow screens, so nothing scrolls sideways (0.41). */}
-      <nav role="tablist" aria-label="Sections" className="flex flex-wrap gap-1 border-b border-slate-700" onKeyDown={onTabKey}>
+      <nav role="tablist" aria-label="Sections" className="flex flex-wrap gap-0.5 border-b border-slate-700" onKeyDown={onTabKey}>
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -103,9 +108,9 @@ export default function App() {
             }}
             onClick={() => setTab(t.id)}
             data-tutorial={`tab-${t.id}`}
-            className={`relative min-h-11 min-w-11 shrink-0 rounded-t px-3 py-2 text-sm font-semibold sm:px-4 sm:text-base ${tab === t.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`relative min-h-11 min-w-11 shrink-0 rounded-t px-2.5 py-2 text-sm font-semibold transition-colors ${tab === t.id ? 'bg-slate-800 text-white shadow-[inset_0_2px_0_0_var(--color-aap-yellow)]' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}`}
           >
-            <span className="flex items-center gap-1 sm:gap-1.5">
+            <span className="flex items-center gap-1">
               <img src={sprites[t.icon]} alt="" width={20} height={20} className="pixelated h-5 w-5 object-contain" data-testid={`tab-icon-${t.id}`} />
               {/* On phones only the active tab shows its label; the rest show their icon. */}
               <span className={tab === t.id ? undefined : 'sr-only sm:not-sr-only'}>{t.label}</span>

@@ -12,7 +12,7 @@ export default function GeneratorGrid() {
   const bonuses = getEnergyBonuses(state);
   return (
     <section aria-label="Build generators" className="w-full">
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Build</h2>
+      <h2 className="mb-2 panel-title">Build</h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {GENERATOR_TYPES.map((type) => (
           <GeneratorCard key={type} type={type} block={getBuildBlock(state, type, unlocked, bonuses)} bonuses={bonuses} />
