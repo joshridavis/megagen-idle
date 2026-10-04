@@ -31,6 +31,8 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.46 Crash recovery and error boundaries (launch priority)
 0. 0.43 Visual polish pass (launch priority)
 0. 0.39 Statistics panel (launch priority) → CHECKPOINT 20
+0. 1.42 Fix: tooltips under the pinned top bar (playtest 20 bug) → HOTFIX v0.20.1
+0. (then 1.38, 1.39, 1.40 emoji, 1.41 below, in that order: owner confirmed, playtest 20)
 0. 0.85 Random events with effects (launch priority; already Done)
 0. 0.86 Grid Contracts: a second activity (launch priority; already Done)
 0. 0.92 Energy pets: collect and grow (launch priority; already Done)
@@ -991,6 +993,13 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests with a fake service for the buttons, the redirect call and the username dialog; no secrets in the repository.
 **Notes:** the code is done and tested with fakes. The owner turns it on with section 9b of `docs/PUBLIC_RELEASE.md` (register the Google and Discord OAuth apps, paste the keys into Supabase, add `VITE_AUTH_PROVIDERS`, rerun the deploy). The live sign-in check rides with 0.68's live test.
 
+### 1.42 — Fix: tooltips under the pinned top bar — CODE — Done
+**Goal:** fix a playtest 20 bug: with the energy bar pinned (0.43), hovering a build card just under it raised the card over the bar (half hiding it), and the card's tooltip opened above the card, high up behind the bar.
+**Details:**
+- **Cause:** a hovered build card is raised to z-index 40 so its tooltip covers the card above (0.80), but the pinned bar was at 30. Tooltips that open upward (build card, Upgrade, Scrap) never checked for the bar.
+- **Fix:** the bar now sits above hovered cards (`z-[45]`); dialogs (research details), toasts and celebrations moved above it (`z-50`). `useTipSide` (`src/components/useTipSide.ts`) opens these tooltips below their anchor when there is no room between it and the bar; `FloatingTip` (map ⭐ and 📍 tips) uses the bar's bottom edge as its limit too.
+**Acceptance:** unit tests for the above/below choice and the floating tip; a Playwright test scrolls a build card under the bar, hovers it, and checks the bar stays on top and the tooltip opens below; the build and all tests pass.
+
 ### 1.40 — Flapping birds in the flock-of-birds sighting — CODE — Done
 **Goal:** owner request: the "Flock of birds" random-event sighting (the screen-wide one, not the map event) looked bad because the birds were a static sprite.
 **Details:**
@@ -1347,4 +1356,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 19.4 (v0.19.4, hotfix) | 1.31-1.35 | 2026-10-03 | New metal and stone prices feel right; "storage upgrades" meant room expansions; research length now right. Map events are more frequent now, so their bonuses should be smaller. The truck should bring more to higher-level players. Nothing else from the backlog until told. | 1.36 (hotfix v0.19.5) |
 | 19.5 (v0.19.5, hotfix) | 1.36 | 2026-10-03 | Bug: opening the game after a while starts two or three random events at once (for example Overcast with Sunny spell). | 1.37 (hotfix v0.19.6) |
 | 19.6 (v0.19.6, hotfix) | 1.37 | 2026-10-04 | (no feedback before the next run; the owner asked to continue) | |
-| 20 (v0.20.0) | 1.40 (birds), 0.41, 0.46, 0.43, 0.39 | 2026-10-04 | (waiting for owner) | |
+| 20 (v0.20.0) | 1.40 (birds), 0.41, 0.46, 0.43, 0.39 | 2026-10-04 | Pinned energy bar looks good on the phone. Stats tab fine for now. Fade-in and unlock glow fine. Keep the order 1.38, 1.39, 1.40, 1.41. Bug: with the bar pinned, hovering a build card near the top makes its tooltip jump very high and the bar half hidden. | 1.42 (hotfix v0.20.1) |

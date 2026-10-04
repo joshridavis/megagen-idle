@@ -10,6 +10,7 @@ import { findUnlockingResearch } from '../utils/researchSystem';
 import CostList, { FUEL_CLASS } from './CostList';
 import { GENERATOR_SPRITES } from './generatorSprites';
 import { useJustBecame } from './useJustBecame';
+import { useTipSide } from './useTipSide';
 import { useNumberFormat } from './useNumberFormat';
 
 const BLOCK_TEXT: Record<BuildBlock, string> = {
@@ -44,12 +45,15 @@ export default function GeneratorCard({
   const zone = zoneId ? ZONES[zoneId] : null;
   const epoch = useStore((s) => s.eventEpoch);
   const justUnlocked = useJustBecame(!locked, epoch);
+  const { tip, below, place } = useTipSide<HTMLDivElement>();
 
   return (
     <article
       className={`group relative flex flex-col rounded-lg border p-3 hover:z-40 focus-within:z-40 ${locked ? 'border-slate-700 bg-slate-800/50' : 'border-slate-600 bg-slate-800'} ${justUnlocked ? 'unlock-glow' : ''}`}
       data-testid={`generator-card-${type}`}
       data-just-unlocked={justUnlocked || undefined}
+      onMouseEnter={place}
+      onFocus={place}
     >
       {/* Fade the content, not the card, so the tooltip stays fully opaque (0.80). */}
       <div className={`flex flex-1 flex-col gap-2 ${locked ? 'opacity-60' : ''}`} data-testid={`generator-card-body-${type}`}>
@@ -106,9 +110,11 @@ export default function GeneratorCard({
       </button>
       </div>
       <div
+        ref={tip}
         id={tooltipId}
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-56 -translate-x-1/2 rounded border border-slate-600 bg-slate-950 p-2 text-xs text-slate-100 shadow-xl group-hover:block group-has-focus-visible:block"
+        data-side={below ? 'below' : 'above'}
+        className={`pointer-events-none absolute left-1/2 z-50 ${below ? 'top-full mt-2' : 'bottom-full mb-2'} hidden w-56 -translate-x-1/2 rounded border border-slate-600 bg-slate-950 p-2 text-xs text-slate-100 shadow-xl group-hover:block group-has-focus-visible:block`}
       >
         {def.description} {(stats.energyPerSecond / stats.roomCost).toFixed(2)} energy/s per room.
       </div>

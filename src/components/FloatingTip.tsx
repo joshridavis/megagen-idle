@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { topBarBottom } from './useTipSide';
 
 /** Width of the tip in px, and the gap kept from the anchor and the screen edges. */
 const TIP_WIDTH = 224;
@@ -37,7 +38,8 @@ export default function FloatingTip({
     const maxLeft = Math.max(GAP, window.innerWidth - TIP_WIDTH - GAP);
     const left = Math.min(Math.max(a.left + a.width / 2 - TIP_WIDTH / 2, GAP), maxLeft);
     const above = a.top - GAP - height;
-    setPos({ left, top: above >= GAP ? above : a.bottom + GAP });
+    // never over the pinned top bar (playtest 20): below the anchor when there is no room above
+    setPos({ left, top: above >= topBarBottom() + GAP ? above : a.bottom + GAP });
   }, [open]);
 
   return (

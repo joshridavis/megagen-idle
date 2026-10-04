@@ -15,6 +15,7 @@ import CostList from './CostList';
 import { GENERATOR_SPRITES } from './generatorSprites';
 import { ScrapButton, ScrapConfirm } from './Scrap';
 import { useNumberFormat } from './useNumberFormat';
+import { useTipSide } from './useTipSide';
 import FloatingTip from './FloatingTip';
 import { zoneTipText } from './zoneTip';
 
@@ -29,8 +30,9 @@ function UpgradeButton({ generatorId, name }: { generatorId: string; name: strin
   const block = getUpgradeBlock(state, generatorId, bonuses);
   const gain = upgradeGain(g.type, g.level) * (1 + bonuses.globalEnergy);
   const tipId = `upgrade-tip-${generatorId}`;
+  const { tip, below, place } = useTipSide<HTMLSpanElement>();
   return (
-    <span className="group relative mt-1 inline-block">
+    <span className="group relative mt-1 inline-block" onMouseEnter={place} onFocus={place}>
       <button
         type="button"
         disabled={block !== null}
@@ -42,9 +44,11 @@ function UpgradeButton({ generatorId, name }: { generatorId: string; name: strin
         ⬆ Upgrade
       </button>
       <span
+        ref={tip}
         id={tipId}
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-0 z-30 mb-1 hidden w-56 rounded bg-slate-950 p-2 text-xs text-slate-200 shadow-lg group-hover:block group-has-focus-visible:block"
+        data-side={below ? 'below' : 'above'}
+        className={`pointer-events-none absolute left-0 z-30 ${below ? 'top-full mt-1' : 'bottom-full mb-1'} hidden w-56 rounded bg-slate-950 p-2 text-xs text-slate-200 shadow-lg group-hover:block group-has-focus-visible:block`}
       >
         Level {g.level} → {g.level + 1}: +{fmt.rate(gain)} energy/s, no extra room.
         <span className="mt-1 block">
