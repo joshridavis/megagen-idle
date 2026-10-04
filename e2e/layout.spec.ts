@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 // Responsive layout and keyboard access (0.41): no tab scrolls the page
 // sideways at phone, tablet or desktop width, and the main loop works from
 // the keyboard alone.
-const TABS = ['Generators', 'Map', 'Producers', 'Research', 'Contracts', 'Pets', 'Achievements', 'Completion', 'Guide', 'Settings'];
+const TABS = ['Generators', 'Map', 'Producers', 'Research', 'Contracts', 'Pets', 'Achievements', 'Completion', 'Stats', 'Guide', 'Settings'];
 
 for (const width of [360, 768, 1280]) {
   test(`no sideways scroll on any tab at ${width}px`, async ({ page }) => {

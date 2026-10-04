@@ -7,7 +7,7 @@ import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 18;
+export const SAVE_VERSION = 19;
 
 type AnySave = Record<string, unknown>;
 
@@ -61,6 +61,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   16: (save) => ({ ...save, mapPins: {} }),
   // 0.34: deuterium and the Deuterium Extractor (filled from defaults below).
   17: (save) => save,
+  // 0.39: statistics counters; the start time of an older game is unknown.
+  18: (save) => ({ ...save, stats: { playSeconds: 0, clickEnergy: 0, lastOffline: null, ...(save.stats as object | undefined), startedAt: null } }),
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */
@@ -76,6 +78,7 @@ export function migrateSave(persisted: unknown, fromVersion: number): GameState 
   merged.resources = { ...defaults.resources, ...(save.resources as object | undefined) };
   merged.settings = { ...defaults.settings, ...(save.settings as object | undefined) };
   merged.producers = { ...defaults.producers, ...(save.producers as object | undefined) };
+  merged.stats = { ...defaults.stats, ...(save.stats as object | undefined) };
   return merged;
 }
 

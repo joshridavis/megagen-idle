@@ -34,7 +34,7 @@ describe('achievements (0.65)', () => {
       contracts: { ...createInitialState(0).contracts, done: 7 },
       pets: { active: 'eel', owned: { eel: { stage: 3, growUntil: null, foundAt: 0 }, cat: { stage: 1, growUntil: null, foundAt: 0 } } },
       seenEvents: { ufo: { count: 1, firstSeen: 0 }, birds: { count: 3, firstSeen: 0 }, grant: { count: 4, firstSeen: 0 } },
-      stats: { clicks: 120, returns: 3 },
+      stats: { ...createInitialState(0).stats, clicks: 120, returns: 3 },
     });
     const v = (m: AchievementMetric) => metricValue(s, m);
     expect(v('generators')).toBe(2);
@@ -80,7 +80,7 @@ describe('achievements (0.65)', () => {
     delete v14.stats;
     const m = migrateSave(v14, 14);
     expect(m.achievements).toEqual({});
-    expect(m.stats).toEqual({ clicks: 0, returns: 0 });
+    expect(m.stats).toEqual({ clicks: 0, returns: 0, playSeconds: 0, clickEnergy: 0, startedAt: null, lastOffline: null });
   });
 
   it('a loaded save unlocks what it has reached without notices', () => {

@@ -129,11 +129,26 @@ export interface PetsState {
   pets: { owned: Partial<Record<string, OwnedPet>>; active: string | null };
 }
 
+/** Lifetime counters (achievements 0.65, statistics 0.39). */
+export interface PlayStats {
+  clicks: number;
+  /** Welcome-back summaries shown (times returned after being away). */
+  returns: number;
+  /** Seconds of live play: time with the game open and running (0.39). */
+  playSeconds: number;
+  /** Energy made by clicking (0.39). */
+  clickEnergy: number;
+  /** When this game was started (ms); null for saves from before 0.39. */
+  startedAt: number | null;
+  /** The last offline gain: when it was credited, how long you were away, and the energy it brought (0.39). */
+  lastOffline: { at: number; seconds: number; energy: number } | null;
+}
+
 export interface AchievementsState {
   /** Unlocked achievements with their unlock time (0.65). */
   achievements: Record<string, number>;
-  /** Counters only achievements use. */
-  stats: { clicks: number; returns: number };
+  /** Lifetime counters for achievements and the Statistics panel (0.39). */
+  stats: PlayStats;
 }
 
 export type GameState = EnergyState &

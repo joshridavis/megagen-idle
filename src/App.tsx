@@ -20,6 +20,7 @@ import ResearchTree from './components/ResearchTree';
 import ResourceDisplay from './components/ResourceDisplay';
 import RoomPanel from './components/RoomPanel';
 import SettingsPanel from './components/SettingsPanel';
+import StatisticsPanel from './components/StatisticsPanel';
 import Sightings from './components/Sightings';
 import Toasts from './components/Toasts';
 import CloudDialogs from './components/CloudDialogs';
@@ -31,7 +32,7 @@ import { useStore } from './store';
 import { formatCompletion, getCompletion } from './utils/completion';
 import { useIdleEngine } from './utils/idleEngine';
 
-type Tab = 'generators' | 'map' | 'producers' | 'research' | 'contracts' | 'pets' | 'achievements' | 'completion' | 'guide' | 'settings';
+type Tab = 'generators' | 'map' | 'producers' | 'research' | 'contracts' | 'pets' | 'achievements' | 'completion' | 'stats' | 'guide' | 'settings';
 const TABS: { id: Tab; label: string; icon: SpriteId }[] = [
   { id: 'generators', label: 'Generators', icon: 'solar_panel' },
   { id: 'map', label: 'Map', icon: 'tile_ground' },
@@ -41,6 +42,7 @@ const TABS: { id: Tab; label: string; icon: SpriteId }[] = [
   { id: 'pets', label: 'Pets', icon: 'pet_hamster_3' },
   { id: 'achievements', label: 'Achievements', icon: 'achievement_unlocked' },
   { id: 'completion', label: 'Completion', icon: 'research_check' },
+  { id: 'stats', label: 'Stats', icon: 'research_efficiency' },
   { id: 'guide', label: 'Guide', icon: 'research_energy' },
   { id: 'settings', label: 'Settings', icon: 'research_materials' },
 ];
@@ -75,7 +77,7 @@ export default function App() {
   };
   return (
     <main
-      className={`mx-auto flex min-h-screen max-w-6xl flex-col gap-6 p-4 sm:p-6 ${researching ? 'pb-28 sm:pb-28' : ''}`}
+      className={`mx-auto flex min-h-screen max-w-7xl flex-col gap-6 p-4 sm:p-6 ${researching ? 'pb-28 sm:pb-28' : ''}`}
       data-testid="main"
     >
       <header className="-mb-2 flex flex-col items-center">
@@ -163,6 +165,8 @@ export default function App() {
           <AchievementsPanel />
         ) : tab === 'completion' ? (
           <CompletionPanel />
+        ) : tab === 'stats' ? (
+          <StatisticsPanel />
         ) : tab === 'guide' ? (
           <GuidePanel />
         ) : (

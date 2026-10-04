@@ -132,6 +132,7 @@ export const GUIDE: GuideSection[] = [
     paragraphs: [
       'The Completion tab shows how close you are to 100%: every research, every generator type built and upgraded to max level, every room expansion and every producer type.',
       'Records are permanent: scrapping a generator never lowers your completion.',
+      'The Stats tab shows where your energy comes from (each generator type and its share), what your resources gain and burn per second, and lifetime totals such as play time and your last offline gain.',
     ],
   },
   {

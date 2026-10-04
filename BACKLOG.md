@@ -1175,10 +1175,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** events appear from each source system; the log is capped; unit tests for generation and the cap.
 **Notes:** pure `deriveEvents(prev, next)` in `src/utils/eventLog.ts`, run by a store subscription after every change. It reports research completed, new generators, producers and research available, fuel run-outs (grouped by fuel) and room crossing "nearly full". Replacing the game (load, reset, rehydration) bumps `eventEpoch`, so it is not logged. The log is collapsible, holds at most 100 entries and shows newest first; at most 3 toasts show for 5 s each. Tunables are in `src/data/notifications.ts`. Random events (0.84/0.85) will use `logEvents`.
 
-### 0.39 — Statistics panel — CODE — Not started
+### 0.39 — Statistics panel — CODE — Done
 **Goal:** the player can see where their energy comes from.
 **Details:** lifetime energy, current rate, per-generator and per-type contribution with percentages, resource rates, total play time, time of last offline gain. Derived from selectors, with nothing new persisted beyond lifetime totals.
 **Acceptance:** numbers match the simulation within rounding; unit tests for the aggregations.
+**Notes:**
+- **Stats tab** (new, between Completion and Guide): totals (lifetime energy, energy rate now, play time, clicks, energy from clicks, times back after a break, playing since, last offline gain), energy by generator type with share bars and percentages, resources per second (made, burned, net), and the top 10 generators with "Show all".
+- **Pure aggregation:** `getStatistics(state)` in `src/utils/statistics.ts`, using the same rules the game runs on. Tests check the per-generator and per-type outputs add up to the energy rate, the resource rates equal the resource bar's, and both match what `advanceTime` actually produces over a minute.
+- **Saved (lifetime totals only):** `stats` gained `playSeconds` (live, on-screen ticks only), `clickEnergy`, `startedAt` and `lastOffline` (save version 19). Older saves start these at 0 and show "Playing since: before statistics began".
+- The page is a little wider on large screens (`max-w-7xl`) so the 11 tabs still fit one row at 1280 px; they wrap on smaller widths.
 
 ### 0.40 — First-run onboarding and in-game guide — CODE — Done
 **Goal:** a new player understands the loop without being told. Playtest 11: the game also needs player info, like a tutorial or game guide.

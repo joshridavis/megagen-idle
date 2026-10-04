@@ -56,7 +56,14 @@ export const createEnergySlice =
           return {
             awaySnapshot: null,
             ...(report.awaySeconds >= WELCOME_BACK_MIN_SECONDS
-              ? { welcomeBack: report, stats: { ...s.stats, returns: (s.stats?.returns ?? 0) + 1 } }
+              ? {
+                  welcomeBack: report,
+                  stats: {
+                    ...s.stats,
+                    returns: (s.stats?.returns ?? 0) + 1,
+                    lastOffline: { at: now, seconds: report.awaySeconds, energy: Math.max(0, report.energyGained) },
+                  },
+                }
               : {}),
           };
         },
@@ -87,10 +94,21 @@ export const createEnergySlice =
                   },
                 }
               : {};
+          const stats = {
+            ...s.stats,
+            // live play time (0.39): only short, on-screen ticks count
+            playSeconds: (s.stats?.playSeconds ?? 0) + (live ? report.seconds : 0),
+            ...(welcome.welcomeBack
+              ? {
+                  returns: (s.stats?.returns ?? 0) + 1,
+                  lastOffline: { at: now, seconds: awaySeconds, energy: welcome.welcomeBack.energyGained },
+                }
+              : {}),
+          };
           return {
             ...pickSaved(state),
             ...welcome,
-            ...(welcome.welcomeBack ? { stats: { ...s.stats, returns: (s.stats?.returns ?? 0) + 1 } } : {}),
+            stats,
             lastSavedTimestamp: now,
             ...(live ? withCelebrations(s, report.completedResearch, state.lifetimeEnergy, now) : {}),
           };
@@ -106,7 +124,7 @@ export const createEnergySlice =
           const next = {
             energy: s.energy + gained,
             lifetimeEnergy,
-            stats: { ...s.stats, clicks: (s.stats?.clicks ?? 0) + 1 },
+            stats: { ...s.stats, clicks: (s.stats?.clicks ?? 0) + 1, clickEnergy: (s.stats?.clickEnergy ?? 0) + gained },
             ...withCelebrations(s, [], lifetimeEnergy, Date.now()),
           };
           // a level-up changes the energy bonus
