@@ -117,7 +117,7 @@ export default function ContractsPanel() {
   const buy = useStore((s) => s.buyPerk);
   if (!contractsUnlocked(state)) {
     return (
-      <section aria-label="Contracts" className="max-w-2xl rounded-lg bg-slate-800 p-4">
+      <section aria-label="Contracts" className="max-w-2xl panel">
         <h2 className="mb-1 font-semibold">Grid Contracts</h2>
         <p className="text-sm text-slate-300">
           Customers will order energy and materials from you, with a reward of your choice for each order. Contracts open at research
@@ -132,7 +132,7 @@ export default function ContractsPanel() {
     <section aria-label="Contracts" className="grid gap-6 lg:grid-cols-[2fr_1fr]">
       <div>
         <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+          <h2 className="panel-title">
             Contracts ({open.length}/{contractSlots(state)})
           </h2>
           <span className="text-xs text-slate-400" data-testid="next-offer">
@@ -151,7 +151,7 @@ export default function ContractsPanel() {
       </div>
       <aside className="rounded-lg bg-slate-800 p-3" aria-label="Perk shop">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Perk shop</h2>
+          <h2 className="panel-title">Perk shop</h2>
           <span className="flex items-center gap-1 font-mono text-sm text-amber-300" data-testid="contract-points">
             <span aria-hidden="true">🏅</span>
             {points} Contract Points

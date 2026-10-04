@@ -1,4 +1,63 @@
-# Playtest 19.6 (v0.19.6, hotfix): fewer events when you come back
+# Playtest 20 (v0.20.0): launch polish: phones, keyboard, crash safety, looks and Stats
+
+The version at the bottom of the screen should read **v0.20.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+Your save carries over.
+
+## Estimated play time
+
+- **100% completion: about 259 hours** (simulated, unchanged; nothing in this build changes pacing).
+- Key milestones: first research 15 min, first Wind Turbine 2.3 h, first Coal Plant 3.2 h, 25% at 8.2 h, 50% at 31.9 h, first Nuclear Fission Plant 54.9 h, 75% at 82.8 h, first Fusion Reactor 118 h, first Micro-Supernova 217 h, 100% at 259 h.
+
+## What is new since playtest 19.6
+
+- **Flapping birds** in the "Flock of birds" sighting (done just before this run).
+- **Phones and keyboard (0.41):**
+  - At phone width nothing scrolls sideways any more (the tab bar used to push the whole page). Tabs wrap onto a second row on phones.
+  - On touch screens every button is at least 44 px to tap. Rows in "Your generators" put Turn on/off and Scrap under the name instead of squeezing it.
+  - Keyboard: a clear yellow focus ring everywhere; arrow keys, Home and End move between tabs; dialogs keep Tab inside them. On the Map you can move a machine without a mouse: Tab to it, Enter, arrow keys, Enter (Escape cancels).
+  - Settings → "Reduce motion" now stills every animation (celebrations, glows, pulses), not only random events.
+- **Crash safety (0.46):**
+  - If a save is ever damaged, the game no longer breaks or starts over silently: it keeps a copy, uses your other good copy if there is one, and tells you in the event log. Settings → Save then offers "Download the kept copy".
+  - If the game ever hits an error while drawing, you get a "Something went wrong" screen with Try again, Download save and Reset game, instead of a blank page.
+- **Visual polish (0.43):**
+  - The energy bar (energy, rate, room, level) stays pinned at the top while you scroll.
+  - All tabs fit on one row on a desktop screen; the selected tab has a yellow top edge.
+  - Panels and headings look the same on every tab.
+  - A newly built machine fades into "Your generators"; a build card glows when it unlocks.
+- **Stats tab (0.39):** lifetime energy, play time, clicks and energy from clicks, your last offline gain, energy by generator type with percentages, resources made, burned and net per second, and your top generators. Play time and the last offline gain start counting from this version.
+
+## Things to try
+
+1. Open the game on your phone. Scroll through each tab: does anything need sideways scrolling, or is any button hard to hit?
+2. Scroll down a long generator list: the energy bar should stay at the top.
+3. Open the **Stats** tab. Do the percentages match what you expect from your generators?
+4. Close the game for an hour, come back, then check "Last offline gain" in Stats.
+5. On a computer, press Tab through the page; try the arrow keys on the tab bar.
+6. On the Map, Tab to a machine, press Enter, move it with the arrow keys, press Enter.
+7. Turn on Settings → Reduce motion and finish a research: the celebration shows without moving.
+8. Build a new machine and watch it fade into the list.
+
+## Known issues
+
+- Play time counts only from this version on, and only while the game is open on screen.
+- Map tiles stay small on phones (the map is a grid of tiles); machines on it can still be dragged or moved by keyboard.
+
+## Questions for you
+
+1. Is the pinned energy bar helpful, or does it take too much room on your phone?
+2. Is anything missing from the Stats tab that you would like to see?
+3. Do the new fade-in and unlock glow feel right, or too subtle?
+4. The launch-priority list is now done. Next in the order are your requests after 19.5 and 19.6: a bonus place on the map for every machine (1.38), a tidy map legend (1.39), a distinct emoji per event log entry (1.40) and the research chip opening the running research (1.41). Keep that order?
+
+---
+
+# Previous: Playtest 19.6 (v0.19.6, hotfix): fewer events when you come back
 
 The version at the bottom of the screen should read **v0.19.6**.
 

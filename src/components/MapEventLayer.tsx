@@ -146,7 +146,7 @@ export default function MapEventLayer({
         <button
           type="button"
           onClick={() => claim()}
-          className={`absolute z-40 flex items-center justify-center rounded border-2 border-orange-400 bg-orange-500/20 ${anim}`}
+          className={`tap-exempt absolute z-40 flex items-center justify-center rounded border-2 border-orange-400 bg-orange-500/20 ${anim}`}
           style={pct(b.x, b.y, b.w, b.h)}
           aria-label={`${name}: click to put it out`}
           title="Click to put it out!"

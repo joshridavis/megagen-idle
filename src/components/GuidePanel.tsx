@@ -14,7 +14,7 @@ export default function GuidePanel() {
   return (
     <section aria-label="Guide" className="flex max-w-3xl flex-col gap-2">
       <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">How to play</h2>
+        <h2 className="panel-title">How to play</h2>
         <button type="button" onClick={replay} className="min-h-11 text-sm text-sky-300 hover:text-sky-200">
           ▶ Replay the tutorial
         </button>

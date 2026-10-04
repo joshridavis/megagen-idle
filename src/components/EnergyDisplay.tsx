@@ -33,7 +33,7 @@ export default function EnergyDisplay() {
   // overall change from all boosts (event effects can apply to one generator type only)
   const boost = breakdown.base > 0 ? breakdown.total / breakdown.base - 1 : breakdown.modifiers.reduce((sum, m) => sum + (m.percent ?? 0), 0);
   return (
-    <div className={`flex items-center gap-3 rounded-lg bg-slate-800 px-4 py-3 shadow ring-2 ${accent.ring}`} data-testid="energy-display">
+    <div className={`flex items-center gap-3 rounded-lg bg-slate-800/95 px-4 py-3 shadow-lg shadow-black/40 ring-2 backdrop-blur ${accent.ring}`} data-testid="energy-display">
       <img src={sprites.energy_icon} alt="Energy" width={32} height={32} className="pixelated" />
       <div className="leading-tight">
         <span className={`font-mono text-2xl ${accent.text}`} aria-label="Energy total">

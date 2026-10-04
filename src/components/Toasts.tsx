@@ -39,7 +39,7 @@ function Toast({ t }: { t: LogEntry }) {
 export default function Toasts() {
   const toasts = useStore((s) => s.toasts);
   return (
-    <div aria-live="polite" className="pointer-events-none fixed right-4 top-4 z-40 flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-2">
+    <div aria-live="polite" className="pointer-events-none fixed right-4 top-24 z-40 sm:top-4 flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-2">
       {toasts.map((t) => (
         <Toast key={t.id} t={t} />
       ))}

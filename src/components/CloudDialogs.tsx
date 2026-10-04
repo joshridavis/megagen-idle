@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { MIN_PASSWORD } from '../store/cloud';
 import { chooseUsername, resolveChoice, updatePassword, useAccount } from '../store/account';
 import type { SaveSummary } from '../store/saveBackend';
+import { useFocusTrap } from './useFocusTrap';
 import { useNumberFormat } from './useNumberFormat';
 
 const when = (at: number) => new Date(at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
@@ -21,6 +22,17 @@ export default function CloudDialogs() {
   return null;
 }
 
+/** A full-screen modal; Tab stays inside it (0.41). */
+function Modal({ labelledBy, children }: { labelledBy: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useFocusTrap(ref);
+  return (
+    <div ref={ref} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby={labelledBy}>
+      {children}
+    </div>
+  );
+}
+
 /** After the first sign-in with Google or Discord (1.22). */
 function ChooseUsername() {
   const [name, setName] = useState('');
@@ -31,8 +43,8 @@ function ChooseUsername() {
     void chooseUsername(name);
   };
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="choose-username-title">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-2 rounded-lg bg-slate-800 p-4 shadow-xl">
+    <Modal labelledBy="choose-username-title">
+      <form onSubmit={submit} className="w-full max-w-sm space-y-2 panel shadow-xl">
         <h2 id="choose-username-title" className="text-lg font-semibold">
           Choose your username
         </h2>
@@ -51,7 +63,7 @@ function ChooseUsername() {
           Save username
         </button>
       </form>
-    </div>
+    </Modal>
   );
 }
 
@@ -81,8 +93,8 @@ function Card({ title, s, newer, onPick, busy }: { title: string; s: SaveSummary
 function ChooseSave({ local, cloud, newer }: { local: SaveSummary; cloud: SaveSummary; newer: 'local' | 'cloud' }) {
   const busy = useAccount((s) => s.busy);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="choose-save-title">
-      <div className="w-full max-w-lg rounded-lg bg-slate-800 p-4 shadow-xl">
+    <Modal labelledBy="choose-save-title">
+      <div className="w-full max-w-lg panel shadow-xl">
         <h2 id="choose-save-title" className="text-lg font-semibold">
           Which game do you want to keep?
         </h2>
@@ -92,7 +104,7 @@ function ChooseSave({ local, cloud, newer }: { local: SaveSummary; cloud: SaveSu
           <Card title="Cloud save" s={cloud} newer={newer === 'cloud'} busy={busy} onPick={() => void resolveChoice('cloud')} />
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -108,8 +120,8 @@ function NewPassword() {
     void updatePassword(password);
   };
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="new-password-title">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-2 rounded-lg bg-slate-800 p-4 shadow-xl">
+    <Modal labelledBy="new-password-title">
+      <form onSubmit={submit} className="w-full max-w-sm space-y-2 panel shadow-xl">
         <h2 id="new-password-title" className="text-lg font-semibold">
           Set a new password
         </h2>
@@ -128,6 +140,6 @@ function NewPassword() {
           Save password
         </button>
       </form>
-    </div>
+    </Modal>
   );
 }

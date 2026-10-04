@@ -1,5 +1,75 @@
 @import 'tailwindcss';
 
+/* Visual polish (0.43): AAP-64 colors the UI uses by name, and shared panel,
+   heading and entrance styles so every tab looks the same. */
+@theme {
+  --color-aap-yellow: #ffc825;
+  --color-aap-orange: #f9a31b;
+  --color-aap-sky: #249fde;
+  --color-aap-mint: #a6fcdb;
+  --color-aap-ink: #141013;
+  --color-aap-steel: #4a5462;
+}
+
+/* A panel: the dark card every section sits on. */
+@utility panel {
+  border-radius: var(--radius-lg);
+  background-color: var(--color-slate-800);
+  padding: --spacing(4);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.04);
+}
+
+/* A panel heading: small, uppercase, muted. */
+@utility panel-title {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-slate-400);
+}
+
+/* New things (a machine just built, a card just unlocked) fade in. */
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.appear {
+  animation: appear 0.3s ease-out;
+}
+/* A build card that just unlocked glows twice in the energy yellow. */
+@keyframes unlock-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(255 200 37 / 0);
+  }
+  25%,
+  75% {
+    box-shadow: 0 0 0 3px rgb(255 200 37 / 0.8);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgb(255 200 37 / 0.3);
+  }
+}
+.unlock-glow {
+  animation: unlock-glow 2s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .appear {
+    animation: none;
+  }
+  .unlock-glow {
+    animation: none;
+    box-shadow: 0 0 0 2px rgb(255 200 37 / 0.8);
+  }
+}
+
 body {
   @apply bg-slate-900 text-slate-100 antialiased;
 }
@@ -276,4 +346,55 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce { animation: none; }
   .frame-b { animation: none; opacity: 0; }
+}
+
+/* Keyboard access (0.41): every control shows where the focus is. */
+:where(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid #ffc825;
+  outline-offset: 2px;
+}
+
+/* Touch screens (0.41): every control is at least 44px to tap. Controls drawn
+   inside the map keep the size of their tiles (.tap-exempt). */
+@media (pointer: coarse) {
+  :where(button, select, summary, [role='button']):not(.tap-exempt) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  :where(input[type='checkbox'], input[type='radio']) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+/* The in-game "Reduce motion" setting (0.41) stills the same animations as
+   the operating system's reduced-motion setting does above. */
+html[data-reduce-motion] :is(.click-pop, .spark) {
+  animation: none;
+  opacity: 0;
+}
+html[data-reduce-motion]
+  :is(.appear, .unlock-glow, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
+  animation: none;
+}
+html[data-reduce-motion] .frame-b {
+  animation: none;
+  opacity: 0;
+}
+html[data-reduce-motion] .research-running {
+  animation: none;
+  box-shadow: 0 0 10px 2px rgba(36, 159, 222, 0.7);
+}
+html[data-reduce-motion] .room-building {
+  display: none;
+}
+html[data-reduce-motion] [data-tutorial] {
+  animation: none !important;
+}
+html[data-reduce-motion] * {
+  transition-duration: 0s !important;
+  scroll-behavior: auto !important;
+}
+html[data-reduce-motion] .unlock-glow {
+  box-shadow: 0 0 0 2px rgb(255 200 37 / 0.8);
 }

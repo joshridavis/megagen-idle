@@ -9,6 +9,7 @@ import { getGeneratorStats, type BuildBlock } from '../utils/generatorSystem';
 import { findUnlockingResearch } from '../utils/researchSystem';
 import CostList, { FUEL_CLASS } from './CostList';
 import { GENERATOR_SPRITES } from './generatorSprites';
+import { useJustBecame } from './useJustBecame';
 import { useNumberFormat } from './useNumberFormat';
 
 const BLOCK_TEXT: Record<BuildBlock, string> = {
@@ -41,11 +42,14 @@ export default function GeneratorCard({
   const tooltipId = `gen-tip-${type}`;
   const zoneId = zoneFor(type);
   const zone = zoneId ? ZONES[zoneId] : null;
+  const epoch = useStore((s) => s.eventEpoch);
+  const justUnlocked = useJustBecame(!locked, epoch);
 
   return (
     <article
-      className={`group relative flex flex-col rounded-lg border p-3 hover:z-40 focus-within:z-40 ${locked ? 'border-slate-700 bg-slate-800/50' : 'border-slate-600 bg-slate-800'}`}
+      className={`group relative flex flex-col rounded-lg border p-3 hover:z-40 focus-within:z-40 ${locked ? 'border-slate-700 bg-slate-800/50' : 'border-slate-600 bg-slate-800'} ${justUnlocked ? 'unlock-glow' : ''}`}
       data-testid={`generator-card-${type}`}
+      data-just-unlocked={justUnlocked || undefined}
     >
       {/* Fade the content, not the card, so the tooltip stays fully opaque (0.80). */}
       <div className={`flex flex-1 flex-col gap-2 ${locked ? 'opacity-60' : ''}`} data-testid={`generator-card-body-${type}`}>

@@ -30,7 +30,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.41 Responsive layout and keyboard access (launch priority)
 0. 0.46 Crash recovery and error boundaries (launch priority)
 0. 0.43 Visual polish pass (launch priority)
-0. 0.39 Statistics panel (launch priority)
+0. 0.39 Statistics panel (launch priority) → CHECKPOINT 20
 0. 0.85 Random events with effects (launch priority; already Done)
 0. 0.86 Grid Contracts: a second activity (launch priority; already Done)
 0. 0.92 Energy pets: collect and grow (launch priority; already Done)
@@ -1175,10 +1175,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** events appear from each source system; the log is capped; unit tests for generation and the cap.
 **Notes:** pure `deriveEvents(prev, next)` in `src/utils/eventLog.ts`, run by a store subscription after every change. It reports research completed, new generators, producers and research available, fuel run-outs (grouped by fuel) and room crossing "nearly full". Replacing the game (load, reset, rehydration) bumps `eventEpoch`, so it is not logged. The log is collapsible, holds at most 100 entries and shows newest first; at most 3 toasts show for 5 s each. Tunables are in `src/data/notifications.ts`. Random events (0.84/0.85) will use `logEvents`.
 
-### 0.39 — Statistics panel — CODE — Not started
+### 0.39 — Statistics panel — CODE — Done
 **Goal:** the player can see where their energy comes from.
 **Details:** lifetime energy, current rate, per-generator and per-type contribution with percentages, resource rates, total play time, time of last offline gain. Derived from selectors, with nothing new persisted beyond lifetime totals.
 **Acceptance:** numbers match the simulation within rounding; unit tests for the aggregations.
+**Notes:**
+- **Stats tab** (new, between Completion and Guide): totals (lifetime energy, energy rate now, play time, clicks, energy from clicks, times back after a break, playing since, last offline gain), energy by generator type with share bars and percentages, resources per second (made, burned, net), and the top 10 generators with "Show all".
+- **Pure aggregation:** `getStatistics(state)` in `src/utils/statistics.ts`, using the same rules the game runs on. Tests check the per-generator and per-type outputs add up to the energy rate, the resource rates equal the resource bar's, and both match what `advanceTime` actually produces over a minute.
+- **Saved (lifetime totals only):** `stats` gained `playSeconds` (live, on-screen ticks only), `clickEnergy`, `startedAt` and `lastOffline` (save version 19). Older saves start these at 0 and show "Playing since: before statistics began".
+- The page is a little wider on large screens (`max-w-7xl`) so the 11 tabs still fit one row at 1280 px; they wrap on smaller widths.
 
 ### 0.40 — First-run onboarding and in-game guide — CODE — Done
 **Goal:** a new player understands the loop without being told. Playtest 11: the game also needs player info, like a tutorial or game guide.
@@ -1192,20 +1197,30 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Saving:** the step is in `settings.tutorial` (save version 10). Older saves skip the walkthrough; Reset brings it back.
 - **Guide:** a new Guide tab with 10 sections from `src/data/guide.ts`, plus a "Replay the tutorial" button there and in Settings.
 
-### 0.41 — Responsive layout and keyboard access — CODE — Not started
+### 0.41 — Responsive layout and keyboard access — CODE — Done
 **Goal:** the game is usable on a phone browser and by keyboard.
 **Details:** layout works from 360px wide upward (panels stack, grids reflow, no horizontal scroll). Tap targets at least 44px. All interactive controls are real buttons, reachable by Tab, with visible focus and sensible labels. Respect `prefers-reduced-motion` for the animations added in 0.20 and later.
 **Acceptance:** no layout breakage at 360px, 768px and 1280px; every action reachable by keyboard.
+**Notes:**
+- **No sideways scroll:** the phone-width tab bar scrolled the whole page sideways (hidden tab labels escaped their tabs). The tabs now wrap onto a second row; checked on every tab at 360, 768 and 1280 px with a late-game save, and by a new Playwright test (`e2e/layout.spec.ts`).
+- **Phones:** on touch screens every button and select is at least 44 px (a CSS rule in `src/index.css`; machines and fires drawn on the map keep their tile size). Rows in "Your generators" wrap their Turn on/off and Scrap buttons under the name instead of squeezing it.
+- **Keyboard:** a visible amber focus ring on every control. The tabs follow the ARIA tabs pattern (one Tab stop; arrows, Home and End). Map machines move by keyboard: Enter selects, arrow keys move the outline, Enter places, Escape cancels. Dialogs (research details, welcome back, cloud dialogs) keep Tab inside them (`useFocusTrap`) and scroll when taller than the screen.
+- **Motion:** the in-game "Reduce motion" setting now stills every CSS animation (celebrations, glows, pulses, transitions), the same as the operating system's setting, which was already respected.
 
 ### 0.42 — Performance pass — CODE — Not started
 **Goal:** stays smooth with a large base.
 **Details:** profile with around 200 generators and a full research tree. Memoize selectors, avoid re-rendering the whole tree on every tick, batch store updates, decouple the 1-second tick from React renders where possible. Add a benchmark script or test asserting the tick stays under a set budget.
 **Acceptance:** measured improvement recorded in the PR; no behavior change; benchmark in CI.
 
-### 0.43 — Visual polish pass — CODE — Not started
+### 0.43 — Visual polish pass — CODE — Done
 **Goal:** the game looks deliberate rather than assembled.
 **Details:** consistent spacing, panel styling and typography from Tailwind theme tokens using the AAP-64 palette; consistent dark theme; number and progress-bar styling unified; subtle transitions on build, unlock and research completion (respecting reduced motion); a tidy top bar with energy, rate and room. No new mechanics.
 **Acceptance:** no regression in tests; screenshots or a description of before and after in the PR.
+**Notes:**
+- **Theme tokens and shared styles:** `@theme` in `src/index.css` names the AAP-64 colors the UI uses (`aap-yellow`, `aap-orange`, `aap-sky`, `aap-mint`, `aap-ink`, `aap-steel`). New `panel` and `panel-title` utilities replace 12 hand-written panel and 22 heading class lists, so every tab has the same card, padding and heading type. The dark theme and colors the owner approved are unchanged.
+- **Top bar:** energy, rate, room and player level now stay pinned at the top while scrolling (on phones too); toasts moved below it on phones. The tab bar fits one row on desktop, and the selected tab has an energy-yellow top edge.
+- **Transitions:** a new machine in "Your generators" fades in; a build card that unlocks during play glows twice (not when a game loads). Research completion keeps its celebration. All of it is off with reduced motion (the OS setting or the in-game one).
+- **Before and after:** before, the tabs wrapped to two rows at 1280 px and the energy total scrolled out of view on long lists; panels and headings differed slightly between tabs. Progress bars already shared `ProgressBar`; no change there.
 
 ### 0.18 — Test coverage pass — CODE — Not started
 **Goal:** fill gaps left by individual items.
@@ -1222,10 +1237,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Details:** extend the tree toward research level 25 with branches for efficiency, room cost reduction, fuel efficiency and offline gain. Verify the 0.13 layout still reads well. Re-run 0.35 and record pacing.
 **Acceptance:** no dead ends or unreachable nodes (add a test that validates the tree graph: every node reachable, no cycles, every prerequisite exists).
 
-### 0.46 — Crash recovery and error boundaries — CODE — Not started
+### 0.46 — Crash recovery and error boundaries — CODE — Done
 **Goal:** a bug never destroys a save.
 **Details:** React error boundary showing a recovery screen with export-save and reset options. Guard save loading: if the stored state fails validation, keep a backup copy and start from a safe state rather than crashing. Log the problem to the event log from 0.38.
 **Acceptance:** tests simulate a corrupt save and a thrown render error; the save is recoverable in both cases.
+**Notes:**
+- **Save check before loading:** `checkStoredSave` (`src/store/saveGuard.ts`) reads, migrates and validates the stored save (the same checks as an imported save) before the game uses it. A save that fails is set aside under `megagen-idle-save:damaged` (IndexedDB, or localStorage if that fails), never overwritten. If the other copy (the 0.76 localStorage backup or the main save) is fine, it loads; otherwise a new game starts. A save from a newer game version is treated the same way.
+- **Telling the player:** a 🛟 event log entry and toast ("Your saved game could not be loaded (reason). A copy was kept…"), and Settings → Save shows the kept copy with "Download the kept copy" (in the import-file format) and "Delete it". New log kind `save`.
+- **Error boundary:** `src/components/ErrorBoundary.tsx` wraps the game. A render error shows a recovery screen (Try again, Download save, Reset game… which keeps a copy of the current game first) and is written to the event log, instead of a blank page.
+- **Tests:** unit tests for the check, the guarded storage (damaged copy kept, fallback to the good copy, localStorage fallback) and the recovery screen; a Playwright test damages the real stored save and reloads.
 
 ### 0.47 — Balance re-tune and difficulty curve review — CODE — Not started
 **Goal:** one coherent pacing pass once all content exists, aiming for at least 200 hours to 100% completion (owner, playtest 8). Playtest 10: reach it with a mix of new content (the larger share, including new activities, not only research and machines) and somewhat slower pacing.
@@ -1326,4 +1346,5 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 19.3 (v0.19.3, hotfix) | 1.30 | 2026-10-03 | Slow producers show "+0.00/s". Metal and stone costs too low everywhere they are used. Storage upgrades slightly harder. Research slightly longer. A Uranium Mine from research is missing from the map. Level ups should be in the event log. A second lightning strike adds no time, and strikes should respect the struck type. Nothing else from the backlog until told. | 1.31-1.35 (hotfix v0.19.4) |
 | 19.4 (v0.19.4, hotfix) | 1.31-1.35 | 2026-10-03 | New metal and stone prices feel right; "storage upgrades" meant room expansions; research length now right. Map events are more frequent now, so their bonuses should be smaller. The truck should bring more to higher-level players. Nothing else from the backlog until told. | 1.36 (hotfix v0.19.5) |
 | 19.5 (v0.19.5, hotfix) | 1.36 | 2026-10-03 | Bug: opening the game after a while starts two or three random events at once (for example Overcast with Sunny spell). | 1.37 (hotfix v0.19.6) |
-| 19.6 (v0.19.6, hotfix) | 1.37 | 2026-10-04 | (waiting for owner) | |
+| 19.6 (v0.19.6, hotfix) | 1.37 | 2026-10-04 | (no feedback before the next run; the owner asked to continue) | |
+| 20 (v0.20.0) | 1.40 (birds), 0.41, 0.46, 0.43, 0.39 | 2026-10-04 | (waiting for owner) | |

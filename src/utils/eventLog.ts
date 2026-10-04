@@ -7,7 +7,7 @@ import type { ProducerId } from '../types/resource';
 import type { GameState, ResourceId } from '../types/state';
 import { getPlayerLevel, playerLevelEnergyBonus } from './playerLevel';
 
-export type LogKind = 'research' | 'unlock' | 'fuel' | 'room' | 'event' | 'achievement' | 'level';
+export type LogKind = 'research' | 'unlock' | 'fuel' | 'room' | 'event' | 'achievement' | 'level' | 'save';
 
 export interface LogEntry {
   id: string;

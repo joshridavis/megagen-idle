@@ -27,9 +27,9 @@ export default function CompletionPanel() {
 
   return (
     <section aria-label="Completion" className="flex flex-col gap-4">
-      <div className="rounded-lg bg-slate-800 p-4">
+      <div className="panel">
         <div className="mb-2 flex items-baseline justify-between gap-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Completion</h2>
+          <h2 className="panel-title">Completion</h2>
           <span className="font-mono text-2xl text-sky-200" data-testid="completion-total">
             {formatCompletion(c.ratio)}
           </span>

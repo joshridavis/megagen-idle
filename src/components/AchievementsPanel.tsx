@@ -18,7 +18,7 @@ export default function AchievementsPanel() {
   return (
     <section aria-label="Achievements" className="flex flex-col gap-4">
       <div className="rounded-lg bg-slate-800 p-3" data-testid="cosmetics">
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Cosmetics</h2>
+        <h2 className="mb-2 panel-title">Cosmetics</h2>
         <div className="flex flex-wrap items-start gap-6">
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-xs text-slate-400">Title shown in the top bar</span>
@@ -64,7 +64,7 @@ export default function AchievementsPanel() {
         </div>
       </div>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="panel-title">
           Achievements ({unlocked}/{ACHIEVEMENTS.length})
         </h2>
         <span className="text-xs text-slate-400">Bonus achievements depend on luck or play style and do not count toward 100%.</span>

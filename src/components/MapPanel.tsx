@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import { sprites, type SpriteId } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { EXCLUSION_START_ROW, LOCKED_PREVIEW_ROWS, MIN_MAP_ROWS, SEA_COLUMNS, ZONES, type Detail, type Terrain, type Zone } from '../data/map';
@@ -30,6 +30,7 @@ const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
   oilfield: 'tile_oilfield',
   exclusion: 'tile_exclusion',
 };
+const KEY_STEPS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
 const detailSprite = (d: Detail) => `deco_${d}` as SpriteId;
 const TERRAIN_NAME = (t: Terrain) => (t === 'plain' ? 'Plain' : ZONES[t].name);
 const pctBonus = (b: number) => `+${Math.round(b * 100)}%`;
@@ -177,12 +178,38 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     }
   };
 
+  /**
+   * Keyboard moving (0.41): with a machine selected (Enter), the arrow keys
+   * move its outline one tile at a time, Enter places it and Escape cancels.
+   */
+  const onMachineKey = (p: Placed, e: ReactKeyboardEvent) => {
+    if (selected !== p.key) return;
+    const step = KEY_STEPS[e.key];
+    if (step) {
+      e.preventDefault();
+      setHoverCell((h) => {
+        const from = h ?? p.core.y * map.columns + p.core.x;
+        const x = Math.min(Math.max(0, (from % map.columns) + step[0]), map.columns - p.core.w);
+        const y = Math.min(Math.max(0, Math.floor(from / map.columns) + step[1]), Math.max(0, siteRows - p.core.h));
+        return y * map.columns + x;
+      });
+    } else if (e.key === 'Enter' && hoverCell !== null) {
+      e.preventDefault();
+      clickTile(hoverCell);
+      setHoverCell(null);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setSelected(null);
+      setHoverCell(null);
+    }
+  };
+
   const legend: (Terrain | 'sea')[] = ['plain', 'plateau', 'ridge', 'river', 'coast', 'coalfield', 'outcrop', 'oilfield', 'exclusion', 'sea'];
 
   return (
     <section aria-label="Site map" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="panel-title">
           Your site ({used}/{map.capacity} tiles)
         </h2>
         <span className="text-xs text-slate-400">One tile per unit of room. Drag a machine to move it (or click it, then a tile).</span>
@@ -196,7 +223,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                 ? ghostOk
                   ? `place here${ghostBonus > 0 ? ` (${pctBonus(ghostBonus)})` : ''}`
                   : 'cannot go here'
-                : 'pick a tile. Bright tiles give a bonus.'}
+                : 'pick a tile (or use the arrow keys, then Enter). Bright tiles give a bonus.'}
             </span>
             {sel.kind === 'generator' && (
               <button type="button" className="rounded bg-slate-700 px-2 py-0.5 text-xs hover:bg-slate-600" onClick={() => onSelect(sel.id)}>
@@ -295,6 +322,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                   type="button"
                   onFocus={() => setHover(p.key)}
                   onClick={() => pick(p)}
+                  onKeyDown={(e) => onMachineKey(p, e)}
                   onPointerDown={(e) => startDrag(p, e)}
                   onPointerMove={moveDrag}
                   onPointerUp={endDrag}
@@ -306,7 +334,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                   aria-label={info(p)}
                   aria-pressed={selected === p.key}
                   data-testid={`map-${p.key}`}
-                  className="group absolute z-10 flex cursor-grab items-center justify-center hover:z-30 focus-visible:z-30 active:cursor-grabbing"
+                  className="tap-exempt group absolute z-10 flex cursor-grab items-center justify-center hover:z-30 focus-visible:z-30 active:cursor-grabbing"
                 >
                   <img src={sprites[spriteOf(p)]} alt="" className="pixelated pointer-events-none max-h-full max-w-full object-contain p-0.5" />
                   {p.zoneBonus > 0 && (

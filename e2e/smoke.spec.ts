@@ -92,3 +92,41 @@ test('actions just before closing the tab are not lost', async ({ page }) => {
   await page.reload();
   await expect(page.getByText('Solar Panel #1')).toBeVisible();
 });
+
+// Crash recovery (0.46): a damaged save never leaves a blank page. The game
+// starts fresh, keeps the damaged copy, and says so in the log and Settings.
+test('a damaged save is set aside and the game still loads', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toHaveText('900');
+  await page.getByRole('button', { name: 'Build Solar Panel' }).click();
+  await waitForSaved(page, 'state.activeGenerators.length === 1');
+  // damage both copies of the save: IndexedDB and the localStorage backup
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        localStorage.removeItem('megagen-idle-save:backup');
+        const req = indexedDB.open('megagen-idle');
+        req.onsuccess = () => {
+          const tx = req.result.transaction('saves', 'readwrite');
+          tx.objectStore('saves').put('{"state": {"energy": "lots"', 'megagen-idle-save');
+          tx.oncomplete = () => {
+            // the save-on-close safeguard must not write a good save back over it
+            IDBObjectStore.prototype.put = function () {
+              return {} as IDBRequest;
+            };
+            Storage.prototype.setItem = () => {};
+            resolve();
+          };
+        };
+      }),
+  );
+  await page.reload();
+  await expect(page.getByLabel('Energy total')).toHaveText('900');
+  await page.getByRole('button', { name: /Event log/ }).click();
+  await expect(page.getByText(/Your saved game could not be loaded/).first()).toBeVisible();
+  await page.getByRole('tab', { name: 'Settings' }).click();
+  await expect(page.getByTestId('damaged-save')).toContainText('could not be loaded');
+  expect(errors).toEqual([]);
+});

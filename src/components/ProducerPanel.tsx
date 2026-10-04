@@ -103,7 +103,7 @@ function ProducerCard({ id }: { id: ProducerId }) {
 export default function ProducerPanel() {
   return (
     <section aria-label="Producers" className="w-full">
-      <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-400">Producers</h2>
+      <h2 className="mb-1 panel-title">Producers</h2>
       <p className="mb-3 text-sm text-slate-400">
         More producers mean more resources. Each takes room, and each one you buy costs more than the last.
       </p>

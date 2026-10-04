@@ -10,6 +10,7 @@ export const LOG_ICONS: Record<LogKind, string> = {
   event: '✨',
   achievement: '🏆',
   level: '⭐',
+  save: '🛟',
 };
 
 const time = (at: number) => new Date(at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

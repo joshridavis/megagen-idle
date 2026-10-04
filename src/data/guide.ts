@@ -85,7 +85,7 @@ export const GUIDE: GuideSection[] = [
     icon: 'research_progress_segment',
     paragraphs: [
       'Your generators, producers and research keep going while the game is closed, for up to {offline}. When you come back, a summary shows what happened.',
-      'The game saves automatically. In Settings you can export a save file as a backup or to move to another device.',
+      'The game saves automatically. In Settings you can export a save file as a backup or to move to another device. If a save is ever damaged, the game keeps a copy instead of overwriting it, and Settings lets you download it.',
     ],
   },
   {
@@ -132,6 +132,7 @@ export const GUIDE: GuideSection[] = [
     paragraphs: [
       'The Completion tab shows how close you are to 100%: every research, every generator type built and upgraded to max level, every room expansion and every producer type.',
       'Records are permanent: scrapping a generator never lowers your completion.',
+      'The Stats tab shows where your energy comes from (each generator type and its share), what your resources gain and burn per second, and lifetime totals such as play time and your last offline gain.',
     ],
   },
   {

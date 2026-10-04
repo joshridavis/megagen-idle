@@ -57,7 +57,7 @@ export default function BonusesPanel() {
       data-testid="bonuses-panel"
     >
       <summary className="flex cursor-pointer list-none flex-wrap items-baseline gap-x-3 gap-y-1 [&::-webkit-details-marker]:hidden">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="panel-title">
           Active bonuses{lines.length > 0 ? ` (${lines.length})` : ''} <span aria-hidden="true">{open ? '▾' : '▸'}</span>
         </h2>
         {!open && lines.length > 0 && <span className="text-xs text-emerald-300" data-testid="bonuses-short">{short}</span>}
