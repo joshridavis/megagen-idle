@@ -16,6 +16,7 @@ import { deriveEvents } from '../utils/eventLog';
 import { unlockAchievements } from '../utils/achievements';
 import { deriveRates } from '../utils/simulation';
 import { gameStorage } from './storage';
+import { takeDamagedReport } from './saveGuard';
 import type { GameStore } from './types';
 
 export type { GameStore } from './types';
@@ -96,3 +97,19 @@ useStore.subscribe((next, prev) => {
   const entries = deriveEvents(prev, next);
   if (entries.length) next.logEvents(entries);
 });
+
+// Crash recovery (0.46): a stored save that could not be loaded was set aside
+// by the save storage; say so in the event log once the game has loaded.
+const reportDamaged = () => {
+  const d = takeDamagedReport();
+  if (!d) return;
+  useStore.getState().logEvents([
+    {
+      kind: 'save',
+      text: `Your saved game could not be loaded (${d.reason}). A copy was kept: download it in Settings → Save.`,
+      toast: true,
+    },
+  ]);
+};
+useStore.persist.onFinishHydration(reportDamaged);
+if (useStore.persist.hasHydrated()) reportDamaged();

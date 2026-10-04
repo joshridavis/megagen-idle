@@ -1227,10 +1227,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Details:** extend the tree toward research level 25 with branches for efficiency, room cost reduction, fuel efficiency and offline gain. Verify the 0.13 layout still reads well. Re-run 0.35 and record pacing.
 **Acceptance:** no dead ends or unreachable nodes (add a test that validates the tree graph: every node reachable, no cycles, every prerequisite exists).
 
-### 0.46 — Crash recovery and error boundaries — CODE — Not started
+### 0.46 — Crash recovery and error boundaries — CODE — Done
 **Goal:** a bug never destroys a save.
 **Details:** React error boundary showing a recovery screen with export-save and reset options. Guard save loading: if the stored state fails validation, keep a backup copy and start from a safe state rather than crashing. Log the problem to the event log from 0.38.
 **Acceptance:** tests simulate a corrupt save and a thrown render error; the save is recoverable in both cases.
+**Notes:**
+- **Save check before loading:** `checkStoredSave` (`src/store/saveGuard.ts`) reads, migrates and validates the stored save (the same checks as an imported save) before the game uses it. A save that fails is set aside under `megagen-idle-save:damaged` (IndexedDB, or localStorage if that fails), never overwritten. If the other copy (the 0.76 localStorage backup or the main save) is fine, it loads; otherwise a new game starts. A save from a newer game version is treated the same way.
+- **Telling the player:** a 🛟 event log entry and toast ("Your saved game could not be loaded (reason). A copy was kept…"), and Settings → Save shows the kept copy with "Download the kept copy" (in the import-file format) and "Delete it". New log kind `save`.
+- **Error boundary:** `src/components/ErrorBoundary.tsx` wraps the game. A render error shows a recovery screen (Try again, Download save, Reset game… which keeps a copy of the current game first) and is written to the event log, instead of a blank page.
+- **Tests:** unit tests for the check, the guarded storage (damaged copy kept, fallback to the good copy, localStorage fallback) and the recovery screen; a Playwright test damages the real stored save and reloads.
 
 ### 0.47 — Balance re-tune and difficulty curve review — CODE — Not started
 **Goal:** one coherent pacing pass once all content exists, aiming for at least 200 hours to 100% completion (owner, playtest 8). Playtest 10: reach it with a mix of new content (the larger share, including new activities, not only research and machines) and somewhat slower pacing.

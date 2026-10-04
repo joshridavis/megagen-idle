@@ -1,6 +1,9 @@
-import { useRef, useState } from 'react';
-import { useStore } from '../store';
+import { useEffect, useRef, useState } from 'react';
+import { SAVE_KEY, useStore } from '../store';
+import { damagedSaveFile, type DamagedSave } from '../store/saveGuard';
+import { forgetDamagedSave, getDamagedSave } from '../store/storage';
 import { exportSave, parseSaveFile } from '../utils/saveFile';
+import { downloadText, saveFileName } from '../utils/download';
 import type { GameState, NumberNotation } from '../types/state';
 import { MAX_OFFLINE_SECONDS } from '../data/time';
 import { formatHours } from '../utils/format';
@@ -54,16 +57,18 @@ export default function SettingsPanel() {
   const setNotation = useStore((s) => s.setNotation);
   const resetGame = useStore((s) => s.resetGame);
   const [resetStep, setResetStep] = useState<0 | 1 | 2>(0);
+  // a save set aside by crash recovery (0.46), if this device keeps one
+  const [damaged, setDamaged] = useState<DamagedSave | null>(null);
+  useEffect(() => {
+    let live = true;
+    void getDamagedSave(SAVE_KEY).then((d) => live && setDamaged(d));
+    return () => {
+      live = false;
+    };
+  }, []);
 
   const onExport = () => {
-    const text = exportSave(useStore.getState());
-    const blob = new Blob([text], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `megagen-idle-save-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadText(saveFileName(), exportSave(useStore.getState()));
     setMessage({ kind: 'ok', text: 'Save exported. Keep the file somewhere safe.' });
   };
 
@@ -172,6 +177,30 @@ export default function SettingsPanel() {
               </button>
               <button type="button" onClick={() => setPending(null)} className="min-h-11 rounded bg-slate-600 px-3 py-2 font-semibold hover:bg-slate-500">
                 Cancel
+              </button>
+            </div>
+          </div>
+        )}
+        {damaged && (
+          <div className="mt-3 rounded bg-slate-900/60 p-3 text-sm text-slate-300" data-testid="damaged-save">
+            <p className="mb-2">
+              🛟 A saved game from {new Date(damaged.at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })} could not be
+              loaded ({damaged.reason}). A copy was kept on this device.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => downloadText(saveFileName('damaged-save', new Date(damaged.at)), damagedSaveFile(damaged))}
+                className="min-h-11 rounded bg-sky-700 px-3 py-2 font-semibold hover:bg-sky-600"
+              >
+                Download the kept copy
+              </button>
+              <button
+                type="button"
+                onClick={() => void forgetDamagedSave(SAVE_KEY).then(() => setDamaged(null))}
+                className="min-h-11 rounded bg-slate-600 px-3 py-2 font-semibold hover:bg-slate-500"
+              >
+                Delete it
               </button>
             </div>
           </div>

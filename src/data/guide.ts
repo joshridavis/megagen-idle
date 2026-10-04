@@ -85,7 +85,7 @@ export const GUIDE: GuideSection[] = [
     icon: 'research_progress_segment',
     paragraphs: [
       'Your generators, producers and research keep going while the game is closed, for up to {offline}. When you come back, a summary shows what happened.',
-      'The game saves automatically. In Settings you can export a save file as a backup or to move to another device.',
+      'The game saves automatically. In Settings you can export a save file as a backup or to move to another device. If a save is ever damaged, the game keeps a copy instead of overwriting it, and Settings lets you download it.',
     ],
   },
   {
