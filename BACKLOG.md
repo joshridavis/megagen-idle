@@ -30,7 +30,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 0.41 Responsive layout and keyboard access (launch priority)
 0. 0.46 Crash recovery and error boundaries (launch priority)
 0. 0.43 Visual polish pass (launch priority)
-0. 0.39 Statistics panel (launch priority)
+0. 0.39 Statistics panel (launch priority) → CHECKPOINT 20
 0. 0.85 Random events with effects (launch priority; already Done)
 0. 0.86 Grid Contracts: a second activity (launch priority; already Done)
 0. 0.92 Energy pets: collect and grow (launch priority; already Done)
@@ -1346,4 +1346,5 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 19.3 (v0.19.3, hotfix) | 1.30 | 2026-10-03 | Slow producers show "+0.00/s". Metal and stone costs too low everywhere they are used. Storage upgrades slightly harder. Research slightly longer. A Uranium Mine from research is missing from the map. Level ups should be in the event log. A second lightning strike adds no time, and strikes should respect the struck type. Nothing else from the backlog until told. | 1.31-1.35 (hotfix v0.19.4) |
 | 19.4 (v0.19.4, hotfix) | 1.31-1.35 | 2026-10-03 | New metal and stone prices feel right; "storage upgrades" meant room expansions; research length now right. Map events are more frequent now, so their bonuses should be smaller. The truck should bring more to higher-level players. Nothing else from the backlog until told. | 1.36 (hotfix v0.19.5) |
 | 19.5 (v0.19.5, hotfix) | 1.36 | 2026-10-03 | Bug: opening the game after a while starts two or three random events at once (for example Overcast with Sunny spell). | 1.37 (hotfix v0.19.6) |
-| 19.6 (v0.19.6, hotfix) | 1.37 | 2026-10-04 | (waiting for owner) | |
+| 19.6 (v0.19.6, hotfix) | 1.37 | 2026-10-04 | (no feedback before the next run; the owner asked to continue) | |
+| 20 (v0.20.0) | 1.40 (birds), 0.41, 0.46, 0.43, 0.39 | 2026-10-04 | (waiting for owner) | |
