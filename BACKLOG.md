@@ -130,6 +130,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.35 Lightning strikes stack per generator type (playtest 19.3 bug) → HOTFIX v0.19.4
 0. 1.36 Smaller bonuses for the common map events; delivery grows with player level (playtest 19.4 feedback) → HOTFIX v0.19.5
 0. 1.37 No timed events started on return from time away; no clashing weather (owner bug report) → HOTFIX v0.19.6
+0. 1.40 Flapping birds in the flock-of-birds sighting (owner request)
 0. 1.38 A bonus place on the map for every machine (owner request, after playtest 19.5)
 0. 1.39 A tidy, readable map legend (owner request, after playtest 19.5)
 0. 1.40 A distinct emoji for every kind of event log entry (owner request, after playtest 19.6)
@@ -989,6 +990,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Owner steps:** added to `docs/PUBLIC_RELEASE.md`. Register an OAuth app with Google (Google Cloud console) and with Discord (Discord Developer Portal), paste each client ID and secret into Supabase → Authentication → Sign In / Providers, and set the variable.
 **Acceptance:** tests with a fake service for the buttons, the redirect call and the username dialog; no secrets in the repository.
 **Notes:** the code is done and tested with fakes. The owner turns it on with section 9b of `docs/PUBLIC_RELEASE.md` (register the Google and Discord OAuth apps, paste the keys into Supabase, add `VITE_AUTH_PROVIDERS`, rerun the deploy). The live sign-in check rides with 0.68's live test.
+
+### 1.40 — Flapping birds in the flock-of-birds sighting — CODE — Done
+**Goal:** owner request: the "Flock of birds" random-event sighting (the screen-wide one, not the map event) looked bad because the birds were a static sprite.
+**Details:**
+- The sighting now draws a V of five gulls with the two-frame wing flap used by the map flock (`map_bird_1/2`), mirrored to face left, the way the sighting flies. Each gull flaps and drifts up and down on its own timing, so the flock never moves as one block.
+- The two-frame swap moved out of `MapEventLayer.tsx` into a shared `src/components/Frames.tsx`.
+- No new sprites. `sighting_birds` (the old static sprite) is no longer drawn; it stays in the asset list for now.
+- Reduce motion still skips the sighting entirely.
+**Acceptance:** a test checks the birds sighting draws five gulls, each with two wing frames; `npm run build` and `npm test` pass.
 
 ### 1.38 — A bonus place on the map for every machine — CODE — Not started
 **Goal:** owner request: many machines (for example the Coal Plant) have no place on the map that boosts them. Every generator and every producer should have one zone where it gets a bonus.

@@ -3,7 +3,8 @@ import { EVENTS_BY_ID } from '../data/events';
 import { MAP_COLUMNS } from '../data/map';
 import { useStore } from '../store';
 import { platform } from '../platform';
-import { sprites, type SpriteId } from '../assets';
+import { sprites } from '../assets';
+import Frames from './Frames';
 
 /** How often to roll map events while the Map tab is open (rolls use the real time passed, not this count). */
 export const MAP_EVENT_CHECK_MS = 5000;
@@ -14,20 +15,6 @@ const FLOCK: [number, number, string][] = [
   [33, 0, '-0.15s'],
   [0, 50, '-0.3s'],
 ];
-
-/**
- * Pixel sprites for map events (playtest 19: no emoji). Everything that
- * moves faces right, the way it travels. Two frames swap for flaps and flames.
- */
-function Frames({ a, b, still, period, delay }: { a: SpriteId; b: SpriteId; still: boolean; period: string; delay?: string }) {
-  if (still) return <img src={sprites[a]} alt="" className="pixelated h-full w-full" />;
-  return (
-    <span className="relative block h-full w-full" style={{ ['--frame' as string]: period }}>
-      <img src={sprites[a]} alt="" className="pixelated frame-a absolute inset-0 h-full w-full" style={{ animationDelay: delay }} />
-      <img src={sprites[b]} alt="" className="pixelated frame-b absolute inset-0 h-full w-full" style={{ animationDelay: delay }} />
-    </span>
-  );
-}
 
 /**
  * Map events (1.12, playtest 15): they roll only while this layer is on
