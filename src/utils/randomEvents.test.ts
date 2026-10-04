@@ -96,3 +96,26 @@ describe('sightings are hard to miss (0.91, playtest 11)', () => {
     expect(useStore.getState().toasts.at(-1)!.text).toBe('You spotted: Aurora!');
   });
 });
+
+describe('returning to the game (1.37)', () => {
+  const always = () => 0; // every roll succeeds
+  const solar = { ...s, activeGenerators: [{ id: 'g', type: GeneratorType.SOLAR, isActive: true, level: 1 }] };
+
+  it('catch-up never starts a timed effect that would have ended while away', () => {
+    const away = { foreground: false, catchUp: true, now: 0 };
+    expect(eligibleEvents(solar, away).some((e) => e.effect?.kind === 'timed')).toBe(false);
+    for (const e of rollEvents(solar, 8 * 3600, always, away)) expect(e.effect?.kind).not.toBe('timed');
+  });
+
+  it('a long resumed stretch skips timed effects longer gone than they last', () => {
+    const sunny = EVENTS.filter((e) => e.id === 'sunny_spell');
+    expect(rollEvents(solar, 3600, always, { foreground: false, now: 0 }, sunny)).toEqual([]);
+    expect(rollEvents(solar, 60, always, { foreground: false, now: 0 }, sunny).map((e) => e.id)).toEqual(['sunny_spell']);
+  });
+
+  it('no overcast during a running sunny spell, but it can follow once it ends', () => {
+    const sunny = { ...solar, activeEffects: [{ id: 'sunny_spell', until: 10_000 }] };
+    expect(eligibleEvents(sunny, { foreground: true, now: 5_000 }).map((e) => e.id)).not.toContain('overcast');
+    expect(eligibleEvents(sunny, { foreground: true, now: 10_000 }).map((e) => e.id)).toContain('overcast');
+  });
+});

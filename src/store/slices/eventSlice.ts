@@ -31,7 +31,7 @@ export const createEventSlice =
     rollMapEvents: (seconds, rng = Math.random, now = Date.now()) => {
       const s = get();
       if (s.mapEvent) return null; // one at a time
-      for (const def of rollEvents(s, seconds, rng, { foreground: true, map: true })) {
+      for (const def of rollEvents(s, seconds, rng, { foreground: true, map: true, now })) {
         const ev = pickMapTarget(s, def, rng, now);
         if (!ev) continue;
         let game: GameState = pickSaved(s);
@@ -74,7 +74,7 @@ export const createEventSlice =
     rollRandomEvents: (seconds, opts, rng = Math.random, now = Date.now()) => {
       const s = get();
       // one sighting on screen at a time
-      const hits = rollEvents(s, seconds, rng, opts).filter((e) => !(e.animation && s.activeSighting));
+      const hits = rollEvents(s, seconds, rng, { now, ...opts }).filter((e) => !(e.animation && s.activeSighting));
       if (!hits.length) return [];
       let seen = s.seenEvents;
       for (const e of hits) seen = recordSeen(seen, e.id, now);
