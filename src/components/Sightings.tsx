@@ -89,7 +89,7 @@ export default function Sightings() {
         // a V of flapping gulls (owner request: the old flock was a static sprite)
         <div className={`sighting-${def.animation} absolute h-24 w-40`} style={style} data-sprite="map_bird">
           {FLOCK.map(([x, y, flap, bob], i) => (
-            <span key={i} className="sighting-bob absolute h-6 w-6 sm:h-8 sm:w-8" style={{ right: `${x}%`, top: `${y}%`, animationDelay: bob }}>
+            <span key={i} className="sighting-bob absolute h-6 w-6 sm:h-8 sm:w-8" style={{ left: `${x}%`, top: `${y}%`, animationDelay: bob }}>
               <span className="block h-full w-full -scale-x-100">
                 <Frames a="map_bird_1" b="map_bird_2" still={false} period="0.45s" delay={flap} />
               </span>
