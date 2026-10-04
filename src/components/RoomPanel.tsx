@@ -68,7 +68,7 @@ function RoomBar({
     >
       <div
         data-testid="room-used-bar"
-        className={`absolute inset-y-0 left-0 ${critical ? 'bg-red-600' : 'bg-emerald-600'} transition-[width] duration-300`}
+        className={`absolute inset-y-0 left-0 ${critical ? 'bg-red-600' : 'bg-emerald-600'} transition-[width] duration-300 motion-reduce:transition-none`}
         style={{ width: pct(used) }}
       />
       {anim.building && added > 0 && (

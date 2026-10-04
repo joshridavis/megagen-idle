@@ -37,7 +37,7 @@ function UpgradeButton({ generatorId, name }: { generatorId: string; name: strin
         onClick={() => upgrade(generatorId)}
         aria-label={`Upgrade ${name} to level ${g.level + 1}`}
         aria-describedby={tipId}
-        className="rounded bg-amber-700/80 px-2 py-0.5 text-xs font-semibold text-amber-50 hover:bg-amber-600 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+        className="whitespace-nowrap rounded bg-amber-700/80 px-2 py-0.5 text-xs font-semibold text-amber-50 hover:bg-amber-600 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
       >
         ⬆ Upgrade
       </button>
@@ -153,7 +153,8 @@ export default function ActiveGenerators() {
                   setDragId(null);
                 }}
               >
-                <div className="flex items-center gap-2 sm:gap-3">
+                {/* On narrow screens the buttons wrap under the name (0.41). */}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <div className={`flex flex-col ${custom ? '' : 'hidden'}`}>
                   <button
                     type="button"
@@ -181,7 +182,7 @@ export default function ActiveGenerators() {
                   alt=""
                   className="pixelated h-12 w-12 object-contain"
                 />
-                <div className="min-w-0 flex-1">
+                <div className="min-w-40 flex-1">
                   <div className="font-medium">
                     {name}{' '}
                     <span className="text-xs font-normal text-amber-300" data-testid={`level-${g.id}`}>
@@ -206,6 +207,7 @@ export default function ActiveGenerators() {
                     <UpgradeButton generatorId={g.id} name={name} />
                   )}
                 </div>
+                <div className="ml-auto flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => toggle(g.id)}
@@ -218,6 +220,7 @@ export default function ActiveGenerators() {
                 {confirming !== g.id && (
                   <ScrapButton id={g.id} name={name} what="generator" onClick={() => setConfirming(g.id)} />
                 )}
+                </div>
                 </div>
                 {confirming === g.id && (
                   <ScrapConfirm

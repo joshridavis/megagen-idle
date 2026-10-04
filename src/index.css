@@ -277,3 +277,51 @@ body {
   .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce { animation: none; }
   .frame-b { animation: none; opacity: 0; }
 }
+
+/* Keyboard access (0.41): every control shows where the focus is. */
+:where(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid #ffc825;
+  outline-offset: 2px;
+}
+
+/* Touch screens (0.41): every control is at least 44px to tap. Controls drawn
+   inside the map keep the size of their tiles (.tap-exempt). */
+@media (pointer: coarse) {
+  :where(button, select, summary, [role='button']):not(.tap-exempt) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  :where(input[type='checkbox'], input[type='radio']) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+/* The in-game "Reduce motion" setting (0.41) stills the same animations as
+   the operating system's reduced-motion setting does above. */
+html[data-reduce-motion] :is(.click-pop, .spark) {
+  animation: none;
+  opacity: 0;
+}
+html[data-reduce-motion]
+  :is(.celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
+  animation: none;
+}
+html[data-reduce-motion] .frame-b {
+  animation: none;
+  opacity: 0;
+}
+html[data-reduce-motion] .research-running {
+  animation: none;
+  box-shadow: 0 0 10px 2px rgba(36, 159, 222, 0.7);
+}
+html[data-reduce-motion] .room-building {
+  display: none;
+}
+html[data-reduce-motion] [data-tutorial] {
+  animation: none !important;
+}
+html[data-reduce-motion] * {
+  transition-duration: 0s !important;
+  scroll-behavior: auto !important;
+}

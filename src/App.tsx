@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { sprites, type SpriteId } from './assets';
 import ActiveEffects from './components/ActiveEffects';
 import AchievementsPanel from './components/AchievementsPanel';
@@ -53,6 +53,26 @@ export default function App() {
   const researching = useStore((s) => s.currentResearch !== null);
   // Completion % on its tab, always visible (like Melvor Idle's completion log).
   const completion = useStore((s) => formatCompletion(getCompletion(s).ratio));
+  // The in-game "Reduce motion" setting stills every CSS animation, like the OS setting does (0.41).
+  const reduceMotion = useStore((s) => s.settings.reduceMotion);
+  useEffect(() => {
+    document.documentElement.toggleAttribute('data-reduce-motion', reduceMotion);
+  }, [reduceMotion]);
+  const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
+  // Tabs follow the ARIA tabs pattern (0.41): one Tab stop, arrows, Home and End move between tabs.
+  const onTabKey = (e: KeyboardEvent) => {
+    const i = TABS.findIndex((t) => t.id === tab);
+    const to =
+      e.key === 'ArrowRight' ? (i + 1) % TABS.length
+      : e.key === 'ArrowLeft' ? (i - 1 + TABS.length) % TABS.length
+      : e.key === 'Home' ? 0
+      : e.key === 'End' ? TABS.length - 1
+      : null;
+    if (to === null) return;
+    e.preventDefault();
+    setTab(TABS[to].id);
+    tabRefs.current[TABS[to].id]?.focus();
+  };
   return (
     <main
       className={`mx-auto flex min-h-screen max-w-6xl flex-col gap-6 p-4 sm:p-6 ${researching ? 'pb-28 sm:pb-28' : ''}`}
@@ -67,7 +87,8 @@ export default function App() {
         <DepletionWarning />
       </header>
       <ResourceDisplay />
-      <nav role="tablist" aria-label="Sections" className="flex gap-1 overflow-x-auto border-b border-slate-700 md:flex-wrap md:overflow-visible">
+      {/* Tabs wrap onto a second row on narrow screens, so nothing scrolls sideways (0.41). */}
+      <nav role="tablist" aria-label="Sections" className="flex flex-wrap gap-1 border-b border-slate-700" onKeyDown={onTabKey}>
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -76,9 +97,13 @@ export default function App() {
             id={`tab-${t.id}`}
             aria-selected={tab === t.id}
             aria-controls={`panel-${t.id}`}
+            tabIndex={tab === t.id ? 0 : -1}
+            ref={(el) => {
+              tabRefs.current[t.id] = el;
+            }}
             onClick={() => setTab(t.id)}
             data-tutorial={`tab-${t.id}`}
-            className={`min-h-11 min-w-11 shrink-0 rounded-t px-3 py-2 text-sm font-semibold sm:px-4 sm:text-base ${tab === t.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`relative min-h-11 min-w-11 shrink-0 rounded-t px-3 py-2 text-sm font-semibold sm:px-4 sm:text-base ${tab === t.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
           >
             <span className="flex items-center gap-1 sm:gap-1.5">
               <img src={sprites[t.icon]} alt="" width={20} height={20} className="pixelated h-5 w-5 object-contain" data-testid={`tab-icon-${t.id}`} />
@@ -96,7 +121,7 @@ export default function App() {
           </button>
         ))}
       </nav>
-      <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
+      <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="min-w-0">
         {tab === 'generators' ? (
           <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
             <GeneratorGrid />

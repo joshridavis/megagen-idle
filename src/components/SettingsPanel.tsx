@@ -119,7 +119,7 @@ export default function SettingsPanel() {
           <span>
             Reduce motion
             <span className="block text-xs text-slate-400">
-              Turns off random-event animations. Events still happen, and show as a notice instead.
+              Stills the game's animations (celebrations, glows, map and random-event animations). Events still happen, and show as a notice instead.
             </span>
           </span>
         </label>

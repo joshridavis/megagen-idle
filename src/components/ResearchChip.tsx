@@ -33,7 +33,7 @@ export default function ResearchChip({ onOpen }: { onOpen: () => void }) {
           <span className="shrink-0 font-mono text-sky-200">{formatDuration(left)} left</span>
         </span>
         <span className="mt-1 block h-1 overflow-hidden rounded bg-slate-800">
-          <span className="block h-full bg-sky-400 transition-[width] duration-1000 ease-linear" style={{ width: `${pct}%` }} />
+          <span className="block h-full bg-sky-400 transition-[width] duration-1000 ease-linear motion-reduce:transition-none" style={{ width: `${pct}%` }} />
         </span>
       </span>
     </button>

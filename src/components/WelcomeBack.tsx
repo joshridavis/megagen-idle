@@ -5,6 +5,7 @@ import { RESOURCE_IDS, RESOURCE_NAMES } from '../data/resources';
 import { MAX_OFFLINE_SECONDS } from '../data/time';
 import { useStore } from '../store';
 import { formatDuration, formatHours } from '../utils/format';
+import { useFocusTrap } from './useFocusTrap';
 import { useNumberFormat } from './useNumberFormat';
 
 /** "Welcome back" summary of what happened while the game was closed. */
@@ -13,6 +14,8 @@ export default function WelcomeBack() {
   const generators = useStore((s) => s.activeGenerators);
   const dismiss = useStore((s) => s.dismissWelcomeBack);
   const btn = useRef<HTMLButtonElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef, report !== null);
   const { num: fmt } = useNumberFormat();
 
   useEffect(() => {
@@ -34,10 +37,11 @@ export default function WelcomeBack() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={dismiss}>
       <div
+        ref={boxRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="welcome-title"
-        className="w-full max-w-md rounded-lg border border-slate-600 bg-slate-800 p-5 shadow-xl"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg border border-slate-600 bg-slate-800 p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
         data-testid="welcome-back"
       >

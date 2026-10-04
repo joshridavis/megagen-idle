@@ -1192,10 +1192,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Saving:** the step is in `settings.tutorial` (save version 10). Older saves skip the walkthrough; Reset brings it back.
 - **Guide:** a new Guide tab with 10 sections from `src/data/guide.ts`, plus a "Replay the tutorial" button there and in Settings.
 
-### 0.41 — Responsive layout and keyboard access — CODE — Not started
+### 0.41 — Responsive layout and keyboard access — CODE — Done
 **Goal:** the game is usable on a phone browser and by keyboard.
 **Details:** layout works from 360px wide upward (panels stack, grids reflow, no horizontal scroll). Tap targets at least 44px. All interactive controls are real buttons, reachable by Tab, with visible focus and sensible labels. Respect `prefers-reduced-motion` for the animations added in 0.20 and later.
 **Acceptance:** no layout breakage at 360px, 768px and 1280px; every action reachable by keyboard.
+**Notes:**
+- **No sideways scroll:** the phone-width tab bar scrolled the whole page sideways (hidden tab labels escaped their tabs). The tabs now wrap onto a second row; checked on every tab at 360, 768 and 1280 px with a late-game save, and by a new Playwright test (`e2e/layout.spec.ts`).
+- **Phones:** on touch screens every button and select is at least 44 px (a CSS rule in `src/index.css`; machines and fires drawn on the map keep their tile size). Rows in "Your generators" wrap their Turn on/off and Scrap buttons under the name instead of squeezing it.
+- **Keyboard:** a visible amber focus ring on every control. The tabs follow the ARIA tabs pattern (one Tab stop; arrows, Home and End). Map machines move by keyboard: Enter selects, arrow keys move the outline, Enter places, Escape cancels. Dialogs (research details, welcome back, cloud dialogs) keep Tab inside them (`useFocusTrap`) and scroll when taller than the screen.
+- **Motion:** the in-game "Reduce motion" setting now stills every CSS animation (celebrations, glows, pulses, transitions), the same as the operating system's setting, which was already respected.
 
 ### 0.42 — Performance pass — CODE — Not started
 **Goal:** stays smooth with a large base.

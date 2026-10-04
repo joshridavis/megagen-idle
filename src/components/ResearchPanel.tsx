@@ -16,6 +16,7 @@ import CostList from './CostList';
 import ProgressBar from './ProgressBar';
 import { getResearchRewards } from './researchRewards';
 import { RESEARCH_ICONS } from './researchSprites';
+import { useFocusTrap } from './useFocusTrap';
 import { useNumberFormat } from './useNumberFormat';
 
 
@@ -34,6 +35,8 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
   const state = useStore((s) => s);
   const start = useStore((s) => s.startResearch);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const def = RESEARCH_BY_ID[id];
@@ -64,10 +67,11 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
+        ref={boxRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="research-panel-title"
-        className="w-full max-w-md rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-xl"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-start gap-3">
