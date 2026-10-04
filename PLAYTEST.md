@@ -1,4 +1,35 @@
-# Playtest 19.5 (v0.19.5, hotfix): smaller map event bonuses
+# Playtest 19.6 (v0.19.6, hotfix): fewer events when you come back
+
+The version at the bottom of the screen should read **v0.19.6**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+Your save carries over.
+
+## Estimated play time
+
+- **100% completion: about 259 hours** (simulated, unchanged).
+
+## What changed (only the bug you reported)
+
+- **Coming back after a while:** timed events (Sunny spell, Overcast, Strong winds, Calm air, Volunteer crew, Coal shortage, Equipment wear) no longer start when you open the game. They would have run out long before you returned. Only one-off events (finds, grants, losses, pets) can still happen while you are away, at most three.
+- **No clashing weather:** Overcast cannot start during a Sunny spell (and the other way around), and the same goes for wind and other effects on the same target. Once one ends, the other can happen.
+
+## Things to try
+
+1. Close the game for an hour or more, then open it: no new 10-minute weather effects in the event log.
+2. Play for a while: timed events still happen while the game is open.
+
+## Questions for you
+
+1. Does coming back feel calmer now? Is up to three one-off events on return still too many?
+
+---
+
+# Previous: Playtest 19.5 (v0.19.5, hotfix): smaller map event bonuses
 
 The version at the bottom of the screen should read **v0.19.5**.
 

@@ -129,6 +129,9 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.34 Level ups in the event log (playtest 19.3 feedback)
 0. 1.35 Lightning strikes stack per generator type (playtest 19.3 bug) → HOTFIX v0.19.4
 0. 1.36 Smaller bonuses for the common map events; delivery grows with player level (playtest 19.4 feedback) → HOTFIX v0.19.5
+0. 1.37 No timed events started on return from time away; no clashing weather (owner bug report) → HOTFIX v0.19.6
+0. 1.38 A bonus place on the map for every machine (owner request, after playtest 19.5)
+0. 1.39 A tidy, readable map legend (owner request, after playtest 19.5)
 0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
 0. (0.39 moved to the top: launch priority)
@@ -985,6 +988,39 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests with a fake service for the buttons, the redirect call and the username dialog; no secrets in the repository.
 **Notes:** the code is done and tested with fakes. The owner turns it on with section 9b of `docs/PUBLIC_RELEASE.md` (register the Google and Discord OAuth apps, paste the keys into Supabase, add `VITE_AUTH_PROVIDERS`, rerun the deploy). The live sign-in check rides with 0.68's live test.
 
+### 1.38 — A bonus place on the map for every machine — CODE — Not started
+**Goal:** owner request: many machines (for example the Coal Plant) have no place on the map that boosts them. Every generator and every producer should have one zone where it gets a bonus.
+**Details:**
+- **Today:** zones in `ZONES` (`src/data/map.ts`) boost Solar (Sunny plateau), Wind (Windy ridge), Hydro (River), Tidal (Coast), Fusion and Micro-Supernova (Exclusion Zone), and the Coal Mine, Quarry, Metal Mine, Uranium Mine, Gas Well and Oil Rig. Without a bonus place: the Coal Plant, Natural Gas Plant, Oil Power Plant, Nuclear Fission Plant and the Deuterium Extractor.
+- **Assign each one, reusing a zone where it makes sense** (proposal; tune in the item):
+  - Coal Plant → Coal field (a mine-mouth plant beside its fuel).
+  - Natural Gas Plant and Oil Power Plant → Oil and gas field (beside their wells).
+  - Deuterium Extractor → Coast (it draws deuterium from sea water).
+  - Nuclear Fission Plant → a new **Cooling lake** zone (plants are built by water for cooling), a small lake area added to the terrain generator in `src/utils/mapTerrain.ts`, or the River banks if a new terrain does not fit the layout. A new terrain needs a `tile_lake` sprite: add it to the Asset manifest and `scripts/generate-generic-assets.mjs`.
+- Bonuses are optional (not `required`), +20% like the other optional zones unless balance says otherwise; zones a type is required to stand on (river, coast, Exclusion Zone) keep their rules for their own machines, and the newcomers on them only seek a free spot the same way solar and wind do (they must never take a spot a dam, tidal station or experiment needs).
+- The auto layout (`src/utils/siteMap.ts`) already seeks a bonus zone for solar and wind; it does the same for every newly assigned type. Zones that now serve several types (coal field, oil and gas field, coast) may need to be a little larger so they do not fill too quickly; check against the room tiers.
+- Update the zone descriptions, `zoneTipText`, the Guide and the expansion preview. Run `npm run simulate`: placement bonuses are not simulated, but state the estimate in the PR.
+**Acceptance:** a test that every `GeneratorType` and every producer id has a zone (`zoneFor` is never null); tests for the new assignments, the bonus and that required-zone machines still get their spots first; the build and all tests pass.
+
+### 1.39 — A tidy, readable map legend — CODE — Not started
+**Goal:** owner request: with a bonus place for every machine (1.38), the explanations under the map get long and messy. Make them short and easy to scan.
+**Details:**
+- **Today:** under the map (`src/components/MapPanel.tsx`) a wrapping line lists each terrain with "(+20% Solar Panels)" or "(Hydropower Dams only)", plus a ⭐ note, a fenced-land note and the Exclusion Zone hint. Long lists of machine names per zone will make this wrap into a hard-to-read block.
+- **New layout:** a compact grid (two columns on wide screens, one on phones): each row has the tile sprite, the zone name and its bonus, and the machines it suits as small generator/producer icons (from the typed `sprites` object) instead of a sentence of names. "Must be built here" zones get a short "only here" tag.
+- Long text (the full zone description) moves into the existing tooltip on each row, not the visible legend.
+- Show only zones on the visible site by default, with a "Show all zones" toggle (remembered as a per-viewer UI setting, like other collapsed sections); the Exclusion Zone hint and the fenced-land note become one short line each at the end.
+- Optional filter: hovering or tapping a legend row highlights that zone on the map.
+- Works at phone width with no horizontal scroll.
+**Acceptance:** tests: the legend renders one row per zone with its bonus and machine icons; hidden zones appear with the toggle; the full description is in the tooltip; at a 375 px wide viewport the legend does not overflow (jsdom or Playwright smoke test).
+
+### 1.37 — No timed events started on return from time away; no clashing weather — CODE — Done
+**Goal:** fix an owner bug report: opening the game after a while often started two or three events at once, such as Overcast and Sunny spell together.
+**Details:**
+- **Cause:** the catch-up roll on load covers the whole time away (up to three events). Timed effects such as Overcast or Sunny spell were then started at the moment the game opened, for their full 10 to 15 minutes, even though they "happened" hours earlier and would have run out long ago. Opposite weather (Sunny spell and Overcast, Strong winds and Calm air) could also land together.
+- **Fix:** catch-up no longer rolls timed effects; it only rolls one-off events (finds, grants, losses, pets), still at most three. Any roll covering a stretch longer than a timed effect's own duration (an app resumed after a long pause) skips that effect too. A timed event does not roll while another timed effect on the same target (the same generator type, resource, or all output) is still running.
+- **Unchanged:** event rates, the catch-up cap, sightings and map events.
+**Acceptance:** tests: catch-up never starts a timed effect; a long stretch skips it and a short one does not; no Overcast during a running Sunny spell, but it can follow once that ends.
+
 ### 1.36 — Smaller bonuses for the common map events; delivery grows with player level — CODE — Done
 **Goal:** apply playtest 19.4 feedback. Map events now come more often, so the frequent ones should give smaller bonuses, and the delivery truck should bring more to higher-level players.
 **Details:**
@@ -1251,4 +1287,5 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 19.2 (v0.19.2, hotfix) | 1.29 | 2026-10-02 | The birds do not look like birds at all; fix them. Build nothing else from the backlog until told. | 1.30 (hotfix v0.19.3) |
 | 19.3 (v0.19.3, hotfix) | 1.30 | 2026-10-03 | Slow producers show "+0.00/s". Metal and stone costs too low everywhere they are used. Storage upgrades slightly harder. Research slightly longer. A Uranium Mine from research is missing from the map. Level ups should be in the event log. A second lightning strike adds no time, and strikes should respect the struck type. Nothing else from the backlog until told. | 1.31-1.35 (hotfix v0.19.4) |
 | 19.4 (v0.19.4, hotfix) | 1.31-1.35 | 2026-10-03 | New metal and stone prices feel right; "storage upgrades" meant room expansions; research length now right. Map events are more frequent now, so their bonuses should be smaller. The truck should bring more to higher-level players. Nothing else from the backlog until told. | 1.36 (hotfix v0.19.5) |
-| 19.5 (v0.19.5, hotfix) | 1.36 | 2026-10-03 | (waiting for owner) | |
+| 19.5 (v0.19.5, hotfix) | 1.36 | 2026-10-03 | Bug: opening the game after a while starts two or three random events at once (for example Overcast with Sunny spell). | 1.37 (hotfix v0.19.6) |
+| 19.6 (v0.19.6, hotfix) | 1.37 | 2026-10-04 | (waiting for owner) | |
