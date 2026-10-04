@@ -132,6 +132,8 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.37 No timed events started on return from time away; no clashing weather (owner bug report) → HOTFIX v0.19.6
 0. 1.38 A bonus place on the map for every machine (owner request, after playtest 19.5)
 0. 1.39 A tidy, readable map legend (owner request, after playtest 19.5)
+0. 1.40 A distinct emoji for every kind of event log entry (owner request, after playtest 19.6)
+0. 1.41 The research chip opens the running research's details (owner request, after playtest 19.6)
 0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback)
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
 0. (0.39 moved to the top: launch priority)
@@ -1001,6 +1003,32 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The auto layout (`src/utils/siteMap.ts`) already seeks a bonus zone for solar and wind; it does the same for every newly assigned type. Zones that now serve several types (coal field, oil and gas field, coast) may need to be a little larger so they do not fill too quickly; check against the room tiers.
 - Update the zone descriptions, `zoneTipText`, the Guide and the expansion preview. Run `npm run simulate`: placement bonuses are not simulated, but state the estimate in the PR.
 **Acceptance:** a test that every `GeneratorType` and every producer id has a zone (`zoneFor` is never null); tests for the new assignments, the bonus and that required-zone machines still get their spots first; the build and all tests pass.
+
+### 1.41 — The research chip opens the running research's details — CODE — Not started
+**Goal:** owner request: clicking the sticky research progress chip (shown on every tab while research runs) opens the Research tab; it should also open the details popup of the running research, the same one shown when you click that research in the tree.
+**Details:**
+- **Today:** `ResearchChip` (`src/components/ResearchChip.tsx`) calls `onOpen`, which in `src/App.tsx` only runs `setTab('research')`. The popup is `ResearchPanel`, opened by local `openId` state in `src/components/ResearchTree.tsx`.
+- **Fix:** let the chip pass the running research id along (for example a small transient "open research details" request in the store, or a prop/initial value for `ResearchTree`), so the Research tab opens with `ResearchPanel` already showing that research. Clicking the chip while already on the Research tab opens the popup too.
+- Closing the popup leaves the player on the Research tab. If the research finished in the meantime (no current research), just open the tab.
+- Keep focus handling right: focus goes into the popup and returns to a sensible element when it closes. Update the chip's `aria-label` ("Open its details").
+- The request is UI-only and never saved.
+**Acceptance:** tests: clicking the chip from another tab switches to Research and shows the popup for the running research; from the Research tab it opens the popup; with no running research it only opens the tab; closing the popup keeps the Research tab; the build and all tests pass.
+
+### 1.40 — A distinct emoji for every kind of event log entry — CODE — Not started
+**Goal:** owner request: many event log lines share the same ✨, so the log is hard to scan. Every different kind of entry should have its own emoji.
+**Details:**
+- **Today:** `LOG_ICONS` in `src/components/EventLog.tsx` has one emoji per `LogKind` (`research`, `unlock`, `fuel`, `room`, `event`, `achievement`, `level`), also used by `src/components/Toasts.tsx`. The broad `event` kind (✨) covers random events, map events, sightings, contracts and pets, and `level` (⭐) covers both player and research levels; `unlock` (🔓) covers new generators, producers and research.
+- **Fix:** split the kinds so each entry type has its own icon, for example (tune in the item, no emoji used twice):
+  - Effect events: positive 🍀, negative ⚠️; weather events by what they touch (☀️ sunny spell, ☁️ overcast, 🌬️ strong winds, 🍃 calm air). Simplest is an optional `icon` on each `EventDef` in `src/data/events.ts`, with a fallback per positive/negative.
+  - Sightings 👀; map events 🗺️ (or the event's own icon: ⚡ lightning, 🚚 delivery, 🔥 fire, 🌊 flood).
+  - Contracts: new offers 📜, complete ✅, expired ⌛.
+  - Pets: found 🐾, grown up 🐣.
+  - Player level ⭐, research level 🎓.
+  - New generator ⚙️, new producer ⛏️, new research 🔓.
+  - Unchanged: research complete 🔬, fuel 🔥 (pick another for the map fire), room 📦, achievement 🏆.
+- Implementation: either more `LogKind` values or an optional `icon` on `LogEntry` that overrides the kind's default. Old saved log entries without the new field still show their kind's icon (no migration break).
+- The toast uses the same icon. Icons stay `aria-hidden`; the text still says what happened.
+**Acceptance:** tests: every log source writes its own icon (random effect, sighting, map event, contract offer, completion and expiry, pet found and grown, player level, research level, each unlock type); no two entry types share an emoji (a test over the icon table); an old saved entry still renders; the build and all tests pass.
 
 ### 1.39 — A tidy, readable map legend — CODE — Not started
 **Goal:** owner request: with a bonus place for every machine (1.38), the explanations under the map get long and messy. Make them short and easy to scan.
