@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it , vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MAX_OFFLINE_SECONDS } from '../data/time';
 import { useStore } from '../store';
 import { createInitialState } from '../data/initialState';
@@ -15,7 +15,14 @@ const T0 = 1_700_000_000_000;
 const solar = (id: string): Generator => ({ id, type: GeneratorType.SOLAR, isActive: true, level: 1 });
 
 beforeEach(() => {
+  // tick() also rolls random events with Math.random: an hour of catch-up could grant
+  // bonus energy (seen in CI: 4200 instead of 3600). No event fires in these tests.
+  vi.spyOn(Math, 'random').mockReturnValue(0.999999);
   useStore.setState(deriveRates({ ...createInitialState(T0), energy: 0, activeGenerators: [solar('gen-1'), solar('gen-2')] }));
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 describe('computeDeltaSeconds', () => {
