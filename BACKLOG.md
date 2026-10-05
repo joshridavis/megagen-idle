@@ -26,7 +26,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 **After playtest 21 (owner, 2026-10-05):** these come first, in this order, then the rest below.
 
-0. 1.44 Fix: a new device signing in could upload a blank game over the cloud save (owner bug report)
+0. 1.44 Fix: a new device signing in could upload a blank game over the cloud save (owner bug report) → HOTFIX v0.21.1
 0. 1.45 Generate-energy button next to the pinned energy bar
 0. 1.46 Cloud save from any tab
 0. 1.47 Decorations in a panel that opens over the map → CHECKPOINT 22
@@ -1452,3 +1452,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 20 (v0.20.0) | 1.40 (birds), 0.41, 0.46, 0.43, 0.39 | 2026-10-04 | Pinned energy bar looks good on the phone. Stats tab fine for now. Fade-in and unlock glow fine. Keep the order 1.38, 1.39, 1.40, 1.41. Bug: with the bar pinned, hovering a build card near the top makes its tooltip jump very high and the bar half hidden. | 1.42 (hotfix v0.20.1) |
 | 20.1 (v0.20.1, hotfix) | 1.42 | 2026-10-05 | (no feedback before the next run; the owner asked to continue) | |
 | 21 (v0.21.0) | 1.38, 1.39, 1.40, 1.41, 1.13 | 2026-10-05 | 100% completion simulated at 251.0 h. The new bonus places are worth moving plants for; one lake spot is enough. Legend easy to read on computer and phone. Log icons help. Decoration unlocks fine for now. Keep the order: browser notifications (1.07), then the performance pass (0.42). | (none) |
+| 21.1 (v0.21.1, hotfix) | 1.07, 1.43, 1.44 | 2026-10-05 | Sign-up showed "Invalid path specified in request URL". Bug: after a cloud save, signing in from an incognito tab did not load it, and "Load cloud save" did nothing. Requests: a click button by the pinned bar, cloud save from anywhere, decorations in a panel over the map, better sprites, a designed loader, a logo, petting achievements. | 1.43, 1.44 (fixed); 1.45-1.51 |
