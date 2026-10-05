@@ -7,7 +7,7 @@ import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 20;
+export const SAVE_VERSION = 21;
 
 type AnySave = Record<string, unknown>;
 
@@ -65,6 +65,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   18: (save) => ({ ...save, stats: { playSeconds: 0, clickEnergy: 0, lastOffline: null, ...(save.stats as object | undefined), startedAt: null } }),
   // 1.13: map decorations (none yet).
   19: (save) => ({ ...save, mapDecorations: {} }),
+  // 1.07: browser notifications, off (filled from default settings below).
+  20: (save) => save,
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */

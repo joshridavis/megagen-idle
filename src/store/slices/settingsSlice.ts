@@ -1,5 +1,6 @@
 import type { GeneratorSort, NumberNotation, SettingsState } from '../../types/state';
 import type { SliceCreator } from '../types';
+import { DEFAULT_NOTIFY, type NotifySettings } from '../../data/notifyRules';
 import { canUseAccent, canUseTitle } from '../../utils/achievements';
 
 export interface SettingsActions {
@@ -12,6 +13,8 @@ export interface SettingsActions {
   setTutorialStep: (step: number) => void;
   /** Shows the walkthrough again from the start, advancing with "Next". */
   replayTutorial: () => void;
+  /** Notification choices (1.07): the master switch and per-type switches. */
+  setNotifications: (patch: { enabled?: boolean; types?: Partial<NotifySettings['types']> }) => void;
 }
 
 export const createSettingsSlice =
@@ -33,5 +36,14 @@ export const createSettingsSlice =
         'settings/cosmetics',
       ),
     setGeneratorSort: (generatorSort) => set((s) => ({ settings: { ...s.settings, generatorSort } }), undefined, 'settings/generatorSort'),
+    setNotifications: (patch) =>
+      set(
+        (s) => {
+          const cur = s.settings.notifications ?? DEFAULT_NOTIFY;
+          return { settings: { ...s.settings, notifications: { enabled: patch.enabled ?? cur.enabled, types: { ...cur.types, ...patch.types } } } };
+        },
+        undefined,
+        'settings/notifications',
+      ),
     setReduceMotion: (reduceMotion) => set((s) => ({ settings: { ...s.settings, reduceMotion } }), undefined, 'settings/reduceMotion'),
   });

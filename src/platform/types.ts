@@ -14,4 +14,12 @@ export interface Platform {
   isBackground: () => boolean;
   /** Opens a link outside the game (browser tab, system browser in a wrapper). */
   openExternal: (url: string) => void;
+  /** Whether notifications may be shown (1.07): 'unsupported' where there are none. */
+  notifyPermission: () => NotifyPermission;
+  /** Asks the player for permission to notify. Call only from a click. Resolves true if granted. */
+  requestNotifyPermission: () => Promise<boolean>;
+  /** Shows a notification outside the game. Does nothing without permission. */
+  notify: (title: string, body: string) => void;
 }
+
+export type NotifyPermission = 'granted' | 'denied' | 'default' | 'unsupported';

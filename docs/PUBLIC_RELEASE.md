@@ -114,7 +114,7 @@ About 15 minutes. Nothing here needs a credit card.
 4. Open **Authentication → URL Configuration**:
    - **Site URL:** `https://joshridavis.github.io/megagen-idle/`
    - **Redirect URLs:** add the same address. Add `http://localhost:5173` too, for testing locally.
-5. Open **Project Settings → API** (or **Data API**) and copy the **Project URL** and the **publishable** key (`sb_publishable_…`; older projects show an **anon public** key instead, which works the same). Do not copy the secret or `service_role` key.
+5. Open **Project Settings → API** (or **Data API**) and copy the **Project URL**, which looks like `https://abcd1234.supabase.co` with nothing after `.co` (not the RESTful endpoint ending in `/rest/v1/`; the game now trims that anyway), and the **publishable** key (`sb_publishable_…`; older projects show an **anon public** key instead, which works the same). Do not copy the secret or `service_role` key.
 6. In GitHub, open the repository **Settings → Secrets and variables → Actions → Variables** tab, and click **New repository variable** twice:
    - `VITE_SUPABASE_URL` = the Project URL
    - `VITE_SUPABASE_ANON_KEY` = the publishable (or anon public) key

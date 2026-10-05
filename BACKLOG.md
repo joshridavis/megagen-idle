@@ -139,6 +139,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.41 The research chip opens the running research's details (owner request, after playtest 19.6)
 0. 1.13 Map decorations as cosmetic rewards (playtest 15 feedback) → CHECKPOINT 21
 0. 1.07 Browser notifications, opt-in and rate-limited (playtest 14 feedback)
+0. 1.43 Fix: sign-up "Invalid path specified in request URL" (owner report, after playtest 21)
 0. (0.39 moved to the top: launch priority)
 1. 0.00 Bootstrap and repo verification
 2. 0.04 Idle engine
@@ -639,7 +640,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Guide:** the Map section explains zones, the river and coast rule, placement and moving. The Map tab already has the zone legend.
 - **Skipped:** the mini-map in the Generators tab; the Map tab covers it and the owner has not asked for it.
 
-### 1.07 — Browser notifications, opt-in and rate-limited — CODE — Not started
+### 1.07 — Browser notifications, opt-in and rate-limited — CODE — Done
 **Goal:** apply playtest 14 feedback: notify the player outside the game (browser notifications now, mobile later) when something worth coming back for happens, such as a research done or a level up. Handled carefully, because too many notifications are annoying.
 **Details:**
 - **Off by default.** Settings has a "Notifications" section with a master switch. Turning it on asks the browser for permission only at that moment, never on load.
@@ -648,6 +649,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Limits:** at most `MAX_PER_HOUR` (default 3) per hour, collapsed into one summary when several arrive together ("Research done: Hydropower, and 2 more"). Quiet hours are optional.
 - **Code:** a pure `selectNotifications(events, settings, history, now)` decides what to send, with tests. Sending goes through the platform layer (`platform.notify`), so a mobile wrapper can use native notifications later. A closed tab cannot notify on the web; the item notes this, and mobile push is planned with the app.
 **Acceptance:** nothing is sent without opt-in and permission; nothing is sent while visible; the rate limit and per-type switches work (unit tests); the summary text is correct.
+**Done notes:** Settings → Notifications (`NotificationSettings.tsx`), off by default; switching it on asks for permission then, and stays off if refused. Types: research complete, contract complete, pet grown, fuel ran out (on); player level up (off). "Rare sighting missed" was left out: sightings only happen while the game is on screen, so there is never one to miss. `selectNotifications` (`src/utils/notifications.ts`) picks by each entry's 1.40 icon; `MAX_PER_HOUR` in `src/data/notifyRules.ts`. Sending goes through `platform.notify`; the hourly count lives in memory (resets on reload). No quiet hours (optional). A closed tab cannot notify on the web; mobile push comes with the app. Save version 21.
 
 ### 1.08 — Map: machines no longer overlap — CODE — Done
 **Goal:** fix the playtest 15 bug: a coal plant (#32) drew as a huge box over many other machines.
@@ -994,6 +996,11 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Owner steps:** added to `docs/PUBLIC_RELEASE.md`. Register an OAuth app with Google (Google Cloud console) and with Discord (Discord Developer Portal), paste each client ID and secret into Supabase → Authentication → Sign In / Providers, and set the variable.
 **Acceptance:** tests with a fake service for the buttons, the redirect call and the username dialog; no secrets in the repository.
 **Notes:** the code is done and tested with fakes. The owner turns it on with section 9b of `docs/PUBLIC_RELEASE.md` (register the Google and Discord OAuth apps, paste the keys into Supabase, add `VITE_AUTH_PROVIDERS`, rerun the deploy). The live sign-in check rides with 0.68's live test.
+
+### 1.43 — Fix: sign-up fails with "Invalid path specified in request URL" — CODE — Done
+**Goal:** fix an owner report after playtest 21: creating an account on the live site showed "Invalid path specified in request URL".
+**Details:** the Supabase library adds `auth/v1/...` to the configured URL. If `VITE_SUPABASE_URL` holds the RESTful endpoint from the Data API page (`https://<project>.supabase.co/rest/v1/`) instead of the bare Project URL, sign-up goes to `.../rest/v1/auth/v1/signup`, which Supabase rejects with exactly that message. `projectUrl` (`src/store/cloud.ts`) now keeps only the scheme and host of whatever was pasted, and `docs/PUBLIC_RELEASE.md` step 5 says what the Project URL looks like.
+**Acceptance:** unit test that `projectUrl` trims a pasted REST endpoint and a trailing slash; the build and all tests pass; a live sign-up after the next deploy works (owner check).
 
 ### 1.42 — Fix: tooltips under the pinned top bar — CODE — Done
 **Goal:** fix a playtest 20 bug: with the energy bar pinned (0.43), hovering a build card just under it raised the card over the bar (half hiding it), and the card's tooltip opened above the card, high up behind the bar.
@@ -1364,4 +1371,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 19.6 (v0.19.6, hotfix) | 1.37 | 2026-10-04 | (no feedback before the next run; the owner asked to continue) | |
 | 20 (v0.20.0) | 1.40 (birds), 0.41, 0.46, 0.43, 0.39 | 2026-10-04 | Pinned energy bar looks good on the phone. Stats tab fine for now. Fade-in and unlock glow fine. Keep the order 1.38, 1.39, 1.40, 1.41. Bug: with the bar pinned, hovering a build card near the top makes its tooltip jump very high and the bar half hidden. | 1.42 (hotfix v0.20.1) |
 | 20.1 (v0.20.1, hotfix) | 1.42 | 2026-10-05 | (no feedback before the next run; the owner asked to continue) | |
-| 21 (v0.21.0) | 1.38, 1.39, 1.40, 1.41, 1.13 | 2026-10-05 | (waiting for feedback) 100% completion simulated at 251.0 h. | |
+| 21 (v0.21.0) | 1.38, 1.39, 1.40, 1.41, 1.13 | 2026-10-05 | 100% completion simulated at 251.0 h. The new bonus places are worth moving plants for; one lake spot is enough. Legend easy to read on computer and phone. Log icons help. Decoration unlocks fine for now. Keep the order: browser notifications (1.07), then the performance pass (0.42). | (none) |

@@ -1,4 +1,5 @@
 import type { DecorationId } from '../data/decorations';
+import type { NotifySettings } from '../data/notifyRules';
 import type { Generator, GeneratorType } from './generator';
 import type { ProducerId } from './resource';
 import type { CurrentResearch } from './research';
@@ -23,6 +24,8 @@ export interface Settings {
   generatorSort: GeneratorSort;
   /** Cosmetic rewards from achievements (1.01): the shown title (an achievement id) and the accent color. */
   cosmetics: { title: string | null; accent: string };
+  /** Browser notifications (1.07): off until the player turns them on. */
+  notifications: NotifySettings;
 }
 
 export interface EnergyState {

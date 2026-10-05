@@ -66,7 +66,7 @@ describe('map decorations (1.13)', () => {
   });
 
   it('are saved, and old saves load with none', () => {
-    expect(SAVE_VERSION).toBe(20);
+    expect(SAVE_VERSION).toBeGreaterThanOrEqual(20);
     const old = { ...createInitialState(0) } as Record<string, unknown>;
     delete old.mapDecorations;
     expect(migrateSave(old, 19).mapDecorations).toEqual({});

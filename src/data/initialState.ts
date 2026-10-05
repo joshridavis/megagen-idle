@@ -1,3 +1,4 @@
+import { DEFAULT_NOTIFY } from './notifyRules';
 import type { GameState } from '../types/state';
 import { STARTING_ENERGY } from './player';
 import { STARTING_PRODUCERS } from './producers';
@@ -24,7 +25,7 @@ export const createInitialState = (now = Date.now()): GameState => ({
   lastExpansionAt: null,
   mapPins: {},
   mapDecorations: {},
-  settings: { notation: 'short', reduceMotion: false, tutorial: { step: 0, replay: false }, generatorSort: 'custom', cosmetics: { title: null, accent: 'amber' } },
+  settings: { notation: 'short', reduceMotion: false, tutorial: { step: 0, replay: false }, generatorSort: 'custom', cosmetics: { title: null, accent: 'amber' }, notifications: DEFAULT_NOTIFY },
   seenEvents: {},
   activeEffects: [],
   contracts: { open: [], nextOfferAt: 0, done: 0, points: 0, perks: {}, seq: 0 },
