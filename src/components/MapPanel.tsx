@@ -19,6 +19,9 @@ import FloatingTip from './FloatingTip';
 import MapEventLayer from './MapEventLayer';
 import { zoneTipText } from './zoneTip';
 import MapLegend, { ZONE_SPRITE } from './MapLegend';
+import MapDecorations, { type DecorTool } from './MapDecorations';
+import { DECORATIONS_BY_ID } from '../data/decorations';
+import { machineTiles, placeBlock } from '../utils/decorations';
 
 const TERRAIN_SPRITE: Record<Terrain, SpriteId> = { plain: 'tile_ground', ...ZONE_SPRITE };
 const KEY_STEPS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
@@ -34,6 +37,8 @@ const pctBonus = (b: number) => `+${Math.round(b * 100)}%`;
 export default function MapPanel({ onSelect }: { onSelect: (generatorId: string) => void }) {
   const state = useStore((s) => s);
   const moveOnMap = useStore((s) => s.moveOnMap);
+  const placeDecoration = useStore((s) => s.placeDecoration);
+  const removeDecoration = useStore((s) => s.removeDecoration);
   const reduceMotion = useStore((s) => s.settings.reduceMotion);
   const fmt = useNumberFormat();
   const map = layoutSite(state);
@@ -41,6 +46,8 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const [selected, setSelected] = useState<string | null>(null);
   const [hoverCell, setHoverCell] = useState<number | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  /** Decorating (1.13): which decoration a tile click places, or 'remove'. */
+  const [decorTool, setDecorToolState] = useState<DecorTool>(null);
   /** The zone a legend row points at (1.39): its tiles light up. */
   const [legendZone, setLegendZone] = useState<Zone | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -94,7 +101,28 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const ghostOk = ghost !== null && hoverCell !== null && targets.has(hoverCell);
   const ghostBonus = ghost && sel?.kind === 'generator' ? zoneBonusFor(sel.type, ghost, map.columns) : 0;
 
+  const setDecorTool = (t: DecorTool) => {
+    setDecorToolState(t);
+    setSelected(null);
+    setNote(null);
+  };
+  const covered = useMemo(() => machineTiles(map), [map]);
+  /** A tile click while decorating (1.13): place or remove. */
+  const decorate = (c: number) => {
+    if (decorTool === 'remove') {
+      setNote(removeDecoration(c) ? 'Decoration removed.' : 'No decoration there.');
+      return;
+    }
+    if (!decorTool) return;
+    const why = placeBlock(state, decorTool, c, map);
+    setNote(why ?? `${DECORATIONS_BY_ID[decorTool].name} placed.`);
+    if (!why) placeDecoration(decorTool, c);
+  };
   const pick = (p: Placed) => {
+    if (decorTool) {
+      setNote('A machine stands there: decorations go on free tiles.');
+      return;
+    }
     if (dragged.current) {
       dragged.current = false; // the click that ends a drag is not a selection
       return;
@@ -120,7 +148,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   };
   // drag and drop (1.16): pointer events, so mouse, pen and touch all work
   const startDrag = (p: Placed, e: ReactPointerEvent) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || decorTool) return;
     const at = cellAt(e.clientX, e.clientY);
     if (!at) return;
     drag.current = { key: p.key, grabX: at.x - p.core.x, grabY: at.y - p.core.y, x: e.clientX, y: e.clientY, moved: false };
@@ -149,6 +177,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     setSelected(null); // a drop always ends the move, whether or not it was allowed
   };
   const clickTile = (c: number) => {
+    if (decorTool) return decorate(c);
     if (!sel) return;
     if (!targets.has(c)) {
       const cells = cellsAt(c, sel.size, map.columns);
@@ -211,7 +240,17 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
         <span className="text-xs text-slate-400">One tile per unit of room. Drag a machine to move it (or click it, then a tile).</span>
       </div>
       <div className="min-h-10 text-sm text-sky-200" aria-live="polite" data-testid="map-info">
-        {sel ? (
+        {decorTool ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <span>
+              {decorTool === 'remove' ? 'Removing decorations: click one on the map.' : `Placing ${DECORATIONS_BY_ID[decorTool].name}: click free tiles inside your site.`}
+              {note && ` ${note}`}
+            </span>
+            <button type="button" className="rounded bg-slate-700 px-2 py-0.5 text-xs hover:bg-slate-600" onClick={() => setDecorTool(null)}>
+              Done
+            </button>
+          </div>
+        ) : sel ? (
           <div className="flex flex-wrap items-center gap-2">
             <span>
               Moving <strong>{nameOf(sel)}</strong>:{' '}
@@ -262,6 +301,8 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
             const t = terrainAt(x, y);
             const d = detailAt(x, y);
             const locked = c >= map.capacity;
+            // a decoration under a machine is hidden; it shows again if the machine moves (1.13)
+            const decorAt = !locked && !covered.has(c) ? state.mapDecorations[c] : undefined;
             const target = sel && targets.has(c);
             const best = target && sel!.kind === 'generator' && zoneBonusFor(sel!.type, cellsAt(c, sel!.size, map.columns) ?? [], map.columns) > 0;
             return (
@@ -275,6 +316,15 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
               >
                 <img src={sprites[TERRAIN_SPRITE[t]]} alt="" className="pixelated absolute inset-0 h-full w-full" />
                 {d && <img src={sprites[detailSprite(d)]} alt="" className="pixelated absolute inset-0 h-full w-full" data-detail={d} />}
+                {decorAt && (
+                  <img
+                    src={sprites[DECORATIONS_BY_ID[decorAt].sprite]}
+                    alt={DECORATIONS_BY_ID[decorAt].name}
+                    title={DECORATIONS_BY_ID[decorAt].name}
+                    className="pixelated absolute inset-0 h-full w-full"
+                    data-testid={`decor-${c}`}
+                  />
+                )}
                 {t === 'exclusion' && !locked && !reduceMotion && (
                   // a soft shield glow (1.23); off with reduced motion
                   <div aria-hidden="true" className="pointer-events-none absolute inset-0 animate-pulse bg-fuchsia-400/10 motion-reduce:animate-none" />
@@ -361,6 +411,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
         </div>
       </div>
       <MapLegend onSite={onSite} highlight={legendZone} onHighlight={setLegendZone} />
+      <MapDecorations tool={decorTool} onTool={setDecorTool} />
       {next && (
         <p className="text-xs text-slate-400">
           Dimmed land: the next room expansion adds {next.capacity} tiles (Generators tab → Room).

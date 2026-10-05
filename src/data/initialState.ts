@@ -23,6 +23,7 @@ export const createInitialState = (now = Date.now()): GameState => ({
   expansionLevel: 0,
   lastExpansionAt: null,
   mapPins: {},
+  mapDecorations: {},
   settings: { notation: 'short', reduceMotion: false, tutorial: { step: 0, replay: false }, generatorSort: 'custom', cosmetics: { title: null, accent: 'amber' } },
   seenEvents: {},
   activeEffects: [],

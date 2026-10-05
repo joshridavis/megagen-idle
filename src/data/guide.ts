@@ -50,6 +50,7 @@ export const GUIDE: GuideSection[] = [
       'Zones boost the machines that suit them, when the whole machine stands on them: sunny plateau (Solar Panels +20%), windy ridge (Wind Turbines +20%), coal field (Coal Mines and Coal Plants +20%), rocky outcrop (Quarries, Metal and Uranium Mines +20%), oil and gas field (Gas Wells, Oil Rigs, Natural Gas Plants and Oil Power Plants +20%), cooling lake (Nuclear Fission Plants +20%), coast (Deuterium Extractors +10%). Every machine has one bonus place.',
       'Hydropower Dams must be built on the river and Tidal Power Stations on the coast, and Fusion Reactors and Micro-Supernovas in the Exclusion Zone that the last room expansions open (+10% when fully inside). Other machines (Deuterium Extractors on the coast too) may stand there until one of those needs the spot.',
       'New machines go to a free spot on their zone when there is one; after that they stay put. Drag a machine to move it, or click it and then a tile. ⭐ marks a machine on its bonus zone.',
+      'Decorations (a tree, a flag, a pond and more) unlock with player levels, achievements and contracts. Place them on free tiles under the map; they are just for looks and never block a machine.',
     ],
   },
   {

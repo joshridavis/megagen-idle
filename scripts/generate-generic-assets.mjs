@@ -798,6 +798,64 @@ function mapWave() {
   return c;
 }
 
+// ---------- map decorations (1.13): cosmetic, placed by the player ----------
+
+function decorTree() {
+  const c = new Canvas(16, 16);
+  c.rect(7, 10, 2, 5, C.brown4); // trunk
+  c.circle(8, 6, 5, C.darkGreen);
+  c.circle(7, 5, 3, C.green);
+  c.set(6, 4, C.lime);
+  c.outline(C.ink);
+  return c;
+}
+function decorPond() {
+  const c = new Canvas(16, 16);
+  c.circle(8, 9, 6, C.blue);
+  c.circle(7, 8, 4, C.sky);
+  c.rect(4, 7, 3, 1, C.mint); // shine
+  c.circle(11, 11, 1, C.green); // lily pad
+  c.outline(C.navy);
+  return c;
+}
+function decorWindsock() {
+  const c = new Canvas(16, 16);
+  c.rect(3, 2, 1, 13, C.grey3); // pole
+  c.polygon([[4, 2], [14, 4], [14, 6], [4, 6]], C.orange);
+  c.rect(7, 3, 2, 3, C.white); // stripes
+  c.rect(11, 4, 2, 2, C.white);
+  c.outline(C.ink);
+  return c;
+}
+function decorStatue() {
+  const c = new Canvas(16, 16);
+  c.rect(4, 12, 8, 3, C.grey4); // plinth
+  c.rect(6, 6, 4, 6, C.grey2); // body
+  c.circle(8, 4, 2, C.grey2); // head
+  c.rect(10, 3, 1, 4, C.amber); // raised bolt
+  c.set(11, 3, C.yellow);
+  c.outline(C.grey6);
+  return c;
+}
+function decorFlag() {
+  const c = new Canvas(16, 16);
+  c.rect(4, 1, 1, 14, C.grey2); // pole
+  c.rect(5, 2, 8, 5, C.red);
+  c.rect(5, 4, 8, 1, C.yellow); // a bolt stripe
+  c.rect(3, 14, 3, 1, C.grey4);
+  c.outline(C.ink);
+  return c;
+}
+function decorLamp() {
+  const c = new Canvas(16, 16);
+  c.rect(7, 4, 2, 11, C.grey5); // post
+  c.rect(5, 14, 6, 1, C.grey6);
+  c.rect(6, 1, 4, 3, C.grey6); // lamp head
+  c.rect(7, 2, 2, 2, C.lemon);
+  c.outline(C.ink);
+  return c;
+}
+
 // ---------- site map tiles (1.04) ----------
 
 function groundTile() {
@@ -1221,6 +1279,12 @@ const DRAW = {
   deco_buoy: decoBuoy,
   deco_warning: decoWarning,
   deco_pylon: decoPylon,
+  decor_tree: decorTree,
+  decor_pond: decorPond,
+  decor_windsock: decorWindsock,
+  decor_statue: decorStatue,
+  decor_flag: decorFlag,
+  decor_lamp: decorLamp,
   achievement_unlocked: () => trophy(C.yellow, C.lemon, C.brown3),
   achievement_locked: () => trophy(C.grey5, C.grey4, C.grey6),
   sighting_spaceship: spaceship,
