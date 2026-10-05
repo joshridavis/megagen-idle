@@ -24,7 +24,21 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**After playtest 21 (owner, 2026-10-05):** these come first, in this order, then the rest below.
+**After playtest 22 (owner notes, 2026-10-05):** these come first, in this order (the owner may reorder), then the rest of the playtest 21 list below.
+
+0. 1.63 Map tooltips on hover, next to the machine
+0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
+0. 1.54 More decorations
+0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity
+0. 1.58 Pet growing animation → CHECKPOINT 23
+0. 1.59 Pet slots: up to 3 active pets, bought with energy
+0. 1.60 Active pets walk on the screen
+0. 1.56 More pets
+0. 1.55 More random events
+0. 1.61 Player level as a hard requirement → CHECKPOINT 24
+0. 1.62 Research points for high-level research
+
+**After playtest 21 (owner, 2026-10-05):** these came first, in this order; 1.44 to 1.47 and 1.52 are Done, the rest follow the playtest 22 items above.
 
 0. 1.44 Fix: a new device signing in could upload a blank game over the cloud save (owner bug report) → HOTFIX v0.21.1
 0. 1.45 Generate-energy button next to the pinned energy bar
@@ -1093,6 +1107,100 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** a test runs the script into a temporary folder and checks sizes, AAP-64-only opaque pixels, the transparent logo and icon corners, whole-number scaling of the icon, and that the committed images match; the build and all tests pass.
 **Notes:** the iOS App Store icon must not have transparency; the 1024 icon has transparent rounded corners for Steam and the web. A store-specific opaque version can be added when the Capacitor item needs it.
 
+### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Not started
+**Goal:** owner request after playtest 22: decorations start locked and are bought with energy, one at a time, each copy costing more than the last.
+**Details:**
+- Every decoration kind starts locked. Each placed copy is bought with **energy only** when placed: the first copy of a kind costs its base price, each next copy of the same kind costs more (for example base × 1.6^owned). Base prices and the growth factor go in `src/data/decorations.ts`, scaled so the first Tree is a small early purchase and the rarest decorations are a late-game energy sink.
+- The current unlock rules (player level, achievements, contracts) become requirements to buy the kind; the price is paid on top.
+- Removing a decoration refunds nothing (say so in the panel, like scrapping) but keeps the count used for the next price, so place and remove cannot farm cheap copies. Decide and document whether `DECORATION_LIMIT` stays.
+- The 🎨 panel shows each kind's next price, red when there is not enough energy.
+- New achievements, for example: first decoration, 10 decorations, every kind placed, 50 decorations. Cosmetic rewards only.
+- 100% completion counts decorations (for example every kind bought at least once, plus a number of copies). Update `src/utils/completion.ts`, the Completion panel and `npm run simulate`, and report the new hours to 100%.
+- Save migration: decorations already placed count as bought (no charge).
+**Acceptance:** tests: the price rises with each copy, energy is spent, removal refunds nothing, the requirements still apply, old saves keep their decorations; achievements unlock; completion includes decorations; the simulation finishes with no stalls; the build and all tests pass.
+
+### 1.54 — More decorations — CODE — Not started
+**Goal:** owner request after playtest 22: more decorations for the map.
+**Details:**
+- About 8 new kinds that suit an energy site, for example flower bed, bench, hedge, rock garden, fountain, picnic table, weather station, small wind chime, solar garden light, memorial plaque. Each has a sprite made by `scripts/generate-generic-assets.mjs` (24×24, AAP-64), added to the Asset manifest and `sprites`.
+- Each has a requirement and a base price in the 1.53 system, spread from early to late game.
+- Some may be 2×1 or 2×2 tiles if the placement code allows it; otherwise all stay 1 tile.
+**Acceptance:** the new kinds appear in the 🎨 panel, can be bought and placed, count toward completion; `npm run check:assets` passes; the build and all tests pass.
+
+### 1.55 — More random events — CODE — Not started
+**Goal:** owner request after playtest 22: more random events.
+**Details:**
+- About 10 new events in `src/data/events.ts`, mixed like the current 33: cosmetic sightings (for example a hot-air balloon, a rainbow, a comet), positive and negative effect events (for example heat wave: solar +, cooling −; grid surge; supply discount; equipment recall), and a few map events that visibly act on the map.
+- Same rarity rules and rates as now (negative ones slightly rarer than positive ones, playtest 12); new sprites from the generic asset script; each has a log emoji (1.40) and a clear tooltip on its effect.
+- Achievements that count events seen still work, and completion includes the new events if it lists events.
+**Acceptance:** tests for each new effect; the event tests still pass (rates, no pile-up on return, 1.37); `npm run check:assets` passes; the build and all tests pass.
+
+### 1.56 — More pets — CODE — Not started
+**Goal:** owner request after playtest 22: more pets.
+**Details:**
+- About 6 new energy-themed pets in `src/data/pets.ts`, with how they are found, their food, and a bonus by stage that does not repeat an existing one exactly (for example research speed, contract reward, producer output for one resource, offline gains, room cost). Sprites for every stage from the generic asset script.
+- Pet achievements and completion include the new pets.
+**Acceptance:** tests that each new pet is found, grows and gives its bonus; completion and achievements update; `npm run check:assets` passes; the build and all tests pass.
+
+### 1.57 — Pets: raise one at a time, and a bonus that grows clearly with maturity — CODE — Not started
+**Goal:** owner request after playtest 22: only one pet can grow at a time, and a more mature pet gives a clearly larger effect.
+**Details:**
+- **One at a time:** while one pet is growing, Feed is disabled on the others, with "Another pet is growing (Xh left)". A save with several pets growing (made before this item) lets them finish.
+- **Maturity:** the bonus already rises with the stage (Baby, Young, Adult); make the steps larger and visible, for example Baby 1×, Young 2×, Adult 4× of a base value, and show the next stage's bonus on the pet card ("Grows to: +X%").
+- Rebalance with `npm run simulate` and report the hours to 100%.
+**Acceptance:** tests: a second pet cannot start growing, the old-save case, the bonus per stage; the simulation has no stalls; the build and all tests pass.
+
+### 1.58 — Pet growing animation — CODE — Not started
+**Goal:** owner request after playtest 22: show the pet growing.
+**Details:**
+- While a pet grows, its card shows a gentle animation (for example a slow pulse and small sparkles) and a progress bar with time left.
+- When it reaches the next stage: a short animation where the old sprite grows into the new one with a flash, on any tab if the Pets tab is closed (like the research celebration), and a log entry (🐣, as now).
+- Reduce motion: no animation, only the message.
+**Acceptance:** tests that the growing state and the stage-up celebration render, and that reduce motion turns the animation off; the build and all tests pass.
+
+### 1.59 — Pet slots: up to 3 active pets, bought with energy — CODE — Not started
+**Goal:** owner request after playtest 22: upgrades in the Pets tab to have more active pets at once, up to 3.
+**Details:**
+- The player starts with 1 active slot. Two upgrades in the Pets tab add a 2nd and a 3rd slot. **Energy only**, and very expensive (the bonuses stack), prices in `src/data/pets.ts`. Each also needs a player level (see 1.61).
+- Active bonuses from different pets stack; the same pet cannot fill two slots. The energy breakdown (0.53) lists each active pet.
+- Completion counts the two upgrades; rebalance with `npm run simulate` and report the hours.
+**Acceptance:** tests: slots are bought with energy, bonuses of up to 3 pets stack, the level requirement holds, old saves keep their one active pet; the simulation has no stalls; the build and all tests pass.
+
+### 1.60 — Active pets walk on the screen — CODE — Not started
+**Goal:** owner request after playtest 22: the active pets walk along the screen on every tab, do small things at random, and can be clicked; a setting turns it off.
+**Details:**
+- A layer at the bottom of the screen (above the content, below dialogs and toasts, never blocking clicks except on the pet itself) where each active pet walks left and right.
+- At random it stops for a few seconds to do something: eat, play, sleep, sit, jump. Each action has a short sprite animation (frames from the generic asset script) and maybe an emoji bubble.
+- Clicking a walking pet plays its reaction (0.99) and counts as petting (1.51).
+- Settings → "Pets walk on screen" (on by default); Reduce motion: the pets stand still.
+- Light on performance: CSS transforms with one timer, paused when the tab is hidden.
+- On phones it does not cover the research chip or the bottom buttons.
+**Acceptance:** tests: the layer shows the active pets on every tab, the setting hides it, a click counts as petting, reduce motion stops the walking; Playwright at 375 px: no sideways scroll and the bottom controls stay clickable; the build and all tests pass.
+
+### 1.61 — Player level as a hard requirement — CODE — Not started
+**Goal:** owner request after playtest 22: the player level should gate more things, for example each room expansion, more active pets and contract upgrades.
+**Details:**
+- A minimum player level for each room expansion tier (`src/data/rooms.ts`), each pet slot (1.59) and each contract perk level (`src/data/contracts.ts`). More gates may follow the same pattern (for example decoration kinds).
+- The button shows "Needs player level N" and is disabled until then; the requirement shows in its tooltip.
+- Pick the levels from the simulated timeline so no gate is reached before its level comes naturally by much; rerun `npm run simulate`, check there are no stalls and report the hours.
+**Acceptance:** tests for each gate (blocked below the level, allowed at it), and the simulator honors the gates; the build and all tests pass.
+
+### 1.62 — Research points for high-level research — CODE — Not started
+**Goal:** owner request after playtest 22: high-level research should need a number of research points.
+**Details:**
+- **Assumption (owner to confirm):** "research points" are earned by completing research (for example 1 point per research level of each completed research) and are never spent; high-level research needs a minimum total, on top of the research level it already needs. If the owner meant a point currency that is spent, change this item before starting.
+- The total shows next to the research level; a locked research says "Needs N research points (you have M)".
+- Requirements in `src/data/research.ts` for research from about level 6; rebalance with `npm run simulate` and report the hours.
+**Acceptance:** tests: points rise with completed research, the requirement blocks and then allows, old saves get their points; the simulation has no stalls; the build and all tests pass.
+
+### 1.63 — Map tooltips on hover, next to the machine — CODE — Not started
+**Goal:** owner request after playtest 22: on a big map, the info line above it is out of view; hovering a machine should show its details beside it.
+**Details:**
+- Hovering (or focusing) a generator or producer on the map shows a small tooltip next to it: name and number, output per second, fuel use, zone bonus or the zone it needs, and level if upgraded. Reuse `FloatingTip` and the side logic (`useTipSide`), so it stays inside the screen and under the pinned bar rules (1.42).
+- On touch screens a tap shows it (the first tap selects for moving, as now; the tooltip shows with the selection).
+- The info line above the map stays.
+**Acceptance:** tests: hovering a generator and a producer shows their details; the tooltip stays on screen near the edges; Playwright: hover a machine near the bottom of a scrolled map and the tooltip is visible; the build and all tests pass.
+
 ### 1.43 — Fix: sign-up fails with "Invalid path specified in request URL" — CODE — Done
 **Goal:** fix an owner report after playtest 21: creating an account on the live site showed "Invalid path specified in request URL".
 **Details:** the Supabase library adds `auth/v1/...` to the configured URL. If `VITE_SUPABASE_URL` holds the RESTful endpoint from the Data API page (`https://<project>.supabase.co/rest/v1/`) instead of the bare Project URL, sign-up goes to `.../rest/v1/auth/v1/signup`, which Supabase rejects with exactly that message. `projectUrl` (`src/store/cloud.ts`) now keeps only the scheme and host of whatever was pasted, and `docs/PUBLIC_RELEASE.md` step 5 says what the Project URL looks like.
@@ -1469,3 +1577,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 20.1 (v0.20.1, hotfix) | 1.42 | 2026-10-05 | (no feedback before the next run; the owner asked to continue) | |
 | 21 (v0.21.0) | 1.38, 1.39, 1.40, 1.41, 1.13 | 2026-10-05 | 100% completion simulated at 251.0 h. The new bonus places are worth moving plants for; one lake spot is enough. Legend easy to read on computer and phone. Log icons help. Decoration unlocks fine for now. Keep the order: browser notifications (1.07), then the performance pass (0.42). | (none) |
 | 21.1 (v0.21.1, hotfix) | 1.07, 1.43, 1.44 | 2026-10-05 | Sign-up showed "Invalid path specified in request URL". Bug: after a cloud save, signing in from an incognito tab did not load it, and "Load cloud save" did nothing. Requests: a click button by the pinned bar, cloud save from anywhere, decorations in a panel over the map, better sprites, a designed loader, a logo, petting achievements. | 1.43, 1.44 (fixed); 1.45-1.51 |
+| 22 (v0.22.0) | 1.45, 1.46, 1.47 (and 1.52) | 2026-10-05 | 100% completion simulated at 251.0 h (unchanged). Before testing, owner notes: decorations bought with energy at rising prices, with achievements and completion; more decorations; more random events; more pets; raise one pet at a time, with a stronger effect as it matures; a growing animation; active pets walking on screen on every tab (with a setting); up to 3 active pets, bought with expensive energy upgrades; player level as a hard requirement for room expansions, pet slots and contract perks; research points for high-level research; map tooltips beside the machine. | 1.53-1.63 |
