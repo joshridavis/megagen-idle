@@ -88,14 +88,20 @@ export function detailAt(x: number, y: number): Detail | null {
   return d.kinds[Math.floor(tileHash(x, y, 2) * d.kinds.length)];
 }
 
-/** The zone a generator type needs or prefers, if any. */
+/** The zone a machine type (generator type or producer id) needs or prefers, if any. */
 const zoneOfType = new Map<string, Zone | null>();
 export function zoneFor(type: string): Zone | null {
   if (zoneOfType.has(type)) return zoneOfType.get(type)!;
   let zone: Zone | null = null;
   for (const [id, z] of Object.entries(ZONES) as [Zone, (typeof ZONES)[Zone]][]) {
-    if (z.generators.includes(type as GeneratorType) || z.producers?.includes(type as ProducerId)) zone = id;
+    if (z.generators.includes(type as GeneratorType) || z.producers?.includes(type as ProducerId) || z.visitors?.includes(type as ProducerId)) zone = id;
   }
   zoneOfType.set(type, zone);
   return zone;
+}
+
+/** True if a machine type may only be built on its zone (hydro, tidal, the experiments); visitors never are (1.38). */
+export function zoneRequiredFor(type: string): boolean {
+  const zone = zoneFor(type);
+  return !!zone && ZONES[zone].required && !ZONES[zone].visitors?.includes(type as ProducerId);
 }

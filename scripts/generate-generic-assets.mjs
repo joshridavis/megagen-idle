@@ -847,6 +847,11 @@ const oilfieldTile = () => terrainTile(C.mud, C.khaki, C.brown5, (c) => {
   c.circle(11, 5, 1, C.ink);
   c.set(5, 9, C.purple);
 });
+// the cooling lake (1.38): calm, lighter water than the river
+const lakeTile = () => terrainTile(C.steel, C.grey1, C.blue, (c) => {
+  c.rect(3, 5, 3, 1, C.mint); // still ripples
+  c.rect(9, 11, 3, 1, C.mint);
+});
 // the Exclusion Zone (1.23): a dark shielded floor with a glowing grid
 const exclusionTile = () => terrainTile(C.plum, C.purple, C.ink, (c) => {
   c.rect(0, 7, 15, 1, C.purple); // grid lines
@@ -1196,6 +1201,7 @@ const DRAW = {
   tile_coalfield: coalfieldTile,
   tile_outcrop: outcropTile,
   tile_oilfield: oilfieldTile,
+  tile_lake: lakeTile,
   deco_rock: decoRock,
   deco_tuft: decoTuft,
   deco_flower: decoFlower,

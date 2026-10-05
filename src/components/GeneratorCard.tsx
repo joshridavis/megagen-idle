@@ -1,7 +1,7 @@
 import { sprites } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { ZONES } from '../data/map';
-import { zoneFor } from '../utils/mapTerrain';
+import { zoneFor, zoneRequiredFor } from '../utils/mapTerrain';
 import { useStore } from '../store';
 import type { Bonuses } from '../types/bonus';
 import type { GeneratorType } from '../types/generator';
@@ -87,7 +87,7 @@ export default function GeneratorCard({
       )}
       {zone && (
         <div className={`text-xs ${block === 'site' ? 'text-red-400' : 'text-emerald-300'}`} data-testid={`zone-${type}`}>
-          {zone.required ? `Must be built on the ${zone.name.toLowerCase()}` : `+${Math.round(zone.bonus * 100)}% on a ${zone.name.toLowerCase()}`} (Map tab)
+          {zoneRequiredFor(type) ? `Must be built on the ${zone.name.toLowerCase()}` : `+${Math.round(zone.bonus * 100)}% on a ${zone.name.toLowerCase()}`} (Map tab)
         </div>
       )}
       {block === 'locked' && unlockedBy && (

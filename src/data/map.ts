@@ -48,11 +48,12 @@ export const DETAILS: Record<Terrain | 'sea', { chance: number; kinds: Detail[] 
   coalfield: { chance: 0.15, kinds: ['rock', 'drygrass'] },
   outcrop: { chance: 0.2, kinds: ['boulder', 'rock'] },
   oilfield: { chance: 0.12, kinds: ['drygrass', 'stump'] },
+  lake: { chance: 0.1, kinds: ['lily', 'reeds'] },
   exclusion: { chance: 0.12, kinds: ['warning', 'pylon'] },
   sea: { chance: 0.05, kinds: ['boat', 'buoy'] },
 };
 
-export type Terrain = 'plain' | 'plateau' | 'ridge' | 'river' | 'coast' | 'coalfield' | 'outcrop' | 'oilfield' | 'exclusion';
+export type Terrain = 'plain' | 'plateau' | 'ridge' | 'river' | 'coast' | 'coalfield' | 'outcrop' | 'oilfield' | 'lake' | 'exclusion';
 export type Zone = Exclude<Terrain, 'plain'>;
 
 export interface ZoneDef {
@@ -65,6 +66,11 @@ export interface ZoneDef {
   bonus: number;
   /** True if those generators can only be built here (playtest 15). */
   required: boolean;
+  /**
+   * Machines that also get the bonus here but may stand anywhere (1.38). On a
+   * required zone they never take a spot its own machines need: they give way.
+   */
+  visitors?: (GeneratorType | ProducerId)[];
   description: string;
 }
 
@@ -95,15 +101,17 @@ export const ZONES: Record<Zone, ZoneDef> = {
     generators: [GeneratorType.TIDAL],
     bonus: 0.1,
     required: true,
-    description: 'Tidal Power Stations must be built on the coast; fully on it, they make 10% more. Other machines may stand here until a station needs the spot.',
+    visitors: ['deuteriumExtractor'],
+    description:
+      'Tidal Power Stations must be built on the coast; fully on it, they make 10% more. Deuterium Extractors fully on it (sea water) extract 10% more. Other machines may stand here until a station needs the spot.',
   },
   coalfield: {
     name: 'Coal field',
-    generators: [],
+    generators: [GeneratorType.COAL],
     producers: ['coalMine'],
     bonus: 0.2,
     required: false,
-    description: 'Coal near the surface: Coal Mines standing fully on it dig 20% more.',
+    description: 'Coal near the surface: Coal Mines standing fully on it dig 20% more, and Coal Plants beside their fuel make 20% more.',
   },
   outcrop: {
     name: 'Rocky outcrop',
@@ -115,11 +123,19 @@ export const ZONES: Record<Zone, ZoneDef> = {
   },
   oilfield: {
     name: 'Oil and gas field',
-    generators: [],
+    generators: [GeneratorType.GAS, GeneratorType.OIL],
     producers: ['gasWell', 'oilRig'],
     bonus: 0.2,
     required: false,
-    description: 'Pockets underground: Gas Wells and Oil Rigs standing fully on it pump 20% more.',
+    description:
+      'Pockets underground: Gas Wells and Oil Rigs standing fully on it pump 20% more, and Natural Gas Plants and Oil Power Plants beside their fuel make 20% more.',
+  },
+  lake: {
+    name: 'Cooling lake',
+    generators: [GeneratorType.NUCLEAR],
+    bonus: 0.2,
+    required: false,
+    description: 'Cold, still water: Nuclear Fission Plants standing fully on it are cooled better and make 20% more.',
   },
   exclusion: {
     name: 'Exclusion Zone',
@@ -179,4 +195,10 @@ export const FIXED_PATCHES: Record<string, Terrain> = {
   '4,1': 'outcrop',
   '2,2': 'coalfield',
   '0,2': 'oilfield',
+  // 1.38: a bonus place for every machine. These were plain: the oil and gas
+  // fields grow to 8 tiles wide (gas and oil plants are 5 wide), and a lake
+  // as big as a Nuclear Fission Plant (4 x 3).
+  '1,3': 'oilfield',
+  '1,6': 'oilfield',
+  '0,4': 'lake',
 };

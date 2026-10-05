@@ -28,6 +28,7 @@ const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
   coalfield: 'tile_coalfield',
   outcrop: 'tile_outcrop',
   oilfield: 'tile_oilfield',
+  lake: 'tile_lake',
   exclusion: 'tile_exclusion',
 };
 const KEY_STEPS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
@@ -36,8 +37,9 @@ const TERRAIN_NAME = (t: Terrain) => (t === 'plain' ? 'Plain' : ZONES[t].name);
 const pctBonus = (b: number) => `+${Math.round(b * 100)}%`;
 const plural = (name: string) => (name.endsWith('y') ? `${name.slice(0, -1)}ies` : `${name}s`);
 /** The machines a zone suits, e.g. "Quarries, Metal Mines, Uranium Mines". */
-const zoneSuits = (z: Zone) =>
-  [...ZONES[z].generators.map((g) => GENERATORS[g].name), ...(ZONES[z].producers ?? []).map((p) => PRODUCERS[p].name)].map(plural).join(', ');
+const machineName = (t: string) => (GENERATORS as Record<string, { name: string }>)[t]?.name ?? PRODUCERS[t as ProducerId].name;
+const zoneSuits = (z: Zone, own = true) =>
+  (own ? [...ZONES[z].generators, ...(ZONES[z].producers ?? [])] : (ZONES[z].visitors ?? [])).map((t) => plural(machineName(t))).join(', ');
 
 /**
  * Site map (1.04; terrain, zones and moving in 1.05, playtest 14 and 15).
@@ -204,7 +206,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     }
   };
 
-  const legend: (Terrain | 'sea')[] = ['plain', 'plateau', 'ridge', 'river', 'coast', 'coalfield', 'outcrop', 'oilfield', 'exclusion', 'sea'];
+  const legend: (Terrain | 'sea')[] = ['plain', 'plateau', 'ridge', 'river', 'coast', 'coalfield', 'outcrop', 'oilfield', 'lake', 'exclusion', 'sea'];
 
   return (
     <section aria-label="Site map" className="flex flex-col gap-3">
@@ -370,7 +372,8 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
             {t === 'sea' ? 'Sea' : TERRAIN_NAME(t)}
             {t !== 'sea' && t !== 'plain' && (
               <span className="text-slate-400">
-                ({ZONES[t].required ? `${zoneSuits(t)} only` : `${pctBonus(ZONES[t].bonus)} ${zoneSuits(t)}`})
+                ({ZONES[t].required ? `${zoneSuits(t)} only` : `${pctBonus(ZONES[t].bonus)} ${zoneSuits(t)}`}
+                {ZONES[t].visitors && `; ${pctBonus(ZONES[t].bonus)} ${zoneSuits(t, false)}`})
               </span>
             )}
           </li>

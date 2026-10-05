@@ -72,6 +72,7 @@ import decoPylon from './sprites/map/deco_pylon.png';
 import tileCoalfield from './sprites/map/coalfield.png';
 import tileOutcrop from './sprites/map/outcrop.png';
 import tileOilfield from './sprites/map/oilfield.png';
+import tileLake from './sprites/map/lake.png';
 import decoRock from './sprites/map/deco_rock.png';
 import decoTuft from './sprites/map/deco_tuft.png';
 import decoFlower from './sprites/map/deco_flower.png';
@@ -194,6 +195,7 @@ export const sprites = {
   tile_coalfield: tileCoalfield,
   tile_outcrop: tileOutcrop,
   tile_oilfield: tileOilfield,
+  tile_lake: tileLake,
   deco_rock: decoRock,
   deco_tuft: decoTuft,
   deco_flower: decoFlower,

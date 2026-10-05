@@ -4,7 +4,8 @@ import { DETAILS, EXCLUSION_START_ROW, MAP_COLUMNS, MIN_ZONE_RUN, ZONES } from '
 import { GeneratorType, type Generator } from '../types/generator';
 import type { GameState } from '../types/state';
 import { getBuildBlock } from './generatorSystem';
-import { detailAt, terrainAt } from './mapTerrain';
+import { detailAt, terrainAt, zoneFor, zoneRequiredFor } from './mapTerrain';
+import { PRODUCER_IDS } from '../data/producers';
 import { migrateSave } from '../store/migrations';
 import { cellsAt, expansionTerrain, getPlacementBonuses, getProducerPlacement, hasSpotFor, layoutSite, moveOnMap, moveTargets, withPlacementMods, zoneAllows, zoneBonusFor } from './siteMap';
 import { getProductionRates } from './resourceSystem';
@@ -210,6 +211,75 @@ describe('producer zones (1.18)', () => {
     const s = site([], 200, { producers: { ...createInitialState(0).producers, quarry: 3 } });
     const quarries = layoutSite(s).placed.filter((p) => p.id === 'quarry');
     expect(quarries.some((p) => p.zoneBonus === ZONES.outcrop.bonus)).toBe(true);
+  });
+});
+
+describe('a bonus place for every machine (1.38)', () => {
+  const MAX_LAND = EXCLUSION_START_ROW * MAP_COLUMNS;
+  /** First top-left tile where a machine of `size` stands fully on `zone`, or -1. */
+  const fullSpot = (zone: string, size: number) => {
+    for (let a = 0; a < MAX_LAND; a++) {
+      const cells = cellsAt(a, size);
+      if (cells && cells.every((c) => terrainAt(c % MAP_COLUMNS, Math.floor(c / MAP_COLUMNS)) === zone)) return a;
+    }
+    return -1;
+  };
+
+  it('every generator type and every producer has a zone', () => {
+    for (const t of Object.values(GeneratorType)) expect(zoneFor(t), t).not.toBeNull();
+    for (const p of PRODUCER_IDS) expect(zoneFor(p), p).not.toBeNull();
+  });
+
+  it('assigns the plants beside their fuel, nuclear to a cooling lake and deuterium to the coast', () => {
+    expect(zoneFor(GeneratorType.COAL)).toBe('coalfield');
+    expect(zoneFor(GeneratorType.GAS)).toBe('oilfield');
+    expect(zoneFor(GeneratorType.OIL)).toBe('oilfield');
+    expect(zoneFor(GeneratorType.NUCLEAR)).toBe('lake');
+    expect(zoneFor('deuteriumExtractor')).toBe('coast');
+    // only the old zone-bound machines must stand on their zone
+    expect(zoneRequiredFor('deuteriumExtractor')).toBe(false);
+    expect(zoneRequiredFor(GeneratorType.TIDAL)).toBe(true);
+    expect(zoneRequiredFor(GeneratorType.NUCLEAR)).toBe(false);
+    expect(zoneAllows('deuteriumExtractor', cellsAt(0, 3)!)).toBe(true);
+  });
+
+  it('each new zone has room for the whole machine somewhere on the land map', () => {
+    for (const [type, zone, size] of [
+      [GeneratorType.COAL, 'coalfield', 5],
+      [GeneratorType.GAS, 'oilfield', 10],
+      [GeneratorType.OIL, 'oilfield', 10],
+      [GeneratorType.NUCLEAR, 'lake', 12],
+      ['deuteriumExtractor', 'coast', 3],
+    ] as const) {
+      const a = fullSpot(zone, size);
+      expect(a, type).toBeGreaterThanOrEqual(0);
+      expect(zoneBonusFor(type, cellsAt(a, size)!)).toBe(ZONES[zone].bonus);
+    }
+  });
+
+  it('new plants go onto their bonus zone when a spot is free', () => {
+    const s = site([gen(1, GeneratorType.COAL), gen(2, GeneratorType.GAS), gen(3, GeneratorType.NUCLEAR)], MAX_LAND);
+    const bonuses = getPlacementBonuses(s);
+    expect(bonuses['gen-1']).toBe(ZONES.coalfield.bonus);
+    expect(bonuses['gen-2']).toBe(ZONES.oilfield.bonus);
+    expect(bonuses['gen-3']).toBe(ZONES.lake.bonus);
+  });
+
+  it('a deuterium extractor gets the coast bonus, but a tidal station still gets its spot first', () => {
+    const producers = { ...createInitialState(0).producers, deuteriumExtractor: 1 };
+    // six rows: the coast holds exactly two tidal stations (3 x 3 each)
+    const alone = site([], 6 * MAP_COLUMNS, { producers });
+    const ext = layoutSite(alone).placed.find((p) => p.id === 'deuteriumExtractor')!;
+    expect(ext.zoneBonus).toBe(ZONES.coast.bonus);
+    expect(getProducerPlacement(alone).deuterium).toBeCloseTo(ZONES.coast.bonus);
+    // the extractor stands pinned on the coast; two tidal stations need the whole coast and still both fit
+    const pinned = { ...alone, mapPins: { [ext.key]: ext.cells[0] } };
+    const tidal = [1, 2].map((n) => gen(n, GeneratorType.TIDAL));
+    const after = layoutSite(deriveRates({ ...pinned, activeGenerators: tidal }));
+    expect(after.placed.filter((p) => p.type === GeneratorType.TIDAL).every((p) => !p.misplaced && p.zoneBonus > 0)).toBe(true);
+    // the extractor made way
+    expect(after.placed.find((p) => p.key === ext.key)!.zoneBonus).toBe(0);
+    expect(hasSpotFor(pinned, 'deuteriumExtractor')).toBe(true);
   });
 });
 

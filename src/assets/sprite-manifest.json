@@ -101,6 +101,7 @@
   "tile_coalfield": { "file": "map/coalfield.png", "width": 16, "height": 16 },
   "tile_outcrop": { "file": "map/outcrop.png", "width": 16, "height": 16 },
   "tile_oilfield": { "file": "map/oilfield.png", "width": 16, "height": 16 },
+  "tile_lake": { "file": "map/lake.png", "width": 16, "height": 16 },
   "deco_rock": { "file": "map/deco_rock.png", "width": 16, "height": 16 },
   "deco_tuft": { "file": "map/deco_tuft.png", "width": 16, "height": 16 },
   "deco_flower": { "file": "map/deco_flower.png", "width": 16, "height": 16 },
