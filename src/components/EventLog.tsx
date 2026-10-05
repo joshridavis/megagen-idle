@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useStore } from '../store';
-import type { LogKind } from '../utils/eventLog';
+import type { LogEntry, LogKind } from '../utils/eventLog';
 
+/** Icons by kind: for old saved entries that have no icon of their own (1.40). */
 export const LOG_ICONS: Record<LogKind, string> = {
   research: '🔬',
   unlock: '🔓',
@@ -12,6 +13,9 @@ export const LOG_ICONS: Record<LogKind, string> = {
   level: '⭐',
   save: '🛟',
 };
+
+/** The emoji for a log entry or toast: its own (1.40), else its kind's. */
+export const logIcon = (e: Pick<LogEntry, 'icon' | 'kind'>) => e.icon ?? LOG_ICONS[e.kind] ?? '✨';
 
 const time = (at: number) => new Date(at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -43,7 +47,7 @@ export default function EventLog() {
             {log.map((e) => (
               <li key={e.id} className="flex gap-2">
                 <span className="shrink-0 font-mono text-xs leading-5 text-slate-500">{time(e.at)}</span>
-                <span aria-hidden="true">{LOG_ICONS[e.kind]}</span>
+                <span aria-hidden="true">{logIcon(e)}</span>
                 <span>{e.text}</span>
               </li>
             ))}

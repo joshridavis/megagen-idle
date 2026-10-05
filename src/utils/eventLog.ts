@@ -1,4 +1,5 @@
 import { GENERATORS } from '../data/generators';
+import { ENTRY_ICONS } from '../data/logIcons';
 import { EVENT_LOG_CAP, ROOM_WARNING_FREE, TOAST_CAP } from '../data/notifications';
 import { PRODUCERS } from '../data/producers';
 import { RESOURCE_NAMES } from '../data/resources';
@@ -13,6 +14,8 @@ export interface LogEntry {
   id: string;
   at: number;
   kind: LogKind;
+  /** The emoji shown for it (1.40); old saved entries have none and show their kind's. */
+  icon?: string;
   text: string;
   /** Also shown as a toast. */
   toast: boolean;
@@ -53,19 +56,19 @@ export function deriveEvents(prev: Snapshot, next: Snapshot): LogInput[] {
   for (const id of finished) {
     const def = RESEARCH_BY_ID[id];
     if (!def) continue;
-    out.push({ kind: 'research', text: `Research complete: ${def.name}`, toast: false });
+    out.push({ kind: 'research', icon: ENTRY_ICONS.researchComplete, text: `Research complete: ${def.name}`, toast: false });
     for (const g of def.unlocks.generators ?? []) {
-      out.push({ kind: 'unlock', text: `New generator available: ${GENERATORS[g].name}`, toast: true });
+      out.push({ kind: 'unlock', icon: ENTRY_ICONS.generatorUnlocked, text: `New generator available: ${GENERATORS[g].name}`, toast: true });
     }
     for (const p of Object.keys(def.unlocks.producers ?? {}) as ProducerId[]) {
-      out.push({ kind: 'unlock', text: `New producer: ${PRODUCERS[p].name}`, toast: true });
+      out.push({ kind: 'unlock', icon: ENTRY_ICONS.producerUnlocked, text: `New producer: ${PRODUCERS[p].name}`, toast: true });
     }
   }
   if (finished.length) {
     const before = startable(prev.completedResearch);
     const now = [...startable(next.completedResearch)].filter((id) => !before.has(id));
     if (now.length) {
-      out.push({ kind: 'unlock', text: `New research available: ${now.map((id) => RESEARCH_BY_ID[id].name).join(', ')}`, toast: false });
+      out.push({ kind: 'unlock', icon: ENTRY_ICONS.researchAvailable, text: `New research available: ${now.map((id) => RESEARCH_BY_ID[id].name).join(', ')}`, toast: false });
     }
   }
   // level ups (playtest 19.3): the player level and the research level
@@ -74,11 +77,11 @@ export function deriveEvents(prev: Snapshot, next: Snapshot): LogInput[] {
     const to = getPlayerLevel(next.lifetimeEnergy).level;
     if (to > from) {
       const bonus = Math.round(playerLevelEnergyBonus(next.lifetimeEnergy) * 1000) / 10;
-      out.push({ kind: 'level', text: `Player level ${to} reached${bonus > 0 ? `: +${bonus}% energy from all generators` : ''}`, toast: false });
+      out.push({ kind: 'level', icon: ENTRY_ICONS.playerLevel, text: `Player level ${to} reached${bonus > 0 ? `: +${bonus}% energy from all generators` : ''}`, toast: false });
     }
   }
   if (prev.researchLevel !== undefined && next.researchLevel !== undefined && next.researchLevel > prev.researchLevel) {
-    out.push({ kind: 'level', text: `Research level ${next.researchLevel} reached`, toast: false });
+    out.push({ kind: 'level', icon: ENTRY_ICONS.researchLevel, text: `Research level ${next.researchLevel} reached`, toast: false });
   }
   // generators switched off for lack of fuel, one entry per fuel
   const wasOn = new Set(prev.activeGenerators.filter((g) => g.isActive).map((g) => g.id));
@@ -91,6 +94,7 @@ export function deriveEvents(prev: Snapshot, next: Snapshot): LogInput[] {
   for (const [fuel, n] of byFuel) {
     out.push({
       kind: 'fuel',
+      icon: ENTRY_ICONS.fuel,
       text: `Out of ${RESOURCE_NAMES[fuel].toLowerCase()}: ${n} generator${n === 1 ? '' : 's'} switched off`,
       toast: true,
     });
@@ -101,6 +105,7 @@ export function deriveEvents(prev: Snapshot, next: Snapshot): LogInput[] {
   if (freeBefore > ROOM_WARNING_FREE && freeAfter <= ROOM_WARNING_FREE) {
     out.push({
       kind: 'room',
+      icon: ENTRY_ICONS.room,
       text: freeAfter <= 0 ? 'Room is full: expand it to build more' : `Room nearly full: ${freeAfter} free`,
       toast: true,
     });

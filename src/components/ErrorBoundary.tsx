@@ -1,4 +1,5 @@
 import { Component, useState, type ErrorInfo, type ReactNode } from 'react';
+import { ENTRY_ICONS } from '../data/logIcons';
 import { SAVE_KEY, useStore } from '../store';
 import { pickSaved, SAVE_VERSION } from '../store/migrations';
 import { keepDamagedSave } from '../store/storage';
@@ -87,7 +88,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, { 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('MegaGen Idle error', error, info.componentStack);
     try {
-      useStore.getState().logEvents([{ kind: 'save', text: `The game hit an error and showed the recovery screen: ${error.message}`, toast: false }]);
+      useStore.getState().logEvents([{ kind: 'save', icon: ENTRY_ICONS.save, text: `The game hit an error and showed the recovery screen: ${error.message}`, toast: false }]);
     } catch {
       // the log itself failed: the recovery screen still shows
     }

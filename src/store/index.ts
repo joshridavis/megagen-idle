@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { createInitialState } from '../data/initialState';
+import { ENTRY_ICONS } from '../data/logIcons';
 import { migrateSave, pickSaved, SAVE_VERSION } from './migrations';
 import { createEnergySlice } from './slices/energySlice';
 import { createGeneratorSlice } from './slices/generatorSlice';
@@ -90,7 +91,7 @@ useStore.subscribe((next, prev) => {
   if (earned.unlocked.length) {
     useStore.setState({ achievements: earned.state.achievements }, undefined, 'achievements/unlock');
     if (next.eventEpoch === prev.eventEpoch) {
-      next.logEvents(earned.unlocked.map((d) => ({ kind: 'achievement' as const, text: `Achievement unlocked: ${d.name}!`, toast: true })));
+      next.logEvents(earned.unlocked.map((d) => ({ kind: 'achievement' as const, icon: ENTRY_ICONS.achievement, text: `Achievement unlocked: ${d.name}!`, toast: true })));
     }
   }
   if (next.eventEpoch !== prev.eventEpoch) return;
@@ -106,6 +107,7 @@ const reportDamaged = () => {
   useStore.getState().logEvents([
     {
       kind: 'save',
+      icon: ENTRY_ICONS.save,
       text: `Your saved game could not be loaded (${d.reason}). A copy was kept: download it in Settings → Save.`,
       toast: true,
     },

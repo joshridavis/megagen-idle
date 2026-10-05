@@ -1034,7 +1034,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The request is UI-only and never saved.
 **Acceptance:** tests: clicking the chip from another tab switches to Research and shows the popup for the running research; from the Research tab it opens the popup; with no running research it only opens the tab; closing the popup keeps the Research tab; the build and all tests pass.
 
-### 1.40 — A distinct emoji for every kind of event log entry — CODE — Not started
+### 1.40 — A distinct emoji for every kind of event log entry — CODE — Done
 **Goal:** owner request: many event log lines share the same ✨, so the log is hard to scan. Every different kind of entry should have its own emoji.
 **Details:**
 - **Today:** `LOG_ICONS` in `src/components/EventLog.tsx` has one emoji per `LogKind` (`research`, `unlock`, `fuel`, `room`, `event`, `achievement`, `level`), also used by `src/components/Toasts.tsx`. The broad `event` kind (✨) covers random events, map events, sightings, contracts and pets, and `level` (⭐) covers both player and research levels; `unlock` (🔓) covers new generators, producers and research.
@@ -1049,6 +1049,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Implementation: either more `LogKind` values or an optional `icon` on `LogEntry` that overrides the kind's default. Old saved log entries without the new field still show their kind's icon (no migration break).
 - The toast uses the same icon. Icons stay `aria-hidden`; the text still says what happened.
 **Acceptance:** tests: every log source writes its own icon (random effect, sighting, map event, contract offer, completion and expiry, pet found and grown, player level, research level, each unlock type); no two entry types share an emoji (a test over the icon table); an old saved entry still renders; the build and all tests pass.
+**Done notes:** an optional `icon` on `LogEntry`, set by every source from `ENTRY_ICONS` (`src/data/logIcons.ts`) or `eventIcon(def)`; old entries fall back to their kind's icon. Icons as proposed; the map fire is 🚒 (fuel keeps 🔥). Events with their own icon: the four weather events and the lightning, delivery, fire and flood map events; the other map events show 🗺️. Contract and pet entries are built by small exported helpers (`contractLogEntries`, `petLogEntries`) so they can be tested.
 
 ### 1.39 — A tidy, readable map legend — CODE — Done
 **Goal:** owner request: with a bonus place for every machine (1.38), the explanations under the map get long and messy. Make them short and easy to scan.
