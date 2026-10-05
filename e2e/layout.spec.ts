@@ -124,3 +124,30 @@ test('the decorations panel fits a 375px phone and the map stays reachable', asy
   await expect(panel).toHaveCount(0);
   await expect(page.getByTestId('decor-open')).toBeFocused();
 });
+
+// 1.64 (playtest 22): far down a map taller than the screen, the 🎨 button and the whole panel stay in view.
+for (const [width, height] of [[1280, 520], [375, 640]] as const) {
+  test(`decorations stay reachable deep in a tall map at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await page.goto('./');
+    await page.locator('#tab-map').click();
+    const map = page.getByTestId('site-map');
+    await map.evaluate((el) => window.scrollBy(0, el.getBoundingClientRect().bottom - window.innerHeight + 40));
+    const button = page.getByTestId('decor-open');
+    await expect(button).toBeInViewport({ ratio: 1 });
+    // not under the pinned top bar
+    const b = (await button.boundingBox())!;
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('[data-testid="decor-open"]') !== null, [b.x + b.width / 2, b.y + b.height / 2]);
+    expect(hit).toBe(true);
+    await button.click();
+    const panel = page.getByTestId('map-decorations');
+    await expect(panel).toBeInViewport({ ratio: 1 });
+    await expect(page.getByTestId('decor-close')).toBeInViewport({ ratio: 1 });
+    await expect(page.getByTestId('decor-done')).toBeInViewport({ ratio: 1 });
+    const top = (await page.getByTestId('top-bar').boundingBox())!;
+    const p = (await panel.boundingBox())!;
+    if (width >= 640) expect(p.y).toBeGreaterThanOrEqual(top.y + top.height);
+    await page.getByTestId('decor-done').click();
+    await expect(page.getByTestId('decor-open')).toBeFocused();
+  });
+}

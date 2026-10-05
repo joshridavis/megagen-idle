@@ -1,4 +1,30 @@
-# Playtest 22 (v0.22.0): a ⚡ button by the pinned bar, cloud save from any tab, decorations over the map
+# Playtest 22.1 (v0.22.1, hotfix): the Decorations button is always in reach
+
+The version at the bottom of the screen should read **v0.22.1**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 251 hours** (simulated, unchanged).
+
+## What changed
+
+- **Decorations button fixed (1.64):** on the Map tab, a **🎨 Decorations** button now floats at the bottom right of the screen, so it is there however far down the map you are. (In the map header it scrolled away, or hid under the pinned bar.) The panel opens in that corner and is never taller than the space under the top bar. **Remove** and **Close** stay at its bottom. On phones the button sits above the research chip.
+- **Backlog:** your notes are ordered by priority (items 1.53 to 1.63, see `BACKLOG.md`). 1.62 now means harder research level requirements, as you described.
+
+## Things to try
+
+1. Map tab, scroll to the bottom of your map, click **🎨 Decorations** at the bottom right, and place a few things near the bottom of the map.
+2. Close it with **Close**, ✕ or Escape. The button comes back in the same corner.
+3. On a phone, with a research running: the button sits above the research chip.
+
+---
+
+# Previous: Playtest 22 (v0.22.0): a ⚡ button by the pinned bar, cloud save from any tab, decorations over the map
 
 The version at the bottom of the screen should read **v0.22.0**.
 

@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import MapPanel from '../components/MapPanel';
 import { DECORATION_LIMIT, DECORATIONS } from '../data/decorations';
@@ -100,7 +100,7 @@ describe('map decorations (1.13)', () => {
     expect(screen.queryByTestId(`decor-${machine}`)).toBeNull();
   });
 
-  it('live in a panel over the map: open, place while open, Close and Escape end decorating (1.47)', () => {
+  it('live in a panel over the map: open, place while open, Close and Escape end decorating (1.47, 1.64)', async () => {
     useStore.getState().resetGame();
     const s = s0({ lifetimeEnergy: energyForLevel(5) });
     useStore.setState(s);
@@ -109,11 +109,11 @@ describe('map decorations (1.13)', () => {
     // nothing about decorations under the map until the button opens the panel
     expect(screen.queryByTestId('map-decorations')).toBeNull();
     expect(screen.queryByTestId('decor-pick-tree')).toBeNull();
-    const open = screen.getByTestId('decor-open');
-    expect(open.getAttribute('aria-expanded')).toBe('false');
-    fireEvent.click(open);
+    // the button floats on the screen (1.64), so it is reachable however far the map is scrolled
+    expect(screen.getByTestId('decor-open').className).toContain('fixed');
+    fireEvent.click(screen.getByTestId('decor-open'));
     const panel = screen.getByTestId('map-decorations');
-    expect(open.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.queryByTestId('decor-open')).toBeNull(); // the panel takes its place
     expect(panel.getAttribute('role')).toBe('dialog');
     expect(document.activeElement).toBe(panel);
     // a locked one still says what unlocks it
@@ -127,10 +127,10 @@ describe('map decorations (1.13)', () => {
     // Close ends decorating and gives focus back to the button
     fireEvent.click(screen.getByTestId('decor-close'));
     expect(screen.queryByTestId('map-decorations')).toBeNull();
-    expect(document.activeElement).toBe(open);
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByTestId('decor-open')));
     expect(screen.getByTestId('map-info').textContent).not.toContain('Placing');
     // Escape (from anywhere) closes it too, and the tool is gone
-    fireEvent.click(open);
+    fireEvent.click(screen.getByTestId('decor-open'));
     fireEvent.click(screen.getByTestId('decor-pick-tree'));
     fireEvent.keyDown(document.body, { key: 'Escape' });
     expect(screen.queryByTestId('map-decorations')).toBeNull();
