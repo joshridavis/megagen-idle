@@ -1364,4 +1364,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 19.6 (v0.19.6, hotfix) | 1.37 | 2026-10-04 | (no feedback before the next run; the owner asked to continue) | |
 | 20 (v0.20.0) | 1.40 (birds), 0.41, 0.46, 0.43, 0.39 | 2026-10-04 | Pinned energy bar looks good on the phone. Stats tab fine for now. Fade-in and unlock glow fine. Keep the order 1.38, 1.39, 1.40, 1.41. Bug: with the bar pinned, hovering a build card near the top makes its tooltip jump very high and the bar half hidden. | 1.42 (hotfix v0.20.1) |
 | 20.1 (v0.20.1, hotfix) | 1.42 | 2026-10-05 | (no feedback before the next run; the owner asked to continue) | |
-| 21 (v0.21.0) | 1.38, 1.39, 1.40, 1.41, 1.13 | 2026-10-05 | (waiting for feedback) 100% completion simulated at 251.0 h. | |
+| 21 (v0.21.0) | 1.38, 1.39, 1.40, 1.41, 1.13 | 2026-10-05 | 100% completion simulated at 251.0 h. The new bonus places are worth moving plants for; one lake spot is enough. Legend easy to read on computer and phone. Log icons help. Decoration unlocks fine for now. Keep the order: browser notifications (1.07), then the performance pass (0.42). | (none) |
