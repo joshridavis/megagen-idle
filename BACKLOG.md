@@ -31,6 +31,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.46 Cloud save from any tab
 0. 1.47 Decorations in a panel that opens over the map → CHECKPOINT 22
 0. 1.51 Achievements for petting your pets
+0. 1.52 Store images from the current art (owner request; Done)
 0. 1.49 A designed loading screen for the website
 0. 1.50 A dedicated MegaGen Idle logo
 0. 1.48 Sprite quality pass: shadows, proportions, better map designs
@@ -1076,6 +1077,18 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Rapid clicking counts, but at most a few pets per second, so an auto-clicker gains nothing special.
 - Stats tab shows "Pets petted".
 **Acceptance:** tests: clicks count (with the rate cap), the achievements unlock at their counts, old saves load with 0; completion totals update; the build and all tests pass.
+
+### 1.52 — Store images from the current art — CODE — Done
+**Goal:** owner request: store and brand images for Steam (and later the other stores and the website), composed by code from the existing generic sprites. This is not new art (CLAUDE.md rule 3): the script only places existing sprites on simple shapes.
+**Details:**
+- `npm run brand` (`scripts/generate-brand.mjs`) draws, in AAP-64 colors only, with pixel art scaled by whole numbers (nearest-neighbor):
+  - `src/assets/brand/logo.png`: "MegaGen" over "Idle" and a small lightning bolt in a bold pixel font, electric yellow with a dark outline and a drop shadow, transparent background, 1280 px wide.
+  - `src/assets/brand/app_icon_1024.png`: the energy icon over the coal plant on a dark blue rounded square, no text.
+  - `src/assets/brand/key_scene.png` (1920×1080): the eight generators in energy-history order (Solar, Wind, Coal, Hydro, Tidal, Gas, Oil, Nuclear) on a hill under a dusk sky, joined by glowing yellow power lines.
+  - `docs/steam/capsules/`: store header 920×430, small 462×174 (logo nearly fills it, readable at 120×45), main 1232×706, vertical 748×896; library capsule 600×900, library header 920×430, library hero 3840×1240 (scene only, generators inside the central 860×380), library logo (= logo.png).
+- No text other than the game's name. Output is deterministic and always overwritten.
+**Acceptance:** a test runs the script into a temporary folder and checks sizes, AAP-64-only opaque pixels, the transparent logo and icon corners, whole-number scaling of the icon, and that the committed images match; the build and all tests pass.
+**Notes:** the iOS App Store icon must not have transparency; the 1024 icon has transparent rounded corners for Steam and the web. A store-specific opaque version can be added when the Capacitor item needs it.
 
 ### 1.43 — Fix: sign-up fails with "Invalid path specified in request URL" — CODE — Done
 **Goal:** fix an owner report after playtest 21: creating an account on the live site showed "Invalid path specified in request URL".

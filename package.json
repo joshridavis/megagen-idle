@@ -15,7 +15,8 @@
     "check:assets": "node scripts/check-assets.mjs",
     "notices": "node scripts/third-party-notices.mjs",
     "test:e2e": "playwright test",
-    "simulate": "tsx scripts/simulate.ts"
+    "simulate": "tsx scripts/simulate.ts",
+    "brand": "node scripts/generate-brand.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
