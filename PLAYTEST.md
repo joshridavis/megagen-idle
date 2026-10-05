@@ -1,4 +1,52 @@
-# Playtest 21.1 (v0.21.1, hotfix): cloud saves on a new device, sign-up, notifications
+# Playtest 22 (v0.22.0): a ⚡ button by the pinned bar, cloud save from any tab, decorations over the map
+
+The version at the bottom of the screen should read **v0.22.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+Your save carries over.
+
+## Estimated play time
+
+- **100% completion: about 251 hours** (simulated, unchanged: this version adds no balance changes).
+- Key milestones: first research 15 min, first Wind Turbine 2.3 h, first Coal Plant 3.2 h, 25% at 8.2 h, 50% at 31.9 h, first Nuclear Fission Plant 54.9 h, 75% at 80.8 h, first Fusion Reactor 113.5 h, first Micro-Supernova 225.1 h, 100% at 251 h.
+
+## What is new since playtest 21.1
+
+- **A ⚡ button by the pinned energy bar (1.45):** scroll down until the big "Generate energy" button is out of view, and a round yellow ⚡ button appears at the end of the pinned bar. It gives the same energy per click and the same "+N" (which floats down here). It hides again when the big button is back on screen, so there are never two.
+- **Cloud save from any tab (1.46):** a ☁️ button in the pinned bar (on the website, where accounts are on). Its colored dot shows the state: green saved, yellow not saved yet, blue saving, red error, gray signed out. Click it for **Save to cloud now**, **Load cloud save**, the time of the last cloud save and **Account settings**. Signed out, it offers **Sign in**, which opens Settings → Account. "Load cloud save" now asks first, in the menu and in Settings, since it replaces the game on this device.
+- **Decorations in a panel over the map (1.47):** the box under the map is gone. Click **🎨 Decorations** in the map header: a panel opens at the bottom right (a sheet at the bottom of the screen on phones), and the map stays usable. Pick a decoration and click tiles without scrolling. **Close** (or ✕, or Escape) ends decorating.
+- **Store images (1.52):** `npm run brand` draws the Steam capsules, logo and app icon from the current sprites (in `docs/steam/capsules/` and `src/assets/brand/`).
+
+## Things to try
+
+1. On the Generators tab, scroll down to the Coal Plant and click the ⚡ by the bar a few times. Does the energy rise the same as with the big button?
+2. Scroll back up: the ⚡ disappears once the big button shows.
+3. On a phone: scroll down and tap the ⚡. Is it easy to hit, and does the bar still fit?
+4. On the website, from the Map or Research tab, click ☁️ → **Save to cloud now**. The dot turns green and the menu says "just now".
+5. ☁️ → **Load cloud save** → Cancel, then again → **Yes, load it**.
+6. Sign out, then click ☁️ → **Sign in**: you should land on Settings → Account.
+7. Map tab → **🎨 Decorations**, pick the Tree (player level 5) and place a few, then press Escape.
+8. Do the same on a phone: does the sheet leave enough of the map to place things?
+
+## Known issues
+
+- The ⚡ and ☁️ buttons stack on top of each other beside the bar on phones, so the bar stays inside the screen.
+- On phones, the decorations sheet covers the lower part of the screen; scroll the map up into the space above it.
+
+## Questions
+
+1. Is the ⚡ by the bar the right size and place, or should it look more like the big button?
+2. Is the cloud dot enough, or do you want the "saved N minutes ago" text in the bar on computers?
+3. Is the decorations panel in a good spot (bottom right), or would you rather it sit to the side of the map?
+4. Your 11 new notes are in the backlog as items 1.53 to 1.63 (see the PR). Which should come first?
+
+---
+
+# Previous: Playtest 21.1 (v0.21.1, hotfix): cloud saves on a new device, sign-up, notifications
 
 The version at the bottom of the screen should read **v0.21.1**.
 

@@ -70,3 +70,57 @@ test('a tooltip near the pinned top bar opens below and the bar stays on top', a
   expect(r.side).toBe('below');
   expect(r.tipTop).toBeGreaterThan(r.barBottom);
 });
+
+// 1.45: with the page scrolled, a small ⚡ button by the pinned bar generates energy.
+test('the small generate button by the pinned bar works at phone width', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 700 });
+  await page.goto('./');
+  const energy = page.getByLabel('Energy total');
+  await expect(energy).toHaveText('900');
+  await expect(page.getByTestId('mini-click-button')).toHaveCount(0);
+  await page.evaluate(() => window.scrollTo(0, 900));
+  const mini = page.getByTestId('mini-click-button');
+  await expect(mini).toBeVisible();
+  // layout size (the pop-in animation scales it briefly)
+  const box = await mini.evaluate((el) => ({ w: (el as HTMLElement).offsetWidth, h: (el as HTMLElement).offsetHeight }));
+  expect(box.w).toBeGreaterThanOrEqual(44);
+  expect(box.h).toBeGreaterThanOrEqual(44);
+  const bar = (await page.getByTestId('top-bar').boundingBox())!;
+  expect(bar.x).toBeGreaterThanOrEqual(0);
+  expect(bar.x + bar.width).toBeLessThanOrEqual(360);
+  await page.screenshot({ path: 'test-results/mini-click-360.png' });
+  await mini.click();
+  await expect(energy).toHaveText('901');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(page.getByTestId('mini-click-button')).toHaveCount(0);
+});
+
+// 1.47: the decorations panel fits a 375px phone and the map stays reachable above it.
+test('the decorations panel fits a 375px phone and the map stays reachable', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 700 });
+  await page.goto('./');
+  await page.locator('#tab-map').click();
+  await page.getByTestId('decor-open').click();
+  const panel = page.getByTestId('map-decorations');
+  await expect(panel).toBeVisible();
+  const box = (await panel.boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(375);
+  expect(box.y + box.height).toBeLessThanOrEqual(700);
+  expect(box.height).toBeLessThanOrEqual(700 * 0.5);
+  // scroll the map into the part of the screen between the pinned bar and the sheet: a tile there is not covered
+  const map = page.getByTestId('site-map');
+  await map.evaluate((el) => window.scrollBy(0, el.getBoundingClientRect().top - 160));
+  const m = (await map.boundingBox())!;
+  expect(m.y + 40).toBeLessThan(box.y);
+  const hit = await page.evaluate(([x, y]) => !!document.elementFromPoint(x, y)?.closest('[data-testid="site-map"]'), [m.x + 20, m.y + 20]);
+  expect(hit).toBe(true);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  await page.screenshot({ path: 'test-results/decor-375.png' });
+  await page.keyboard.press('Escape');
+  await expect(panel).toHaveCount(0);
+  await expect(page.getByTestId('decor-open')).toBeFocused();
+});

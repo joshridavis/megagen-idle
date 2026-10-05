@@ -1,32 +1,33 @@
-import { useMemo, useState } from 'react';
-import { useStore } from '../store';
-import { getClickBreakdown } from '../utils/breakdown';
+import { useEffect, useRef } from 'react';
 import BreakdownTooltip from './BreakdownTooltip';
-import { useNumberFormat } from './useNumberFormat';
+import { useClickEnergy } from './useClickEnergy';
 
-export default function ClickButton() {
-  const clickEnergy = useStore((s) => s.clickEnergy);
-  const completed = useStore((s) => s.completedResearch);
-  const eps = useStore((s) => s.energyPerSecond);
-  const pets = useStore((s) => s.pets);
-  const click = useMemo(() => getClickBreakdown(completed, eps, pets), [completed, eps, pets]);
-  const fmt = useNumberFormat();
-  const clickText = click.total < 10 && click.total % 1 ? fmt.rate(click.total) : fmt.num(click.total);
-  const [pops, setPops] = useState<number[]>([]);
+/** The big "Generate energy" button. `onInViewChange` reports whether it is on screen (1.45). */
+export default function ClickButton({ onInViewChange }: { onInViewChange?: (inView: boolean) => void }) {
+  const { click, clickText, pops, onClick } = useClickEnergy();
+  const ref = useRef<HTMLButtonElement>(null);
 
-  const onClick = () => {
-    clickEnergy();
-    const id = Date.now() + Math.random();
-    setPops((p) => [...p.slice(-5), id]);
-    setTimeout(() => setPops((p) => p.filter((x) => x !== id)), 700);
-  };
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !onInViewChange || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) onInViewChange(e.isIntersecting);
+    });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      onInViewChange(true);
+    };
+  }, [onInViewChange]);
 
   return (
     <div className="relative">
       <button
+        ref={ref}
         type="button"
         onClick={onClick}
         data-tutorial="click"
+        data-testid="click-button"
         className="select-none rounded-xl border-2 border-yellow-500 bg-yellow-400 px-8 py-4 text-xl font-bold text-slate-900 shadow-[0_4px_0_0_#b4202a] transition-transform hover:bg-yellow-300 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
       >
         Generate energy
