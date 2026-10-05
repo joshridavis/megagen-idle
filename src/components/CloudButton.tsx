@@ -3,6 +3,7 @@ import { loadFromCloud, saveToCloud, useAccount } from '../store/account';
 import { cloudEnabled } from '../store/cloud';
 import { cloudSyncState, timeAgo, type CloudSyncKind } from '../utils/cloudStatus';
 import LoadCloudConfirm from './LoadCloudConfirm';
+import { CLOUD_PRIMARY, CLOUD_SECONDARY } from './cloudStyles';
 
 const DOT: Record<CloudSyncKind, string> = {
   signedOut: 'bg-slate-500',
@@ -34,6 +35,7 @@ export default function CloudButton({ onOpenAccount }: { onOpenAccount: () => vo
   const now = useNow(30_000);
   const [open, setOpen] = useState(false);
   const [confirmLoad, setConfirmLoad] = useState(false);
+  const [saving, setSaving] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const menuId = useId();
@@ -111,12 +113,25 @@ export default function CloudButton({ onOpenAccount }: { onOpenAccount: () => vo
           {signedIn && !confirmLoad && (
             <>
               {/* autoFocus: focus moves into the menu when it opens */}
-              <button type="button" autoFocus disabled={a.busy} onClick={() => void saveToCloud()} className={item}>
-                Save to cloud now
-              </button>
-              <button type="button" disabled={a.busy} onClick={() => setConfirmLoad(true)} className={item}>
-                Load cloud save
-              </button>
+              <div className="flex flex-col gap-2 px-1 pb-2">
+                {/* the main action stands out, as in Settings (1.68) */}
+                <button
+                  type="button"
+                  autoFocus
+                  disabled={a.busy}
+                  onClick={() => {
+                    setSaving(true);
+                    void saveToCloud().finally(() => setSaving(false));
+                  }}
+                  className={`${CLOUD_PRIMARY} w-full`}
+                  data-testid="menu-save-cloud"
+                >
+                  {saving ? 'Saving…' : 'Save to cloud now'}
+                </button>
+                <button type="button" disabled={a.busy} onClick={() => setConfirmLoad(true)} className={`${CLOUD_SECONDARY} w-full`}>
+                  Load cloud save
+                </button>
+              </div>
             </>
           )}
           {signedIn && confirmLoad && (
@@ -129,9 +144,11 @@ export default function CloudButton({ onOpenAccount }: { onOpenAccount: () => vo
             </div>
           )}
           {!signedIn && sync.kind !== 'connecting' && (
-            <button type="button" autoFocus onClick={openAccount} className={item}>
-              Sign in
-            </button>
+            <div className="px-1 pb-2">
+              <button type="button" autoFocus onClick={openAccount} className={`${CLOUD_PRIMARY} w-full`}>
+                Sign in
+              </button>
+            </div>
           )}
           {signedIn && (
             <button type="button" onClick={openAccount} className={`${item} font-normal text-sky-300`}>

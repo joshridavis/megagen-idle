@@ -31,11 +31,11 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.62 Harder research level gates (owner: research level 21 in under a week is too easy)
 0. 1.61 Player level as a hard requirement
 0. 1.65 Map legend in a floating panel, like Decorations (owner request after hotfix 22.1)
-0. 1.63 Map tooltips on hover, next to the machine
+0. 1.63 Map tooltips on hover, next to the machine → CHECKPOINT 23
 0. 1.66 Title tiers by difficulty, each with its own color (owner request)
 0. 1.67 Map events in random places each time (owner report)
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
-0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity → CHECKPOINT 23
+0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity
 0. 1.59 Pet slots: up to 3 active pets, bought with energy
 0. 1.58 Pet growing animation
 0. 1.60 Active pets walk on the screen
@@ -1158,7 +1158,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reduce motion: still no movement, shown at the random spot.
 **Acceptance:** tests with a seeded rng: different seeds give different rows or sides for the birds, star and truck, and the full range of rows is reachable; the stored position survives a save and load; the birds and truck face their direction of travel; old saves without a position still draw; the build and all tests pass.
 
-### 1.68 — Cloud menu buttons styled like Settings — CODE — Not started
+### 1.68 — Cloud menu buttons styled like Settings — CODE — Done
 **Goal:** owner request after hotfix 22.1: in the ☁️ menu in the top bar (1.46), "Save to cloud now" looks like plain text. It should stand out as the main action, as it does in Settings → Account.
 **Details:**
 - In `CloudButton`'s menu, **Save to cloud now** becomes a filled primary button in the same blue as in Settings (`bg-sky-700`, hover `bg-sky-600`, white bold text, rounded, at least 44 px tall), full width.

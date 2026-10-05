@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { authProviders, MIN_PASSWORD, OAUTH_NAMES, USERNAME_PATTERN, type OAuthProvider } from '../store/cloud';
 import LoadCloudConfirm from './LoadCloudConfirm';
+import { CLOUD_BUTTON, CLOUD_PRIMARY, CLOUD_SECONDARY } from './cloudStyles';
 import { deleteAccount, loadFromCloud, resetPassword, saveToCloud, signIn, signInWithProvider, signOut, signUp, useAccount } from '../store/account';
 
 const input = 'mt-1 w-full rounded border border-slate-600 bg-slate-900 px-3 py-2 text-slate-100 focus-visible:outline-2 focus-visible:outline-sky-400';
-const button = 'min-h-11 rounded px-3 py-2 font-semibold disabled:cursor-not-allowed disabled:opacity-60';
+const button = CLOUD_BUTTON;
 export const PRIVACY_URL = `${import.meta.env.BASE_URL}privacy.html`;
 
 const when = (at: number | null) => (at === null ? 'not yet' : new Date(at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }));
@@ -21,6 +22,7 @@ export default function AccountPanel({ providers = authProviders() }: { provider
   const [username, setUsername] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmLoad, setConfirmLoad] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const submit = async (e: FormEvent) => {
@@ -51,13 +53,16 @@ export default function AccountPanel({ providers = authProviders() }: { provider
             Your game saves to the cloud every few minutes and when you close it. Last cloud save: {when(a.lastSyncAt)}.
           </p>
           <div className="flex flex-wrap gap-2">
-            <button type="button" disabled={a.busy} onClick={() => void saveToCloud()} className={`${button} bg-sky-700 hover:bg-sky-600`}>
-              Save to cloud now
+            <button type="button" disabled={a.busy} onClick={() => {
+                    setSaving(true);
+                    void saveToCloud().finally(() => setSaving(false));
+                  }} className={CLOUD_PRIMARY} data-testid="settings-save-cloud">
+              {saving ? 'Saving…' : 'Save to cloud now'}
             </button>
-            <button type="button" disabled={a.busy} onClick={() => setConfirmLoad(true)} className={`${button} bg-slate-600 hover:bg-slate-500`}>
+            <button type="button" disabled={a.busy} onClick={() => setConfirmLoad(true)} className={CLOUD_SECONDARY}>
               Load cloud save
             </button>
-            <button type="button" disabled={a.busy} onClick={() => void signOut()} className={`${button} bg-slate-600 hover:bg-slate-500`}>
+            <button type="button" disabled={a.busy} onClick={() => void signOut()} className={CLOUD_SECONDARY}>
               Sign out
             </button>
           </div>
