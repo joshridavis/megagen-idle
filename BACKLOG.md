@@ -29,6 +29,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.64 Fix: the Decorations button out of reach on a big map (playtest 22 bug; Done) → HOTFIX v0.22.1
 0. 1.62 Harder research level gates (owner: research level 21 in under a week is too easy)
 0. 1.61 Player level as a hard requirement
+0. 1.65 Map legend in a floating panel, like Decorations (owner request after hotfix 22.1)
 0. 1.63 Map tooltips on hover, next to the machine
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
 0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity → CHECKPOINT 23
@@ -1115,6 +1116,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The panel is never taller than the space under the pinned bar. Remove and Close stay pinned at its bottom.
 **Acceptance:** Playwright at 1280×520 and 375×640, scrolled to the bottom of the map: the button is fully on screen and not covered, and the panel, ✕, Remove and Close are fully on screen (below the bar on wide screens); unit tests updated; the build and all tests pass.
 
+### 1.65 — Map legend in a floating panel, like Decorations — CODE — Not started
+**Goal:** owner request after hotfix 22.1: the decorations panel now works as expected. The map legend (zones, their bonuses and machines, "Only zones on your site", and the "Dimmed land" note) still sits under the map, so on a big map you scroll down to read it and back up to use it. Give it the same treatment as 1.64.
+**Details:**
+- Replace the legend under the map with a floating **🗺️ Legend** button at the bottom right of the screen on the Map tab, next to (left of) the 🎨 Decorations button. It uses the same style and stays clear of the research chip on phones.
+- It opens a non-modal panel in the same corner (a bottom sheet on phones), never taller than the space under the pinned bar. The panel holds everything the legend has now: the zone rows, the ⭐ explanation, the "Show all zones / Only zones on your site" toggle, the "Dimmed land: the next room expansion adds N tiles" note and the Exclusion Zone hint.
+- Hovering or tapping a row still lights up that zone on the map (1.39); the map stays usable while the panel is open.
+- Only one of the two panels is open at a time: opening one closes the other. Close, ✕ and Escape close it, and focus returns to its button.
+- Nothing about the legend remains under the map.
+**Acceptance:** tests: the button opens and closes the panel, a row still highlights its zone, opening Legend closes Decorations and the other way round, and nothing legend-related is under the map. Playwright at 1280×520 and 375×640, scrolled to the bottom of the map: both buttons fully on screen without overlapping each other or the research chip, and the panel fully on screen. The 1.39 legend test still passes (updated to open the panel). The build and all tests pass.
+
 ### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Not started
 **Goal:** owner request after playtest 22: decorations start locked and are bought with energy, one at a time, each copy costing more than the last.
 **Details:**
@@ -1590,3 +1601,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 21.1 (v0.21.1, hotfix) | 1.07, 1.43, 1.44 | 2026-10-05 | Sign-up showed "Invalid path specified in request URL". Bug: after a cloud save, signing in from an incognito tab did not load it, and "Load cloud save" did nothing. Requests: a click button by the pinned bar, cloud save from anywhere, decorations in a panel over the map, better sprites, a designed loader, a logo, petting achievements. | 1.43, 1.44 (fixed); 1.45-1.51 |
 | 22 (v0.22.0) | 1.45, 1.46, 1.47 (and 1.52) | 2026-10-05 | 100% completion simulated at 251.0 h (unchanged). Before testing, owner notes: decorations bought with energy at rising prices, with achievements and completion; more decorations; more random events; more pets; raise one pet at a time, with a stronger effect as it matures; a growing animation; active pets walking on screen on every tab (with a setting); up to 3 active pets, bought with expensive energy upgrades; player level as a hard requirement for room expansions, pet slots and contract perks; research points for high-level research; map tooltips beside the machine. | 1.53-1.63 |
 | 22 (after test) | 1.45, 1.46, 1.47 | 2026-10-05 | ⚡ and ☁️ buttons are fine. Decorations panel not good enough: on a big map, scrolled down, the button cannot be seen; bottom right is a good place. Research points: not a spent currency; research level requirements are too low (the top research needs level 14, the owner is research level 21 within a week): make them harder. Order the new items by approximate priority. | 1.64 (hotfix v0.22.1); 1.62 rewritten; 1.53-1.63 ordered |
+| 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65 |
