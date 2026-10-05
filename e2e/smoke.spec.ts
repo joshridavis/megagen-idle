@@ -44,7 +44,8 @@ test('load, click, build, research, reload: state persists', async ({ page }) =>
   await expect(energy).toHaveText('900');
 
   // click for energy
-  const click = page.getByRole('button', { name: 'Generate energy' });
+  // the big button (a small ⚡ copy appears by the pinned bar once the page scrolls, 1.45)
+  const click = page.getByTestId('click-button');
   for (let i = 0; i < 5; i++) await click.click();
   await expect(energy).toHaveText('905');
 

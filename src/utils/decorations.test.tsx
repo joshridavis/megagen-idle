@@ -79,6 +79,7 @@ describe('map decorations (1.13)', () => {
     useStore.setState(s);
     const tile = freeTile(s);
     const { container } = render(<MapPanel onSelect={() => {}} />);
+    fireEvent.click(screen.getByTestId('decor-open'));
     expect((screen.getByTestId('decor-pick-pond') as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByTestId('decor-pick-tree'));
     const tiles = container.querySelectorAll('[data-terrain]:not([data-terrain="sea"])');
@@ -97,5 +98,42 @@ describe('map decorations (1.13)', () => {
     useStore.setState({ mapDecorations: { [machine]: 'tree' } });
     render(<MapPanel onSelect={() => {}} />);
     expect(screen.queryByTestId(`decor-${machine}`)).toBeNull();
+  });
+
+  it('live in a panel over the map: open, place while open, Close and Escape end decorating (1.47)', () => {
+    useStore.getState().resetGame();
+    const s = s0({ lifetimeEnergy: energyForLevel(5) });
+    useStore.setState(s);
+    const tile = freeTile(s);
+    const { container } = render(<MapPanel onSelect={() => {}} />);
+    // nothing about decorations under the map until the button opens the panel
+    expect(screen.queryByTestId('map-decorations')).toBeNull();
+    expect(screen.queryByTestId('decor-pick-tree')).toBeNull();
+    const open = screen.getByTestId('decor-open');
+    expect(open.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(open);
+    const panel = screen.getByTestId('map-decorations');
+    expect(open.getAttribute('aria-expanded')).toBe('true');
+    expect(panel.getAttribute('role')).toBe('dialog');
+    expect(document.activeElement).toBe(panel);
+    // a locked one still says what unlocks it
+    expect(screen.getByTestId('decor-pick-pond').textContent).toContain('🔒');
+    // place with the panel open, and the map still there
+    fireEvent.click(screen.getByTestId('decor-pick-tree'));
+    const tiles = container.querySelectorAll('[data-terrain]:not([data-terrain="sea"])');
+    fireEvent.click(tiles[tile]);
+    expect(useStore.getState().mapDecorations[tile]).toBe('tree');
+    expect(screen.getByTestId('map-decorations')).toBeTruthy();
+    // Close ends decorating and gives focus back to the button
+    fireEvent.click(screen.getByTestId('decor-close'));
+    expect(screen.queryByTestId('map-decorations')).toBeNull();
+    expect(document.activeElement).toBe(open);
+    expect(screen.getByTestId('map-info').textContent).not.toContain('Placing');
+    // Escape (from anywhere) closes it too, and the tool is gone
+    fireEvent.click(open);
+    fireEvent.click(screen.getByTestId('decor-pick-tree'));
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(screen.queryByTestId('map-decorations')).toBeNull();
+    expect(screen.getByTestId('map-info').textContent).not.toContain('Placing');
   });
 });

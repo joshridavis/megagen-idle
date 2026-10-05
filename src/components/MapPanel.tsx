@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import { sprites, type SpriteId } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { EXCLUSION_START_ROW, LOCKED_PREVIEW_ROWS, MIN_MAP_ROWS, SEA_COLUMNS, ZONES, type Detail, type Terrain, type Zone } from '../data/map';
@@ -48,6 +48,9 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const [note, setNote] = useState<string | null>(null);
   /** Decorating (1.13): which decoration a tile click places, or 'remove'. */
   const [decorTool, setDecorToolState] = useState<DecorTool>(null);
+  /** The decorations panel over the map (1.47); closing it ends decorating. */
+  const [decorOpen, setDecorOpen] = useState(false);
+  const decorButton = useRef<HTMLButtonElement>(null);
   /** The zone a legend row points at (1.39): its tiles light up. */
   const [legendZone, setLegendZone] = useState<Zone | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -106,6 +109,31 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     setSelected(null);
     setNote(null);
   };
+  const openDecor = () => {
+    setSelected(null);
+    setDecorOpen(true);
+  };
+  const closeDecor = () => {
+    setDecorOpen(false);
+    setDecorToolState(null);
+    setNote(null);
+    decorButton.current?.focus();
+  };
+  // Escape closes the decorations panel from anywhere on the page (a machine being moved is cancelled first).
+  const closeDecorRef = useRef(closeDecor);
+  closeDecorRef.current = closeDecor;
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
+  useEffect(() => {
+    if (!decorOpen) return;
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== 'Escape' || e.defaultPrevented) return;
+      if (selectedRef.current) setSelected(null);
+      else closeDecorRef.current();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [decorOpen]);
   const covered = useMemo(() => machineTiles(map), [map]);
   /** A tile click while decorating (1.13): place or remove. */
   const decorate = (c: number) => {
@@ -232,11 +260,23 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   }, [map.capacity, map.columns]);
 
   return (
-    <section aria-label="Site map" className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
+    // while the decorations sheet covers the bottom of a phone screen, extra space below lets the map scroll above it
+    <section aria-label="Site map" className={`flex flex-col gap-3 ${decorOpen ? 'pb-[45vh] sm:pb-0' : ''}`}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="panel-title">
           Your site ({used}/{map.capacity} tiles)
         </h2>
+        <button
+          ref={decorButton}
+          type="button"
+          aria-expanded={decorOpen}
+          aria-controls={decorOpen ? 'decor-panel' : undefined}
+          onClick={() => (decorOpen ? closeDecor() : openDecor())}
+          data-testid="decor-open"
+          className={`min-h-11 rounded px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-sky-400 ${decorOpen ? 'bg-sky-800 hover:bg-sky-700' : 'bg-slate-700 hover:bg-slate-600'}`}
+        >
+          🎨 Decorations
+        </button>
         <span className="text-xs text-slate-400">One tile per unit of room. Drag a machine to move it (or click it, then a tile).</span>
       </div>
       <div className="min-h-10 text-sm text-sky-200" aria-live="polite" data-testid="map-info">
@@ -411,7 +451,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
         </div>
       </div>
       <MapLegend onSite={onSite} highlight={legendZone} onHighlight={setLegendZone} />
-      <MapDecorations tool={decorTool} onTool={setDecorTool} />
+      {decorOpen && <MapDecorations tool={decorTool} onTool={setDecorTool} onClose={closeDecor} />}
       {next && (
         <p className="text-xs text-slate-400">
           Dimmed land: the next room expansion adds {next.capacity} tiles (Generators tab → Room).

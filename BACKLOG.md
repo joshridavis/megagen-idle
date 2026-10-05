@@ -1036,13 +1036,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests with the fake cloud service: the menu saves and loads from another tab; signed out it links to the Account panel; it is absent when the build has no cloud settings; the build and all tests pass.
 **Notes:** `CloudButton` (`src/components/CloudButton.tsx`), sync wording in `src/utils/cloudStatus.ts`. Settings had no confirmation before "Load cloud save" yet, so one shared confirmation (`LoadCloudConfirm`) now guards it in both places. On phones the ⚡ and ☁️ buttons stack beside the bar so it never scrolls sideways.
 
-### 1.47 — Decorations in a panel that opens over the map — CODE — Not started
+### 1.47 — Decorations in a panel that opens over the map — CODE — Done
 **Goal:** owner request after playtest 21: the Decorations box under the map (1.13) means scrolling down and back up while decorating.
 **Details:**
 - Replace the box under the map with a **🎨 Decorations** button in the map header. It opens a compact floating panel docked to the side of the map (a bottom sheet on phones) listing the decorations, with Remove and Close. The map stays visible and usable while it is open, so the player picks and places without scrolling.
 - Closing the panel ends decorating. Escape closes it. Focus moves into the panel when it opens and back to the button when it closes.
 - Locked decorations still show what unlocks them.
 **Acceptance:** tests: the button opens and closes the panel; placing works while it is open; Escape and Close end decorating; nothing about decorations remains under the map; Playwright at 375 px: the panel fits and the map stays reachable; the build and all tests pass.
+**Notes:** the panel is a non-modal dialog fixed to the bottom right (a bottom sheet up to 45% of the screen on phones); while it is open on a phone, extra space under the map lets it scroll above the sheet. Escape first cancels a machine move, if one is in progress. The e2e smoke test now clicks the big button by test id, since the small ⚡ (1.45) shares its name.
 
 ### 1.48 — Sprite quality pass: shadows, proportions, better map designs — CODE — Not started
 **Goal:** owner request after playtest 21: the generated sprites can look better (for example shadows under the birds, better proportions, and the plainer map designs).
