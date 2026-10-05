@@ -81,7 +81,7 @@ export default function MapLegend({
   };
   return (
     <div className="flex flex-col gap-1 text-xs text-slate-300" data-testid="map-legend">
-      <ul className="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2" aria-label="Map legend">
+      <ul className="grid grid-cols-1 gap-y-1" aria-label="Map legend">
         {shown.map((z) => {
           const def = ZONES[z];
           const own = [...def.generators, ...(def.producers ?? [])];

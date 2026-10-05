@@ -1119,7 +1119,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The panel is never taller than the space under the pinned bar. Remove and Close stay pinned at its bottom.
 **Acceptance:** Playwright at 1280×520 and 375×640, scrolled to the bottom of the map: the button is fully on screen and not covered, and the panel, ✕, Remove and Close are fully on screen (below the bar on wide screens); unit tests updated; the build and all tests pass.
 
-### 1.65 — Map legend in a floating panel, like Decorations — CODE — Not started
+### 1.65 — Map legend in a floating panel, like Decorations — CODE — Done
 **Goal:** owner request after hotfix 22.1: the decorations panel now works as expected. The map legend (zones, their bonuses and machines, "Only zones on your site", and the "Dimmed land" note) still sits under the map, so on a big map you scroll down to read it and back up to use it. Give it the same treatment as 1.64.
 **Details:**
 - Replace the legend under the map with a floating **🗺️ Legend** button at the bottom right of the screen on the Map tab, next to (left of) the 🎨 Decorations button. It uses the same style and stays clear of the research chip on phones.
@@ -1128,6 +1128,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Only one of the two panels is open at a time: opening one closes the other. Close, ✕ and Escape close it, and focus returns to its button.
 - Nothing about the legend remains under the map.
 **Acceptance:** tests: the button opens and closes the panel, a row still highlights its zone, opening Legend closes Decorations and the other way round, and nothing legend-related is under the map. Playwright at 1280×520 and 375×640, scrolled to the bottom of the map: both buttons fully on screen without overlapping each other or the research chip, and the panel fully on screen. The 1.39 legend test still passes (updated to open the panel). The build and all tests pass.
+**Notes:** a shared `MapFloatingPanel` (`src/components/MapFloatingPanel.tsx`) now frames both panels; the legend panel is a little wider on computers and lists the zones in one column. Closing the legend clears the zone highlight. While a panel is open, both floating buttons step aside (the panel sits in their corner).
 
 ### 1.66 — Title tiers by difficulty, each with its own color — CODE — Not started
 **Goal:** owner request after hotfix 22.1: sort the unlockable titles (1.01) into tiers by how hard each one is to earn, and color each title by its tier.

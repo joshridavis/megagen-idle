@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createInitialState } from '../data/initialState';
 import { useStore } from '../store';
@@ -42,7 +42,9 @@ describe('Map tab (1.04)', () => {
     const { container } = render(<MapPanel onSelect={() => {}} />);
     expect(container.querySelectorAll('[data-terrain="river"]').length).toBeGreaterThan(0);
     expect(container.querySelectorAll('[data-terrain="sea"]').length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByTestId('legend-open'));
     expect(screen.getByTestId('map-legend').textContent).toContain('Sunny plateau');
+    fireEvent.click(screen.getByTestId('legend-close'));
     fireEvent.click(screen.getByTestId('map-gen-1'));
     expect(screen.getAllByTestId('best-spot').length).toBeGreaterThan(0);
     // tile 16 of the first row is on the plateau
@@ -136,10 +138,52 @@ describe('map events and the Exclusion Zone (playtest 19)', () => {
     useStore.getState().resetGame();
     useStore.setState(deriveRates(createInitialState(0)));
     render(<MapPanel onSelect={() => {}} />);
+    fireEvent.click(screen.getByTestId('legend-open'));
     expect(screen.getByTestId('exclusion-hint').textContent).toContain('room expansions 9 and 10');
     cleanup();
     useStore.setState(deriveRates({ ...createInitialState(0), roomCapacity: 700 }));
     render(<MapPanel onSelect={() => {}} />);
+    fireEvent.click(screen.getByTestId('legend-open'));
     expect(screen.queryByTestId('exclusion-hint')).toBeNull();
+  });
+});
+
+describe('legend in a floating panel (1.65)', () => {
+  it('opens and closes, holds the legend and notes, and takes turns with Decorations', async () => {
+    useStore.getState().resetGame();
+    useStore.setState(deriveRates({ ...createInitialState(0), roomCapacity: 23 }));
+    const { container } = render(<MapPanel onSelect={() => {}} />);
+    // nothing legend-related under the map
+    expect(screen.queryByTestId('map-legend')).toBeNull();
+    expect(screen.queryByTestId('dimmed-land')).toBeNull();
+    expect(screen.queryByTestId('exclusion-hint')).toBeNull();
+    // both buttons float on the screen
+    expect(screen.getByTestId('legend-open').parentElement!.className).toContain('fixed');
+    fireEvent.click(screen.getByTestId('legend-open'));
+    const panel = screen.getByTestId('legend-panel');
+    expect(panel.getAttribute('role')).toBe('dialog');
+    expect(document.activeElement).toBe(panel);
+    expect(panel.contains(screen.getByTestId('map-legend'))).toBe(true);
+    expect(panel.contains(screen.getByTestId('dimmed-land'))).toBe(true);
+    expect(panel.contains(screen.getByTestId('exclusion-hint'))).toBe(true);
+    // a row still lights its zone on the map
+    fireEvent.mouseEnter(screen.getByTestId('legend-plateau'));
+    expect(screen.getAllByTestId('legend-highlight').length).toBe(container.querySelectorAll('[data-terrain="plateau"]').length);
+    // Close: focus back on the Legend button, highlight gone
+    fireEvent.click(screen.getByTestId('legend-close'));
+    expect(screen.queryByTestId('legend-panel')).toBeNull();
+    expect(screen.queryAllByTestId('legend-highlight')).toHaveLength(0);
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByTestId('legend-open')));
+    // Decorations open: no Legend panel; Escape closes it
+    fireEvent.click(screen.getByTestId('decor-open'));
+    expect(screen.getByTestId('map-decorations')).toBeTruthy();
+    expect(screen.queryByTestId('legend-panel')).toBeNull();
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(screen.queryByTestId('map-decorations')).toBeNull();
+    // Legend open, then Escape
+    fireEvent.click(screen.getByTestId('legend-open'));
+    expect(screen.queryByTestId('map-decorations')).toBeNull();
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(screen.queryByTestId('legend-panel')).toBeNull();
   });
 });

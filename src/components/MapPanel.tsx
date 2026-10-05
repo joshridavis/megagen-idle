@@ -18,6 +18,7 @@ import { useNumberFormat } from './useNumberFormat';
 import FloatingTip from './FloatingTip';
 import MapEventLayer from './MapEventLayer';
 import { zoneTipText } from './zoneTip';
+import MapFloatingPanel from './MapFloatingPanel';
 import MapLegend, { ZONE_SPRITE } from './MapLegend';
 import MapDecorations, { type DecorTool } from './MapDecorations';
 import { DECORATIONS_BY_ID } from '../data/decorations';
@@ -34,6 +35,9 @@ const pctBonus = (b: number) => `+${Math.round(b * 100)}%`;
  * plateaus, windy ridges and the coast, with fenced land around it. Select a
  * machine, then a tile, to move it there.
  */
+const FLOAT_BUTTON =
+  'flex min-h-11 items-center gap-1 rounded-full border-2 border-sky-400 bg-sky-800 px-4 text-sm font-semibold shadow-lg shadow-black/50 hover:bg-sky-700 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-sky-300';
+
 export default function MapPanel({ onSelect }: { onSelect: (generatorId: string) => void }) {
   const state = useStore((s) => s);
   const moveOnMap = useStore((s) => s.moveOnMap);
@@ -50,8 +54,10 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   /** Decorating (1.13): which decoration a tile click places, or 'remove'. */
   const [decorTool, setDecorToolState] = useState<DecorTool>(null);
   /** The decorations panel over the map (1.47); closing it ends decorating. */
-  const [decorOpen, setDecorOpen] = useState(false);
+  /** The panel open over the map (1.47, 1.65): decorations or the legend, one at a time. */
+  const [panel, setPanel] = useState<'decor' | 'legend' | null>(null);
   const decorButton = useRef<HTMLButtonElement>(null);
+  const legendButton = useRef<HTMLButtonElement>(null);
   /** The zone a legend row points at (1.39): its tiles light up. */
   const [legendZone, setLegendZone] = useState<Zone | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -110,24 +116,29 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     setSelected(null);
     setNote(null);
   };
-  const openDecor = () => {
+  /** Opens one panel; the other closes (1.65). Leaving decorations ends decorating. */
+  const openPanel = (which: 'decor' | 'legend') => {
     setSelected(null);
-    setDecorOpen(true);
+    if (which !== 'decor') setDecorToolState(null);
+    setLegendZone(null);
+    setPanel(which);
   };
-  const closeDecor = () => {
-    setDecorOpen(false);
+  const closePanel = () => {
+    const was = panel;
+    setPanel(null);
     setDecorToolState(null);
+    setLegendZone(null);
     setNote(null);
-    // the floating button mounts again once the panel is gone
-    requestAnimationFrame(() => decorButton.current?.focus());
+    // the floating buttons mount again once the panel is gone
+    requestAnimationFrame(() => (was === 'legend' ? legendButton : decorButton).current?.focus());
   };
-  // Escape closes the decorations panel from anywhere on the page (a machine being moved is cancelled first).
-  const closeDecorRef = useRef(closeDecor);
-  closeDecorRef.current = closeDecor;
+  // Escape closes the open panel from anywhere on the page (a machine being moved is cancelled first).
+  const closeDecorRef = useRef(closePanel);
+  closeDecorRef.current = closePanel;
   const selectedRef = useRef(selected);
   selectedRef.current = selected;
   useEffect(() => {
-    if (!decorOpen) return;
+    if (!panel) return;
     const onKey = (e: globalThis.KeyboardEvent) => {
       if (e.key !== 'Escape' || e.defaultPrevented) return;
       if (selectedRef.current) setSelected(null);
@@ -135,7 +146,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [decorOpen]);
+  }, [panel]);
   const covered = useMemo(() => machineTiles(map), [map]);
   /** A tile click while decorating (1.13): place or remove. */
   const decorate = (c: number) => {
@@ -263,7 +274,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
 
   return (
     // while the decorations sheet covers the bottom of a phone screen, extra space below lets the map scroll above it
-    <section aria-label="Site map" className={`flex flex-col gap-3 ${decorOpen ? 'pb-[45vh] sm:pb-0' : 'pb-14'}`}>
+    <section aria-label="Site map" className={`flex flex-col gap-3 ${panel ? 'pb-[45vh] sm:pb-0' : 'pb-14'}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="panel-title">
           Your site ({used}/{map.capacity} tiles)
@@ -441,34 +452,49 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
             ))}
         </div>
       </div>
-      <MapLegend onSite={onSite} highlight={legendZone} onHighlight={setLegendZone} />
-      {/* Decorations (1.64): a button floating at the bottom right of the screen, reachable however far the map
-          is scrolled (in the map header it scrolled away or hid under the pinned bar). On phones it sits above
-          the research chip. The panel opens in the same corner. */}
-      {decorOpen ? (
-        <MapDecorations tool={decorTool} onTool={setDecorTool} onClose={closeDecor} />
-      ) : (
-        <button
-          ref={decorButton}
-          type="button"
-          aria-expanded={false}
-          onClick={openDecor}
-          data-testid="decor-open"
-          className={`fixed right-4 z-[44] flex min-h-11 items-center gap-1 rounded-full border-2 border-sky-400 bg-sky-800 px-4 text-sm font-semibold shadow-lg shadow-black/50 hover:bg-sky-700 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-sky-300 sm:bottom-4 ${researching ? 'bottom-24' : 'bottom-4'}`}
-        >
-          <span aria-hidden="true">🎨</span> Decorations
-        </button>
+      {/* Decorations (1.64) and the legend (1.65): buttons floating at the bottom right of the screen, reachable
+          however far the map is scrolled. On phones they sit above the research chip. A panel opens in the same
+          corner, one at a time. */}
+      {panel === 'decor' && <MapDecorations tool={decorTool} onTool={setDecorTool} onClose={closePanel} />}
+      {panel === 'legend' && (
+        <MapFloatingPanel id="legend-panel" title="🗺️ Legend" closeLabel="Close legend" closeTestId="legend-close" testId="legend-panel" wide onClose={closePanel}>
+          <MapLegend onSite={onSite} highlight={legendZone} onHighlight={setLegendZone} />
+          {next && (
+            <p className="mt-2 text-xs text-slate-400" data-testid="dimmed-land">
+              Dimmed land: the next room expansion adds {next.capacity} tiles (Generators tab → Room).
+            </p>
+          )}
+          {siteRows < EXCLUSION_START_ROW && (
+            <p className="mt-1 flex items-center gap-1 text-xs text-slate-400" data-testid="exclusion-hint">
+              <img src={sprites.tile_exclusion} alt="" width={14} height={14} className="pixelated" />
+              Exclusion Zone (Fusion Reactors, Micro-Supernovas): further south, past {EXCLUSION_START_ROW * map.columns} tiles; room expansions 9 and 10 open it.
+            </p>
+          )}
+        </MapFloatingPanel>
       )}
-      {next && (
-        <p className="text-xs text-slate-400">
-          Dimmed land: the next room expansion adds {next.capacity} tiles (Generators tab → Room).
-        </p>
-      )}
-      {siteRows < EXCLUSION_START_ROW && (
-        <p className="flex items-center gap-1 text-xs text-slate-400" data-testid="exclusion-hint">
-          <img src={sprites.tile_exclusion} alt="" width={14} height={14} className="pixelated" />
-          Exclusion Zone (Fusion Reactors, Micro-Supernovas): further south, past {EXCLUSION_START_ROW * map.columns} tiles; room expansions 9 and 10 open it.
-        </p>
+      {!panel && (
+        <div className={`fixed right-4 z-[44] flex gap-2 sm:bottom-4 ${researching ? 'bottom-24' : 'bottom-4'}`}>
+          <button
+            ref={legendButton}
+            type="button"
+            aria-expanded={false}
+            onClick={() => openPanel('legend')}
+            data-testid="legend-open"
+            className={FLOAT_BUTTON}
+          >
+            <span aria-hidden="true">🗺️</span> Legend
+          </button>
+          <button
+            ref={decorButton}
+            type="button"
+            aria-expanded={false}
+            onClick={() => openPanel('decor')}
+            data-testid="decor-open"
+            className={FLOAT_BUTTON}
+          >
+            <span aria-hidden="true">🎨</span> Decorations
+          </button>
+        </div>
       )}
     </section>
   );

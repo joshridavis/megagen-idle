@@ -56,6 +56,7 @@ describe('map legend (1.39)', () => {
     useStore.getState().resetGame();
     useStore.setState(deriveRates({ ...createInitialState(0), roomCapacity: 23 }));
     const { container } = render(<MapPanel onSelect={noop} />);
+    fireEvent.click(screen.getByTestId('legend-open'));
     expect(screen.queryAllByTestId('legend-highlight')).toHaveLength(0);
     fireEvent.mouseEnter(screen.getByTestId('legend-plateau'));
     const lit = screen.getAllByTestId('legend-highlight');

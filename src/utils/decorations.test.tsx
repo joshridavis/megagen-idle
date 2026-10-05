@@ -110,7 +110,7 @@ describe('map decorations (1.13)', () => {
     expect(screen.queryByTestId('map-decorations')).toBeNull();
     expect(screen.queryByTestId('decor-pick-tree')).toBeNull();
     // the button floats on the screen (1.64), so it is reachable however far the map is scrolled
-    expect(screen.getByTestId('decor-open').className).toContain('fixed');
+    expect(screen.getByTestId('decor-open').parentElement!.className).toContain('fixed');
     fireEvent.click(screen.getByTestId('decor-open'));
     const panel = screen.getByTestId('map-decorations');
     expect(screen.queryByTestId('decor-open')).toBeNull(); // the panel takes its place
