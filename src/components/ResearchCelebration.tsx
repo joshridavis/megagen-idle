@@ -31,7 +31,7 @@ export default function ResearchCelebration() {
   const def = current && current.kind !== 'level' ? RESEARCH_BY_ID[current.id] : undefined;
   const level = current?.kind === 'level' ? current.level : null;
   return (
-    <div aria-live="polite" className="pointer-events-none fixed inset-x-0 top-24 z-40 flex justify-center px-4">
+    <div aria-live="polite" className="pointer-events-none fixed inset-x-0 top-24 z-50 flex justify-center px-4">
       {level !== null && (
         <button
           key={`level-${level}-${current!.at}`}

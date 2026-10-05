@@ -1,4 +1,34 @@
-# Playtest 20 (v0.20.0): launch polish: phones, keyboard, crash safety, looks and Stats
+# Playtest 20.1 (v0.20.1, hotfix): tooltips under the pinned energy bar
+
+The version at the bottom of the screen should read **v0.20.1**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 259 hours** (simulated, unchanged).
+
+## What changed (only the bug you reported)
+
+- **Hovering a card just under the pinned energy bar:** the bar now always stays on top and fully visible. The card's tooltip opens below the card when there is no room above it, instead of jumping up behind the bar.
+- The same applies to the Upgrade and Scrap tooltips in "Your generators", and to the ⭐ and 📍 tips on the Map.
+- Research details, notices and celebrations still show above the bar.
+
+## Things to try
+
+1. Scroll the Generators tab until a build card sits right under the energy bar, then hover its button: the tooltip opens below the card.
+2. Do the same with Upgrade and Scrap in "Your generators".
+
+## Questions for you
+
+1. Does hovering near the top feel right now?
+
+---
+
+# Previous: Playtest 20 (v0.20.0): launch polish: phones, keyboard, crash safety, looks and Stats
 
 The version at the bottom of the screen should read **v0.20.0**.
 

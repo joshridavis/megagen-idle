@@ -83,8 +83,9 @@ export default function App() {
       <header className="-mb-2 flex flex-col items-center">
         <h1 className="text-3xl font-bold tracking-tight">MegaGen Idle</h1>
       </header>
-      {/* The top bar (energy, rate, room, level) stays in view while scrolling (0.43). */}
-      <div className="sticky top-2 z-30 -mb-2 self-center" data-testid="top-bar">
+      {/* The top bar (energy, rate, room, level) stays in view while scrolling (0.43). It sits above
+          hovered cards (z-40) and their tooltips; dialogs, toasts and celebrations stay above it (playtest 20). */}
+      <div className="sticky top-2 z-[45] -mb-2 self-center" data-testid="top-bar">
         <EnergyDisplay />
       </div>
       <div className="flex flex-col items-center gap-4">

@@ -35,3 +35,26 @@ test('click, build and switch tabs with the keyboard only', async ({ page }) => 
   await expect(page.getByRole('tab', { name: 'Map' })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('tab', { name: 'Map' })).toBeFocused();
 });
+
+// Playtest 20 bug: hovering a card just under the pinned top bar raised the
+// card over the bar and pushed its tooltip up behind it.
+test('a tooltip near the pinned top bar opens below and the bar stays on top', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 700 });
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toBeVisible();
+  await page.evaluate(() => {
+    const card = document.querySelector('[data-testid="generator-card-wind"]')!;
+    window.scrollBy(0, card.getBoundingClientRect().top - 40);
+  });
+  await page.getByTestId('generator-card-wind').getByRole('button').hover();
+  const r = await page.evaluate(() => {
+    const bar = document.querySelector('[data-testid="top-bar"]')!;
+    const b = bar.getBoundingClientRect();
+    const tip = document.getElementById('gen-tip-wind')!;
+    const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+    return { barOnTop: bar.contains(hit), side: tip.dataset.side, tipTop: tip.getBoundingClientRect().top, barBottom: b.bottom };
+  });
+  expect(r.barOnTop).toBe(true);
+  expect(r.side).toBe('below');
+  expect(r.tipTop).toBeGreaterThan(r.barBottom);
+});

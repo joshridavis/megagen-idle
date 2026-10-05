@@ -65,7 +65,7 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
   const remaining = running ? state.currentResearch!.startTime / 1000 + state.currentResearch!.duration - now / 1000 : 0;
 
   return (
-    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
         ref={boxRef}
         role="dialog"

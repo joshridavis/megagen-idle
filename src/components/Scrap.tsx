@@ -3,6 +3,7 @@ import { SCRAP_REFUND_SHARE } from '../data/generators';
 import { RESOURCE_NAMES } from '../data/resources';
 import type { ResourceAmounts } from '../types/resource';
 import type { ResourceId } from '../types/state';
+import { useTipSide } from './useTipSide';
 
 /** Shared scrap controls: a Scrap button with a refund tooltip, and confirm rows (refund since 1.24, playtest 18). */
 
@@ -26,8 +27,9 @@ export function scrapHelpText(what: string) {
 }
 
 export function ScrapButton({ id, name, what, onClick }: { id: string; name: string; what: string; onClick: () => void }) {
+  const { tip, below, place } = useTipSide<HTMLSpanElement>();
   return (
-    <span className="group relative">
+    <span className="group relative" onMouseEnter={place} onFocus={place}>
       <button
         type="button"
         onClick={onClick}
@@ -38,9 +40,11 @@ export function ScrapButton({ id, name, what, onClick }: { id: string; name: str
         Scrap
       </button>
       <span
+        ref={tip}
         id={`scrap-tip-${id}`}
         role="tooltip"
-        className="pointer-events-none absolute bottom-full right-0 z-30 mb-1 hidden w-52 rounded bg-slate-950 p-2 text-xs text-slate-200 shadow-lg group-hover:block group-has-focus-visible:block"
+        data-side={below ? 'below' : 'above'}
+        className={`pointer-events-none absolute right-0 z-30 ${below ? 'top-full mt-1' : 'bottom-full mb-1'} hidden w-52 rounded bg-slate-950 p-2 text-xs text-slate-200 shadow-lg group-hover:block group-has-focus-visible:block`}
       >
         {scrapHelpText(what)}
       </span>
