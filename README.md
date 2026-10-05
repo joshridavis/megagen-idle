@@ -22,6 +22,7 @@ An idle/incremental game about generating energy. You start with almost nothing 
 | `npm run check:assets` | Checks every sprite in the manifest exists as a PNG of the right size, and lists which are still generic stand-ins. |
 | `npm run notices` | Rewrites `THIRD_PARTY_NOTICES.md` with the license of every package shipped in the game. Run after changing dependencies. |
 | `npm run generate:assets` | Draws any missing generic stand-in sprites. Add `-- --force` to redraw the generic ones; files not listed in `src/assets/generic-assets.json` (real art) are never touched. |
+| `npm run brand` | Draws the store and brand images from the existing sprites: `src/assets/brand/` (logo, 1024 px app icon, key scene) and the Steam capsules in `docs/steam/capsules/`. Overwrites them; run it after changing `scripts/generate-brand.mjs` (a test checks the committed images match). |
 
 ## Project layout
 
