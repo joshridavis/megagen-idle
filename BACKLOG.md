@@ -32,6 +32,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.65 Map legend in a floating panel, like Decorations (owner request after hotfix 22.1)
 0. 1.63 Map tooltips on hover, next to the machine
 0. 1.66 Title tiers by difficulty, each with its own color (owner request)
+0. 1.67 Map events in random places each time (owner report)
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
 0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity → CHECKPOINT 23
 0. 1.59 Pet slots: up to 3 active pets, bought with energy
@@ -1139,6 +1140,23 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Cosmetic only: no gameplay effect.
 **Acceptance:** tests: every title has a tier; the top bar title uses its tier color; the picker groups by tier and shows locked titles; colors are AAP-64 and readable (contrast at least 4.5:1 on the bar background); the build and all tests pass.
 
+### 1.67 — Map events in random places each time — CODE — Not started
+**Goal:** owner report after hotfix 22.1: some map events (the birds, the delivery truck) always seem to appear in the same place. Each appearance should be somewhere new, anywhere on the map.
+**Details:**
+- **Checked in the code:**
+  - The birds (`map_flock`, target `sky`) are always drawn on the same top row: `MapEventLayer` places them at a fixed height and `pickMapTarget` rolls nothing for the sky.
+  - The falling star (`map_star`) only uses the top 4 rows of the sea (`ev.at % 4`).
+  - The delivery truck goes to a random producer but always drives in from the left edge along that producer's row.
+  - Lightning and fire already pick a random machine; the flood covers the whole river by design.
+- **Fix:** `pickMapTarget` (`src/utils/mapEvents.ts`) rolls a position with the event's `rng` and stores it in the saved `MapEventState`, so a reload shows the same position. The layer draws from the stored position, never from a fixed row or `ev.at`.
+  - **Birds:** a random row anywhere over the map's visible height, and a random direction (left to right or right to left, with the sprite mirrored so they never fly backwards, playtest 19); optionally a slight random slope.
+  - **Falling star:** a random row over the whole height of the sea.
+  - **Truck:** still goes to a random producer (as now). It enters from a random side (left or right edge, mirrored to face its way) and stops on that side of the producer.
+  - Any later map event follows the same rule: positions come from the rng and are saved.
+- Old saves with an event in progress (no stored position) fall back to the old placement.
+- Reduce motion: still no movement, shown at the random spot.
+**Acceptance:** tests with a seeded rng: different seeds give different rows or sides for the birds, star and truck, and the full range of rows is reachable; the stored position survives a save and load; the birds and truck face their direction of travel; old saves without a position still draw; the build and all tests pass.
+
 ### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Not started
 **Goal:** owner request after playtest 22: decorations start locked and are bought with energy, one at a time, each copy costing more than the last.
 **Details:**
@@ -1614,4 +1632,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 21.1 (v0.21.1, hotfix) | 1.07, 1.43, 1.44 | 2026-10-05 | Sign-up showed "Invalid path specified in request URL". Bug: after a cloud save, signing in from an incognito tab did not load it, and "Load cloud save" did nothing. Requests: a click button by the pinned bar, cloud save from anywhere, decorations in a panel over the map, better sprites, a designed loader, a logo, petting achievements. | 1.43, 1.44 (fixed); 1.45-1.51 |
 | 22 (v0.22.0) | 1.45, 1.46, 1.47 (and 1.52) | 2026-10-05 | 100% completion simulated at 251.0 h (unchanged). Before testing, owner notes: decorations bought with energy at rising prices, with achievements and completion; more decorations; more random events; more pets; raise one pet at a time, with a stronger effect as it matures; a growing animation; active pets walking on screen on every tab (with a setting); up to 3 active pets, bought with expensive energy upgrades; player level as a hard requirement for room expansions, pet slots and contract perks; research points for high-level research; map tooltips beside the machine. | 1.53-1.63 |
 | 22 (after test) | 1.45, 1.46, 1.47 | 2026-10-05 | ⚡ and ☁️ buttons are fine. Decorations panel not good enough: on a big map, scrolled down, the button cannot be seen; bottom right is a good place. Research points: not a spent currency; research level requirements are too low (the top research needs level 14, the owner is research level 21 within a week): make them harder. Order the new items by approximate priority. | 1.64 (hotfix v0.22.1); 1.62 rewritten; 1.53-1.63 ordered |
-| 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. Sort the unlocked titles into tiers by difficulty, with a color per tier. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65, 1.66 |
+| 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. Sort the unlocked titles into tiers by difficulty, with a color per tier. Some map events (birds, truck) seem to always appear in the same place: they should appear anywhere, at random. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65, 1.66, 1.67 |
