@@ -27,6 +27,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 **After playtest 22 (owner, 2026-10-05):** these come first, in this order (approximate priority, set by Claude at the owner's request), then the rest of the playtest 21 list below.
 
 0. 1.64 Fix: the Decorations button out of reach on a big map (playtest 22 bug; Done) → HOTFIX v0.22.1
+0. 1.68 Cloud menu buttons styled like Settings (owner request; small)
 0. 1.62 Harder research level gates (owner: research level 21 in under a week is too easy)
 0. 1.61 Player level as a hard requirement
 0. 1.65 Map legend in a floating panel, like Decorations (owner request after hotfix 22.1)
@@ -1157,6 +1158,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reduce motion: still no movement, shown at the random spot.
 **Acceptance:** tests with a seeded rng: different seeds give different rows or sides for the birds, star and truck, and the full range of rows is reachable; the stored position survives a save and load; the birds and truck face their direction of travel; old saves without a position still draw; the build and all tests pass.
 
+### 1.68 — Cloud menu buttons styled like Settings — CODE — Not started
+**Goal:** owner request after hotfix 22.1: in the ☁️ menu in the top bar (1.46), "Save to cloud now" looks like plain text. It should stand out as the main action, as it does in Settings → Account.
+**Details:**
+- In `CloudButton`'s menu, **Save to cloud now** becomes a filled primary button in the same blue as in Settings (`bg-sky-700`, hover `bg-sky-600`, white bold text, rounded, at least 44 px tall), full width.
+- **Load cloud save** becomes a secondary button like in Settings (`bg-slate-600`, hover `bg-slate-500`), below it. Account settings stays a link-style row.
+- While saving, the primary button shows "Saving…" and is disabled, then the "Saved to the cloud." notice as now.
+- Share the button styles with `AccountPanel` (one constant or small component), so the two places cannot drift apart.
+- Signed out, **Sign in** gets the primary style too.
+**Acceptance:** tests that the menu's Save button has the primary style and shows "Saving…" while busy, and that Settings uses the same style; the existing 1.46 tests still pass; the build and all tests pass.
+
 ### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Not started
 **Goal:** owner request after playtest 22: decorations start locked and are bought with energy, one at a time, each copy costing more than the last.
 **Details:**
@@ -1632,4 +1643,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 21.1 (v0.21.1, hotfix) | 1.07, 1.43, 1.44 | 2026-10-05 | Sign-up showed "Invalid path specified in request URL". Bug: after a cloud save, signing in from an incognito tab did not load it, and "Load cloud save" did nothing. Requests: a click button by the pinned bar, cloud save from anywhere, decorations in a panel over the map, better sprites, a designed loader, a logo, petting achievements. | 1.43, 1.44 (fixed); 1.45-1.51 |
 | 22 (v0.22.0) | 1.45, 1.46, 1.47 (and 1.52) | 2026-10-05 | 100% completion simulated at 251.0 h (unchanged). Before testing, owner notes: decorations bought with energy at rising prices, with achievements and completion; more decorations; more random events; more pets; raise one pet at a time, with a stronger effect as it matures; a growing animation; active pets walking on screen on every tab (with a setting); up to 3 active pets, bought with expensive energy upgrades; player level as a hard requirement for room expansions, pet slots and contract perks; research points for high-level research; map tooltips beside the machine. | 1.53-1.63 |
 | 22 (after test) | 1.45, 1.46, 1.47 | 2026-10-05 | ⚡ and ☁️ buttons are fine. Decorations panel not good enough: on a big map, scrolled down, the button cannot be seen; bottom right is a good place. Research points: not a spent currency; research level requirements are too low (the top research needs level 14, the owner is research level 21 within a week): make them harder. Order the new items by approximate priority. | 1.64 (hotfix v0.22.1); 1.62 rewritten; 1.53-1.63 ordered |
-| 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. Sort the unlocked titles into tiers by difficulty, with a color per tier. Some map events (birds, truck) seem to always appear in the same place: they should appear anywhere, at random. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65, 1.66, 1.67 |
+| 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. Sort the unlocked titles into tiers by difficulty, with a color per tier. Some map events (birds, truck) seem to always appear in the same place: they should appear anywhere, at random. In the ☁️ menu, highlight "Save to cloud now" like in Settings. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65, 1.66, 1.67, 1.68 |
