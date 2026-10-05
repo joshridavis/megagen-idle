@@ -184,3 +184,29 @@ for (const [width, height] of [[1280, 520], [375, 640]] as const) {
     await expect(page.getByTestId('legend-open')).toBeFocused();
   });
 }
+
+// 1.63: the machine tooltip opens beside the machine and stays on screen, however the map is scrolled.
+test('a machine tooltip shows beside the machine, near the top and the bottom of the screen', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 600 });
+  await page.goto('./');
+  await page.locator('#tab-map').click();
+  const quarry = page.getByTestId('map-quarry-1');
+  const tip = page.getByTestId('machine-tip');
+  const bar = (await page.getByTestId('top-bar').boundingBox())!;
+  // just under the pinned bar: the tip opens below the machine
+  await quarry.evaluate((el, barBottom) => window.scrollBy(0, el.getBoundingClientRect().top - barBottom - 4), bar.y + bar.height);
+  await quarry.hover();
+  await expect(tip).toBeInViewport({ ratio: 1 });
+  await expect(tip).toHaveAttribute('data-side', 'below');
+  await expect(tip).toContainText('Stone Quarry');
+  const q = (await quarry.boundingBox())!;
+  const t = (await tip.boundingBox())!;
+  expect(t.y).toBeGreaterThanOrEqual(q.y + q.height);
+  // near the bottom of the screen: the tip opens above and stays on screen
+  await page.mouse.move(5, 5);
+  await quarry.evaluate((el) => window.scrollBy(0, el.getBoundingClientRect().bottom - window.innerHeight + 10));
+  await quarry.hover();
+  await expect(tip).toBeInViewport({ ratio: 1 });
+  await expect(tip).toHaveAttribute('data-side', 'above');
+  await page.screenshot({ path: 'test-results/machine-tip.png' });
+});

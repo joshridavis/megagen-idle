@@ -18,6 +18,7 @@ export default function FloatingTip({
   className = '',
   testId,
   focusable = true,
+  onOpenChange,
 }: {
   text: string;
   children: ReactNode;
@@ -25,10 +26,16 @@ export default function FloatingTip({
   testId?: string;
   /** False inside a button or link, which already takes keyboard focus. */
   focusable?: boolean;
+  /** Told when the tip opens or closes (the map hides its machine tooltip meanwhile, 1.63). */
+  onOpenChange?: (open: boolean) => void;
 }) {
   const anchor = useRef<HTMLSpanElement>(null);
   const tip = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(false);
+  const setOpen = (v: boolean) => {
+    setOpenState(v);
+    onOpenChange?.(v);
+  };
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
 
   useLayoutEffect(() => {

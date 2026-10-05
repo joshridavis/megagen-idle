@@ -19,6 +19,8 @@ import FloatingTip from './FloatingTip';
 import MapEventLayer from './MapEventLayer';
 import { zoneTipText } from './zoneTip';
 import MapFloatingPanel from './MapFloatingPanel';
+import MachineTip from './MachineTip';
+import { machineTip } from '../utils/mapTips';
 import MapLegend, { ZONE_SPRITE } from './MapLegend';
 import MapDecorations, { type DecorTool } from './MapDecorations';
 import { DECORATIONS_BY_ID } from '../data/decorations';
@@ -110,6 +112,11 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const ghost = sel && hoverCell !== null ? cellsAt(hoverCell, sel.size, map.columns) : null;
   const ghostOk = ghost !== null && hoverCell !== null && targets.has(hoverCell);
   const ghostBonus = ghost && sel?.kind === 'generator' ? zoneBonusFor(sel.type, ghost, map.columns) : 0;
+  // the tooltip beside a machine (1.63): the hovered one, or the selected one until a target tile is pointed at
+  const machineEls = useRef(new Map<string, HTMLElement>());
+  const [starTip, setStarTip] = useState(false);
+  const tipKey = hover ?? (sel && hoverCell === null ? sel.key : null);
+  const tipPlaced = tipKey && !ghost && !starTip ? map.placed.find((p) => p.key === tipKey) : undefined;
 
   const setDecorTool = (t: DecorTool) => {
     setDecorToolState(t);
@@ -409,7 +416,12 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                 ))}
                 <button
                   type="button"
+                  ref={(el) => {
+                    if (el) machineEls.current.set(p.key, el);
+                    else machineEls.current.delete(p.key);
+                  }}
                   onFocus={() => setHover(p.key)}
+                  onBlur={() => setHover((k) => (k === p.key ? null : k))}
                   onClick={() => pick(p)}
                   onKeyDown={(e) => onMachineKey(p, e)}
                   onPointerDown={(e) => startDrag(p, e)}
@@ -431,6 +443,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                       className="absolute right-0 top-0 text-[10px] leading-none"
                       testId={`star-${p.key}`}
                       focusable={false}
+                      onOpenChange={setStarTip}
                       text={zoneTipText(p.type, p.zoneBonus)}
                     >
                       ⭐
@@ -441,6 +454,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
             );
           })}
           <MapEventLayer viewColumns={viewColumns} rows={rows} pct={pct} />
+          {tipPlaced && <MachineTip anchor={machineEls.current.get(tipPlaced.key) ?? null} tip={machineTip(state, tipPlaced, fmt)} />}
           {ghost &&
             ghost.map((c) => (
               <div

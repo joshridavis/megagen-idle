@@ -1260,13 +1260,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests that the new requirements block and then allow research, and that old saves keep their research; the simulation has no stalls; the build and all tests pass.
 **Notes:** the research level is 1 + research completed (39 research, top level 40). Levels 1-6 stay; the upper requirements were stretched in order (7→9, 8→13, 9→17, 10→21, 11→26, 12→31, 13→35, 14→38), so the duration rule still holds. Nuclear Fission now needs 16 research done, Fusion Ignition 25, and Stellar Harvest all but one of the others. Tests check that every research stays reachable. The simulation is unchanged (251.0 h, no stalls): the simulated player already researches in tree order, so the gates stop skipping ahead rather than slowing a normal game. If the game should also be slower overall, that is a separate pacing item.
 
-### 1.63 — Map tooltips on hover, next to the machine — CODE — Not started
+### 1.63 — Map tooltips on hover, next to the machine — CODE — Done
 **Goal:** owner request after playtest 22: on a big map, the info line above it is out of view; hovering a machine should show its details beside it.
 **Details:**
 - Hovering (or focusing) a generator or producer on the map shows a small tooltip next to it: name and number, output per second, fuel use, zone bonus or the zone it needs, and level if upgraded. Reuse `FloatingTip` and the side logic (`useTipSide`), so it stays inside the screen and under the pinned bar rules (1.42).
 - On touch screens a tap shows it (the first tap selects for moving, as now; the tooltip shows with the selection).
 - The info line above the map stays.
 **Acceptance:** tests: hovering a generator and a producer shows their details; the tooltip stays on screen near the edges; Playwright: hover a machine near the bottom of a scrolled map and the tooltip is visible; the build and all tests pass.
+**Notes:** the text comes from `machineTip` (`src/utils/mapTips.ts`), drawn by `MachineTip`. A producer shows what one of them makes, with research, event, pet and its own map bonus. While the ⭐ tooltip is open, the machine tooltip steps aside, so only one shows. The tooltip hides while a moving machine's outline is pointed at a tile.
 
 ### 1.43 — Fix: sign-up fails with "Invalid path specified in request URL" — CODE — Done
 **Goal:** fix an owner report after playtest 21: creating an account on the live site showed "Invalid path specified in request URL".
