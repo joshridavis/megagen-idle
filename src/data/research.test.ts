@@ -49,3 +49,31 @@ describe('three starting research (playtest 8)', () => {
     expect(RESEARCH_BY_ID.basic_mining.effects).toEqual([{ type: 'resourceProduction', value: 0.1 }]);
   });
 });
+
+describe('research level gates (playtest 22, 1.62)', () => {
+  it('every research can be reached: completing research in some order never gets stuck', () => {
+    const done = new Set<string>();
+    let progressed = true;
+    while (progressed) {
+      progressed = false;
+      for (const r of RESEARCH) {
+        if (done.has(r.id)) continue;
+        const level = 1 + done.size;
+        if (level >= r.requiredLevel && r.prerequisites.every((p) => done.has(p))) {
+          done.add(r.id);
+          progressed = true;
+        }
+      }
+    }
+    expect(RESEARCH.filter((r) => !done.has(r.id)).map((r) => r.id)).toEqual([]);
+  });
+
+  it('the upper research needs most of the tree done first', () => {
+    const top = Math.max(...RESEARCH.map((r) => r.requiredLevel));
+    // level = 1 + research completed: the last research needs all but one of the others
+    expect(top - 1).toBeGreaterThanOrEqual(RESEARCH.length - 2);
+    expect(RESEARCH_BY_ID.stellar_harvest.requiredLevel).toBe(top);
+    expect(RESEARCH_BY_ID.nuclear_fission.requiredLevel).toBeGreaterThanOrEqual(15);
+    expect(RESEARCH_BY_ID.fusion_ignition.requiredLevel).toBeGreaterThanOrEqual(25);
+  });
+});

@@ -1246,7 +1246,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Pick the levels from the simulated timeline so no gate is reached before its level comes naturally by much; rerun `npm run simulate`, check there are no stalls and report the hours.
 **Acceptance:** tests for each gate (blocked below the level, allowed at it), and the simulator honors the gates; the build and all tests pass.
 
-### 1.62 — Harder research level gates — CODE — Not started
+### 1.62 — Harder research level gates — CODE — Done
 **Goal:** owner feedback after playtest 22: research is too easy to climb. The highest research needs only research level 14, and the owner reached research level 21 in under a week of play. High-level research must need a clearly higher research level.
 **Details:**
 - (Replaces the first draft "research points": the owner confirmed no new point currency; the research level is the requirement.)
@@ -1256,6 +1256,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Old saves: research already done stays done; a research in progress finishes. Only new starts check the new requirements.
 - Rerun `npm run simulate`: no stalls, 100% stays above the 200 h target. Report the new hours and the research level timeline in the PR.
 **Acceptance:** tests that the new requirements block and then allow research, and that old saves keep their research; the simulation has no stalls; the build and all tests pass.
+**Notes:** the research level is 1 + research completed (39 research, top level 40). Levels 1-6 stay; the upper requirements were stretched in order (7→9, 8→13, 9→17, 10→21, 11→26, 12→31, 13→35, 14→38), so the duration rule still holds. Nuclear Fission now needs 16 research done, Fusion Ignition 25, and Stellar Harvest all but one of the others. Tests check that every research stays reachable. The simulation is unchanged (251.0 h, no stalls): the simulated player already researches in tree order, so the gates stop skipping ahead rather than slowing a normal game. If the game should also be slower overall, that is a separate pacing item.
 
 ### 1.63 — Map tooltips on hover, next to the machine — CODE — Not started
 **Goal:** owner request after playtest 22: on a big map, the info line above it is out of view; hovering a machine should show its details beside it.
