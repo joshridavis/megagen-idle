@@ -5,6 +5,7 @@ import { setCloudServiceForTests, type CloudService, type CloudUser } from './cl
 import {
   CLOUD_SAVE_INTERVAL_MS,
   decideOnSignIn,
+  isFreshGame,
   deleteAccount,
   readLastSync,
   resolveChoice,
@@ -82,6 +83,11 @@ describe('sign-in decision (0.68)', () => {
     expect(d).toMatchObject({ kind: 'ask', newer: 'cloud' });
   });
 
+  it('another device uploaded a save with less progress: ask, suggesting the one here', () => {
+    const d = decideOnSignIn({ ...sum('local', 2_000_000), completion: 0.4 }, { ...sum('cloud', 5_000_000), completion: 0 }, 1_000_000);
+    expect(d).toMatchObject({ kind: 'ask', newer: 'local' });
+  });
+
   it('first sign-in on this device with a different cloud save: ask', () => {
     expect(decideOnSignIn(sum('local', 9_000_000), sum('cloud', 1_000_000), null).kind).toBe('ask');
   });
@@ -117,10 +123,12 @@ describe('account flows with a fake cloud (0.68)', () => {
     expect(useAccount.getState()).toMatchObject({ status: 'signedOut', error: 'Wrong email or password.' });
   });
 
-  it('a newer save from another device asks, and picking it loads it here', async () => {
+  it('a save with more progress from another device asks, and picking it loads it here', async () => {
     const { s } = fakeService();
     setCloudServiceForTests(s);
-    const other = { ...createInitialState(0), energy: 99_999 };
+    // the game here has started, so it is not simply replaced
+    useStore.setState({ completedResearch: ['basic_solar'] });
+    const other = { ...createInitialState(0), completedResearch: ['basic_solar', 'wind_power'], energy: 99_999 };
     const later = Date.now() + 10 * SAME_SAVE_MS;
     await s.saves.save(AUTO_SLOT, exportSave(other, later), summarize(other, later));
     await signIn('a@b.c', 'correct-horse');
@@ -136,6 +144,7 @@ describe('account flows with a fake cloud (0.68)', () => {
   it('keeping the game here overwrites the cloud save', async () => {
     const { s } = fakeService();
     setCloudServiceForTests(s);
+    useStore.setState({ completedResearch: ['basic_solar'] });
     const other = { ...createInitialState(0), energy: 1 };
     const later = Date.now() + 10 * SAME_SAVE_MS;
     await s.saves.save(AUTO_SLOT, exportSave(other, later), summarize(other, later));
@@ -143,6 +152,33 @@ describe('account flows with a fake cloud (0.68)', () => {
     await resolveChoice('local');
     expect((await s.saves.load(AUTO_SLOT))!.summary.energy).toBe(500);
     expect(useStore.getState().energy).toBe(500);
+  });
+
+  it('a new device signing in right after a cloud save loads it, never uploads a blank game (owner bug, after playtest 21)', async () => {
+    const { s } = fakeService();
+    setCloudServiceForTests(s);
+    const played = { ...createInitialState(0), completedResearch: ['basic_solar'], energy: 12_345 };
+    // saved to the cloud a few seconds ago on the first device
+    const justNow = Date.now() - 5_000;
+    await s.saves.save(AUTO_SLOT, exportSave(played, justNow), summarize(played, justNow));
+    // the incognito tab: a fresh game
+    useStore.setState(createInitialState(Date.now()));
+    await signIn('a@b.c', 'correct-horse');
+    expect(useAccount.getState().choice).toBeNull();
+    expect(useStore.getState().energy).toBe(12_345);
+    expect(useStore.getState().completedResearch).toEqual(['basic_solar']);
+    // the cloud save is untouched
+    expect((await s.saves.load(AUTO_SLOT))!.summary.energy).toBe(12_345);
+  });
+
+  it('a started game here and a cloud save just made elsewhere: ask, never overwrite silently', () => {
+    const now = 10_000_000;
+    const local = { ...sum('local', now), completion: 0.02 };
+    const cloud = { ...sum('cloud', now - 5_000), completion: 0.3 };
+    expect(decideOnSignIn(local, cloud, null)).toMatchObject({ kind: 'ask', newer: 'cloud' });
+    expect(decideOnSignIn(local, cloud, null, true)).toEqual({ kind: 'use', source: 'cloud' });
+    expect(isFreshGame(createInitialState(0))).toBe(true);
+    expect(isFreshGame({ ...createInitialState(0), completedResearch: ['basic_solar'] })).toBe(false);
   });
 
   it('sign-up checks the username first and asks to confirm the email', async () => {

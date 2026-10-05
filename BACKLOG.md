@@ -24,6 +24,18 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
+**After playtest 21 (owner, 2026-10-05):** these come first, in this order, then the rest below.
+
+0. 1.44 Fix: a new device signing in could upload a blank game over the cloud save (owner bug report)
+0. 1.45 Generate-energy button next to the pinned energy bar
+0. 1.46 Cloud save from any tab
+0. 1.47 Decorations in a panel that opens over the map → CHECKPOINT 22
+0. 1.51 Achievements for petting your pets
+0. 1.49 A designed loading screen for the website
+0. 1.50 A dedicated MegaGen Idle logo
+0. 1.48 Sprite quality pass: shadows, proportions, better map designs
+0. (then 0.42 Performance pass and the rest of the order below)
+
 **Launch priority (owner decision, 2026-10-03):** these come first, in this order. Items already `Done` are skipped, so the first open item is 0.41.
 
 0. 0.65 Achievements (launch priority; already Done)
@@ -996,6 +1008,74 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Owner steps:** added to `docs/PUBLIC_RELEASE.md`. Register an OAuth app with Google (Google Cloud console) and with Discord (Discord Developer Portal), paste each client ID and secret into Supabase → Authentication → Sign In / Providers, and set the variable.
 **Acceptance:** tests with a fake service for the buttons, the redirect call and the username dialog; no secrets in the repository.
 **Notes:** the code is done and tested with fakes. The owner turns it on with section 9b of `docs/PUBLIC_RELEASE.md` (register the Google and Discord OAuth apps, paste the keys into Supabase, add `VITE_AUTH_PROVIDERS`, rerun the deploy). The live sign-in check rides with 0.68's live test.
+
+### 1.44 — Fix: a new device signing in could upload a blank game over the cloud save — CODE — Done
+**Goal:** fix an owner bug report after playtest 21: after saving to the cloud, signing in from a new (incognito) browser did not load the cloud save, and "Load cloud save" seemed to do nothing.
+**Details:**
+- **Cause:** the sign-in decision compared the cloud save's time with the game on this device stamped "now" (`summarize(state, now)`). Within a minute of a cloud save (`SAME_SAVE_MS`), the blank new game counted as "the same save, and newer": it was kept and **uploaded over the cloud save**. "Load cloud save" then loaded that blank game. After a minute the player was asked, with the blank game marked "newer".
+- **Fix (`decideOnSignIn`, `src/store/account.ts`):** the local time is never compared. No cloud save: keep and upload. A game that has not started (`isFreshGame`: no research done, nothing built, no room bought): load the cloud save. Cloud unchanged since this device last synced: continue. Otherwise ask, suggesting the save with **more progress** (label "(more progress)" instead of "(newer)").
+**Acceptance:** a test of the exact scenario (cloud save made seconds earlier, fresh game signs in: the cloud save loads and stays untouched); tests for the suggestion; the build and all tests pass.
+
+### 1.45 — Generate-energy button next to the pinned energy bar — CODE — Not started
+**Goal:** owner request after playtest 21: when the page is scrolled and the energy bar is pinned at the top (0.43), the player can no longer click for energy without scrolling back up.
+**Details:**
+- While the bar is pinned and the big "Generate energy" button is out of view, a small round button appears at the end of the pinned bar, in the same color as "Generate energy", with the ⚡ icon. Clicking it does exactly what the big button does (same click value, same floating "+N" feedback, same stats and tutorial step).
+- It is hidden while the big button is on screen (an `IntersectionObserver` on it), so there are never two at once. At least 44 px to tap on touch screens; `aria-label="Generate energy"`; keyboard reachable.
+- Reduce motion: no pop animation.
+**Acceptance:** tests: the small button appears only when the big one is out of view and gives the same energy per click; the build and all tests pass; Playwright at phone width: scroll down, tap it, energy rises.
+
+### 1.46 — Cloud save from any tab — CODE — Not started
+**Goal:** owner request after playtest 21: "Save to cloud" is only in Settings; it should be reachable from everywhere.
+**Details:**
+- A small cloud button in the pinned top bar (only in builds with accounts): ☁️ with the sync state (signed out, saving, saved N minutes ago, error).
+- Clicking it opens a small menu: **Save to cloud now**, **Load cloud save** (with the same confirmation as Settings), the last sync time, and "Account settings" (opens Settings → Account). Signed out, it offers "Sign in" (opens Settings → Account).
+- Reuses `saveToCloud` and `loadFromCloud` in `src/store/account.ts`; no new cloud logic. The Settings panel keeps its buttons.
+- At phone width it fits in the bar with no sideways scroll.
+**Acceptance:** tests with the fake cloud service: the menu saves and loads from another tab; signed out it links to the Account panel; it is absent when the build has no cloud settings; the build and all tests pass.
+
+### 1.47 — Decorations in a panel that opens over the map — CODE — Not started
+**Goal:** owner request after playtest 21: the Decorations box under the map (1.13) means scrolling down and back up while decorating.
+**Details:**
+- Replace the box under the map with a **🎨 Decorations** button in the map header. It opens a compact floating panel docked to the side of the map (a bottom sheet on phones) listing the decorations, with Remove and Close. The map stays visible and usable while it is open, so the player picks and places without scrolling.
+- Closing the panel ends decorating. Escape closes it. Focus moves into the panel when it opens and back to the button when it closes.
+- Locked decorations still show what unlocks them.
+**Acceptance:** tests: the button opens and closes the panel; placing works while it is open; Escape and Close end decorating; nothing about decorations remains under the map; Playwright at 375 px: the panel fits and the map stays reachable; the build and all tests pass.
+
+### 1.48 — Sprite quality pass: shadows, proportions, better map designs — CODE — Not started
+**Goal:** owner request after playtest 21: the generated sprites can look better (for example shadows under the birds, better proportions, and the plainer map designs).
+**Details:**
+- Improve the drawing functions in `scripts/generate-generic-assets.mjs` (still generated by the script, AAP-64 colors; no hand-made or AI art), then regenerate with `--force` only the files listed in `src/assets/generic-assets.json`.
+- Soft drop shadows (a darker, partly transparent shape offset down) for flying things on the map (birds, map star) and for buildings and producers; consistent top-left lighting.
+- Proportions: machines on the map read at their tile size (for example the Nuclear Fission Plant, gas and oil plants), producer icons at the same scale as each other.
+- Upgrade the weakest map art: decorations details, map event sprites, tiles that look flat.
+- Sizes and file names stay the same, so no code changes; `npm run check:assets` passes. Before and after screenshots in the PR.
+**Acceptance:** regenerated sprites pass the asset check; a screenshot comparison in the PR; the build and all tests pass.
+
+### 1.49 — A designed loading screen for the website — CODE — Not started
+**Goal:** owner request after playtest 21: the page shows nothing designed while the game loads.
+**Details:**
+- A loading screen drawn in `index.html` itself (inline CSS, no extra download), so it shows before the JavaScript runs: the game logo (1.50, or the energy icon until then), a pulsing energy bar and "Charging up…", on the game's dark background.
+- It fades out when the game has loaded the save and drawn its first screen; it never shows for less time than needed or flashes on fast loads (skip the fade under 300 ms).
+- Reduce motion (the `prefers-reduced-motion` media query, since settings are not loaded yet): no pulse.
+- If loading fails (script error), the screen shows "Could not load the game. Reload the page." after a timeout instead of spinning forever.
+**Acceptance:** Playwright: the loader is visible before the app mounts and gone after; a test that the failure message appears when the app does not start; the build and all tests pass.
+
+### 1.50 — A dedicated MegaGen Idle logo — CODE — Not started
+**Goal:** owner request after playtest 21: replace the plain "MegaGen Idle" text with a dedicated logo.
+**Details:**
+- A pixel-art wordmark made by the generic asset script (palette AAP-64): "MEGAGEN" in bold pixel letters with a lightning bolt, "IDLE" smaller below; transparent background. Sizes: `logo_wordmark` (about 192×48) for the header and loader, `logo_icon` (32×32) for the favicon and app icons later.
+- Add both to the Asset manifest and `sprites`; the header uses the image with `alt="MegaGen Idle"`. The browser tab icon uses `logo_icon`.
+- The real logo can replace these files later at the same size without code changes.
+**Acceptance:** the header shows the logo with the right alt text; `npm run check:assets` passes; the build and all tests pass.
+
+### 1.51 — Achievements for petting your pets — CODE — Not started
+**Goal:** owner request after playtest 21: achievements for petting the pets a number of times.
+**Details:**
+- Count pet clicks (the click reaction from 0.99) in the saved stats as `petClicks` (migration: 0).
+- New achievements, for example: Gentle Hand (pet 10 times), Best Friend (100), Pet Whisperer (1,000). Each shows progress like the others. No gameplay reward (cosmetic, like the rest); one may unlock a title (1.01).
+- Rapid clicking counts, but at most a few pets per second, so an auto-clicker gains nothing special.
+- Stats tab shows "Pets petted".
+**Acceptance:** tests: clicks count (with the rate cap), the achievements unlock at their counts, old saves load with 0; completion totals update; the build and all tests pass.
 
 ### 1.43 — Fix: sign-up fails with "Invalid path specified in request URL" — CODE — Done
 **Goal:** fix an owner report after playtest 21: creating an account on the live site showed "Invalid path specified in request URL".
