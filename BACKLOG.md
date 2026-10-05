@@ -31,6 +31,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.61 Player level as a hard requirement
 0. 1.65 Map legend in a floating panel, like Decorations (owner request after hotfix 22.1)
 0. 1.63 Map tooltips on hover, next to the machine
+0. 1.66 Title tiers by difficulty, each with its own color (owner request)
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
 0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity → CHECKPOINT 23
 0. 1.59 Pet slots: up to 3 active pets, bought with energy
@@ -1126,6 +1127,18 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Nothing about the legend remains under the map.
 **Acceptance:** tests: the button opens and closes the panel, a row still highlights its zone, opening Legend closes Decorations and the other way round, and nothing legend-related is under the map. Playwright at 1280×520 and 375×640, scrolled to the bottom of the map: both buttons fully on screen without overlapping each other or the research chip, and the panel fully on screen. The 1.39 legend test still passes (updated to open the panel). The build and all tests pass.
 
+### 1.66 — Title tiers by difficulty, each with its own color — CODE — Not started
+**Goal:** owner request after hotfix 22.1: sort the unlockable titles (1.01) into tiers by how hard each one is to earn, and color each title by its tier.
+**Details:**
+- Five tiers, for example **Common, Uncommon, Rare, Epic, Legendary**, each with one color from the AAP-64 palette that reads well on the dark top bar (for example gray, green, blue, purple, gold). Tiers and colors live in a data file (for example `src/data/achievements.ts`), so balancing is easy.
+- Give every current title (16 today, such as `energy_100k`, `level_25`, `research_all`, `maxed_all`) a tier. Base the tier on when the simulator (`npm run simulate`) reaches it, or on how rare it is for titles the simulator does not track (for example `sight_5`). Rough guide: within the first ~10 h Common, ~10-50 h Uncommon, ~50-120 h Rare, ~120-200 h Epic, near 100% completion Legendary. List the tier of each title in the PR.
+- The chosen title in the top bar (`PlayerLevelBadge`) shows in its tier color; Legendary may get a subtle shine (off under Reduce motion).
+- The title picker in Achievements → Cosmetics groups titles by tier, from highest to lowest, each with its tier name and color. Locked titles are listed too, grayed out with what earns them, so the player sees what to aim for.
+- Achievements that give a title show the tier on their card.
+- New titles added later (for example by 1.53 or 1.51) must declare a tier; a test checks every title has one.
+- Cosmetic only: no gameplay effect.
+**Acceptance:** tests: every title has a tier; the top bar title uses its tier color; the picker groups by tier and shows locked titles; colors are AAP-64 and readable (contrast at least 4.5:1 on the bar background); the build and all tests pass.
+
 ### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Not started
 **Goal:** owner request after playtest 22: decorations start locked and are bought with energy, one at a time, each copy costing more than the last.
 **Details:**
@@ -1601,4 +1614,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 21.1 (v0.21.1, hotfix) | 1.07, 1.43, 1.44 | 2026-10-05 | Sign-up showed "Invalid path specified in request URL". Bug: after a cloud save, signing in from an incognito tab did not load it, and "Load cloud save" did nothing. Requests: a click button by the pinned bar, cloud save from anywhere, decorations in a panel over the map, better sprites, a designed loader, a logo, petting achievements. | 1.43, 1.44 (fixed); 1.45-1.51 |
 | 22 (v0.22.0) | 1.45, 1.46, 1.47 (and 1.52) | 2026-10-05 | 100% completion simulated at 251.0 h (unchanged). Before testing, owner notes: decorations bought with energy at rising prices, with achievements and completion; more decorations; more random events; more pets; raise one pet at a time, with a stronger effect as it matures; a growing animation; active pets walking on screen on every tab (with a setting); up to 3 active pets, bought with expensive energy upgrades; player level as a hard requirement for room expansions, pet slots and contract perks; research points for high-level research; map tooltips beside the machine. | 1.53-1.63 |
 | 22 (after test) | 1.45, 1.46, 1.47 | 2026-10-05 | ⚡ and ☁️ buttons are fine. Decorations panel not good enough: on a big map, scrolled down, the button cannot be seen; bottom right is a good place. Research points: not a spent currency; research level requirements are too low (the top research needs level 14, the owner is research level 21 within a week): make them harder. Order the new items by approximate priority. | 1.64 (hotfix v0.22.1); 1.62 rewritten; 1.53-1.63 ordered |
-| 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65 |
+| 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. Sort the unlocked titles into tiers by difficulty, with a color per tier. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65, 1.66 |
