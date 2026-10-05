@@ -1,4 +1,5 @@
 import { EVENTS_BY_ID } from '../../data/events';
+import { eventIcon } from '../../data/logIcons';
 import type { EventsState } from '../../types/state';
 import { rollEvents, recordSeen, type RollOptions } from '../../utils/randomEvents';
 import type { Rng } from '../../utils/rng';
@@ -42,7 +43,7 @@ export const createEventSlice =
           text = applied.text || def.text;
         }
         set({ ...(def.effect && !ev.claimUntil ? deriveRates(game) : {}), seenEvents: recordSeen(s.seenEvents, def.id, now), mapEvent: ev }, undefined, 'events/map');
-        s.logEvents([{ kind: 'event', text: `${def.name}: ${text}`, toast: true }], now);
+        s.logEvents([{ kind: 'event', icon: eventIcon(def), text: `${def.name}: ${text}`, toast: true }], now);
         return def.id;
       }
       return null;
@@ -54,7 +55,7 @@ export const createEventSlice =
       const applied = applyMapEvent(pickSaved(s), ev, now, rng);
       set({ ...deriveRates(applied.state), mapEvent: null }, undefined, 'events/mapClaim');
       const def = EVENTS_BY_ID[ev.id];
-      s.logEvents([{ kind: 'event', text: `${def.name}: put out in time. ${applied.text}`, toast: true }], now);
+      s.logEvents([{ kind: 'event', icon: eventIcon(def), text: `${def.name}: put out in time. ${applied.text}`, toast: true }], now);
       return true;
     },
     endMapEvent: (now = Date.now()) => {
@@ -62,14 +63,14 @@ export const createEventSlice =
       const ev = s.mapEvent;
       if (!ev) return;
       set({ mapEvent: null }, undefined, 'events/mapEnd');
-      if (ev.claimUntil && now >= ev.claimUntil) s.logEvents([{ kind: 'event', text: `${EVENTS_BY_ID[ev.id].name}: it burned out on its own.`, toast: false }], now);
+      if (ev.claimUntil && now >= ev.claimUntil) s.logEvents([{ kind: 'event', icon: eventIcon(EVENTS_BY_ID[ev.id]), text: `${EVENTS_BY_ID[ev.id].name}: it burned out on its own.`, toast: false }], now);
     },
     dismissSighting: () => {
       const s = get();
       const def = s.activeSighting && EVENTS_BY_ID[s.activeSighting.id];
       set({ activeSighting: null }, undefined, 'events/dismissSighting');
       // a notice after the animation, for a player who looked away (playtest 11)
-      if (def && !s.settings.reduceMotion) s.pushToast({ kind: 'event', text: `You spotted: ${def.name}!`, toast: true });
+      if (def && !s.settings.reduceMotion) s.pushToast({ kind: 'event', icon: eventIcon(def), text: `You spotted: ${def.name}!`, toast: true });
     },
     rollRandomEvents: (seconds, opts, rng = Math.random, now = Date.now()) => {
       const s = get();
@@ -100,6 +101,7 @@ export const createEventSlice =
       s.logEvents(
         hits.map((e) => ({
           kind: 'event' as const,
+          icon: eventIcon(e),
           text: `${EVENTS_BY_ID[e.id].name}: ${texts[e.id] ?? e.text}`,
           // effects always get a notice; sightings only with animations off
           toast: !!e.effect || !e.animation || s.settings.reduceMotion,

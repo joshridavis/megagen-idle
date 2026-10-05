@@ -30,7 +30,7 @@ describe('event log (0.38)', () => {
     const prev = { ...base(), activeGenerators: [coal('a', true), coal('b', true)] };
     const next = { ...prev, activeGenerators: [coal('a', false, true), coal('b', false, true)] };
     const out = deriveEvents(prev, next);
-    expect(out).toEqual([{ kind: 'fuel', text: 'Out of coal: 2 generators switched off', toast: true }]);
+    expect(out).toEqual([{ kind: 'fuel', icon: '🔥', text: 'Out of coal: 2 generators switched off', toast: true }]);
     expect(deriveEvents(next, next)).toEqual([]); // already off: not logged again
   });
 

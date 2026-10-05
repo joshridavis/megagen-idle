@@ -103,7 +103,9 @@ describe('lifetime counters (0.39)', () => {
     useStore.getState().applyIdleGains(7200, T + 2000 + 7_200_000, { catchUp: true });
     const st = useStore.getState().stats;
     expect(st.playSeconds).toBeCloseTo(2);
-    expect(st.lastOffline).toEqual({ at: T + 2000 + 7_200_000, seconds: 7200, energy: useStore.getState().energy - before });
+    expect(st.lastOffline).toMatchObject({ at: T + 2000 + 7_200_000, seconds: 7200 });
+    // float sums: the gain and the energy difference may differ in the last digit
+    expect(st.lastOffline!.energy).toBeCloseTo(useStore.getState().energy - before, 3);
     expect(st.returns).toBe(1);
   });
 

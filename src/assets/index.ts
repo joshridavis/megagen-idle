@@ -69,9 +69,16 @@ import tileSea from './sprites/map/sea.png';
 import tileExclusion from './sprites/map/exclusion.png';
 import decoWarning from './sprites/map/deco_warning.png';
 import decoPylon from './sprites/map/deco_pylon.png';
+import decorTree from './sprites/map/decor_tree.png';
+import decorPond from './sprites/map/decor_pond.png';
+import decorWindsock from './sprites/map/decor_windsock.png';
+import decorStatue from './sprites/map/decor_statue.png';
+import decorFlag from './sprites/map/decor_flag.png';
+import decorLamp from './sprites/map/decor_lamp.png';
 import tileCoalfield from './sprites/map/coalfield.png';
 import tileOutcrop from './sprites/map/outcrop.png';
 import tileOilfield from './sprites/map/oilfield.png';
+import tileLake from './sprites/map/lake.png';
 import decoRock from './sprites/map/deco_rock.png';
 import decoTuft from './sprites/map/deco_tuft.png';
 import decoFlower from './sprites/map/deco_flower.png';
@@ -191,9 +198,16 @@ export const sprites = {
   tile_exclusion: tileExclusion,
   deco_warning: decoWarning,
   deco_pylon: decoPylon,
+  decor_tree: decorTree,
+  decor_pond: decorPond,
+  decor_windsock: decorWindsock,
+  decor_statue: decorStatue,
+  decor_flag: decorFlag,
+  decor_lamp: decorLamp,
   tile_coalfield: tileCoalfield,
   tile_outcrop: tileOutcrop,
   tile_oilfield: tileOilfield,
+  tile_lake: tileLake,
   deco_rock: decoRock,
   deco_tuft: decoTuft,
   deco_flower: decoFlower,

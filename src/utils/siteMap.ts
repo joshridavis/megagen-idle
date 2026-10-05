@@ -5,7 +5,7 @@ import type { ProducerId } from '../types/resource';
 import type { ResourceId } from '../types/state';
 import type { EffectMods } from './effectMods';
 import type { GameState } from '../types/state';
-import { terrainAt, zoneFor } from './mapTerrain';
+import { terrainAt, zoneFor, zoneRequiredFor } from './mapTerrain';
 import { getGrantedProducers } from './researchSystem';
 
 /** One machine on the map: the tiles it covers (cell indexes, row-major). */
@@ -93,7 +93,7 @@ export function zoneShare(cells: number[], zone: Zone, columns = MAP_COLUMNS): n
 /** Whether a machine of `type` may stand on `cells` (hydro needs the river, tidal the coast). */
 export function zoneAllows(type: string, cells: number[], columns = MAP_COLUMNS): boolean {
   const zone = zoneFor(type);
-  return !zone || !ZONES[zone].required || zoneShare(cells, zone, columns) >= ZONE_REQUIRED_SHARE;
+  return !zone || !zoneRequiredFor(type) || zoneShare(cells, zone, columns) >= ZONE_REQUIRED_SHARE;
 }
 
 /** Energy bonus for a machine of `type` on `cells`: its zone's bonus if it stands fully inside. */
@@ -117,15 +117,16 @@ function coreOf(cells: number[], columns: number, size: number): Placed['core'] 
 
 /**
  * How good a spot is for a new machine (higher is better). Machines that need
- * a zone go on it; solar and wind go fully onto their bonus zone when a spot
- * is free (playtest 16); everything else keeps to plain land so the zones
- * stay free. Null if the machine may not stand there.
+ * a zone go on it; the others go fully onto their bonus zone when a spot is
+ * free (playtest 16; every machine has one since 1.38), else keep to plain
+ * land so the zones stay free. Null if the machine may not stand there.
  */
 function spotScore(type: string, cells: number[], columns: number): number | null {
   if (!zoneAllows(type, cells, columns)) return null;
   const zone = zoneFor(type);
-  if (zone && ZONES[zone].required) return zoneShare(cells, zone, columns) * 10;
-  // solar and wind: fully on their bonus zone when a spot is free (1.17)
+  if (zone && zoneRequiredFor(type)) return zoneShare(cells, zone, columns) * 10;
+  // the rest (solar and wind since 1.17, every machine since 1.38): fully on
+  // their bonus zone when a spot is free
   let score = zone && zoneShare(cells, zone, columns) === 1 ? ZONE_SEEK_SCORE : 0;
   for (const c of cells) {
     const t = terrainOfCell(c, columns);
@@ -140,7 +141,7 @@ const ZONE_SEEK_SCORE = 5;
 /** Highest spotScore possible for a type: fully on the zone it needs or likes, else all plain (0). */
 function maxScore(type: string): number {
   const zone = zoneFor(type);
-  return !zone ? 0 : ZONES[zone].required ? 10 : ZONE_SEEK_SCORE;
+  return !zone ? 0 : zoneRequiredFor(type) ? 10 : ZONE_SEEK_SCORE;
 }
 
 interface Item {
@@ -199,10 +200,7 @@ function computeLayout(s: SiteState): SiteMap {
     const zoneBonus = misplaced ? 0 : zoneBonusFor(it.type, cells, columns);
     placed.push({ key: it.key, kind: it.kind, id: it.id, type: it.type, size: it.size, cells, core: coreOf(cells, columns, it.size), zoneBonus, misplaced, pinned });
   };
-  const needsZone = (it: Item) => {
-    const z = zoneFor(it.type);
-    return z && ZONES[z].required ? 1 : 0;
-  };
+  const needsZone = (it: Item) => (zoneRequiredFor(it.type) ? 1 : 0);
   // land only some machines may need: the river, the coast, the Exclusion Zone
   const reserved = (c: number) => {
     const t = terrainOfCell(c, columns);
@@ -267,7 +265,25 @@ function computeLayout(s: SiteState): SiteMap {
     else rest.push(it);
   }
   const soft = new Set(mayGiveWay.flatMap((m) => m.cells));
-  for (const it of rest.filter((x) => needsZone(x)).sort(order)) placeAuto(it, soft);
+  const bound = rest.filter((x) => needsZone(x)).sort(order);
+  const before = { taken: taken.slice(), count: placed.length };
+  for (const it of bound) placeAuto(it, soft);
+  // steering around machines that may give way can leave a zone too broken up
+  // for the last ones (1.38: a deuterium extractor on the coast): then place
+  // them again as if those machines were not there; they make way
+  const misplacedSince = () => placed.slice(before.count).filter((p) => p.misplaced).length;
+  const first = misplacedSince();
+  if (first > 0) {
+    const firstTry = { taken: taken.slice(), placed: placed.slice(before.count) };
+    taken.set(before.taken);
+    placed.length = before.count;
+    for (const it of bound) placeAuto(it);
+    if (misplacedSince() >= first) {
+      // no better: keep the first try, which moves fewer machines
+      taken.set(firstTry.taken);
+      placed.splice(before.count, placed.length, ...firstTry.placed);
+    }
+  }
   const later = rest.filter((x) => !needsZone(x));
   for (const m of mayGiveWay) {
     if (m.cells.every(free)) add(m.it, m.cells, true);
@@ -351,8 +367,7 @@ export function getPlacementBonuses(s: SiteState, map: SiteMap = layoutSite(s)):
  * the coast); everything else always fits once there is room.
  */
 export function hasSpotFor(s: SiteState, type: string): boolean {
-  const zone = zoneFor(type);
-  if (!zone || !ZONES[zone].required) return true;
+  if (!zoneRequiredFor(type)) return true;
   const probe = { id: '__probe__', type, isActive: true, level: 1 } as GameState['activeGenerators'][number];
   const map = layoutSite({ ...s, activeGenerators: [...s.activeGenerators, probe] });
   return !map.placed.find((p) => p.key === probe.id)?.misplaced;

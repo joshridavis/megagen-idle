@@ -109,6 +109,8 @@ export interface EventDef {
   effect?: EventEffect;
   negative?: boolean;
   requires?: EventRequirement;
+  /** Its own event log icon (1.40); otherwise one per kind of event (see eventIcon). */
+  icon?: string;
 }
 
 export const EVENTS: EventDef[] = [
@@ -144,6 +146,7 @@ export const EVENTS: EventDef[] = [
   // ---- Effect events (0.85, playtest 10). Some help, some hurt; negative ones never remove anything permanently. ----
   {
     id: 'sunny_spell',
+    icon: '☀️',
     name: 'Sunny spell',
     text: 'Clear skies: +50% energy from solar panels for 10 minutes.',
     rarity: 'common',
@@ -153,6 +156,7 @@ export const EVENTS: EventDef[] = [
   },
   {
     id: 'strong_winds',
+    icon: '🌬️',
     name: 'Strong winds',
     text: 'A strong breeze: +50% energy from wind turbines for 10 minutes.',
     rarity: 'common',
@@ -203,6 +207,7 @@ export const EVENTS: EventDef[] = [
   },
   {
     id: 'overcast',
+    icon: '☁️',
     name: 'Overcast',
     text: 'Gray clouds roll in: −30% energy from solar panels for 10 minutes.',
     rarity: 'common',
@@ -213,6 +218,7 @@ export const EVENTS: EventDef[] = [
   },
   {
     id: 'calm_air',
+    icon: '🍃',
     name: 'Calm air',
     text: 'Not a breath of wind: −30% energy from wind turbines for 10 minutes.',
     rarity: 'common',
@@ -300,6 +306,7 @@ export const EVENTS: EventDef[] = [
   },
   {
     id: 'map_lightning',
+    icon: '⚡',
     name: 'Lightning strike',
     text: 'Lightning struck one of your generators and supercharged it: +25% from that type for 3 minutes.',
     rarity: 'common',
@@ -311,6 +318,7 @@ export const EVENTS: EventDef[] = [
   },
   {
     id: 'map_delivery',
+    icon: '🚚',
     name: 'Delivery truck',
     text: 'A delivery truck dropped off supplies at one of your producers.',
     rarity: 'common',
@@ -323,6 +331,7 @@ export const EVENTS: EventDef[] = [
   },
   {
     id: 'map_fire',
+    icon: '🚒',
     name: 'Small fire',
     text: 'A small fire broke out at a coal plant!',
     rarity: 'uncommon',
@@ -334,6 +343,7 @@ export const EVENTS: EventDef[] = [
   },
   {
     id: 'map_flood',
+    icon: '🌊',
     name: 'River flood',
     text: 'The river flooded: Hydropower Dams make 20% less for 5 minutes.',
     rarity: 'uncommon',

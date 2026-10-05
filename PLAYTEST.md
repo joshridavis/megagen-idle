@@ -1,4 +1,60 @@
-# Playtest 20.1 (v0.20.1, hotfix): tooltips under the pinned energy bar
+# Playtest 21 (v0.21.0): a bonus place for every machine, a tidy map legend, decorations, clearer event log
+
+The version at the bottom of the screen should read **v0.21.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+Your save carries over.
+
+## Estimated play time
+
+- **100% completion: about 251 hours** (simulated; was 259 h). The new map bonuses for Coal, Gas, Oil and Nuclear plants make the late game a little faster.
+- Key milestones: first research 15 min, first Wind Turbine 2.3 h, first Coal Plant 3.2 h, 25% at 8.2 h, 50% at 31.9 h, first Nuclear Fission Plant 54.9 h, 75% at 80.8 h, first Fusion Reactor 113.5 h, first Micro-Supernova 225.1 h, 100% at 251 h.
+
+## What is new since playtest 20.1
+
+- **A bonus place on the map for every machine (1.38):**
+  - Coal Plants: +20% on a **Coal field** (beside their fuel).
+  - Natural Gas and Oil Power Plants: +20% on an **Oil and gas field**. Two oil fields grew to 8 tiles wide so these 5-wide plants fit.
+  - Nuclear Fission Plants: +20% on a new **Cooling lake** (left side, rows 13 to 15 of the map).
+  - Deuterium Extractors: +10% on the **Coast**. They may stand there, but they make way when a Tidal Power Station needs the spot.
+  - New machines go to a free spot on their bonus place by themselves; machines you already have stay put (drag them to get the bonus).
+- **A tidy map legend (1.39):** one short row per zone with its tile, bonus and the machines it suits as small icons. The full description is in the tooltip. It shows only zones on your site; "Show all zones" shows the rest (remembered). Hover or tap a row to light up that zone on the map.
+- **A distinct emoji for every kind of log entry (1.40):** for example ☀️ sunny spell, ☁️ overcast, 🍀 good event, ⚠️ bad event, 👀 sighting, ⚡ lightning, 🚚 delivery, 🚒 fire, 📜 contract offers, ✅ contract done, ⌛ contract expired, 🐾 new pet, 🐣 pet grown, ⭐ player level, 🎓 research level, ⚙️ new generator, ⛏️ new producer. Older entries keep their old icon.
+- **The research chip opens its details (1.41):** clicking the floating research chip opens the Research tab with that research's details already open.
+- **Map decorations (1.13):** a Decorations box under the map. Tree (player level 5), Company flag (5 achievements), Pond (10 contracts), Windsock (15 achievements), Lamp post (player level 20), Founder statue (50 contracts). Pick one and click free tiles; 🧹 Remove takes them away. Up to 6 of each. Just for looks: no room, no bonus, and a machine always wins a tile.
+
+## Things to try
+
+1. Open the Map and look at the new legend. Click "Show all zones", then hover a few rows to see where each zone is.
+2. Drag a Coal Plant onto a coal field and check the ⭐ and its rate.
+3. If you have Gas or Oil plants, try one on the wide oil and gas field (rows 10 to 12, left side).
+4. If you have a Nuclear Fission Plant, move it onto the Cooling lake.
+5. Open the Event log and see whether the icons make it easier to scan.
+6. While a research runs, click the floating chip at the bottom from another tab.
+7. Place a few decorations, then move a machine over one: it hides, and comes back when the machine moves away.
+8. Check that the legend fits on your phone.
+
+## Known issues
+
+- There is only one Cooling lake spot (one Nuclear Fission Plant gets the bonus), and two spots for gas and oil plants, because the map patches are 4 tiles wide. More can be added if you want.
+- Decorations are placed with a mouse or touch only (no keyboard cursor for them yet).
+- Old event log entries keep the old shared ✨ icon.
+
+## Questions for you
+
+1. Are the new bonus places worth moving your plants for? Is one lake spot enough, or should there be more?
+2. Is the new legend easy to read, on the computer and on your phone?
+3. Do the log icons help, or are some of them confusing?
+4. Are the decoration unlocks at the right points? Which other decorations would you like?
+5. Next up in the backlog: browser notifications (1.07), then the performance pass (0.42). Any change to that order before launch work continues?
+
+---
+
+# Previous: Playtest 20.1 (v0.20.1, hotfix): tooltips under the pinned energy bar
 
 The version at the bottom of the screen should read **v0.20.1**.
 

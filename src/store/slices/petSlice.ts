@@ -1,8 +1,10 @@
+import { ENTRY_ICONS } from '../../data/logIcons';
 import { PETS_BY_ID, PET_STAGES, type PetId } from '../../data/pets';
 import type { PetsState } from '../../types/state';
 import { feedPet, setActivePet, updatePets } from '../../utils/pets';
 import { deriveRates } from '../../utils/simulation';
 import { pickSaved } from '../migrations';
+import type { LogInput } from '../../utils/eventLog';
 import type { SliceCreator } from '../types';
 
 export interface PetActions {
@@ -10,6 +12,19 @@ export interface PetActions {
   tickPets: (now?: number) => void;
   feedPet: (id: PetId, now?: number) => boolean;
   setActivePet: (id: PetId) => void;
+}
+
+/** Log entries for pets found and grown, each kind with its own icon (1.40). */
+export function petLogEntries(found: PetId[], grown: PetId[], owned: PetsState['pets']['owned']): LogInput[] {
+  return [
+    ...found.map((id) => ({ kind: 'event' as const, icon: ENTRY_ICONS.petFound, text: `New pet: ${PETS_BY_ID[id].name}! See the Pets tab.`, toast: true })),
+    ...grown.map((id) => ({
+      kind: 'event' as const,
+      icon: ENTRY_ICONS.petGrown,
+      text: `${PETS_BY_ID[id].name} grew up: now ${PET_STAGES[(owned[id]?.stage ?? 1) - 1].toLowerCase()}.`,
+      toast: true,
+    })),
+  ];
 }
 
 /** Energy pets (0.92). Game rules live in src/utils/pets.ts. */
@@ -22,17 +37,7 @@ export const createPetSlice =
       const r = updatePets(pickSaved(s), now);
       if (!r.found.length && !r.grown.length) return;
       set(deriveRates(r.state), undefined, 'pets/tick');
-      s.logEvents(
-        [
-          ...r.found.map((id) => ({ kind: 'event' as const, text: `New pet: ${PETS_BY_ID[id].name}! See the Pets tab.`, toast: true })),
-          ...r.grown.map((id) => ({
-            kind: 'event' as const,
-            text: `${PETS_BY_ID[id].name} grew up: now ${PET_STAGES[(r.state.pets.owned[id]?.stage ?? 1) - 1].toLowerCase()}.`,
-            toast: true,
-          })),
-        ],
-        now,
-      );
+      s.logEvents(petLogEntries(r.found, r.grown, r.state.pets.owned), now);
     },
     feedPet: (id, now = Date.now()) => {
       const before = pickSaved(get());

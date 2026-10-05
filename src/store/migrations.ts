@@ -7,7 +7,7 @@ import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 19;
+export const SAVE_VERSION = 20;
 
 type AnySave = Record<string, unknown>;
 
@@ -63,6 +63,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   17: (save) => save,
   // 0.39: statistics counters; the start time of an older game is unknown.
   18: (save) => ({ ...save, stats: { playSeconds: 0, clickEnergy: 0, lastOffline: null, ...(save.stats as object | undefined), startedAt: null } }),
+  // 1.13: map decorations (none yet).
+  19: (save) => ({ ...save, mapDecorations: {} }),
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */
@@ -102,6 +104,7 @@ export function pickSaved(s: GameState): GameState {
     expansionLevel: s.expansionLevel,
     lastExpansionAt: s.lastExpansionAt,
     mapPins: s.mapPins,
+    mapDecorations: s.mapDecorations,
     settings: s.settings,
     seenEvents: s.seenEvents,
     activeEffects: s.activeEffects,

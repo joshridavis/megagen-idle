@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { EVENT_TOAST_MS, TOAST_MS } from '../data/notifications';
 import { useStore } from '../store';
 import type { LogEntry } from '../utils/eventLog';
-import { LOG_ICONS } from './EventLog';
+import { logIcon } from './EventLog';
 
 /** How long a notice stays: events and achievements longer, since they need reading. */
 export const toastDuration = (t: Pick<LogEntry, 'kind'>) => (t.kind === 'event' || t.kind === 'achievement' ? EVENT_TOAST_MS : TOAST_MS);
@@ -29,7 +29,7 @@ function Toast({ t }: { t: LogEntry }) {
       className="celebrate pointer-events-auto flex w-full items-start gap-2 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-left text-sm shadow-xl"
       data-testid="toast"
     >
-      <span aria-hidden="true">{LOG_ICONS[t.kind]}</span>
+      <span aria-hidden="true">{logIcon(t)}</span>
       <span>{t.text}</span>
     </button>
   );

@@ -1,3 +1,4 @@
+import type { DecorationId } from '../data/decorations';
 import type { Generator, GeneratorType } from './generator';
 import type { ProducerId } from './resource';
 import type { CurrentResearch } from './research';
@@ -72,6 +73,8 @@ export interface RoomState {
   lastExpansionAt: number | null;
   /** Machines the player placed on the site map: machine key -> top-left tile (1.05). */
   mapPins: Record<string, number>;
+  /** Cosmetic decorations the player placed (1.13): tile -> decoration id. No effect on play. */
+  mapDecorations: Record<number, DecorationId>;
 }
 
 export interface SettingsState {

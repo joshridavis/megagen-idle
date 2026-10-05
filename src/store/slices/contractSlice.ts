@@ -1,9 +1,11 @@
 import type { PerkId } from '../../data/contracts';
+import { ENTRY_ICONS } from '../../data/logIcons';
 import type { ContractsState } from '../../types/state';
 import { buyPerk, claimContract, deliverContract, updateContracts, type RewardChoice } from '../../utils/contracts';
 import type { Rng } from '../../utils/rng';
 import { deriveRates } from '../../utils/simulation';
 import { pickSaved } from '../migrations';
+import type { LogInput } from '../../utils/eventLog';
 import type { SliceCreator } from '../types';
 
 export interface ContractActions {
@@ -12,6 +14,15 @@ export interface ContractActions {
   deliverContract: (id: string) => boolean;
   claimContract: (id: string, choice: RewardChoice, now?: number) => void;
   buyPerk: (id: PerkId) => boolean;
+}
+
+/** Log entries for a contracts tick: completed, expired and new offers, each with its own icon (1.40). */
+export function contractLogEntries(r: { completed: unknown[]; expired: unknown[]; offered: unknown[] }): LogInput[] {
+  return [
+    ...r.completed.map(() => ({ kind: 'event' as const, icon: ENTRY_ICONS.contractComplete, text: 'Contract complete! Choose your reward on the Contracts tab.', toast: true })),
+    ...r.expired.map(() => ({ kind: 'event' as const, icon: ENTRY_ICONS.contractExpired, text: 'A contract ran out of time.', toast: false })),
+    ...(r.offered.length ? [{ kind: 'event' as const, icon: ENTRY_ICONS.contractOffer, text: `${r.offered.length} new contract offer${r.offered.length > 1 ? 's' : ''}.`, toast: false }] : []),
+  ];
 }
 
 /** Grid Contracts (0.86). Game rules live in src/utils/contracts.ts. */
@@ -24,14 +35,7 @@ export const createContractSlice =
       const r = updateContracts(pickSaved(s), now, rng);
       if (r.state.contracts === s.contracts) return;
       set({ contracts: r.state.contracts }, undefined, 'contracts/tick');
-      s.logEvents(
-        [
-          ...r.completed.map(() => ({ kind: 'event' as const, text: 'Contract complete! Choose your reward on the Contracts tab.', toast: true })),
-          ...r.expired.map(() => ({ kind: 'event' as const, text: 'A contract ran out of time.', toast: false })),
-          ...(r.offered.length ? [{ kind: 'event' as const, text: `${r.offered.length} new contract offer${r.offered.length > 1 ? 's' : ''}.`, toast: false }] : []),
-        ],
-        now,
-      );
+      s.logEvents(contractLogEntries(r), now);
     },
     deliverContract: (id) => {
       const before = pickSaved(get());

@@ -19,6 +19,18 @@ for (const width of [360, 768, 1280]) {
   });
 }
 
+test('the map legend fits a 375px phone, with every zone shown (1.39)', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto('./');
+  await page.locator('#tab-map').click();
+  await page.getByTestId('legend-toggle').click();
+  await expect(page.getByTestId('legend-lake')).toBeVisible();
+  const legend = page.getByTestId('map-legend');
+  expect(await legend.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
 test('click, build and switch tabs with the keyboard only', async ({ page }) => {
   await page.goto('./');
   const energy = page.getByLabel('Energy total');
