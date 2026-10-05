@@ -639,7 +639,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Guide:** the Map section explains zones, the river and coast rule, placement and moving. The Map tab already has the zone legend.
 - **Skipped:** the mini-map in the Generators tab; the Map tab covers it and the owner has not asked for it.
 
-### 1.07 — Browser notifications, opt-in and rate-limited — CODE — Not started
+### 1.07 — Browser notifications, opt-in and rate-limited — CODE — Done
 **Goal:** apply playtest 14 feedback: notify the player outside the game (browser notifications now, mobile later) when something worth coming back for happens, such as a research done or a level up. Handled carefully, because too many notifications are annoying.
 **Details:**
 - **Off by default.** Settings has a "Notifications" section with a master switch. Turning it on asks the browser for permission only at that moment, never on load.
@@ -648,6 +648,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Limits:** at most `MAX_PER_HOUR` (default 3) per hour, collapsed into one summary when several arrive together ("Research done: Hydropower, and 2 more"). Quiet hours are optional.
 - **Code:** a pure `selectNotifications(events, settings, history, now)` decides what to send, with tests. Sending goes through the platform layer (`platform.notify`), so a mobile wrapper can use native notifications later. A closed tab cannot notify on the web; the item notes this, and mobile push is planned with the app.
 **Acceptance:** nothing is sent without opt-in and permission; nothing is sent while visible; the rate limit and per-type switches work (unit tests); the summary text is correct.
+**Done notes:** Settings → Notifications (`NotificationSettings.tsx`), off by default; switching it on asks for permission then, and stays off if refused. Types: research complete, contract complete, pet grown, fuel ran out (on); player level up (off). "Rare sighting missed" was left out: sightings only happen while the game is on screen, so there is never one to miss. `selectNotifications` (`src/utils/notifications.ts`) picks by each entry's 1.40 icon; `MAX_PER_HOUR` in `src/data/notifyRules.ts`. Sending goes through `platform.notify`; the hourly count lives in memory (resets on reload). No quiet hours (optional). A closed tab cannot notify on the web; mobile push comes with the app. Save version 21.
 
 ### 1.08 — Map: machines no longer overlap — CODE — Done
 **Goal:** fix the playtest 15 bug: a coal plant (#32) drew as a huge box over many other machines.

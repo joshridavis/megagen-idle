@@ -12,6 +12,7 @@ import { ART_CREDITS, LIBRARY_CREDITS, type Credit } from '../data/credits';
 import { platform } from '../platform';
 import { cloudEnabled } from '../store/cloud';
 import AccountPanel from './AccountPanel';
+import NotificationSettings from './NotificationSettings';
 
 function CreditList({ items }: { items: Credit[] }) {
   return (
@@ -129,6 +130,7 @@ export default function SettingsPanel() {
           </span>
         </label>
       </div>
+      <NotificationSettings />
       <div className="panel">
         <h2 className="mb-2 panel-title">Tutorial</h2>
         <button type="button" onClick={replayTutorial} className="min-h-11 rounded bg-slate-600 px-4 py-2 font-semibold hover:bg-slate-500">

@@ -1,7 +1,7 @@
 import type { Platform } from './types';
 import { webPlatform } from './web';
 
-export type { Platform, PlatformName } from './types';
+export type { NotifyPermission, Platform, PlatformName } from './types';
 
 /**
  * The platform the game runs on. A desktop (Electron or Tauri) or mobile
