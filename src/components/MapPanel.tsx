@@ -18,28 +18,12 @@ import { useNumberFormat } from './useNumberFormat';
 import FloatingTip from './FloatingTip';
 import MapEventLayer from './MapEventLayer';
 import { zoneTipText } from './zoneTip';
+import MapLegend, { ZONE_SPRITE } from './MapLegend';
 
-const TERRAIN_SPRITE: Record<Terrain, SpriteId> = {
-  plain: 'tile_ground',
-  plateau: 'tile_plateau',
-  ridge: 'tile_ridge',
-  river: 'tile_river',
-  coast: 'tile_coast',
-  coalfield: 'tile_coalfield',
-  outcrop: 'tile_outcrop',
-  oilfield: 'tile_oilfield',
-  lake: 'tile_lake',
-  exclusion: 'tile_exclusion',
-};
+const TERRAIN_SPRITE: Record<Terrain, SpriteId> = { plain: 'tile_ground', ...ZONE_SPRITE };
 const KEY_STEPS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
 const detailSprite = (d: Detail) => `deco_${d}` as SpriteId;
-const TERRAIN_NAME = (t: Terrain) => (t === 'plain' ? 'Plain' : ZONES[t].name);
 const pctBonus = (b: number) => `+${Math.round(b * 100)}%`;
-const plural = (name: string) => (name.endsWith('y') ? `${name.slice(0, -1)}ies` : `${name}s`);
-/** The machines a zone suits, e.g. "Quarries, Metal Mines, Uranium Mines". */
-const machineName = (t: string) => (GENERATORS as Record<string, { name: string }>)[t]?.name ?? PRODUCERS[t as ProducerId].name;
-const zoneSuits = (z: Zone, own = true) =>
-  (own ? [...ZONES[z].generators, ...(ZONES[z].producers ?? [])] : (ZONES[z].visitors ?? [])).map((t) => plural(machineName(t))).join(', ');
 
 /**
  * Site map (1.04; terrain, zones and moving in 1.05, playtest 14 and 15).
@@ -57,6 +41,8 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const [selected, setSelected] = useState<string | null>(null);
   const [hoverCell, setHoverCell] = useState<number | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  /** The zone a legend row points at (1.39): its tiles light up. */
+  const [legendZone, setLegendZone] = useState<Zone | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   /** A drag in progress (1.16): which machine, where it was grabbed, and whether it has moved yet. */
   const drag = useRef<{ key: string; grabX: number; grabY: number; x: number; y: number; moved: boolean } | null>(null);
@@ -206,7 +192,15 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     }
   };
 
-  const legend: (Terrain | 'sea')[] = ['plain', 'plateau', 'ridge', 'river', 'coast', 'coalfield', 'outcrop', 'oilfield', 'lake', 'exclusion', 'sea'];
+  // zones with land inside the site, for the legend (1.39)
+  const onSite = useMemo(() => {
+    const out = new Set<Zone>();
+    for (let c = 0; c < map.capacity; c++) {
+      const t = terrainAt(c % map.columns, Math.floor(c / map.columns));
+      if (t !== 'plain') out.add(t);
+    }
+    return out;
+  }, [map.capacity, map.columns]);
 
   return (
     <section aria-label="Site map" className="flex flex-col gap-3">
@@ -286,6 +280,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                   <div aria-hidden="true" className="pointer-events-none absolute inset-0 animate-pulse bg-fuchsia-400/10 motion-reduce:animate-none" />
                 )}
                 {locked && <div className="absolute inset-0 bg-slate-950/55" />}
+                {legendZone === t && <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-amber-200/35" data-testid="legend-highlight" />}
                 {target && <div className={`absolute inset-0 ${best ? 'bg-emerald-300/45' : 'bg-emerald-200/15'}`} data-testid={best ? 'best-spot' : undefined} />}
               </div>
             );
@@ -365,31 +360,16 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
             ))}
         </div>
       </div>
-      <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300" aria-label="Map legend" data-testid="map-legend">
-        {legend.map((t) => (
-          <li key={t} className="flex items-center gap-1">
-            <img src={sprites[t === 'sea' ? 'tile_sea' : TERRAIN_SPRITE[t]]} alt="" width={14} height={14} className="pixelated" />
-            {t === 'sea' ? 'Sea' : TERRAIN_NAME(t)}
-            {t !== 'sea' && t !== 'plain' && (
-              <span className="text-slate-400">
-                ({ZONES[t].required ? `${zoneSuits(t)} only` : `${pctBonus(ZONES[t].bonus)} ${zoneSuits(t)}`}
-                {ZONES[t].visitors && `; ${pctBonus(ZONES[t].bonus)} ${zoneSuits(t, false)}`})
-              </span>
-            )}
-          </li>
-        ))}
-        <li className="text-slate-400">⭐ = standing on its bonus zone</li>
-      </ul>
+      <MapLegend onSite={onSite} highlight={legendZone} onHighlight={setLegendZone} />
       {next && (
         <p className="text-xs text-slate-400">
-          Fenced land (dimmed): the next room expansion adds {next.capacity} tiles (Generators tab → Room).
+          Dimmed land: the next room expansion adds {next.capacity} tiles (Generators tab → Room).
         </p>
       )}
       {siteRows < EXCLUSION_START_ROW && (
         <p className="flex items-center gap-1 text-xs text-slate-400" data-testid="exclusion-hint">
           <img src={sprites.tile_exclusion} alt="" width={14} height={14} className="pixelated" />
-          Not on the map yet: the Exclusion Zone (for Fusion Reactors and Micro-Supernovas) lies further south. It comes into view when
-          your site grows past {EXCLUSION_START_ROW * map.columns} tiles; room expansions 9 and 10 open it.
+          Exclusion Zone (Fusion Reactors, Micro-Supernovas): further south, past {EXCLUSION_START_ROW * map.columns} tiles; room expansions 9 and 10 open it.
         </p>
       )}
     </section>

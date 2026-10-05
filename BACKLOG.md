@@ -1050,7 +1050,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The toast uses the same icon. Icons stay `aria-hidden`; the text still says what happened.
 **Acceptance:** tests: every log source writes its own icon (random effect, sighting, map event, contract offer, completion and expiry, pet found and grown, player level, research level, each unlock type); no two entry types share an emoji (a test over the icon table); an old saved entry still renders; the build and all tests pass.
 
-### 1.39 — A tidy, readable map legend — CODE — Not started
+### 1.39 — A tidy, readable map legend — CODE — Done
 **Goal:** owner request: with a bonus place for every machine (1.38), the explanations under the map get long and messy. Make them short and easy to scan.
 **Details:**
 - **Today:** under the map (`src/components/MapPanel.tsx`) a wrapping line lists each terrain with "(+20% Solar Panels)" or "(Hydropower Dams only)", plus a ⭐ note, a fenced-land note and the Exclusion Zone hint. Long lists of machine names per zone will make this wrap into a hard-to-read block.
@@ -1060,6 +1060,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Optional filter: hovering or tapping a legend row highlights that zone on the map.
 - Works at phone width with no horizontal scroll.
 **Acceptance:** tests: the legend renders one row per zone with its bonus and machine icons; hidden zones appear with the toggle; the full description is in the tooltip; at a 375 px wide viewport the legend does not overflow (jsdom or Playwright smoke test).
+**Done notes:** new `src/components/MapLegend.tsx`. Each row: tile, zone name, bonus, an "only here" tag for must-build zones, the machines as icons (name on hover and in the label), and visitors (the Deuterium Extractor on the coast) after "also". The highlight is on: hovering, focusing or tapping a row lights that zone's tiles. "Show all zones" is remembered in `localStorage` (`megagen-idle-legend-all`). Plain land and ⭐ share one short line; the fenced-land note and the Exclusion Zone hint are one line each. Playwright test at 375 px.
 
 ### 1.37 — No timed events started on return from time away; no clashing weather — CODE — Done
 **Goal:** fix an owner bug report: opening the game after a while often started two or three events at once, such as Overcast and Sunny spell together.
