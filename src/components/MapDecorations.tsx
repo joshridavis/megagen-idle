@@ -33,7 +33,7 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
       aria-modal="false"
       aria-labelledby="decor-title"
       tabIndex={-1}
-      className="fixed inset-x-0 bottom-0 z-[44] max-h-[45vh] overflow-y-auto rounded-t-xl border border-slate-600 bg-slate-800/95 p-3 text-sm shadow-2xl shadow-black/60 backdrop-blur focus-visible:outline-2 focus-visible:outline-sky-400 sm:inset-x-auto sm:right-4 sm:bottom-4 sm:max-h-[70vh] sm:w-96 sm:rounded-xl"
+      className="fixed inset-x-0 bottom-0 z-[44] max-h-[45vh] overflow-y-auto rounded-t-xl border border-slate-600 bg-slate-800/95 p-3 text-sm shadow-2xl shadow-black/60 backdrop-blur focus-visible:outline-2 focus-visible:outline-sky-400 sm:inset-x-auto sm:right-4 sm:bottom-4 sm:max-h-[calc(100vh-10rem)] sm:w-96 sm:rounded-xl"
       data-testid="map-decorations"
     >
       <div className="mb-2 flex items-start justify-between gap-2">
@@ -82,7 +82,8 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
           );
         })}
       </ul>
-      <div className="mt-2 flex flex-wrap gap-2">
+      {/* Remove and Close stay in view however long the list gets */}
+      <div className="sticky -bottom-3 -mx-3 -mb-3 mt-2 flex flex-wrap gap-2 border-t border-slate-700 bg-slate-800 px-3 py-2">
         <button
           type="button"
           disabled={!placedAny}

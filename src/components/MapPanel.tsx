@@ -40,6 +40,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const placeDecoration = useStore((s) => s.placeDecoration);
   const removeDecoration = useStore((s) => s.removeDecoration);
   const reduceMotion = useStore((s) => s.settings.reduceMotion);
+  const researching = useStore((s) => s.currentResearch !== null);
   const fmt = useNumberFormat();
   const map = layoutSite(state);
   const [hover, setHover] = useState<string | null>(null);
@@ -117,7 +118,8 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     setDecorOpen(false);
     setDecorToolState(null);
     setNote(null);
-    decorButton.current?.focus();
+    // the floating button mounts again once the panel is gone
+    requestAnimationFrame(() => decorButton.current?.focus());
   };
   // Escape closes the decorations panel from anywhere on the page (a machine being moved is cancelled first).
   const closeDecorRef = useRef(closeDecor);
@@ -261,22 +263,11 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
 
   return (
     // while the decorations sheet covers the bottom of a phone screen, extra space below lets the map scroll above it
-    <section aria-label="Site map" className={`flex flex-col gap-3 ${decorOpen ? 'pb-[45vh] sm:pb-0' : ''}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <section aria-label="Site map" className={`flex flex-col gap-3 ${decorOpen ? 'pb-[45vh] sm:pb-0' : 'pb-14'}`}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="panel-title">
           Your site ({used}/{map.capacity} tiles)
         </h2>
-        <button
-          ref={decorButton}
-          type="button"
-          aria-expanded={decorOpen}
-          aria-controls={decorOpen ? 'decor-panel' : undefined}
-          onClick={() => (decorOpen ? closeDecor() : openDecor())}
-          data-testid="decor-open"
-          className={`min-h-11 rounded px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-sky-400 ${decorOpen ? 'bg-sky-800 hover:bg-sky-700' : 'bg-slate-700 hover:bg-slate-600'}`}
-        >
-          🎨 Decorations
-        </button>
         <span className="text-xs text-slate-400">One tile per unit of room. Drag a machine to move it (or click it, then a tile).</span>
       </div>
       <div className="min-h-10 text-sm text-sky-200" aria-live="polite" data-testid="map-info">
@@ -451,7 +442,23 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
         </div>
       </div>
       <MapLegend onSite={onSite} highlight={legendZone} onHighlight={setLegendZone} />
-      {decorOpen && <MapDecorations tool={decorTool} onTool={setDecorTool} onClose={closeDecor} />}
+      {/* Decorations (1.64): a button floating at the bottom right of the screen, reachable however far the map
+          is scrolled (in the map header it scrolled away or hid under the pinned bar). On phones it sits above
+          the research chip. The panel opens in the same corner. */}
+      {decorOpen ? (
+        <MapDecorations tool={decorTool} onTool={setDecorTool} onClose={closeDecor} />
+      ) : (
+        <button
+          ref={decorButton}
+          type="button"
+          aria-expanded={false}
+          onClick={openDecor}
+          data-testid="decor-open"
+          className={`fixed right-4 z-[44] flex min-h-11 items-center gap-1 rounded-full border-2 border-sky-400 bg-sky-800 px-4 text-sm font-semibold shadow-lg shadow-black/50 hover:bg-sky-700 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-sky-300 sm:bottom-4 ${researching ? 'bottom-24' : 'bottom-4'}`}
+        >
+          <span aria-hidden="true">🎨</span> Decorations
+        </button>
+      )}
       {next && (
         <p className="text-xs text-slate-400">
           Dimmed land: the next room expansion adds {next.capacity} tiles (Generators tab → Room).

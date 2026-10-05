@@ -24,19 +24,20 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**After playtest 22 (owner notes, 2026-10-05):** these come first, in this order (the owner may reorder), then the rest of the playtest 21 list below.
+**After playtest 22 (owner, 2026-10-05):** these come first, in this order (approximate priority, set by Claude at the owner's request), then the rest of the playtest 21 list below.
 
+0. 1.64 Fix: the Decorations button out of reach on a big map (playtest 22 bug; Done) → HOTFIX v0.22.1
+0. 1.62 Harder research level gates (owner: research level 21 in under a week is too easy)
+0. 1.61 Player level as a hard requirement
 0. 1.63 Map tooltips on hover, next to the machine
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
-0. 1.54 More decorations
-0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity
-0. 1.58 Pet growing animation → CHECKPOINT 23
+0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity → CHECKPOINT 23
 0. 1.59 Pet slots: up to 3 active pets, bought with energy
+0. 1.58 Pet growing animation
 0. 1.60 Active pets walk on the screen
 0. 1.56 More pets
-0. 1.55 More random events
-0. 1.61 Player level as a hard requirement → CHECKPOINT 24
-0. 1.62 Research points for high-level research
+0. 1.55 More random events → CHECKPOINT 24
+0. 1.54 More decorations
 
 **After playtest 21 (owner, 2026-10-05):** these came first, in this order; 1.44 to 1.47 and 1.52 are Done, the rest follow the playtest 22 items above.
 
@@ -1107,6 +1108,13 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** a test runs the script into a temporary folder and checks sizes, AAP-64-only opaque pixels, the transparent logo and icon corners, whole-number scaling of the icon, and that the committed images match; the build and all tests pass.
 **Notes:** the iOS App Store icon must not have transparency; the 1024 icon has transparent rounded corners for Steam and the web. A store-specific opaque version can be added when the Capacitor item needs it.
 
+### 1.64 — Fix: the Decorations button out of reach on a big map — CODE — Done
+**Goal:** fix a playtest 22 report: on a big map, once you scroll down, the 🎨 Decorations button in the map header is gone (or hidden under the pinned top bar), so decorating means scrolling back up.
+**Details:**
+- The button now floats at the bottom right of the screen on the Map tab, so it is always reachable. On phones it sits above the research chip while research runs. The panel opens in the same corner (a bottom sheet on phones), and the button comes back, with focus, when the panel closes.
+- The panel is never taller than the space under the pinned bar. Remove and Close stay pinned at its bottom.
+**Acceptance:** Playwright at 1280×520 and 375×640, scrolled to the bottom of the map: the button is fully on screen and not covered, and the panel, ✕, Remove and Close are fully on screen (below the bar on wide screens); unit tests updated; the build and all tests pass.
+
 ### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Not started
 **Goal:** owner request after playtest 22: decorations start locked and are bought with energy, one at a time, each copy costing more than the last.
 **Details:**
@@ -1185,13 +1193,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Pick the levels from the simulated timeline so no gate is reached before its level comes naturally by much; rerun `npm run simulate`, check there are no stalls and report the hours.
 **Acceptance:** tests for each gate (blocked below the level, allowed at it), and the simulator honors the gates; the build and all tests pass.
 
-### 1.62 — Research points for high-level research — CODE — Not started
-**Goal:** owner request after playtest 22: high-level research should need a number of research points.
+### 1.62 — Harder research level gates — CODE — Not started
+**Goal:** owner feedback after playtest 22: research is too easy to climb. The highest research needs only research level 14, and the owner reached research level 21 in under a week of play. High-level research must need a clearly higher research level.
 **Details:**
-- **Assumption (owner to confirm):** "research points" are earned by completing research (for example 1 point per research level of each completed research) and are never spent; high-level research needs a minimum total, on top of the research level it already needs. If the owner meant a point currency that is spent, change this item before starting.
-- The total shows next to the research level; a locked research says "Needs N research points (you have M)".
-- Requirements in `src/data/research.ts` for research from about level 6; rebalance with `npm run simulate` and report the hours.
-**Acceptance:** tests: points rise with completed research, the requirement blocks and then allows, old saves get their points; the simulation has no stalls; the build and all tests pass.
+- (Replaces the first draft "research points": the owner confirmed no new point currency; the research level is the requirement.)
+- Check how the global research level rises today (`src/data/research.ts`, the research slice) and how far the `requiredLevel` values spread (now 1 to 14).
+- Spread the requirements of the upper research much higher, so the last research needs a level close to the maximum a player reaches by then, and make the research level rise more slowly at high levels if needed (for example more research per level). Numbers stay in the data files.
+- Each locked research keeps saying exactly what it needs ("Needs research level N, you are M").
+- Old saves: research already done stays done; a research in progress finishes. Only new starts check the new requirements.
+- Rerun `npm run simulate`: no stalls, 100% stays above the 200 h target. Report the new hours and the research level timeline in the PR.
+**Acceptance:** tests that the new requirements block and then allow research, and that old saves keep their research; the simulation has no stalls; the build and all tests pass.
 
 ### 1.63 — Map tooltips on hover, next to the machine — CODE — Not started
 **Goal:** owner request after playtest 22: on a big map, the info line above it is out of view; hovering a machine should show its details beside it.
@@ -1578,3 +1589,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 21 (v0.21.0) | 1.38, 1.39, 1.40, 1.41, 1.13 | 2026-10-05 | 100% completion simulated at 251.0 h. The new bonus places are worth moving plants for; one lake spot is enough. Legend easy to read on computer and phone. Log icons help. Decoration unlocks fine for now. Keep the order: browser notifications (1.07), then the performance pass (0.42). | (none) |
 | 21.1 (v0.21.1, hotfix) | 1.07, 1.43, 1.44 | 2026-10-05 | Sign-up showed "Invalid path specified in request URL". Bug: after a cloud save, signing in from an incognito tab did not load it, and "Load cloud save" did nothing. Requests: a click button by the pinned bar, cloud save from anywhere, decorations in a panel over the map, better sprites, a designed loader, a logo, petting achievements. | 1.43, 1.44 (fixed); 1.45-1.51 |
 | 22 (v0.22.0) | 1.45, 1.46, 1.47 (and 1.52) | 2026-10-05 | 100% completion simulated at 251.0 h (unchanged). Before testing, owner notes: decorations bought with energy at rising prices, with achievements and completion; more decorations; more random events; more pets; raise one pet at a time, with a stronger effect as it matures; a growing animation; active pets walking on screen on every tab (with a setting); up to 3 active pets, bought with expensive energy upgrades; player level as a hard requirement for room expansions, pet slots and contract perks; research points for high-level research; map tooltips beside the machine. | 1.53-1.63 |
+| 22 (after test) | 1.45, 1.46, 1.47 | 2026-10-05 | ⚡ and ☁️ buttons are fine. Decorations panel not good enough: on a big map, scrolled down, the button cannot be seen; bottom right is a good place. Research points: not a spent currency; research level requirements are too low (the top research needs level 14, the owner is research level 21 within a week): make them harder. Order the new items by approximate priority. | 1.64 (hotfix v0.22.1); 1.62 rewritten; 1.53-1.63 ordered |
