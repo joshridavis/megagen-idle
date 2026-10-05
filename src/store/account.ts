@@ -2,7 +2,8 @@ import { create } from 'zustand';
 import { platform } from '../platform';
 import { exportSave, parseSaveFile } from '../utils/saveFile';
 import { cloudEnabled, cloudErrorText, getCloudService, USERNAME_PATTERN, type CloudService, type CloudUser, type OAuthProvider } from './cloud';
-import { AUTO_SLOT, chooseSave, SAME_SAVE_MS, summarize, type SaveChoice, type SaveSummary } from './saveBackend';
+import { AUTO_SLOT, SAME_SAVE_MS, summarize, type SaveChoice, type SaveSummary } from './saveBackend';
+import type { GameState } from '../types/state';
 import { useStore } from '.';
 
 /**
@@ -67,15 +68,31 @@ export function writeLastSync(userId: string, at: number): void {
 }
 
 /**
- * What to do after signing in. If the cloud save has not changed since this
- * device last synced it, the game here simply continues (no question at every
- * start). If another device uploaded since, or this device never synced,
- * chooseSave decides, asking when the two differ.
+ * A game that has not really started (no research done, nothing built, no
+ * room bought): never worth keeping over a cloud save.
  */
-export function decideOnSignIn(local: SaveSummary, cloud: SaveSummary | null, lastSyncAt: number | null): SaveChoice {
+export function isFreshGame(s: Pick<GameState, 'completedResearch' | 'activeGenerators' | 'expansionLevel'>): boolean {
+  return s.completedResearch.length === 0 && s.activeGenerators.length === 0 && s.expansionLevel === 0;
+}
+
+/**
+ * What to do after signing in. The local summary is stamped "now", so its
+ * time says nothing about when it was played: it is never compared with the
+ * cloud save's time (owner bug after playtest 21: a new device signed in a
+ * minute after a cloud save looked "newer" and uploaded a blank game over it).
+ * - No cloud save: keep the game here and upload it.
+ * - A fresh game here: load the cloud save.
+ * - The cloud save has not changed since this device last synced: continue here.
+ * - Otherwise ask, suggesting the save with more progress (on a tie, the
+ *   cloud save if another device uploaded since, else the one with more energy).
+ */
+export function decideOnSignIn(local: SaveSummary, cloud: SaveSummary | null, lastSyncAt: number | null, localFresh = false): SaveChoice {
   if (!cloud) return { kind: 'use', source: 'local' };
+  if (localFresh) return { kind: 'use', source: 'cloud' };
   if (lastSyncAt !== null && cloud.savedAt <= lastSyncAt + SAME_SAVE_MS) return { kind: 'use', source: 'local' };
-  return chooseSave(local, cloud);
+  const tie = cloud.completion === local.completion;
+  const cloudAhead = cloud.completion > local.completion || (tie && (lastSyncAt !== null || cloud.energy >= local.energy));
+  return { kind: 'ask', newer: cloudAhead ? 'cloud' : 'local', local, cloud };
 }
 
 /** Whether the automatic upload is due. */
@@ -133,7 +150,7 @@ async function afterSignIn(user: CloudUser): Promise<void> {
   set({ status: 'signedIn', user, lastSyncAt: readLastSync(user.id), needsUsername: !user.username });
   const s = await svc();
   const cloud = (await s.saves.list()).find((x) => x.slot === AUTO_SLOT) ?? null;
-  const choice = decideOnSignIn(localSummary(), cloud, readLastSync(user.id));
+  const choice = decideOnSignIn(localSummary(), cloud, readLastSync(user.id), isFreshGame(useStore.getState()));
   if (choice.kind === 'ask') set({ choice });
   else if (choice.kind === 'use' && choice.source === 'cloud') await loadCloud();
   else await uploadNow();

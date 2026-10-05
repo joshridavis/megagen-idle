@@ -96,7 +96,7 @@ describe('Account panel (0.68)', () => {
     });
     render(<CloudDialogs />);
     expect(screen.getByRole('dialog').textContent).toContain('Which game do you want to keep?');
-    expect(screen.getByText('(newer)')).toBeTruthy();
+    expect(screen.getByText('(more progress)')).toBeTruthy();
     await act(async () => fireEvent.click(screen.getAllByRole('button', { name: 'Use this one' })[1]));
     expect(useStore.getState().energy).toBe(777);
     expect(screen.queryByRole('dialog')).toBeNull();

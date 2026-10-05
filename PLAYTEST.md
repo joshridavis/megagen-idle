@@ -1,4 +1,34 @@
-# Playtest 21 (v0.21.0): a bonus place for every machine, a tidy map legend, decorations, clearer event log
+# Playtest 21.1 (v0.21.1, hotfix): cloud saves on a new device, sign-up, notifications
+
+The version at the bottom of the screen should read **v0.21.1**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 251 hours** (simulated, unchanged).
+
+## What changed
+
+- **Bug fixed (1.44):** signing in on a new device (or an incognito tab) right after saving to the cloud kept the blank new game and **uploaded it over your cloud save**. Now a game that has not started (no research, nothing built, no room bought) always loads the cloud save. When both saves have real progress, you are asked, and the one with **more progress** is suggested.
+- **Sign-up fixed (1.43):** "Invalid path specified in request URL" came from a Supabase address with `/rest/v1/` at the end; the game now uses only the project address.
+- **Browser notifications (1.07):** Settings → Notifications, off by default. Only while the game is in the background, at most 3 an hour.
+
+## Important: your cloud save
+
+Your test probably replaced the cloud save with the blank incognito game. Your first browser still has the real game. Open it and sign in. If you are asked, pick **This device** (marked "more progress"). Or use Settings → **Save to cloud** there. Then try the incognito test again: the game should load right away.
+
+## Things to try
+
+1. Repeat your test: save to the cloud, open an incognito tab, sign in. The game should load at once.
+2. Turn on notifications in Settings, start a research, switch to another tab and wait for it to finish.
+
+---
+
+# Previous: Playtest 21 (v0.21.0): a bonus place for every machine, a tidy map legend, decorations, clearer event log
 
 The version at the bottom of the screen should read **v0.21.0**.
 

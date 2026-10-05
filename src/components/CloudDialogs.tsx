@@ -72,7 +72,7 @@ function Card({ title, s, newer, onPick, busy }: { title: string; s: SaveSummary
   return (
     <div className={`flex flex-1 flex-col gap-1 rounded border p-3 ${newer ? 'border-emerald-400' : 'border-slate-600'}`}>
       <h3 className="font-semibold">
-        {title} {newer && <span className="text-xs text-emerald-300">(newer)</span>}
+        {title} {newer && <span className="text-xs text-emerald-300">(more progress)</span>}
       </h3>
       <p className="text-sm text-slate-300">Saved {when(s.savedAt)}</p>
       <p className="text-sm text-slate-300">
