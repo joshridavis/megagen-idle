@@ -7,8 +7,24 @@ import { AUTO_SLOT, type SaveBackend, type SaveMeta, type SaveSummary, type Stor
  * two public settings below, so builds without them work exactly as before.
  */
 
+/**
+ * The bare project address (scheme and host) from whatever was pasted: the
+ * Data API page shows the REST endpoint (".../rest/v1/"), and with that the
+ * library calls ".../rest/v1/auth/v1/signup", which Supabase rejects with
+ * "Invalid path specified in request URL" (owner report, after playtest 21).
+ */
+export function projectUrl(raw: string): string {
+  const text = raw.trim();
+  if (!text) return '';
+  try {
+    return new URL(text).origin;
+  } catch {
+    return text;
+  }
+}
+
 /** Public project settings, from GitHub repository variables at build time. Not secrets (see the plan, section 5). */
-export const CLOUD_URL: string = import.meta.env.VITE_SUPABASE_URL ?? '';
+export const CLOUD_URL: string = projectUrl(import.meta.env.VITE_SUPABASE_URL ?? '');
 export const CLOUD_KEY: string = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
 export const cloudConfigured = () => CLOUD_URL !== '' && CLOUD_KEY !== '';
 

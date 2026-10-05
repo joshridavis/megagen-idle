@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { authProviders, cloudErrorText, createSupabaseService, type SupabaseLike } from './cloud';
+import { authProviders, cloudErrorText, projectUrl, createSupabaseService, type SupabaseLike } from './cloud';
 
 type Row = Record<string, unknown>;
 
@@ -110,5 +110,14 @@ describe('Supabase service (0.68)', () => {
   it('only known, listed providers get a button', () => {
     expect(authProviders('')).toEqual([]);
     expect(authProviders('Google, discord ,google,github')).toEqual(['google', 'discord']);
+  });
+});
+
+describe('project URL (owner report: "Invalid path specified in request URL")', () => {
+  it('keeps only the project address, whatever was pasted', () => {
+    expect(projectUrl('https://abc.supabase.co')).toBe('https://abc.supabase.co');
+    expect(projectUrl('https://abc.supabase.co/')).toBe('https://abc.supabase.co');
+    expect(projectUrl(' https://abc.supabase.co/rest/v1/ ')).toBe('https://abc.supabase.co');
+    expect(projectUrl('')).toBe('');
   });
 });
