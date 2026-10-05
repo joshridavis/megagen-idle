@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { sprites, type SpriteId } from './assets';
 import ActiveEffects from './components/ActiveEffects';
 import AchievementsPanel from './components/AchievementsPanel';
@@ -16,7 +16,7 @@ import GeneratorGrid from './components/GeneratorGrid';
 import ProducerPanel from './components/ProducerPanel';
 import ResearchCelebration from './components/ResearchCelebration';
 import ResearchChip from './components/ResearchChip';
-import ResearchTree from './components/ResearchTree';
+import ResearchTree, { type OpenResearchRequest } from './components/ResearchTree';
 import ResourceDisplay from './components/ResourceDisplay';
 import RoomPanel from './components/RoomPanel';
 import SettingsPanel from './components/SettingsPanel';
@@ -52,6 +52,9 @@ export default function App() {
   // accounts and cloud saves (0.68): does nothing unless this build has the cloud settings
   useEffect(() => startCloud(), []);
   const [tab, setTab] = useState<Tab>('generators');
+  /** The research chip opens the running research's details on the Research tab (1.41). */
+  const [researchRequest, setResearchRequest] = useState<OpenResearchRequest | null>(null);
+  const clearResearchRequest = useCallback(() => setResearchRequest(null), []);
   const researching = useStore((s) => s.currentResearch !== null);
   // Completion % on its tab, always visible (like Melvor Idle's completion log).
   const completion = useStore((s) => formatCompletion(getCompletion(s).ratio));
@@ -157,7 +160,7 @@ export default function App() {
             <RoomPanel />
           </div>
         ) : tab === 'research' ? (
-          <ResearchTree />
+          <ResearchTree openRequest={researchRequest} onRequestHandled={clearResearchRequest} />
         ) : tab === 'contracts' ? (
           <ContractsPanel />
         ) : tab === 'pets' ? (
@@ -182,7 +185,12 @@ export default function App() {
           className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
         >
           <div className="pointer-events-auto w-full max-w-md shadow-[0_8px_30px_rgba(0,0,0,0.6)]">
-            <ResearchChip onOpen={() => setTab('research')} />
+            <ResearchChip
+              onOpen={(id) => {
+                setTab('research');
+                setResearchRequest({ id });
+              }}
+            />
           </div>
         </div>
       )}

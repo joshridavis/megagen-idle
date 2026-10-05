@@ -1024,7 +1024,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** a test that every `GeneratorType` and every producer id has a zone (`zoneFor` is never null); tests for the new assignments, the bonus and that required-zone machines still get their spots first; the build and all tests pass.
 **Done notes:** Coal Plant → Coal field (+20%); Natural Gas and Oil Power Plants → Oil and gas field (+20%); Nuclear Fission Plant → new **Cooling lake** (+20%, sprite `tile_lake`); Deuterium Extractor → Coast as a *visitor* (`visitors` on `ZoneDef`, `zoneRequiredFor`): it gets the coast's +10% but may stand anywhere and makes way for tidal stations. Gas and oil plants are 5 tiles wide and the old oil fields only 4, so two plain patches next to oil fields became oil field (8 wide, rows 9–11 and 18–19), and one plain patch became the lake (4 × 3, rows 12–14, one Nuclear spot). Only plain land changed; no existing zone moved. The layout now retries zone-bound machines ignoring machines that may give way when its first try leaves one misplaced (a pinned extractor could split the coast). Simulator: 251.0 h to 100% (was 259.2 h).
 
-### 1.41 — The research chip opens the running research's details — CODE — Not started
+### 1.41 — The research chip opens the running research's details — CODE — Done
 **Goal:** owner request: clicking the sticky research progress chip (shown on every tab while research runs) opens the Research tab; it should also open the details popup of the running research, the same one shown when you click that research in the tree.
 **Details:**
 - **Today:** `ResearchChip` (`src/components/ResearchChip.tsx`) calls `onOpen`, which in `src/App.tsx` only runs `setTab('research')`. The popup is `ResearchPanel`, opened by local `openId` state in `src/components/ResearchTree.tsx`.
@@ -1033,6 +1033,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Keep focus handling right: focus goes into the popup and returns to a sensible element when it closes. Update the chip's `aria-label` ("Open its details").
 - The request is UI-only and never saved.
 **Acceptance:** tests: clicking the chip from another tab switches to Research and shows the popup for the running research; from the Research tab it opens the popup; with no running research it only opens the tab; closing the popup keeps the Research tab; the build and all tests pass.
+**Done notes:** the chip passes the running research id; `App` keeps a UI-only request (`OpenResearchRequest`) that `ResearchTree` turns into its open popup, then clears, so returning to the tab later does not reopen it. Focus goes to the popup's Close button and back to the chip on close.
 
 ### 1.40 — A distinct emoji for every kind of event log entry — CODE — Done
 **Goal:** owner request: many event log lines share the same ✨, so the log is hard to scan. Every different kind of entry should have its own emoji.

@@ -7,9 +7,10 @@ import { RESEARCH_ICONS } from './researchSprites';
 
 /**
  * Shows the running research with time left on every tab. Re-renders on the
- * idle tick (lastSavedTimestamp changes every second). Click opens Research.
+ * idle tick (lastSavedTimestamp changes every second). Click opens Research
+ * with the running research's details (1.41).
  */
-export default function ResearchChip({ onOpen }: { onOpen: () => void }) {
+export default function ResearchChip({ onOpen }: { onOpen: (researchId: string) => void }) {
   const state = useStore((s) => s);
   const current = state.currentResearch;
   if (!current) return null;
@@ -21,9 +22,9 @@ export default function ResearchChip({ onOpen }: { onOpen: () => void }) {
   return (
     <button
       type="button"
-      onClick={onOpen}
+      onClick={() => onOpen(current.id)}
       data-testid="research-chip"
-      aria-label={`Researching ${def.name}, ${formatDuration(left)} left. Open Research.`}
+      aria-label={`Researching ${def.name}, ${formatDuration(left)} left. Open its details.`}
       className="flex w-full items-center gap-2 rounded-full border border-sky-500/70 bg-sky-950 px-3 py-2 text-left text-sm hover:bg-sky-900"
     >
       <img src={sprites[RESEARCH_ICONS[def.category]]} alt="" width={20} height={20} className="pixelated research-running-icon" />

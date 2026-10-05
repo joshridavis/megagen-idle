@@ -1,6 +1,7 @@
 import { act, render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import ResearchTree from './components/ResearchTree';
 import { pickSaved } from './store/migrations';
 import { deriveRates } from './utils/simulation';
 import pkg from '../package.json';
@@ -542,6 +543,46 @@ describe('Research visible on every tab (playtest 7)', () => {
     fireEvent.click(chip);
     expect(screen.getByRole('tab', { name: 'Research' }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByTestId('research-node-wind_power').className).toContain('research-running');
+  });
+
+  it("opens the running research's details, from any tab or the Research tab (1.41)", () => {
+    const now = Date.now();
+    useStore.setState({
+      ...createInitialState(now),
+      currentResearch: { id: 'wind_power', startTime: now - 600_000, duration: 1800 },
+      completedResearch: ['basic_solar'],
+      researchLevel: 2,
+    });
+    render(<App />);
+    const chip = screen.getByTestId('research-chip');
+    expect(chip.getAttribute('aria-label')).toContain('Open its details');
+    chip.focus();
+    fireEvent.click(chip);
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.textContent).toContain('Wind Power Fundamentals');
+    // focus moves into the popup
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    // closing keeps the Research tab, and focus goes back to the chip
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('tab', { name: 'Research' }).getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(screen.getByTestId('research-chip'));
+    // from the Research tab itself
+    fireEvent.click(screen.getByTestId('research-chip'));
+    expect(screen.getByRole('dialog').textContent).toContain('Wind Power Fundamentals');
+    fireEvent.keyDown(window, { key: 'Escape' });
+    // switching tabs and back does not reopen it
+    fireEvent.click(screen.getByRole('tab', { name: 'Generators' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Research' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('opens only the tab when the research finished in the meantime (1.41)', () => {
+    useStore.setState(createInitialState(Date.now()));
+    const handled = vi.fn();
+    render(<ResearchTree openRequest={{ id: 'wind_power' }} onRequestHandled={handled} />);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(handled).toHaveBeenCalled();
   });
 
   it('is hidden when no research runs', () => {

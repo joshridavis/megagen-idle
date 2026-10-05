@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { sprites } from '../assets';
 import { RESEARCH, RESEARCH_BY_ID } from '../data/research';
 import { useStore } from '../store';
@@ -21,9 +21,20 @@ const BRANCH_LABELS: Record<string, string> = {
   fossil_fuels: 'Fuels',
 };
 
-export default function ResearchTree() {
+/** A request to open a research's details, from the research chip (1.41). UI only, never saved. */
+export interface OpenResearchRequest {
+  id: string;
+}
+
+export default function ResearchTree({ openRequest = null, onRequestHandled }: { openRequest?: OpenResearchRequest | null; onRequestHandled?: () => void } = {}) {
   const state = useStore((s) => s);
   const [openId, setOpenId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!openRequest) return;
+    // finished in the meantime: just the tab
+    if (useStore.getState().currentResearch?.id === openRequest.id) setOpenId(openRequest.id);
+    onRequestHandled?.();
+  }, [openRequest, onRequestHandled]);
   const layout = useMemo(() => computeResearchLayout(RESEARCH), []);
   const pos = (id: string) => {
     const p = layout.positions[id];
