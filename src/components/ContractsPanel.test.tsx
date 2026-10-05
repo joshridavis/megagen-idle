@@ -4,6 +4,7 @@ import { createInitialState } from '../data/initialState';
 import { useStore } from '../store';
 import type { Contract } from '../types/state';
 import { contractShortfall, sharesNeed } from '../utils/contracts';
+import { energyForLevel } from '../utils/playerLevel';
 import ContractsPanel from './ContractsPanel';
 
 afterEach(cleanup);
@@ -53,11 +54,21 @@ describe('clearer perk shop (1.00)', () => {
     useStore.getState().resetGame();
     useStore.setState({
       researchLevel: 3,
+      lifetimeEnergy: energyForLevel(10),
       contracts: { ...createInitialState(0).contracts, nextOfferAt: 1e15, points: 11, open: [c({ id: 'a', energy: 10, tier: 2 })] },
     });
     render(<ContractsPanel />);
     expect(screen.getByTestId('points-help').textContent).toContain('★★ = 2');
     expect(screen.getByTestId('perk-buy-slot').textContent).toBe('Buy for 10 points');
+    cleanup();
+    // below player level 10 the perk waits for the level (1.61)
+    useStore.setState({ lifetimeEnergy: energyForLevel(9) });
+    render(<ContractsPanel />);
+    expect(screen.getByTestId('perk-buy-slot').textContent).toBe('Needs player level 10 · costs 10 points');
+    expect((screen.getByTestId('perk-buy-slot') as HTMLButtonElement).disabled).toBe(true);
+    cleanup();
+    useStore.setState({ lifetimeEnergy: energyForLevel(10) });
+    render(<ContractsPanel />);
     expect(screen.getByTestId('perk-buy-deadline').textContent).toBe('Costs 12 points · need 1 more');
     expect(screen.getByTestId('perk-effect-slot').textContent).toBe('Contract slots: 3 → 4');
     expect(screen.getByTestId('perk-effect-offers').textContent).toBe('New offer every 30 min → 25 min');

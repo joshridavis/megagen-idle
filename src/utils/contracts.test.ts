@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { BASE_CONTRACT_SLOTS, CONTRACT_MILESTONES, OFFER_INTERVAL_MINUTES, PERKS } from '../data/contracts';
+import { BASE_CONTRACT_SLOTS, CONTRACT_MILESTONES, OFFER_INTERVAL_MINUTES, PERK_PLAYER_LEVELS, PERKS } from '../data/contracts';
 import { createInitialState } from '../data/initialState';
 import { migrateSave } from '../store/migrations';
 import { useStore } from '../store';
 import type { Contract, GameState } from '../types/state';
 import { getCompletion } from './completion';
 import {
+  perkPlayerLevel,
   buyPerk,
   offerIntervalMs,
   canDeliver,
@@ -17,6 +18,7 @@ import {
   generateContract,
   updateContracts,
 } from './contracts';
+import { energyForLevel } from './playerLevel';
 import { seededRng } from './rng';
 
 const H = 3_600_000;
@@ -92,8 +94,25 @@ describe('Grid Contracts (0.86)', () => {
     expect(claimContract(s, c.id, 'points', 0).contracts.points).toBe(3);
   });
 
+  it('each perk level needs a player level (1.61)', () => {
+    const at = (level: number) => {
+      const s = unlocked({ lifetimeEnergy: energyForLevel(level) });
+      return { ...s, contracts: { ...s.contracts, points: 1000 } };
+    };
+    expect(perkPlayerLevel(at(1), 'slot')).toBe(PERK_PLAYER_LEVELS[0]);
+    expect(buyPerk(at(PERK_PLAYER_LEVELS[0] - 1), 'slot').contracts.perks.slot).toBeUndefined();
+    const one = buyPerk(at(PERK_PLAYER_LEVELS[0]), 'slot');
+    expect(one.contracts.perks.slot).toBe(1);
+    // the 2nd level needs the next player level
+    expect(perkPlayerLevel(one, 'slot')).toBe(PERK_PLAYER_LEVELS[1]);
+    expect(buyPerk(one, 'slot').contracts.perks.slot).toBe(1);
+    expect(buyPerk({ ...one, lifetimeEnergy: energyForLevel(PERK_PLAYER_LEVELS[1]) }, 'slot').contracts.perks.slot).toBe(2);
+    // a perk with 4 levels has a 4th player level
+    expect(PERK_PLAYER_LEVELS.length).toBeGreaterThanOrEqual(Math.max(...Object.values(PERKS).map((p) => p.costs.length)));
+  });
+
   it('perks cost points, take effect and are permanent', () => {
-    let s = unlocked();
+    let s = unlocked({ lifetimeEnergy: energyForLevel(99) });
     s = { ...s, contracts: { ...s.contracts, points: 1000 } };
     expect(buyPerk({ ...s, contracts: { ...s.contracts, points: 1 } }, 'slot').contracts.perks.slot).toBeUndefined();
     s = buyPerk(s, 'slot');

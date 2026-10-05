@@ -1238,13 +1238,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - On phones it does not cover the research chip or the bottom buttons.
 **Acceptance:** tests: the layer shows the active pets on every tab, the setting hides it, a click counts as petting, reduce motion stops the walking; Playwright at 375 px: no sideways scroll and the bottom controls stay clickable; the build and all tests pass.
 
-### 1.61 — Player level as a hard requirement — CODE — Not started
+### 1.61 — Player level as a hard requirement — CODE — Done
 **Goal:** owner request after playtest 22: the player level should gate more things, for example each room expansion, more active pets and contract upgrades.
 **Details:**
 - A minimum player level for each room expansion tier (`src/data/rooms.ts`), each pet slot (1.59) and each contract perk level (`src/data/contracts.ts`). More gates may follow the same pattern (for example decoration kinds).
 - The button shows "Needs player level N" and is disabled until then; the requirement shows in its tooltip.
 - Pick the levels from the simulated timeline so no gate is reached before its level comes naturally by much; rerun `npm run simulate`, check there are no stalls and report the hours.
 **Acceptance:** tests for each gate (blocked below the level, allowed at it), and the simulator honors the gates; the build and all tests pass.
+**Notes:** room expansions need player level 1, 3, 5, 8, 10, 13, 17, 22, 50, 70 (`playerLevel` in `src/data/rooms.ts`); contract perk levels need 10, 30, 55, 75 (`PERK_PLAYER_LEVELS` in `src/data/contracts.ts`). Pet slots get their level with 1.59. The simulator uses the same rules: 100% at 264.7 h (was 251.0 h), no stalls; details in `BALANCE_REPORT.md`.
 
 ### 1.62 — Harder research level gates — CODE — Done
 **Goal:** owner feedback after playtest 22: research is too easy to climb. The highest research needs only research level 14, and the owner reached research level 21 in under a week of play. High-level research must need a clearly higher research level.

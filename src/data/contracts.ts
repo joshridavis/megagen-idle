@@ -50,6 +50,11 @@ export const PERKS: Record<PerkId, { name: string; description: string; costs: n
   rewards: { name: 'Better terms', description: 'Bundles and boosts are 15% bigger per level.', costs: [12, 30, 60, 120] },
   offers: { name: 'Busy grid', description: 'New offers arrive 5 minutes sooner per level (30 minutes at first).', costs: [10, 35, 90] },
 };
+/**
+ * Player level needed for each perk level: the 1st level of any perk needs player level 10, the 2nd 30,
+ * the 3rd 55 and the 4th 75 (owner, playtest 22: a hard requirement, 1.61).
+ */
+export const PERK_PLAYER_LEVELS = [10, 30, 55, 75];
 /** What each perk level adds. */
 export const PERK_STEP = { deadline: 0.25, rewards: 0.15, offerMinutes: 5 };
 export const PERK_IDS = Object.keys(PERKS) as PerkId[];

@@ -5,6 +5,7 @@ import { ROOM_TIERS } from '../data/rooms';
 import { GeneratorType } from '../types/generator';
 import type { GameState } from '../types/state';
 import { buildGenerator, getBuildBlock } from './generatorSystem';
+import { energyForLevel } from './playerLevel';
 import { canExpandRoom, expandRoom, expansionBarPhase, getExpandBlock, getNextRoomTier, isExpansionAnimating, lastExpansionSize, isRoomNearlyFull } from './roomSystem';
 
 const rich = (over: Partial<GameState> = {}): GameState => ({
@@ -32,12 +33,26 @@ describe('room expansion', () => {
   });
 
   it('tiers go in order and stop at the last', () => {
-    let s = rich({ energy: 1e9, resources: { metal: 1e6, stone: 1e6, coal: 1e5, naturalGas: 1e4, oil: 0, uranium: 1e4, deuterium: 1e4 } });
+    let s = rich({ energy: 1e9, lifetimeEnergy: energyForLevel(99), resources: { metal: 1e6, stone: 1e6, coal: 1e5, naturalGas: 1e4, oil: 0, uranium: 1e4, deuterium: 1e4 } });
     for (const t of ROOM_TIERS) s = expandRoom(s, t.tier);
     expect(s.roomCapacity).toBe(13 + ROOM_TIERS.reduce((sum, t) => sum + t.capacity, 0));
     expect(getNextRoomTier(s.expansionLevel)).toBeNull();
     expect(getExpandBlock(s)).toBe('maxed');
     expect(expandRoom(s)).toBe(s);
+  });
+
+  it('each expansion needs its player level (1.61)', () => {
+    const levels = ROOM_TIERS.map((t) => t.playerLevel);
+    expect(levels[0]).toBe(1);
+    for (let i = 1; i < levels.length; i++) expect(levels[i]).toBeGreaterThan(levels[i - 1]);
+    // tier 2 at player level 2: blocked by level, not by cost; at its level it goes through
+    const tier2 = ROOM_TIERS[1];
+    const below = rich({ expansionLevel: 1, lifetimeEnergy: energyForLevel(tier2.playerLevel - 1) });
+    expect(getExpandBlock(below)).toBe('level');
+    expect(expandRoom(below)).toBe(below);
+    const at = rich({ expansionLevel: 1, lifetimeEnergy: energyForLevel(tier2.playerLevel) });
+    expect(getExpandBlock(at)).toBeNull();
+    expect(expandRoom(at).expansionLevel).toBe(2);
   });
 
   it('rejects a tier that is not the next one', () => {
