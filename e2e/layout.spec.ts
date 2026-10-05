@@ -70,3 +70,29 @@ test('a tooltip near the pinned top bar opens below and the bar stays on top', a
   expect(r.side).toBe('below');
   expect(r.tipTop).toBeGreaterThan(r.barBottom);
 });
+
+// 1.45: with the page scrolled, a small ⚡ button by the pinned bar generates energy.
+test('the small generate button by the pinned bar works at phone width', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 700 });
+  await page.goto('./');
+  const energy = page.getByLabel('Energy total');
+  await expect(energy).toHaveText('900');
+  await expect(page.getByTestId('mini-click-button')).toHaveCount(0);
+  await page.evaluate(() => window.scrollTo(0, 900));
+  const mini = page.getByTestId('mini-click-button');
+  await expect(mini).toBeVisible();
+  // layout size (the pop-in animation scales it briefly)
+  const box = await mini.evaluate((el) => ({ w: (el as HTMLElement).offsetWidth, h: (el as HTMLElement).offsetHeight }));
+  expect(box.w).toBeGreaterThanOrEqual(44);
+  expect(box.h).toBeGreaterThanOrEqual(44);
+  const bar = (await page.getByTestId('top-bar').boundingBox())!;
+  expect(bar.x).toBeGreaterThanOrEqual(0);
+  expect(bar.x + bar.width).toBeLessThanOrEqual(360);
+  await page.screenshot({ path: 'test-results/mini-click-360.png' });
+  await mini.click();
+  await expect(energy).toHaveText('901');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(page.getByTestId('mini-click-button')).toHaveCount(0);
+});

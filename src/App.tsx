@@ -4,6 +4,7 @@ import ActiveEffects from './components/ActiveEffects';
 import AchievementsPanel from './components/AchievementsPanel';
 import ActiveGenerators from './components/ActiveGenerators';
 import ClickButton from './components/ClickButton';
+import MiniClickButton from './components/MiniClickButton';
 import CompletionPanel from './components/CompletionPanel';
 import ContractsPanel from './components/ContractsPanel';
 import PetsPanel from './components/PetsPanel';
@@ -63,6 +64,8 @@ export default function App() {
   useEffect(() => {
     document.documentElement.toggleAttribute('data-reduce-motion', reduceMotion);
   }, [reduceMotion]);
+  // The small ⚡ button by the pinned bar shows only while the big one is out of view (1.45).
+  const [clickInView, setClickInView] = useState(true);
   const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
   // Tabs follow the ARIA tabs pattern (0.41): one Tab stop, arrows, Home and End move between tabs.
   const onTabKey = (e: KeyboardEvent) => {
@@ -88,12 +91,13 @@ export default function App() {
       </header>
       {/* The top bar (energy, rate, room, level) stays in view while scrolling (0.43). It sits above
           hovered cards (z-40) and their tooltips; dialogs, toasts and celebrations stay above it (playtest 20). */}
-      <div className="sticky top-2 z-[45] -mb-2 self-center" data-testid="top-bar">
+      <div className="sticky top-2 z-[45] -mb-2 flex items-center gap-2 self-center" data-testid="top-bar">
         <EnergyDisplay />
+        {!clickInView && <MiniClickButton />}
       </div>
       <div className="flex flex-col items-center gap-4">
         <ActiveEffects />
-        <ClickButton />
+        <ClickButton onInViewChange={setClickInView} />
         <TutorialCoach />
         <DepletionWarning />
       </div>

@@ -1017,13 +1017,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Fix (`decideOnSignIn`, `src/store/account.ts`):** the local time is never compared. No cloud save: keep and upload. A game that has not started (`isFreshGame`: no research done, nothing built, no room bought): load the cloud save. Cloud unchanged since this device last synced: continue. Otherwise ask, suggesting the save with **more progress** (label "(more progress)" instead of "(newer)").
 **Acceptance:** a test of the exact scenario (cloud save made seconds earlier, fresh game signs in: the cloud save loads and stays untouched); tests for the suggestion; the build and all tests pass.
 
-### 1.45 — Generate-energy button next to the pinned energy bar — CODE — Not started
+### 1.45 — Generate-energy button next to the pinned energy bar — CODE — Done
 **Goal:** owner request after playtest 21: when the page is scrolled and the energy bar is pinned at the top (0.43), the player can no longer click for energy without scrolling back up.
 **Details:**
 - While the bar is pinned and the big "Generate energy" button is out of view, a small round button appears at the end of the pinned bar, in the same color as "Generate energy", with the ⚡ icon. Clicking it does exactly what the big button does (same click value, same floating "+N" feedback, same stats and tutorial step).
 - It is hidden while the big button is on screen (an `IntersectionObserver` on it), so there are never two at once. At least 44 px to tap on touch screens; `aria-label="Generate energy"`; keyboard reachable.
 - Reduce motion: no pop animation.
 **Acceptance:** tests: the small button appears only when the big one is out of view and gives the same energy per click; the build and all tests pass; Playwright at phone width: scroll down, tap it, energy rises.
+**Notes:** both buttons share `useClickEnergy` (`src/components/useClickEnergy.ts`); the small one is `MiniClickButton`. Its "+N" floats down instead of up, since it sits at the top of the screen.
 
 ### 1.46 — Cloud save from any tab — CODE — Not started
 **Goal:** owner request after playtest 21: "Save to cloud" is only in Settings; it should be reachable from everywhere.
