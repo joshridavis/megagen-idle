@@ -25,6 +25,7 @@ import StatisticsPanel from './components/StatisticsPanel';
 import Sightings from './components/Sightings';
 import Toasts from './components/Toasts';
 import CloudDialogs from './components/CloudDialogs';
+import CloudButton from './components/CloudButton';
 import { startCloud } from './store/account';
 import TutorialCoach from './components/TutorialCoach';
 import VersionFooter from './components/VersionFooter';
@@ -66,6 +67,18 @@ export default function App() {
   }, [reduceMotion]);
   // The small ⚡ button by the pinned bar shows only while the big one is out of view (1.45).
   const [clickInView, setClickInView] = useState(true);
+  // "Account settings" and "Sign in" in the top-bar cloud menu open Settings → Account (1.46).
+  const [accountRequest, setAccountRequest] = useState(0);
+  const openAccount = useCallback(() => {
+    setTab('settings');
+    setAccountRequest((n) => n + 1);
+  }, []);
+  useEffect(() => {
+    if (!accountRequest) return;
+    const panel = document.querySelector<HTMLElement>('[data-testid="account-panel"]');
+    panel?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+    panel?.querySelector<HTMLElement>('input, button')?.focus({ preventScroll: true });
+  }, [accountRequest]);
   const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
   // Tabs follow the ARIA tabs pattern (0.41): one Tab stop, arrows, Home and End move between tabs.
   const onTabKey = (e: KeyboardEvent) => {
@@ -93,7 +106,11 @@ export default function App() {
           hovered cards (z-40) and their tooltips; dialogs, toasts and celebrations stay above it (playtest 20). */}
       <div className="sticky top-2 z-[45] -mb-2 flex items-center gap-2 self-center" data-testid="top-bar">
         <EnergyDisplay />
-        {!clickInView && <MiniClickButton />}
+        {/* Side buttons stack on phones so the bar never scrolls sideways. */}
+        <div className="flex flex-col gap-1 empty:hidden sm:flex-row sm:gap-2">
+          {!clickInView && <MiniClickButton />}
+          <CloudButton onOpenAccount={openAccount} />
+        </div>
       </div>
       <div className="flex flex-col items-center gap-4">
         <ActiveEffects />

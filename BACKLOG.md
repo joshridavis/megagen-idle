@@ -1026,7 +1026,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests: the small button appears only when the big one is out of view and gives the same energy per click; the build and all tests pass; Playwright at phone width: scroll down, tap it, energy rises.
 **Notes:** both buttons share `useClickEnergy` (`src/components/useClickEnergy.ts`); the small one is `MiniClickButton`. Its "+N" floats down instead of up, since it sits at the top of the screen.
 
-### 1.46 — Cloud save from any tab — CODE — Not started
+### 1.46 — Cloud save from any tab — CODE — Done
 **Goal:** owner request after playtest 21: "Save to cloud" is only in Settings; it should be reachable from everywhere.
 **Details:**
 - A small cloud button in the pinned top bar (only in builds with accounts): ☁️ with the sync state (signed out, saving, saved N minutes ago, error).
@@ -1034,6 +1034,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reuses `saveToCloud` and `loadFromCloud` in `src/store/account.ts`; no new cloud logic. The Settings panel keeps its buttons.
 - At phone width it fits in the bar with no sideways scroll.
 **Acceptance:** tests with the fake cloud service: the menu saves and loads from another tab; signed out it links to the Account panel; it is absent when the build has no cloud settings; the build and all tests pass.
+**Notes:** `CloudButton` (`src/components/CloudButton.tsx`), sync wording in `src/utils/cloudStatus.ts`. Settings had no confirmation before "Load cloud save" yet, so one shared confirmation (`LoadCloudConfirm`) now guards it in both places. On phones the ⚡ and ☁️ buttons stack beside the bar so it never scrolls sideways.
 
 ### 1.47 — Decorations in a panel that opens over the map — CODE — Not started
 **Goal:** owner request after playtest 21: the Decorations box under the map (1.13) means scrolling down and back up while decorating.

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { authProviders, MIN_PASSWORD, OAUTH_NAMES, USERNAME_PATTERN, type OAuthProvider } from '../store/cloud';
+import LoadCloudConfirm from './LoadCloudConfirm';
 import { deleteAccount, loadFromCloud, resetPassword, saveToCloud, signIn, signInWithProvider, signOut, signUp, useAccount } from '../store/account';
 
 const input = 'mt-1 w-full rounded border border-slate-600 bg-slate-900 px-3 py-2 text-slate-100 focus-visible:outline-2 focus-visible:outline-sky-400';
@@ -19,6 +20,7 @@ export default function AccountPanel({ providers = authProviders() }: { provider
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmLoad, setConfirmLoad] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const submit = async (e: FormEvent) => {
@@ -52,13 +54,16 @@ export default function AccountPanel({ providers = authProviders() }: { provider
             <button type="button" disabled={a.busy} onClick={() => void saveToCloud()} className={`${button} bg-sky-700 hover:bg-sky-600`}>
               Save to cloud now
             </button>
-            <button type="button" disabled={a.busy} onClick={() => void loadFromCloud()} className={`${button} bg-slate-600 hover:bg-slate-500`}>
+            <button type="button" disabled={a.busy} onClick={() => setConfirmLoad(true)} className={`${button} bg-slate-600 hover:bg-slate-500`}>
               Load cloud save
             </button>
             <button type="button" disabled={a.busy} onClick={() => void signOut()} className={`${button} bg-slate-600 hover:bg-slate-500`}>
               Sign out
             </button>
           </div>
+          {confirmLoad && (
+            <LoadCloudConfirm busy={a.busy} onConfirm={() => void loadFromCloud().then(() => setConfirmLoad(false))} onCancel={() => setConfirmLoad(false)} />
+          )}
           {!confirmDelete ? (
             <button type="button" onClick={() => setConfirmDelete(true)} className="text-xs text-red-300 underline hover:text-red-200">
               Delete my account
