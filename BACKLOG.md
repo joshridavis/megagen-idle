@@ -35,7 +35,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.66 Title tiers by difficulty, each with its own color (owner request; Done)
 0. 1.67 Map events in random places each time (owner report; Done)
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion (Done)
-0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity
+0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity (Done)
 0. 1.59 Pet slots: up to 3 active pets, bought with energy
 0. 1.58 Pet growing animation
 0. 1.60 Active pets walk on the screen
@@ -1207,13 +1207,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Pet achievements and completion include the new pets.
 **Acceptance:** tests that each new pet is found, grows and gives its bonus; completion and achievements update; `npm run check:assets` passes; the build and all tests pass.
 
-### 1.57 — Pets: raise one at a time, and a bonus that grows clearly with maturity — CODE — Not started
+### 1.57 — Pets: raise one at a time, and a bonus that grows clearly with maturity — CODE — Done
 **Goal:** owner request after playtest 22: only one pet can grow at a time, and a more mature pet gives a clearly larger effect.
 **Details:**
 - **One at a time:** while one pet is growing, Feed is disabled on the others, with "Another pet is growing (Xh left)". A save with several pets growing (made before this item) lets them finish.
 - **Maturity:** the bonus already rises with the stage (Baby, Young, Adult); make the steps larger and visible, for example Baby 1×, Young 2×, Adult 4× of a base value, and show the next stage's bonus on the pet card ("Grows to: +X%").
 - Rebalance with `npm run simulate` and report the hours to 100%.
 **Acceptance:** tests: a second pet cannot start growing, the old-save case, the bonus per stage; the simulation has no stalls; the build and all tests pass.
+**Notes:** `PET_STAGE_MULTIPLIERS = [1, 2, 4]` in `src/data/pets.ts`; each pet keeps its old adult bonus, so Baby and Young are lower than before and the step to Adult is clearly bigger. Feed is disabled on the other pets while one grows ("Another pet is growing (Xh left)"); a save with several growing lets them all finish. Pet cards show "Grows to: +X% as Young/Adult", with decimals for small bonuses. 100% completion at 267.6 h (was 250.1 h after 1.53), no stalls.
 
 ### 1.58 — Pet growing animation — CODE — Not started
 **Goal:** owner request after playtest 22: show the pet growing.

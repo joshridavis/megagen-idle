@@ -45,3 +45,25 @@ describe('pets react when clicked (0.99)', () => {
     expect(pic.getAttribute('data-playing')).toBe('false');
   });
 });
+
+describe('pet cards: one grows at a time, and the next stage bonus (1.57)', () => {
+  it('shows what the pet grows to, and Feed is off while another pet grows', () => {
+    useStore.getState().resetGame();
+    const now = Date.now();
+    useStore.setState({
+      energy: 1e9,
+      pets: {
+        active: 'hamster',
+        owned: { hamster: { stage: 1, growUntil: now + 3 * 3_600_000, foundAt: 0 }, cat: { stage: 2, growUntil: null, foundAt: 0 } },
+      },
+    });
+    render(<PetsPanel />);
+    expect(screen.getByTestId('pet-bonus-hamster').textContent).toBe('+50% energy per click');
+    expect(screen.getByTestId('pet-next-hamster').textContent).toBe('Grows to: +100% energy per click as Young');
+    expect(screen.getByTestId('pet-bonus-cat').textContent).toBe('+1.5% energy from all generators');
+    expect(screen.getByTestId('pet-next-cat').textContent).toBe('Grows to: +3% energy from all generators as Adult');
+    const feed = screen.getByRole('button', { name: /Feed/ }) as HTMLButtonElement;
+    expect(feed.disabled).toBe(true);
+    expect(screen.getByTestId('pet-feed-note-cat').textContent).toMatch(/^Another pet is growing \(.+ left\)$/);
+  });
+});

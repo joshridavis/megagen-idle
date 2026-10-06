@@ -67,9 +67,21 @@ export function feedCost(s: Pick<S, 'pets'>, id: PetId): number | null {
   return PETS_BY_ID[id].feedCost[pet.stage - 1];
 }
 
+/** The pet that is growing now, if any (1.57: one grows at a time). */
+export function growingPet(s: Pick<S, 'pets'>): { id: PetId; until: number } | null {
+  for (const [id, pet] of Object.entries(s.pets.owned)) if (pet && pet.growUntil !== null) return { id: id as PetId, until: pet.growUntil };
+  return null;
+}
+
+/** Why another pet cannot start growing: one grows at a time (1.57). Null when none is growing. */
+export function otherPetGrowing(s: Pick<S, 'pets'>, id: PetId): { id: PetId; until: number } | null {
+  const g = growingPet(s);
+  return g && g.id !== id ? g : null;
+}
+
 export function canFeed(s: S, id: PetId): boolean {
   const cost = feedCost(s, id);
-  if (cost === null) return false;
+  if (cost === null || otherPetGrowing(s, id)) return false;
   const food = PETS_BY_ID[id].food;
   return (food === 'energy' ? s.energy : s.resources[food]) >= cost;
 }

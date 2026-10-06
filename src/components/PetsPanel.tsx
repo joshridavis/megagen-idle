@@ -4,13 +4,13 @@ import { GROW_HOURS, PET_PARTICLES, PET_REACT_MS, PET_STAGES, PETS, type PetDef,
 import { RESOURCE_NAMES } from '../data/resources';
 import { useStore } from '../store';
 import { formatDuration } from '../utils/format';
-import { canFeed, feedCost } from '../utils/pets';
+import { canFeed, feedCost, otherPetGrowing } from '../utils/pets';
 import { useNumberFormat } from './useNumberFormat';
 
 const sprite = (id: string, stage: number) => `pet_${id}_${stage}` as SpriteId;
 
 function bonusText(def: PetDef, value: number): string {
-  const pct = `+${Math.round(value * 100)}%`;
+  const pct = `+${+(value * 100).toFixed(value < 0.1 ? 2 : 1)}%`;
   const b = def.bonus;
   if (b.kind === 'click') return `${pct} energy per click`;
   if (b.kind === 'energy') return `${pct} energy from all generators`;
@@ -68,7 +68,9 @@ export default function PetsPanel() {
         <h2 className="panel-title">
           Pets ({found}/{PETS.length})
         </h2>
-        <span className="text-xs text-slate-400">One pet is active at a time and gives its bonus. Feed pets to grow them.</span>
+        <span className="text-xs text-slate-400">
+          One pet is active at a time and gives its bonus. Feed pets to grow them, one at a time: an adult gives 4 times a baby's bonus.
+        </span>
       </div>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {PETS.map((def) => {
@@ -84,6 +86,7 @@ export default function PetsPanel() {
           }
           const active = state.pets.active === def.id;
           const cost = feedCost(state, def.id);
+          const busy = otherPetGrowing(state, def.id);
           const food = def.food === 'energy' ? 'energy' : RESOURCE_NAMES[def.food].toLowerCase();
           return (
             <li
@@ -98,7 +101,14 @@ export default function PetsPanel() {
                   <div className="text-xs text-amber-300">
                     {PET_STAGES[pet.stage - 1]} {active && '· Active'}
                   </div>
-                  <div className="text-xs text-emerald-300">{bonusText(def, def.bonusByStage[pet.stage - 1])}</div>
+                  <div className="text-xs text-emerald-300" data-testid={`pet-bonus-${def.id}`}>
+                    {bonusText(def, def.bonusByStage[pet.stage - 1])}
+                  </div>
+                  {pet.stage < 3 && (
+                    <div className="text-xs text-slate-300" data-testid={`pet-next-${def.id}`}>
+                      Grows to: {bonusText(def, def.bonusByStage[pet.stage])} as {PET_STAGES[pet.stage]}
+                    </div>
+                  )}
                 </div>
               </div>
               <p className="text-xs text-slate-400">{def.description}</p>
@@ -112,7 +122,11 @@ export default function PetsPanel() {
                   className="min-h-11 rounded bg-emerald-600 px-2 py-1 text-sm font-semibold hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
                 >
                   Feed {fmt.num(cost)} {food}
-                  <span className="block text-xs font-normal">then grows for {GROW_HOURS[pet.stage - 1]} hours</span>
+                  <span className="block text-xs font-normal" data-testid={`pet-feed-note-${def.id}`}>
+                    {busy
+                      ? `Another pet is growing (${formatDuration(Math.max(0, busy.until - now) / 1000)} left)`
+                      : `then grows for ${GROW_HOURS[pet.stage - 1]} hours`}
+                  </span>
                 </button>
               ) : (
                 <p className="text-xs text-emerald-400">Fully grown!</p>
