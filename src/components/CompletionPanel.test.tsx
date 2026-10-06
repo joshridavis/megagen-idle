@@ -39,4 +39,21 @@ describe('completion log (0.66)', () => {
     expect(within(list).getByText('Basic Solar').parentElement!.textContent).toContain('(done)');
     expect(within(list).getByText('Wind Power Fundamentals').parentElement!.textContent).toContain('(not yet)');
   });
+
+  it('counts decorations bought, and their achievements unlock (owner report, playtest 24)', async () => {
+    const CompletionPanel = (await import('./CompletionPanel')).default;
+    useStore.getState().resetGame();
+    useStore.setState({ decorationsBought: { tree: 6, flag: 6, pond: 6, windsock: 6, lamp: 5 } });
+    expect(useStore.getState().achievements.decor_1).toBeDefined();
+    expect(useStore.getState().achievements.decor_10).toBeDefined();
+    expect(useStore.getState().achievements.decor_30).toBeUndefined();
+    render(<CompletionPanel />);
+    const panel = within(screen.getByTestId('completion-total').closest('section')!);
+    expect(panel.getByTestId('completion-total').textContent).toBe(formatCompletion(getCompletion(useStore.getState()).ratio));
+    fireEvent.click(panel.getByRole('button', { name: /^Decorations ?\d+\/\d+/ }));
+    expect(panel.getByText('Tree').parentElement!.textContent).toContain('(done)');
+    expect(panel.getByText('Tree').parentElement!.textContent).toContain('6/6 bought');
+    expect(panel.getByText('Lamp post').parentElement!.textContent).toContain('5/6 bought');
+    expect(panel.getByRole('button', { name: /^Decorations ?\d+\/\d+/ }).textContent).toContain('4/6');
+  });
 });

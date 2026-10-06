@@ -26,8 +26,6 @@ export const DECORATION_LIMIT = 6;
 /** Each copy of a kind costs this much more than the one before (1.53). */
 export const DECORATION_PRICE_GROWTH = 1.6;
 
-/** 100% completion (1.53): every kind bought once, and this many decorations bought in all. */
-export const DECORATION_COPIES_GOAL = 25;
 
 export const DECORATIONS: DecorationDef[] = [
   { id: 'tree', name: 'Tree', sprite: 'decor_tree', unlock: { kind: 'level', level: 5 }, price: 1_000 },

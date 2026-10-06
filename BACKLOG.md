@@ -41,6 +41,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.59 Pet slots: up to 3 active pets, bought with energy (Done) → CHECKPOINT 24 (5 items since checkpoint 23, `PLAYTEST_EVERY = 5`)
 0. 1.58 Pet growing animation (Done)
 0. 1.69 Fix: the Oil Rig's map tooltip shows no level and no oil use (owner report, playtest 24; Done)
+0. 1.70 Fix: decorations bought did not count in the Completion tab; completion needs all 6 of each (owner report, playtest 24; Done)
 0. 1.60 Active pets walk on the screen
 0. 1.56 More pets
 0. 1.55 More random events → CHECKPOINT 25
@@ -1218,6 +1219,12 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Rebalance with `npm run simulate` and report the hours to 100%.
 **Acceptance:** tests: a second pet cannot start growing, the old-save case, the bonus per stage; the simulation has no stalls; the build and all tests pass.
 **Notes:** `PET_STAGE_MULTIPLIERS = [1, 2, 4]` in `src/data/pets.ts`; each pet keeps its old adult bonus, so Baby and Young are lower than before and the step to Adult is clearly bigger. Feed is disabled on the other pets while one grows ("Another pet is growing (Xh left)"); a save with several growing lets them all finish. Pet cards show "Grows to: +X% as Young/Adult", with decimals for small bonuses. 100% completion at 267.6 h (was 250.1 h after 1.53), no stalls.
+
+### 1.70 — Fix: decorations bought did not count in the Completion tab; completion needs all 6 of each — CODE — Done
+**Goal:** owner report, playtest 24: with 29 decorations owned, the Completion tab's Decorations part read "0 bought" everywhere. Also: "25 decorations bought" makes no sense when each kind can be bought 6 times.
+**Details:** the Completion panel builds its input for `getCompletion` field by field and left out `decorationsBought` (the % in the tab button used the full state, so the two disagreed). The achievements were not affected: they read the full state. Change the Decorations part to one entry per kind, done when all `DECORATION_LIMIT` (6) copies are owned, and drop `DECORATION_COPIES_GOAL`. Rerun `npm run simulate`.
+**Acceptance:** a test that fails before the fix: the panel shows the copies owned and matches the tab %; the decoration achievements unlock through the store; completion needs 6 of each kind; the simulation has no stalls; the build and all tests pass.
+**Notes:** fixed in `src/components/CompletionPanel.tsx`; entries read "n/6 bought". 100% completion at 257.1 h (was 243.9 h), no stalls. The achievements stay as they were (Green Thumb 1, Site Beautifier 10, Collector every kind, Landscape Architect 30 as a bonus).
 
 ### 1.69 — Fix: the Oil Rig's map tooltip shows no level and no oil use — CODE — Done
 **Goal:** owner report, playtest 24: hovering an Oil Rig on the map shows no level, while other machines do, and no oil consumption.
