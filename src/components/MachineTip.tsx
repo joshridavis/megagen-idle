@@ -43,7 +43,16 @@ export default function MachineTip({ anchor, tip }: { anchor: HTMLElement | null
       className="pointer-events-none fixed z-[44] rounded border border-slate-600 bg-slate-950/95 p-2 text-left text-xs leading-snug text-slate-100 shadow-xl"
       style={{ width: WIDTH, left: pos?.left ?? -9999, top: pos?.top ?? -9999 }}
     >
-      <div className="font-semibold text-slate-50">{tip.title}</div>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="font-semibold text-slate-50">{tip.title}</span>
+        <span
+          data-testid="machine-tip-kind"
+          title={tip.kind === 'Generator' ? 'Makes energy' : 'Makes a resource'}
+          className={`shrink-0 rounded px-1 text-[10px] font-semibold uppercase tracking-wide ${tip.kind === 'Generator' ? 'bg-amber-500/20 text-amber-300' : 'bg-sky-500/20 text-sky-300'}`}
+        >
+          {tip.kind === 'Generator' ? '⚡ Generator' : '⛏ Producer'}
+        </span>
+      </div>
       {tip.lines.map((l) => (
         <div key={l} className="text-slate-300">
           {l}

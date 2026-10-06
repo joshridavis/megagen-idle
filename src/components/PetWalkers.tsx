@@ -1,10 +1,27 @@
 import { useEffect, useState } from 'react';
 import { sprites, type SpriteId } from '../assets';
-import { PET_ACTION_BUBBLES, PET_GROUND_ACTIONS, PET_PARTICLES, PET_REACT_MS, PET_WALK, PETS_BY_ID, type PetId } from '../data/pets';
+import { PET_ACTION_BUBBLES, PET_GROUND_ACTIONS, PET_PARTICLES, PET_SLEEP_SQUASH, PET_STAGE_HEIGHT, PET_REACT_MS, PET_WALK, PETS_BY_ID, type PetId } from '../data/pets';
 import { platform } from '../platform';
 import { useStore } from '../store';
 import { activePets } from '../utils/pets';
 import { startWalkers, stepWalkers, walkMs, type Walker } from '../utils/petWalk';
+
+/** How far a bubble is tucked down toward the pet (px). */
+const BUBBLE_TUCK_PX = 6;
+
+/**
+ * Where a thought bubble sits (owner report, playtest 25: the 💤 floated far
+ * from a small pet): just above the pet's drawn height for its stage, lower
+ * when it is curled up asleep, and over its head (the side it faces) while
+ * sleeping.
+ */
+export function bubblePlace(w: Pick<Walker, 'action' | 'left'>, stage: number): { bottom: string; left: string } {
+  // the emoji glyphs leave some room under themselves: tuck the bubble down by BUBBLE_TUCK_PX
+  const sleep = w.action === 'sleep';
+  const height = PET_STAGE_HEIGHT[Math.min(3, Math.max(1, stage)) - 1] * (sleep ? PET_SLEEP_SQUASH : 1);
+  const left = sleep ? (w.left ? 30 : 70) : 50;
+  return { bottom: `calc(${Math.round(height * 100)}% - ${BUBBLE_TUCK_PX}px)`, left: `${left}%` };
+}
 
 /** One walking pet: a button only as big as the pet, so the rest of the layer never blocks clicks. */
 function WalkingPet({ w, stage, still }: { w: Walker; stage: number; still: boolean }) {
@@ -46,7 +63,12 @@ function WalkingPet({ w, stage, still }: { w: Walker; stage: number; still: bool
             {PET_ACTION_BUBBLES[w.action]}
           </span>
         ) : (
-          <span aria-hidden="true" data-testid={`pet-bubble-${w.id}`} className="pet-bubble pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 text-sm">
+          <span
+            aria-hidden="true"
+            data-testid={`pet-bubble-${w.id}`}
+            className="pet-bubble pointer-events-none absolute -translate-x-1/2 text-sm leading-none"
+            style={bubblePlace(w, stage)}
+          >
             {PET_ACTION_BUBBLES[w.action]}
           </span>
         )

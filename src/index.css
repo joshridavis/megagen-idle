@@ -384,7 +384,8 @@ body {
 .pet-act-sit { transform: translateY(3px) scaleY(0.9); }
 @keyframes pet-jump { 0%, 60%, 100% { transform: translateY(0); } 25% { transform: translateY(-14px); } }
 .pet-act-jump { animation: pet-jump 1.2s ease-out infinite; }
-@keyframes pet-bubble { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -3px); } }
+/* Only a bob: the centering is the element's own translate, so it is not applied twice (playtest 25). */
+@keyframes pet-bubble { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 .pet-bubble { animation: pet-bubble 1.6s ease-in-out infinite; }
 
 /* A growing pet (1.58): a slow pulse and small sparkles on its card. */

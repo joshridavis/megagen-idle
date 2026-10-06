@@ -22,6 +22,8 @@ export interface TipFormat {
 
 export interface MachineTip {
   title: string;
+  /** Whether it makes energy or a resource (owner, playtest 25: say so briefly and clearly). */
+  kind: 'Generator' | 'Producer';
   lines: string[];
   /** A line to show in red: off, or on the wrong land. */
   warning?: string;
@@ -41,8 +43,8 @@ function zoneLine(p: Placed): { line?: string; warning?: string } {
 
 /**
  * What the tooltip beside a machine on the map says (1.63): name and number, output, fuel,
- * level and its zone bonus. A producer shows what one of them makes, with its own map bonus,
- * what running generators burn of its resource, and that producers have no levels.
+ * level and its zone bonus. A producer shows what one of them makes, with its own map bonus.
+ * Each says briefly whether it is a generator (makes energy) or a producer (makes a resource).
  */
 export function machineTip(state: GameState, p: Placed, fmt: TipFormat): MachineTip {
   const zone = zoneLine(p);
@@ -50,7 +52,7 @@ export function machineTip(state: GameState, p: Placed, fmt: TipFormat): Machine
     const g = state.activeGenerators.find((x) => x.id === p.id);
     const def = GENERATORS[p.type as GeneratorType];
     const title = `${def.name} #${p.id.split('-')[1]}`;
-    if (!g) return { title, lines: [] };
+    if (!g) return { title, kind: 'Generator', lines: [] };
     const mods = { ...getEffectMods(state.activeEffects), placement: getPlacementBonuses(state) };
     const lines: string[] = [];
     if (g.isActive) lines.push(`+${fmt.rate(getGeneratorOutput(g, getEnergyBonuses(state), mods))} energy/s`);
@@ -64,7 +66,7 @@ export function machineTip(state: GameState, p: Placed, fmt: TipFormat): Machine
     lines.push(`Level ${g.level} of ${maxLevel(g.type)} · ${p.cells.length} tiles`);
     if (zone.line) lines.push(zone.line);
     const warning = zone.warning ?? (g.isActive ? undefined : g.outOfFuel ? 'Off: out of fuel' : 'Switched off');
-    return { title, lines, ...(warning ? { warning } : {}) };
+    return { title, kind: 'Generator', lines, ...(warning ? { warning } : {}) };
   }
   const id = p.id as ProducerId;
   const def = PRODUCERS[id];
@@ -73,13 +75,7 @@ export function machineTip(state: GameState, p: Placed, fmt: TipFormat): Machine
   const b = getResourceBreakdown({ ...state }, def.resource);
   const boosts = b.modifiers.filter((m) => m.amount > 0 && m.source !== 'Placement on the map').reduce((sum, m) => sum + (m.percent ?? 0), 0);
   const each = owned > 0 ? (b.base / owned) * (1 + boosts + p.zoneBonus) : 0;
-  const name = RESOURCE_NAMES[def.resource].toLowerCase();
-  const lines = [`+${fmt.ratePer(each)} ${name}`];
-  // a fuel's producer also shows what your running generators burn, and the net (owner report, playtest 24)
-  const burn = -b.modifiers.reduce((sum, m) => sum + (m.amount < 0 ? m.amount : 0), 0);
-  if (burn > 0) lines.push(`🔥 Your generators burn ${fmt.ratePer(burn)} ${name} · net ${b.total < 0 ? '−' : '+'}${fmt.ratePer(Math.abs(b.total))}`);
-  // producers have no levels: say so, so the tip is not read as missing one
-  lines.push(`Producer (no levels) · ${p.cells.length} tile${p.cells.length > 1 ? 's' : ''} · you have ${owned}`);
+  const lines = [`+${fmt.ratePer(each)} ${RESOURCE_NAMES[def.resource].toLowerCase()}`, `${p.cells.length} tile${p.cells.length > 1 ? 's' : ''} · you have ${owned}`];
   if (zone.line) lines.push(zone.line);
-  return { title: def.name, lines, ...(zone.warning ? { warning: zone.warning } : {}) };
+  return { title: def.name, kind: 'Producer', lines, ...(zone.warning ? { warning: zone.warning } : {}) };
 }
