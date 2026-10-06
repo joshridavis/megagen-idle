@@ -66,7 +66,8 @@ describe('achievements (0.65)', () => {
   it('non-bonus achievements count toward completion; bonus ones do not', () => {
     const part = getCompletion(s0()).parts.find((p) => p.label === 'Achievements')!;
     expect(part.total).toBe(ACHIEVEMENTS.filter((a) => !a.bonus).length);
-    expect(ACHIEVEMENTS.filter((a) => a.bonus).every((a) => ['clicks', 'sightings', 'effectEvents', 'returns'].includes(a.metric))).toBe(true);
+    // luck or play style; 30 decorations is a play-style energy sink (1.53)
+    expect(ACHIEVEMENTS.filter((a) => a.bonus).every((a) => ['clicks', 'sightings', 'effectEvents', 'returns'].includes(a.metric) || a.id === 'decor_30')).toBe(true);
   });
 
   it('the store unlocks live with a notice, counts clicks, and saves', () => {

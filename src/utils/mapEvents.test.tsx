@@ -5,7 +5,9 @@ import { createInitialState } from '../data/initialState';
 import { GeneratorType, type Generator } from '../types/generator';
 import { useStore } from '../store';
 import { getEffectMods } from './effectMods';
-import { applyMapEvent, pickMapTarget } from './mapEvents';
+import { applyMapEvent, FLOCK_MAX_SLOPE, pickMapTarget, type MapEventState } from './mapEvents';
+import { seededRng } from './rng';
+import { MAP_COLUMNS, SEA_COLUMNS } from '../data/map';
 import { layoutSite } from './siteMap';
 import { energyForLevel } from './playerLevel';
 import type { GameState } from '../types/state';
@@ -109,5 +111,91 @@ describe('map events (1.12)', () => {
     render(<MapPanel onSelect={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: 'Small fire: click to put it out' }));
     expect(useStore.getState().mapEvent).toBeNull();
+  });
+});
+
+describe('map events in random places (1.67)', () => {
+  const seeds = Array.from({ length: 300 }, (_, i) => i + 1);
+  const roll = (s: GameState, id: string, seed: number) => pickMapTarget(s, EVENTS_BY_ID[id], seededRng(seed), 0)!;
+
+  it('the birds fly at any height, either way, on a slight slope, and different seeds give different places', () => {
+    const s = site([]);
+    const evs = seeds.map((x) => roll(s, 'map_flock', x));
+    const ys = evs.map((e) => e.pos!.y!);
+    expect(Math.min(...ys)).toBeLessThan(0.05);
+    expect(Math.max(...ys)).toBeGreaterThan(0.95);
+    expect(new Set(ys.map((y) => Math.floor(y * 10))).size).toBe(10);
+    expect(new Set(evs.map((e) => e.pos!.dir))).toEqual(new Set([1, -1]));
+    for (const e of evs) expect(Math.abs(e.pos!.slope!)).toBeLessThanOrEqual(FLOCK_MAX_SLOPE);
+    expect(roll(s, 'map_flock', 1).pos).not.toEqual(roll(s, 'map_flock', 2).pos);
+    // the same seed gives the same place
+    expect(roll(s, 'map_flock', 7)).toEqual(roll(s, 'map_flock', 7));
+  });
+
+  it('the falling star reaches every row of the sea', () => {
+    const s = site([]);
+    const siteRows = Math.ceil(layoutSite(s).capacity / MAP_COLUMNS);
+    const rowsHit = new Set(seeds.map((x) => Math.floor(roll(s, 'map_star', x).cells[0] / (MAP_COLUMNS + SEA_COLUMNS))));
+    expect(rowsHit.size).toBe(siteRows);
+    expect(Math.max(...rowsHit)).toBe(siteRows - 1);
+  });
+
+  it('the truck comes from either side', () => {
+    const s = site([]);
+    expect(new Set(seeds.map((x) => roll(s, 'map_delivery', x).pos!.dir))).toEqual(new Set([1, -1]));
+  });
+
+  const show = (ev: MapEventState, reduceMotion = false) => {
+    const s = site([]);
+    useStore.setState({ ...s, settings: { ...s.settings, reduceMotion }, mapEvent: { ...ev, at: Date.now() } });
+    render(<MapPanel onSelect={() => {}} />);
+    return screen.getByTestId('map-event');
+  };
+
+  it('the birds and the truck face the way they travel', () => {
+    const flockRight = show({ id: 'map_flock', at: 0, cells: [], pos: { y: 0.5, dir: 1, slope: 0 } });
+    expect(flockRight.style.transform).toBe('');
+    expect(flockRight.style.getPropertyValue('--to')).toBe('105%');
+    cleanup();
+    const flockLeft = show({ id: 'map_flock', at: 0, cells: [], pos: { y: 0.5, dir: -1, slope: 0 } });
+    expect(flockLeft.style.transform).toBe('scaleX(-1)');
+    expect(flockLeft.style.getPropertyValue('--to')).toBe('-10%');
+    cleanup();
+    const s = site([]);
+    const base = roll(s, 'map_delivery', 1);
+    const xs = base.cells.map((c) => c % MAP_COLUMNS);
+    const fromLeft = show({ ...base, pos: { dir: 1 } });
+    expect(fromLeft.style.transform).toBe('');
+    expect(Number(fromLeft.dataset.stop)).toBeLessThan(Math.min(...xs));
+    cleanup();
+    const fromRight = show({ ...base, pos: { dir: -1 } });
+    expect(fromRight.style.transform).toBe('scaleX(-1)');
+    expect(Number(fromRight.dataset.stop)).toBeGreaterThan(Math.max(...xs));
+  });
+
+  it('draws at the rolled place, which stays put while the event plays, and is still under reduce motion', () => {
+    const high = show({ id: 'map_flock', at: 0, cells: [], pos: { y: 0, dir: 1, slope: 0 } }, true);
+    const low = parseFloat(high.style.top);
+    cleanup();
+    const el = show({ id: 'map_flock', at: 0, cells: [], pos: { y: 0.9, dir: 1, slope: 0 } }, true);
+    expect(parseFloat(el.style.top)).toBeGreaterThan(low + 20);
+    expect(el.className).not.toContain('map-flock');
+    const stored = useStore.getState().mapEvent;
+    useStore.setState({ energy: useStore.getState().energy + 1 });
+    expect(useStore.getState().mapEvent?.pos).toEqual(stored?.pos);
+  });
+
+  it('events from before 1.67 (no position) still draw in the old places', () => {
+    const flock = show({ id: 'map_flock', at: 0, cells: [] });
+    expect(flock.style.transform).toBe('');
+    expect(flock.dataset.dir).toBe('1');
+    cleanup();
+    const star = show({ id: 'map_star', at: 0, cells: [MAP_COLUMNS] });
+    expect(star.dataset.sprite).toBe('map_star');
+    cleanup();
+    const s = site([]);
+    const { pos: _pos, ...old } = roll(s, 'map_delivery', 1);
+    const truck = show(old);
+    expect(truck.dataset.dir).toBe('1');
   });
 });

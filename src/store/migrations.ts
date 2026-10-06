@@ -7,7 +7,7 @@ import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 21;
+export const SAVE_VERSION = 22;
 
 type AnySave = Record<string, unknown>;
 
@@ -67,6 +67,12 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   19: (save) => ({ ...save, mapDecorations: {} }),
   // 1.07: browser notifications, off (filled from default settings below).
   20: (save) => save,
+  // 1.53: decorations are bought; the ones already placed count as bought, free of charge.
+  21: (save) => {
+    const bought: Record<string, number> = {};
+    for (const id of Object.values((save.mapDecorations as Record<string, string> | undefined) ?? {})) bought[id] = (bought[id] ?? 0) + 1;
+    return { ...save, decorationsBought: bought };
+  },
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */
@@ -107,6 +113,7 @@ export function pickSaved(s: GameState): GameState {
     lastExpansionAt: s.lastExpansionAt,
     mapPins: s.mapPins,
     mapDecorations: s.mapDecorations,
+    decorationsBought: s.decorationsBought,
     settings: s.settings,
     seenEvents: s.seenEvents,
     activeEffects: s.activeEffects,

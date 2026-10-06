@@ -158,7 +158,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   /** A tile click while decorating (1.13): place or remove. */
   const decorate = (c: number) => {
     if (decorTool === 'remove') {
-      setNote(removeDecoration(c) ? 'Decoration removed.' : 'No decoration there.');
+      setNote(removeDecoration(c) ? 'Decoration removed: place it again any time for free.' : 'No decoration there.');
       return;
     }
     if (!decorTool) return;

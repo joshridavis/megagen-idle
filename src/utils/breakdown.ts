@@ -9,7 +9,7 @@ import { getEffectMods, type ActiveEffect } from './effectMods';
 import { getPlayerLevel, playerLevelEnergyBonus } from './playerLevel';
 import { baseOutput, calculateEnergyRate } from './energyGeneration';
 import { getFuelUseRates, getProductionRates } from './resourceSystem';
-import { activePetBonus, withPetMods } from './pets';
+import { activePetBonuses, withPetMods } from './pets';
 import { getPlacementBonuses, getProducerPlacement } from './siteMap';
 import type { PetsState } from '../types/state';
 
@@ -78,8 +78,9 @@ export function getEnergyBreakdown(
     const affected = gen ? running.filter((g) => g.type === gen).reduce((sum, g) => sum + baseOutput(g), 0) : base;
     modifiers.push({ source: `${def.name} (event)`, percent: e.energy, amount: affected * e.energy });
   }
-  const pet = state.pets ? activePetBonus({ pets: state.pets }) : null;
-  if (pet && pet.value > 0) {
+  // every active pet (1.59: up to 3)
+  for (const pet of state.pets ? activePetBonuses({ pets: state.pets }) : []) {
+    if (pet.value <= 0) continue;
     const b = pet.def.bonus;
     const affected = b.kind === 'generator' ? running.filter((g) => b.generators.includes(g.type)).reduce((sum, g) => sum + baseOutput(g), 0) : b.kind === 'energy' ? base : 0;
     if (affected > 0) modifiers.push({ source: petSource(pet.def.name), percent: pet.value, amount: affected * pet.value });
@@ -101,8 +102,8 @@ export function getEnergyBreakdown(
 /** Energy per click: base click value, click power boosts, then the energy/s share (capped). */
 export function getClickBreakdown(completedResearch: string[], energyPerSecond = 0, pets?: Pets): RateBreakdown {
   const power = breakdownFromResearch(BASE_CLICK_VALUE, completedResearch, 'clickPower');
-  const pet = pets ? activePetBonus({ pets }) : null;
-  if (pet && pet.def.bonus.kind === 'click' && pet.value > 0) {
+  for (const pet of pets ? activePetBonuses({ pets }) : []) {
+    if (pet.def.bonus.kind !== 'click' || pet.value <= 0) continue;
     const amount = BASE_CLICK_VALUE * pet.value;
     power.modifiers.push({ source: petSource(pet.def.name), percent: pet.value, amount });
     power.total += amount;
@@ -143,9 +144,10 @@ export function getResourceBreakdown(
     if (e?.kind !== 'timed' || !e.production || (e.resource && e.resource !== id) || base <= 0) continue;
     boosts.push({ source: `${def.name} (event)`, percent: e.production, amount: base * e.production });
   }
-  const pet = state.pets ? activePetBonus({ pets: state.pets }) : null;
-  if (pet && pet.value > 0 && base > 0 && pet.def.bonus.kind === 'production' && (!pet.def.bonus.resource || pet.def.bonus.resource === id)) {
-    boosts.push({ source: petSource(pet.def.name), percent: pet.value, amount: base * pet.value });
+  for (const pet of state.pets ? activePetBonuses({ pets: state.pets }) : []) {
+    if (pet.value > 0 && base > 0 && pet.def.bonus.kind === 'production' && (!pet.def.bonus.resource || pet.def.bonus.resource === id)) {
+      boosts.push({ source: petSource(pet.def.name), percent: pet.value, amount: base * pet.value });
+    }
   }
   if (state.roomCapacity !== undefined && base > 0) {
     const placed = getProducerPlacement({ ...state, roomCapacity: state.roomCapacity })[id] ?? 0;

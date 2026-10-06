@@ -69,15 +69,32 @@ export default function MapEventLayer({
   const wide = (tiles: number) => `${(tiles / viewColumns) * 100}%`;
 
   switch (m.animation) {
-    case 'flock':
-      // three gulls in a V, the leader in front (playtest 19.2: one big bird each, so they read as birds)
+    case 'flock': {
+      // three gulls in a V, the leader in front (playtest 19.2: one big bird each, so they read as birds);
+      // a random height, direction and slope each time (1.67), mirrored so they always fly forwards
+      const dir = ev.pos?.dir ?? 1;
+      const room = Math.max(0, rows - 2.5);
+      const top = ev.pos?.y === undefined ? 0.5 : ev.pos.y * room;
+      const end = Math.min(room, Math.max(0, top + (ev.pos?.slope ?? 0)));
+      const row = (r: number) => `${(r / rows) * 100}%`;
       return (
         <div
           aria-hidden="true"
           className={`pointer-events-none absolute z-30 ${anim}`}
-          style={{ top: `${(0.5 / rows) * 100}%`, left: reduceMotion ? '40%' : undefined, width: wide(3), height: `${(2 / rows) * 100}%` }}
+          style={{
+            top: row(top),
+            left: reduceMotion ? '40%' : undefined,
+            width: wide(3),
+            height: row(2),
+            transform: dir < 0 ? 'scaleX(-1)' : undefined,
+            ['--from' as string]: dir < 0 ? '105%' : '-10%',
+            ['--to' as string]: dir < 0 ? '-10%' : '105%',
+            ['--top-from' as string]: row(top),
+            ['--top-to' as string]: row(end),
+          }}
           data-testid="map-event"
           data-sprite="map_bird"
+          data-dir={dir}
         >
           {FLOCK.map(([x, y, delay], i) => (
             <span key={i} className="absolute" style={{ left: `${x}%`, top: `${y}%`, width: '34%', height: '50%' }}>
@@ -86,6 +103,7 @@ export default function MapEventLayer({
           ))}
         </div>
       );
+    }
     case 'flood':
       return (
         <>
@@ -96,22 +114,26 @@ export default function MapEventLayer({
           ))}
         </>
       );
-    case 'star':
+    case 'star': {
+      // anywhere over the height of the sea (1.67); events from before it use the old top rows
+      const top = ev.pos?.y === undefined ? 1 + Math.floor((ev.at / 1000) % 4) : ev.pos.y * Math.max(0, rows - 2);
       return (
         <div
           aria-hidden="true"
           className={`pointer-events-none absolute z-30 ${anim}`}
-          style={pct(MAP_COLUMNS, 1 + Math.floor((ev.at / 1000) % 4), viewColumns - MAP_COLUMNS, 2)}
+          style={pct(MAP_COLUMNS, top, viewColumns - MAP_COLUMNS, 2)}
           data-testid="map-event"
           data-sprite="map_star"
         >
           <img src={sprites.map_star} alt="" className="pixelated h-full w-full object-contain" />
         </div>
       );
+    }
     case 'truck': {
       const b = box(ev.cells);
-      // drives in from the left edge and stops left of the producer, facing it
-      const stop = Math.max(0, b.x - 2);
+      // drives in from a random side (1.67; the left edge before it) and stops on that side of the producer, facing it
+      const dir = ev.pos?.dir ?? 1;
+      const stop = dir > 0 ? Math.max(0, b.x - 2) : Math.min(viewColumns - 2, b.x + b.w);
       return (
         <div
           aria-hidden="true"
@@ -121,10 +143,14 @@ export default function MapEventLayer({
             left: reduceMotion ? wide(stop) : undefined,
             width: wide(2),
             height: `${(1 / rows) * 100}%`,
+            transform: dir < 0 ? 'scaleX(-1)' : undefined,
+            ['--from' as string]: dir < 0 ? wide(viewColumns - 2) : '0%',
             ['--to' as string]: wide(stop),
           }}
           data-testid="map-event"
           data-sprite="map_truck"
+          data-dir={dir}
+          data-stop={stop}
         >
           <img src={sprites.map_truck} alt="" className={`pixelated h-full w-full ${reduceMotion ? '' : 'map-bounce'}`} />
         </div>

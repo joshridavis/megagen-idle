@@ -34,15 +34,15 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.61 Player level as a hard requirement
 0. 1.65 Map legend in a floating panel, like Decorations (owner request after hotfix 22.1)
 0. 1.63 Map tooltips on hover, next to the machine → CHECKPOINT 23
-0. 1.66 Title tiers by difficulty, each with its own color (owner request)
-0. 1.67 Map events in random places each time (owner report)
-0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
-0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity
-0. 1.59 Pet slots: up to 3 active pets, bought with energy
+0. 1.66 Title tiers by difficulty, each with its own color (owner request; Done)
+0. 1.67 Map events in random places each time (owner report; Done)
+0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion (Done)
+0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity (Done)
+0. 1.59 Pet slots: up to 3 active pets, bought with energy (Done) → CHECKPOINT 24 (5 items since checkpoint 23, `PLAYTEST_EVERY = 5`)
 0. 1.58 Pet growing animation
 0. 1.60 Active pets walk on the screen
 0. 1.56 More pets
-0. 1.55 More random events → CHECKPOINT 24
+0. 1.55 More random events → CHECKPOINT 25
 0. 1.54 More decorations
 
 **After playtest 21 (owner, 2026-10-05):** these came first, in this order; 1.44 to 1.47 and 1.52 are Done, the rest follow the playtest 22 items above.
@@ -1132,7 +1132,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests: the button opens and closes the panel, a row still highlights its zone, opening Legend closes Decorations and the other way round, and nothing legend-related is under the map. Playwright at 1280×520 and 375×640, scrolled to the bottom of the map: both buttons fully on screen without overlapping each other or the research chip, and the panel fully on screen. The 1.39 legend test still passes (updated to open the panel). The build and all tests pass.
 **Notes:** a shared `MapFloatingPanel` (`src/components/MapFloatingPanel.tsx`) now frames both panels; the legend panel is a little wider on computers and lists the zones in one column. Closing the legend clears the zone highlight. While a panel is open, both floating buttons step aside (the panel sits in their corner).
 
-### 1.66 — Title tiers by difficulty, each with its own color — CODE — Not started
+### 1.66 — Title tiers by difficulty, each with its own color — CODE — Done
 **Goal:** owner request after hotfix 22.1: sort the unlockable titles (1.01) into tiers by how hard each one is to earn, and color each title by its tier.
 **Details:**
 - Five tiers, for example **Common, Uncommon, Rare, Epic, Legendary**, each with one color from the AAP-64 palette that reads well on the dark top bar (for example gray, green, blue, purple, gold). Tiers and colors live in a data file (for example `src/data/achievements.ts`), so balancing is easy.
@@ -1143,8 +1143,9 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - New titles added later (for example by 1.53 or 1.51) must declare a tier; a test checks every title has one.
 - Cosmetic only: no gameplay effect.
 **Acceptance:** tests: every title has a tier; the top bar title uses its tier color; the picker groups by tier and shows locked titles; colors are AAP-64 and readable (contrast at least 4.5:1 on the bar background); the build and all tests pass.
+**Notes:** tiers and colors are `TITLE_TIERS` in `src/data/achievements.ts`: Common `#8b93af` gray, Uncommon `#9cdb43` green, Rare `#249fde` blue, Epic `#e86a73` rose, Legendary `#ffd541` gold. Epic is rose, not purple: no AAP-64 purple reaches 4.5:1 on the slate-800 bar, and the light lavender was too close to the gray. Tiers by simulated time (v0.23.0): Common: Live Wire (3.8 h), Apprentice (7.3 h). Uncommon: Power Station (21.8 h), Engineer (25.1 h), Trusted Partner (47.9 h). Rare: Chief Engineer (61.7 h), Energy Baron (100 h), Grid Operator (103 h), Human Dynamo (10,000 clicks), Sky Watcher (5 sightings). Epic: Grid Backbone (128 h), MegaGen (132 h), Proud Keeper (176 h). Legendary: Every Kind (228 h), Know-it-all (243 h), Perfect Machines (265 h). The picker is a select with one group per tier (locked titles disabled, with what earns them), plus a list of every title by tier under it.
 
-### 1.67 — Map events in random places each time — CODE — Not started
+### 1.67 — Map events in random places each time — CODE — Done
 **Goal:** owner report after hotfix 22.1: some map events (the birds, the delivery truck) always seem to appear in the same place. Each appearance should be somewhere new, anywhere on the map.
 **Details:**
 - **Checked in the code:**
@@ -1160,6 +1161,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Old saves with an event in progress (no stored position) fall back to the old placement.
 - Reduce motion: still no movement, shown at the random spot.
 **Acceptance:** tests with a seeded rng: different seeds give different rows or sides for the birds, star and truck, and the full range of rows is reachable; the stored position survives a save and load; the birds and truck face their direction of travel; old saves without a position still draw; the build and all tests pass.
+**Notes:** `pickMapTarget` rolls a `pos` (`y` share of the height, `dir`, and for the birds a `slope` of up to ±1.5 rows, `FLOCK_MAX_SLOPE`) and keeps it in the event's `MapEventState`. Deviation: the map event in progress is not part of the save (it lasts seconds and a load clears it, as before), so "survives a save and load" became "stays put while the event plays"; an event without `pos` still draws in the old place. The truck from the right is mirrored and stops right of the producer; the flock from the right is mirrored as a whole, so the leader stays in front.
 
 ### 1.68 — Cloud menu buttons styled like Settings — CODE — Done
 **Goal:** owner request after hotfix 22.1: in the ☁️ menu in the top bar (1.46), "Save to cloud now" looks like plain text. It should stand out as the main action, as it does in Settings → Account.
@@ -1171,17 +1173,18 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Signed out, **Sign in** gets the primary style too.
 **Acceptance:** tests that the menu's Save button has the primary style and shows "Saving…" while busy, and that Settings uses the same style; the existing 1.46 tests still pass; the build and all tests pass.
 
-### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Not started
+### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Done
 **Goal:** owner request after playtest 22: decorations start locked and are bought with energy, one at a time, each copy costing more than the last.
 **Details:**
-- Every decoration kind starts locked. Each placed copy is bought with **energy only** when placed: the first copy of a kind costs its base price, each next copy of the same kind costs more (for example base × 1.6^owned). Base prices and the growth factor go in `src/data/decorations.ts`, scaled so the first Tree is a small early purchase and the rarest decorations are a late-game energy sink.
+- Every decoration kind starts locked. Each copy is **bought once with energy only** (owner clarification, playtest 24: you pay to unlock copies, not to place them), up to 6 copies of a kind: the first copy costs its base price, each next copy of the same kind costs more (for example base × 1.6^owned). Copies you own are placed, removed and placed again for free, as often as you like. Base prices and the growth factor go in `src/data/decorations.ts`, scaled so the first Tree is a small early purchase and the rarest decorations are a late-game energy sink.
 - The current unlock rules (player level, achievements, contracts) become requirements to buy the kind; the price is paid on top.
-- Removing a decoration refunds nothing (say so in the panel, like scrapping) but keeps the count used for the next price, so place and remove cannot farm cheap copies. Decide and document whether `DECORATION_LIMIT` stays.
-- The 🎨 panel shows each kind's next price, red when there is not enough energy.
+- Removing a decoration from the map keeps the copy: it can be placed again for free. `DECORATION_LIMIT` (6) is the number of copies of a kind that can be bought.
+- The 🎨 panel shows each kind's copies (placed / owned / 6) and a Buy button with the next price, red when there is not enough energy.
 - New achievements, for example: first decoration, 10 decorations, every kind placed, 50 decorations. Cosmetic rewards only.
 - 100% completion counts decorations (for example every kind bought at least once, plus a number of copies). Update `src/utils/completion.ts`, the Completion panel and `npm run simulate`, and report the new hours to 100%.
 - Save migration: decorations already placed count as bought (no charge).
-**Acceptance:** tests: the price rises with each copy, energy is spent, removal refunds nothing, the requirements still apply, old saves keep their decorations; achievements unlock; completion includes decorations; the simulation finishes with no stalls; the build and all tests pass.
+**Acceptance:** tests: the price rises with each copy, energy is spent on buying, only owned copies can be placed, placing and removing are free, the requirements still apply, old saves keep their decorations; achievements unlock; completion includes decorations; the simulation finishes with no stalls; the build and all tests pass.
+**Notes:** base prices in `src/data/decorations.ts`: Tree 1K, Company flag 5K, Pond 100K, Windsock 250K, Lamp post 1M, Founder statue 10M; ×1.6 per copy (`DECORATION_PRICE_GROWTH`), up to 6 copies of a kind (`DECORATION_LIMIT`). Reworked after the owner's note on playtest 24: copies are bought with a Buy button in the 🎨 panel and then placed and removed for free (the first version charged on each placement). The owned count is saved as `decorationsBought` (save version 22; decorations already placed count as owned, free). Achievements: Green Thumb (1), Site Beautifier (10), Collector (every kind), and Landscape Architect (30, a bonus achievement with an Epic title; 36 is the most there is today). Completion: a "Decorations" part with every kind once plus 25 bought in all (`DECORATION_COPIES_GOAL`). The simulated player buys them (without placing); see `BALANCE_REPORT.md`.
 
 ### 1.54 — More decorations — CODE — Not started
 **Goal:** owner request after playtest 22: more decorations for the map.
@@ -1206,13 +1209,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Pet achievements and completion include the new pets.
 **Acceptance:** tests that each new pet is found, grows and gives its bonus; completion and achievements update; `npm run check:assets` passes; the build and all tests pass.
 
-### 1.57 — Pets: raise one at a time, and a bonus that grows clearly with maturity — CODE — Not started
+### 1.57 — Pets: raise one at a time, and a bonus that grows clearly with maturity — CODE — Done
 **Goal:** owner request after playtest 22: only one pet can grow at a time, and a more mature pet gives a clearly larger effect.
 **Details:**
 - **One at a time:** while one pet is growing, Feed is disabled on the others, with "Another pet is growing (Xh left)". A save with several pets growing (made before this item) lets them finish.
 - **Maturity:** the bonus already rises with the stage (Baby, Young, Adult); make the steps larger and visible, for example Baby 1×, Young 2×, Adult 4× of a base value, and show the next stage's bonus on the pet card ("Grows to: +X%").
 - Rebalance with `npm run simulate` and report the hours to 100%.
 **Acceptance:** tests: a second pet cannot start growing, the old-save case, the bonus per stage; the simulation has no stalls; the build and all tests pass.
+**Notes:** `PET_STAGE_MULTIPLIERS = [1, 2, 4]` in `src/data/pets.ts`; each pet keeps its old adult bonus, so Baby and Young are lower than before and the step to Adult is clearly bigger. Feed is disabled on the other pets while one grows ("Another pet is growing (Xh left)"); a save with several growing lets them all finish. Pet cards show "Grows to: +X% as Young/Adult", with decimals for small bonuses. 100% completion at 267.6 h (was 250.1 h after 1.53), no stalls.
 
 ### 1.58 — Pet growing animation — CODE — Not started
 **Goal:** owner request after playtest 22: show the pet growing.
@@ -1222,13 +1226,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reduce motion: no animation, only the message.
 **Acceptance:** tests that the growing state and the stage-up celebration render, and that reduce motion turns the animation off; the build and all tests pass.
 
-### 1.59 — Pet slots: up to 3 active pets, bought with energy — CODE — Not started
+### 1.59 — Pet slots: up to 3 active pets, bought with energy — CODE — Done
 **Goal:** owner request after playtest 22: upgrades in the Pets tab to have more active pets at once, up to 3.
 **Details:**
 - The player starts with 1 active slot. Two upgrades in the Pets tab add a 2nd and a 3rd slot. **Energy only**, and very expensive (the bonuses stack), prices in `src/data/pets.ts`. Each also needs a player level (see 1.61).
 - Active bonuses from different pets stack; the same pet cannot fill two slots. The energy breakdown (0.53) lists each active pet.
 - Completion counts the two upgrades; rebalance with `npm run simulate` and report the hours.
 **Acceptance:** tests: slots are bought with energy, bonuses of up to 3 pets stack, the level requirement holds, old saves keep their one active pet; the simulation has no stalls; the build and all tests pass.
+**Notes:** `PET_SLOT_UPGRADES` in `src/data/pets.ts`: slot 2 costs 100M energy at player level 45, slot 3 costs 1B at level 80. The save keeps `pets.slots` and `pets.extra` (optional, so older saves load with 1 slot and their active pet; no save version bump). "Make active" fills a free slot, or takes the first slot's place when all are full (the button says whose); "Rest" frees a slot, but the last active pet stays. The energy, click and resource breakdowns list each active pet. Completion gains a "Pet slots" part (2 entries). 100% at 254.8 h (was 267.6 h after 1.57), no stalls.
 
 ### 1.60 — Active pets walk on the screen — CODE — Not started
 **Goal:** owner request after playtest 22: the active pets walk along the screen on every tab, do small things at random, and can be clicked; a setting turns it off.
@@ -1651,3 +1656,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 22 (after test) | 1.45, 1.46, 1.47 | 2026-10-05 | ⚡ and ☁️ buttons are fine. Decorations panel not good enough: on a big map, scrolled down, the button cannot be seen; bottom right is a good place. Research points: not a spent currency; research level requirements are too low (the top research needs level 14, the owner is research level 21 within a week): make them harder. Order the new items by approximate priority. | 1.64 (hotfix v0.22.1); 1.62 rewritten; 1.53-1.63 ordered |
 | 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. Sort the unlocked titles into tiers by difficulty, with a color per tier. Some map events (birds, truck) seem to always appear in the same place: they should appear anywhere, at random. In the ☁️ menu, highlight "Save to cloud now" like in Settings. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65, 1.66, 1.67, 1.68 |
 | 23 (v0.23.0) | 1.68, 1.62, 1.61, 1.65, 1.63 | 2026-10-06 | 100% completion simulated at 264.7 h (was 251.0 h): the player level gates slow the middle game. Map tooltips fine for now. Research requirements fine for now. Player levels 50 and 70 for the last two room expansions are right. Keep the order 1.66, 1.67, 1.53. Do not develop the next items until the owner says so. | (none) |
+| 24 (v0.24.0) | 1.66, 1.67, 1.53, 1.57, 1.59 | 2026-10-06 | 100% completion simulated at 243.9 h (was 264.7 h): decorations and pet slots add purchases and completion entries; the stacked bonuses of up to 3 active pets speed up the end game. Owner note before testing: decorations are paid to unlock copies (up to 6 of a kind), then placed and removed freely; 1.53 reworked in the same PR. | 1.53 reworked |

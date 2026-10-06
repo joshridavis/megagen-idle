@@ -4,12 +4,14 @@ import { GENERATORS, GENERATOR_TYPES, UPGRADES } from '../data/generators';
 import { PETS } from '../data/pets';
 import { PRODUCER_IDS } from '../data/producers';
 import type { GameState } from '../types/state';
+import { kindsBought, totalBought } from './decorations';
 import { getPlayerLevel } from './playerLevel';
 
 type S = Pick<
   GameState,
   'lifetimeEnergy' | 'activeGenerators' | 'records' | 'completedResearch' | 'expansionLevel' | 'producers' | 'contracts' | 'pets' | 'seenEvents' | 'stats'
->;
+> &
+  Partial<Pick<GameState, 'decorationsBought'>>;
 
 /** The current value of an achievement metric. */
 export function metricValue(s: S, metric: AchievementMetric): number {
@@ -46,6 +48,10 @@ export function metricValue(s: S, metric: AchievementMetric): number {
         .reduce((n, [, v]) => n + v.count, 0);
     case 'returns':
       return s.stats?.returns ?? 0;
+    case 'decorations':
+      return totalBought(s);
+    case 'decorKinds':
+      return kindsBought(s);
   }
 }
 

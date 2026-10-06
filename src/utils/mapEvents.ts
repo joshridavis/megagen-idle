@@ -9,7 +9,27 @@ import { applyEventEffect } from './eventEffects';
 import type { Rng } from './rng';
 import { layoutSite, terrainOfCell } from './siteMap';
 
-/** A map event in progress (1.12): where it plays, and until when it can be clicked. Not saved. */
+/**
+ * Where a moving map event plays (1.67), rolled once with the event's rng so
+ * it never moves while it plays: `y` is a share of the height it can use
+ * (0 = top, just under 1 = bottom), `dir` the way it travels (1 = left to
+ * right, -1 = right to left) and `slope` how far it climbs (−) or sinks (+)
+ * on the way across, in map rows.
+ */
+export interface MapEventPos {
+  y?: number;
+  dir?: 1 | -1;
+  slope?: number;
+}
+
+/** Largest rise or fall of the flock across the map, in rows (1.67). */
+export const FLOCK_MAX_SLOPE = 1.5;
+
+/**
+ * A map event in progress (1.12): where it plays, and until when it can be
+ * clicked. Kept in the store while it plays, not in the save (it lasts
+ * seconds; a load clears it).
+ */
 export interface MapEventState {
   id: string;
   at: number;
@@ -21,6 +41,8 @@ export interface MapEventState {
   producer?: ProducerId;
   /** While before this time, the player can click it for its effect. */
   claimUntil?: number;
+  /** Rolled position and direction (1.67); events from before it have none and use the old placement. */
+  pos?: MapEventPos;
 }
 
 const pick = <T,>(list: T[], rng: Rng): T | undefined => (list.length ? list[Math.floor(rng() * list.length)] : undefined);
@@ -46,19 +68,26 @@ export function pickMapTarget(s: GameState, def: EventDef, rng: Rng, now: number
         site.placed.filter((x) => x.kind === 'producer'),
         rng,
       );
-      return p ? { ...base, key: p.key, cells: p.cells, producer: p.id as ProducerId } : null;
+      // the truck drives in from a random side (1.67)
+      return p ? { ...base, key: p.key, cells: p.cells, producer: p.id as ProducerId, pos: { dir: rng() < 0.5 ? 1 : -1 } } : null;
     }
     case 'river': {
       const cells: number[] = [];
       for (let c = 0; c < site.capacity; c++) if (terrainOfCell(c) === 'river') cells.push(c);
       return cells.length ? { ...base, cells } : null;
     }
-    case 'sea':
+    case 'sea': {
+      // anywhere over the whole height of the sea, drawn past the site's columns (1.67)
+      const y = rng();
+      const row = Math.floor(y * Math.max(1, Math.ceil(site.capacity / MAP_COLUMNS)));
+      return { ...base, cells: [row * (MAP_COLUMNS + SEA_COLUMNS) + MAP_COLUMNS], pos: { y } };
+    }
     case 'sky': {
-      // the sea is drawn past the site's columns; the sky event uses the top rows
-      const row = Math.floor(rng() * 4);
-      const cells = m.target === 'sea' ? [row * (MAP_COLUMNS + SEA_COLUMNS) + MAP_COLUMNS] : [];
-      return { ...base, cells };
+      // anywhere over the map's height, either way across, on a slight slope (1.67)
+      const y = rng();
+      const dir = rng() < 0.5 ? 1 : -1;
+      const slope = (rng() * 2 - 1) * FLOCK_MAX_SLOPE;
+      return { ...base, pos: { y, dir, slope } };
     }
   }
 }

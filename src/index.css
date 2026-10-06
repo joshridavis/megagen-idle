@@ -286,6 +286,20 @@ body {
   }
 }
 
+/* Legendary title in the top bar (1.66): a subtle glow. */
+@keyframes title-shine {
+  0%, 100% { text-shadow: 0 0 0 rgb(255 213 65 / 0); }
+  50% { text-shadow: 0 0 6px rgb(255 213 65 / 0.8); }
+}
+.title-shine {
+  animation: title-shine 3s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-shine {
+    animation: none;
+  }
+}
+
 /* Random-event sightings (0.84). Durations come from --dur. */
 .sighting-fly-right { top: 18%; animation: fly-right var(--dur) linear forwards; }
 .sighting-fly-left { top: 12%; animation: fly-left var(--dur) linear forwards; }
@@ -357,9 +371,9 @@ body {
 }
 
 /* Map events (1.12): they play on the map, at their target */
-@keyframes map-flock { from { left: -10%; } to { left: 105%; } }
+@keyframes map-flock { from { left: var(--from, -10%); top: var(--top-from); } to { left: var(--to, 105%); top: var(--top-to); } }
 @keyframes map-bolt { 0%, 100% { opacity: 0; } 10%, 30% { opacity: 1; transform: scale(1.3); } 20% { opacity: 0.4; } 60% { opacity: 1; transform: scale(1); } }
-@keyframes map-truck { from { left: 0; } to { left: var(--to); } }
+@keyframes map-truck { from { left: var(--from, 0); } to { left: var(--to); } }
 @keyframes map-flood { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.6; } }
 @keyframes map-fire { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-2px) scale(1.15); } }
 @keyframes map-star { from { opacity: 0; transform: translate(-60px, -120px); } 20% { opacity: 1; } to { opacity: 0.2; transform: translate(0, 0); } }
@@ -407,7 +421,7 @@ html[data-reduce-motion] :is(.click-pop, .click-pop-down, .spark) {
   opacity: 0;
 }
 html[data-reduce-motion]
-  :is(.appear, .mini-click, .unlock-glow, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
+  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
   animation: none;
 }
 html[data-reduce-motion] .frame-b {

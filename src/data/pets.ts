@@ -36,7 +36,7 @@ export interface PetDef {
   /** How to find it, shown while it is still a silhouette. */
   hint: string;
   bonus: PetBonus;
-  /** Bonus at baby, young and adult stage (fractions). */
+  /** Bonus at baby, young and adult stage (fractions): the adult value × PET_STAGE_MULTIPLIERS ÷ 4 (1.57). */
   bonusByStage: [number, number, number];
   /** What feeding uses: energy or a resource. */
   food: ResourceId | 'energy';
@@ -58,6 +58,27 @@ export const PET_PARTICLES: Record<PetId, string> = {
   beetle: '✧',
   jellyfish: '✦',
 };
+/**
+ * Bonus by stage as a share of the adult bonus (1.57, owner request playtest
+ * 22): Baby 1×, Young 2×, Adult 4× of a base value, so growing a pet clearly
+ * pays off.
+ */
+export const PET_STAGE_MULTIPLIERS: [number, number, number] = [1, 2, 4];
+/** Bonus by stage from the adult bonus. */
+const stages = (adult: number): [number, number, number] => PET_STAGE_MULTIPLIERS.map((m) => (adult * m) / 4) as [number, number, number];
+
+/**
+ * Extra active pet slots (1.59, owner request playtest 22): the 2nd and 3rd
+ * slot, bought with energy only and gated by player level. Very expensive,
+ * since the bonuses stack.
+ */
+export const PET_SLOT_UPGRADES: { energy: number; playerLevel: number }[] = [
+  { energy: 100_000_000, playerLevel: 45 },
+  { energy: 1_000_000_000, playerLevel: 80 },
+];
+/** Most active pets at once. */
+export const MAX_PET_SLOTS = 1 + PET_SLOT_UPGRADES.length;
+
 /** Hours to grow after feeding: to young, to adult. */
 export const GROW_HOURS: [number, number] = [2, 8];
 
@@ -69,7 +90,7 @@ const PET_DEFS: PetDef[] = [
     find: { kind: 'level', level: 8 },
     hint: 'Reach player level 8.',
     bonus: { kind: 'click' },
-    bonusByStage: [0.5, 1, 2],
+    bonusByStage: stages(2),
     food: 'energy',
     feedCost: [20_000, 400_000],
   },
@@ -80,7 +101,7 @@ const PET_DEFS: PetDef[] = [
     find: { kind: 'event', eventId: 'firefly_swarm' },
     hint: 'Watch the screen on a quiet evening... (rare event)',
     bonus: { kind: 'generator', generators: [GeneratorType.SOLAR] },
-    bonusByStage: [0.05, 0.1, 0.2],
+    bonusByStage: stages(0.2),
     food: 'energy',
     feedCost: [30_000, 600_000],
   },
@@ -91,7 +112,7 @@ const PET_DEFS: PetDef[] = [
     find: { kind: 'research', id: 'smart_grid' },
     hint: 'Research Smart Grid.',
     bonus: { kind: 'generator', generators: [GeneratorType.SOLAR, GeneratorType.WIND] },
-    bonusByStage: [0.03, 0.06, 0.1],
+    bonusByStage: stages(0.1),
     food: 'stone',
     feedCost: [300, 3_000],
   },
@@ -102,7 +123,7 @@ const PET_DEFS: PetDef[] = [
     find: { kind: 'build', generator: GeneratorType.TIDAL },
     hint: 'Build a Tidal Power Station.',
     bonus: { kind: 'generator', generators: [GeneratorType.HYDRO, GeneratorType.TIDAL] },
-    bonusByStage: [0.03, 0.06, 0.1],
+    bonusByStage: stages(0.1),
     food: 'metal',
     feedCost: [400, 4_000],
   },
@@ -113,7 +134,7 @@ const PET_DEFS: PetDef[] = [
     find: { kind: 'contracts', count: 10 },
     hint: 'Complete 10 contracts.',
     bonus: { kind: 'production' },
-    bonusByStage: [0.03, 0.06, 0.1],
+    bonusByStage: stages(0.1),
     food: 'metal',
     feedCost: [500, 5_000],
   },
@@ -124,7 +145,7 @@ const PET_DEFS: PetDef[] = [
     find: { kind: 'event', eventId: 'stray_cat' },
     hint: 'A stray might wander in one day... (rare event)',
     bonus: { kind: 'energy' },
-    bonusByStage: [0.01, 0.02, 0.03],
+    bonusByStage: stages(0.03),
     food: 'energy',
     feedCost: [100_000, 2_000_000],
   },
@@ -135,7 +156,7 @@ const PET_DEFS: PetDef[] = [
     find: { kind: 'level', level: 25 },
     hint: 'Reach player level 25.',
     bonus: { kind: 'production', resource: 'metal' },
-    bonusByStage: [0.05, 0.1, 0.15],
+    bonusByStage: stages(0.15),
     food: 'coal',
     feedCost: [200, 2_000],
   },
@@ -146,7 +167,7 @@ const PET_DEFS: PetDef[] = [
     find: { kind: 'build', generator: GeneratorType.NUCLEAR },
     hint: 'Build a Nuclear Fission Plant.',
     bonus: { kind: 'production', resource: 'uranium' },
-    bonusByStage: [0.1, 0.2, 0.3],
+    bonusByStage: stages(0.3),
     food: 'energy',
     feedCost: [500_000, 10_000_000],
   },
