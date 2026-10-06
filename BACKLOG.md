@@ -24,7 +24,13 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold lifted (owner, 2026-10-06, after playtest 24):** the owner asked to continue from the order below.
+**Hold lifted (owner, 2026-10-06):** after playtest 24 the owner asked to continue. 1.58, 1.60, 1.56 and the bug fixes 1.72 and 1.73 were built for checkpoint 25 (PR #42, in the order below); the playtest 24 requests 1.69 to 1.71 were written on `main` at the same time and come next.
+
+**After playtest 24 (owner, 2026-10-06):** these come first after checkpoint 25, then the rest of the playtest 22 list below (1.55, 1.54, ...).
+
+0. 1.69 Collapse and expand the Cosmetics section in the Achievements tab (owner request; small)
+0. 1.70 Remove all decorations from the map at once (owner request; small)
+0. 1.71 Working machines animate on the map (owner request)
 
 **After playtest 22 (owner, 2026-10-05):** these come first, in this order (approximate priority, set by Claude at the owner's request), then the rest of the playtest 21 list below.
 
@@ -40,10 +46,10 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity (Done)
 0. 1.59 Pet slots: up to 3 active pets, bought with energy (Done) → CHECKPOINT 24 (5 items since checkpoint 23, `PLAYTEST_EVERY = 5`)
 0. 1.58 Pet growing animation (Done)
-0. 1.69 Fix: the Oil Rig's map tooltip shows no level and no oil use (owner report, playtest 24; Done)
-0. 1.70 Fix: decorations bought did not count in the Completion tab; completion needs all 6 of each (owner report, playtest 24; Done)
+0. 1.72 Fix: the Oil Rig's map tooltip shows no level and no oil use (owner report, playtest 24; Done)
+0. 1.73 Fix: decorations bought did not count in the Completion tab; completion needs all 6 of each (owner report, playtest 24; Done)
 0. 1.60 Active pets walk on the screen (Done)
-0. 1.56 More pets (Done) → CHECKPOINT 25 (5 items since checkpoint 24: 1.58, 1.69, 1.70, 1.60, 1.56)
+0. 1.56 More pets (Done) → CHECKPOINT 25 (5 items since checkpoint 24: 1.58, 1.72, 1.73, 1.60, 1.56)
 0. 1.55 More random events
 0. 1.54 More decorations
 
@@ -1165,6 +1171,57 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests with a seeded rng: different seeds give different rows or sides for the birds, star and truck, and the full range of rows is reachable; the stored position survives a save and load; the birds and truck face their direction of travel; old saves without a position still draw; the build and all tests pass.
 **Notes:** `pickMapTarget` rolls a `pos` (`y` share of the height, `dir`, and for the birds a `slope` of up to ±1.5 rows, `FLOCK_MAX_SLOPE`) and keeps it in the event's `MapEventState`. Deviation: the map event in progress is not part of the save (it lasts seconds and a load clears it, as before), so "survives a save and load" became "stays put while the event plays"; an event without `pos` still draws in the old place. The truck from the right is mirrored and stops right of the producer; the flock from the right is mirrored as a whole, so the leader stays in front.
 
+### 1.69 — Collapse and expand the Cosmetics section in the Achievements tab — CODE — Not started
+**Goal:** owner request after playtest 24: the Cosmetics section at the top of the Achievements tab (title picker, accent colors and the title tiers list from 1.66) has grown tall. The player should be able to close it and open it again.
+**Details:**
+- The "Cosmetics" heading becomes a toggle button (a ▸/▾ chevron, `aria-expanded`, `aria-controls`) that closes and opens the section. Keyboard: Enter and Space toggle it; it shows the focus ring.
+- Closed, only the heading row shows, with a short summary of what is chosen (for example "Title: Engineer · Accent: Sky"), the title in its tier color.
+- Open by default for a new player; the choice is remembered per device (a setting such as `settings.ui.cosmeticsOpen`, saved with the game, or `localStorage` wrapped in try/catch), so it stays closed across reloads.
+- Reduce motion: no open/close animation.
+- The achievements list below is unchanged.
+**Acceptance:** tests: the section starts open; the toggle closes it (the title picker and tier list are gone, the summary shows) and opens it again; `aria-expanded` follows; the choice survives a reload (or a store reset of the UI only); Playwright at 360 px: no sideways scroll on the Achievements tab, open or closed; the build and all tests pass.
+
+### 1.70 — Remove all decorations from the map at once — CODE — Not started
+**Goal:** owner request after playtest 24: a button to clear every decoration from the map in one go, instead of removing them one by one.
+**Details:**
+- In the 🎨 Decorations panel, next to 🧹 Remove and Close in its pinned bottom bar, a **Remove all** button. Disabled when nothing is placed.
+- It asks for confirmation first ("Take all N decorations off the map? You keep every copy and can place them again for free."), with Remove all / Cancel; Escape cancels. Focus returns to the button.
+- Removing all is free and keeps every bought copy (1.53): `decorationsBought` does not change, only `mapDecorations` becomes empty. Decorations hidden under machines are removed too.
+- A pure function (for example `removeAllDecorations` in `src/utils/decorations.ts`) and a store action; the map note says "All decorations removed: place them again any time for free."
+**Acceptance:** tests: the button is disabled with nothing placed; confirming empties `mapDecorations` and leaves energy and `decorationsBought` unchanged; Cancel and Escape change nothing; the copies can be placed again for free afterwards; Playwright at 375 px: the button and the confirmation are fully on screen; the build and all tests pass.
+
+### 1.71 — Working machines animate on the map — CODE — Not started
+**Goal:** owner request after playtest 24: every machine on the map that is working should look like it is working. Today a running generator shows a still "active" sprite and a stopped one shows the "inactive" sprite; nothing moves.
+**Details:**
+- **What counts as working:** a generator that is switched on and producing (not out of fuel); a producer that is producing.
+- **Turned off means static (owner):** a machine the player switches off is completely still, with its inactive look as now. The same goes for one that is out of fuel or idle.
+  - Switching a machine off stops its animation at once.
+  - Switching it back on starts the animation again.
+  - No reload or tab change is needed for either.
+- **One animation per machine type**, fitting what it does. For example:
+  - Solar Panel: a light glint sweeping across.
+  - Wind Turbine: turning blades.
+  - Coal, Gas and Oil plants: rising smoke from the chimney.
+  - Hydropower Dam and Tidal Station: moving water.
+  - Nuclear Fission Plant: steam from the cooling tower.
+  - Fusion Reactor and Micro-Supernova: a pulsing glow.
+  - Producers: the mine cart or pickaxe moves, the quarry crusher shakes, the wells and rigs pump, the extractor bubbles.
+- **Frames from the generic asset script:** 2 to 4 frames per animated machine, made by `scripts/generate-generic-assets.mjs` at the same size and AAP-64 palette as today's sprite. Add them to the Asset manifest in this file, `src/assets/sprite-manifest.json` and the typed `sprites`. No hand-made or AI art. Effects that are not frames (a glint, a glow, smoke puffs) may be CSS on top of the sprite.
+- Animate with the existing `Frames` component and CSS. Give machines of one type a random start offset, so a row of turbines does not move in lockstep.
+- **Performance:** CSS animations only, no per-frame JavaScript. The animations pause when the page is hidden or the Map tab is closed. A full late-game map (about 880 tiles, hundreds of machines) must stay smooth: use one shared animation per type, not a timer per machine.
+- **Reduce motion** (in-game setting and the system setting): no movement; working machines show their first frame.
+- Drag-and-drop (1.16), tooltips (1.63), map events (1.12) and the zone highlight (1.39) keep working on animated machines.
+**Acceptance:**
+- Tests:
+  - every generator and producer type has an animation or effect;
+  - a working machine renders animated and an off or out-of-fuel one renders still;
+  - switching a machine off makes it static right away, and switching it on animates it again;
+  - Reduce motion stops the animation;
+  - the new frames are listed in `src/assets/generic-assets.json`.
+- `npm run check:assets` passes.
+- Playwright at 1280 px on a large site: the Map tab shows the animation classes, and no sideways scroll.
+- The build and all tests pass.
+
 ### 1.68 — Cloud menu buttons styled like Settings — CODE — Done
 **Goal:** owner request after hotfix 22.1: in the ☁️ menu in the top bar (1.46), "Save to cloud now" looks like plain text. It should stand out as the main action, as it does in Settings → Account.
 **Details:**
@@ -1221,13 +1278,13 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests: a second pet cannot start growing, the old-save case, the bonus per stage; the simulation has no stalls; the build and all tests pass.
 **Notes:** `PET_STAGE_MULTIPLIERS = [1, 2, 4]` in `src/data/pets.ts`; each pet keeps its old adult bonus, so Baby and Young are lower than before and the step to Adult is clearly bigger. Feed is disabled on the other pets while one grows ("Another pet is growing (Xh left)"); a save with several growing lets them all finish. Pet cards show "Grows to: +X% as Young/Adult", with decimals for small bonuses. 100% completion at 267.6 h (was 250.1 h after 1.53), no stalls.
 
-### 1.70 — Fix: decorations bought did not count in the Completion tab; completion needs all 6 of each — CODE — Done
+### 1.73 — Fix: decorations bought did not count in the Completion tab; completion needs all 6 of each — CODE — Done
 **Goal:** owner report, playtest 24: with 29 decorations owned, the Completion tab's Decorations part read "0 bought" everywhere. Also: "25 decorations bought" makes no sense when each kind can be bought 6 times.
 **Details:** the Completion panel builds its input for `getCompletion` field by field and left out `decorationsBought` (the % in the tab button used the full state, so the two disagreed). The achievements were not affected: they read the full state. Change the Decorations part to one entry per kind, done when all `DECORATION_LIMIT` (6) copies are owned, and drop `DECORATION_COPIES_GOAL`. Rerun `npm run simulate`.
 **Acceptance:** a test that fails before the fix: the panel shows the copies owned and matches the tab %; the decoration achievements unlock through the store; completion needs 6 of each kind; the simulation has no stalls; the build and all tests pass.
 **Notes:** fixed in `src/components/CompletionPanel.tsx`; entries read "n/6 bought". 100% completion at 257.1 h (was 243.9 h), no stalls. The achievements stay as they were (Green Thumb 1, Site Beautifier 10, Collector every kind, Landscape Architect 30 as a bonus).
 
-### 1.69 — Fix: the Oil Rig's map tooltip shows no level and no oil use — CODE — Done
+### 1.72 — Fix: the Oil Rig's map tooltip shows no level and no oil use — CODE — Done
 **Goal:** owner report, playtest 24: hovering an Oil Rig on the map shows no level, while other machines do, and no oil consumption.
 **Details:** the Oil Rig is a producer: it makes oil, has no levels and burns nothing, unlike generators (the Oil Power Plant shows its level and the oil it burns). Make the producer tooltip say so, and show the fuel side of the resource it makes.
 **Acceptance:** a producer's map tooltip says "Producer (no levels)"; a producer of a fuel (coal, gas, oil, uranium, deuterium) also shows what the running generators burn of it and the net per hour; tests; the build and all tests pass.
@@ -1674,5 +1731,6 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. Sort the unlocked titles into tiers by difficulty, with a color per tier. Some map events (birds, truck) seem to always appear in the same place: they should appear anywhere, at random. In the ☁️ menu, highlight "Save to cloud now" like in Settings. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65, 1.66, 1.67, 1.68 |
 | 23 (v0.23.0) | 1.68, 1.62, 1.61, 1.65, 1.63 | 2026-10-06 | 100% completion simulated at 264.7 h (was 251.0 h): the player level gates slow the middle game. Map tooltips fine for now. Research requirements fine for now. Player levels 50 and 70 for the last two room expansions are right. Keep the order 1.66, 1.67, 1.53. Do not develop the next items until the owner says so. | (none) |
 | 24 (v0.24.0) | 1.66, 1.67, 1.53, 1.57, 1.59 | 2026-10-06 | 100% completion simulated at 243.9 h (was 264.7 h): decorations and pet slots add purchases and completion entries; the stacked bonuses of up to 3 active pets speed up the end game. Owner note before testing: decorations are paid to unlock copies (up to 6 of a kind), then placed and removed freely; 1.53 reworked in the same PR. | 1.53 reworked |
-| 24 (after test) | | 2026-10-06 | The owner asked to continue. Bugs: the Oil Rig's map tooltip shows no level and no oil use; the Completion tab showed 0 decorations bought; "25 decorations bought" makes no sense with 6 of each kind. | 1.69, 1.70 |
-| 25 (v0.25.0) | 1.58, 1.69, 1.70, 1.60, 1.56 | 2026-10-06 | 100% completion simulated at 293.3 h (was 243.9 h): all 6 copies of every decoration and six more pets. Waiting for feedback. | |
+| 24 (after review) | 1.66, 1.67, 1.53, 1.57, 1.59 | 2026-10-06 | Rose for Epic titles: yes. ×1.6 per copy and the decoration prices: right. Decorations stay as they are now (6 copies of a kind, bought once, placed and removed freely). Pet slot prices and player levels: right. Requests: open and close the Cosmetics section in the Achievements tab; a button to remove all decorations from the map at once; working machines on the map should look like they are working (an animation). Do not develop the next items until the owner says so. | 1.69, 1.70, 1.71 |
+| 24 (bug reports) | | 2026-10-06 | The owner asked to continue. Bugs: the Oil Rig's map tooltip shows no level and no oil use; the Completion tab showed 0 decorations bought; "25 decorations bought" makes no sense with 6 of each kind. | 1.72, 1.73 |
+| 25 (v0.25.0) | 1.58, 1.72, 1.73, 1.60, 1.56 | 2026-10-06 | 100% completion simulated at 293.3 h (was 243.9 h): all 6 copies of every decoration and six more pets. Waiting for feedback. | |

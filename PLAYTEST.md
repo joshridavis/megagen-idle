@@ -19,9 +19,9 @@ Your save carries over.
 ## What is new since playtest 24
 
 - **Your bug reports:**
-  - **Oil Rig tooltip (1.69):** the Oil Rig is a *producer*: it makes oil, has no levels and burns nothing. That is why it showed no level, unlike generators such as the Oil Power Plant. Every producer's map tooltip now says "Producer (no levels)". A producer of a fuel also shows what your running generators burn of it, and the net, for example "🔥 Your generators burn 12/h oil · net +7.8/h".
-  - **Decorations in the Completion tab (1.70):** the Decorations part always read "0 bought". The Completion tab left your decorations out, while the % on its tab button counted them, so the two disagreed. Fixed. The achievements were fine: they unlock from what you own.
-  - **"25 decorations bought" (1.70):** gone. Each decoration kind now counts as done in Completion when you own all 6 copies, shown as "n/6 bought".
+  - **Oil Rig tooltip (1.72):** the Oil Rig is a *producer*: it makes oil, has no levels and burns nothing. That is why it showed no level, unlike generators such as the Oil Power Plant. Every producer's map tooltip now says "Producer (no levels)". A producer of a fuel also shows what your running generators burn of it, and the net, for example "🔥 Your generators burn 12/h oil · net +7.8/h".
+  - **Decorations in the Completion tab (1.73):** the Decorations part always read "0 bought". The Completion tab left your decorations out, while the % on its tab button counted them, so the two disagreed. Fixed. The achievements were fine: they unlock from what you own.
+  - **"25 decorations bought" (1.73):** gone. Each decoration kind now counts as done in Completion when you own all 6 copies, shown as "n/6 bought".
 - **Pets growing (1.58):** a growing pet pulses gently with small sparkles, and its card shows a progress bar and "Growing to young: Xh left". When it reaches the next stage while you play, a celebration shows on any tab: the old sprite grows, flashes and turns into the new one. Growth that happens while you are away is only logged (🐣), like research.
 - **Pets walk on screen (1.60):** your active pets walk along the bottom of the screen on every tab. Now and then they stop to eat 🍎, play ⚽, sleep 💤, sit 💭 or jump ❗. Click one to see its reaction. While research runs, they walk just above the research chip, so they never hide it. Settings → Motion → **Pets walk on screen** turns them off; Reduce motion makes them stand still.
 - **Six more pets (1.56):**
@@ -59,7 +59,7 @@ Your save carries over.
 2. Decorations: is "all 6 of each kind" right for 100% completion? Should Landscape Architect (30 bought, a bonus achievement) become "all 36"?
 3. Walking pets: is the speed right, and are the actions and bubbles fun or distracting?
 4. New pets: are the bonuses and where you find them about right? Are the Soot Owl's and the Atomic Axolotl's energy feeding costs (2M/40M and 20M/400M) too steep?
-5. Next in the order are 1.55 (more random events) and 1.54 (more decorations). Keep that order?
+5. Next come your playtest 24 requests: 1.69 (open and close the Cosmetics section), 1.70 (remove all decorations at once) and 1.71 (working machines animate on the map), then 1.55 (more random events) and 1.54 (more decorations). Keep that order?
 
 ---
 

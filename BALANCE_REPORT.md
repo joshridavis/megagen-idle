@@ -191,7 +191,7 @@ See the "Tuning log" section below; new runs keep it.
 - **Simulator player:** feeds them like the others, one pet growing at a time; its active pets are unchanged. Found: Coal Mole 13.3 h, Atomic Axolotl 93.1 h; fully grown: Coal Mole 99.6 h, Atomic Axolotl 161.9 h, Lab Mouse 170.1 h, Courier Pigeon 203.8 h.
 - **Result:** 100% completion at 293.3 h (was 257.1 h). The last entry is still the 3rd pet slot (player level 80): the energy fed to the Soot Owl (40M) and the Atomic Axolotl (400M) delays late upgrades, so level 80 comes later. No stalls.
 
-### v0.24.x (item 1.70, completion needs all 6 copies of every decoration)
+### v0.24.x (item 1.73, completion needs all 6 copies of every decoration)
 
 - **Owner, playtest 24:** "25 decorations bought" made no sense when each kind can be bought 6 times.
 - **Completion:** the Decorations part now has one entry per kind, done when all 6 copies are owned (36 copies today). The "25 bought" entry is gone.
