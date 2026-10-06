@@ -3,7 +3,7 @@ import { expandRoom } from '../../utils/roomSystem';
 import { deriveRates } from '../../utils/simulation';
 import { moveOnMap } from '../../utils/siteMap';
 import type { DecorationId } from '../../data/decorations';
-import { placeDecoration, removeDecoration } from '../../utils/decorations';
+import { buyDecoration, placeDecoration, removeDecoration } from '../../utils/decorations';
 import type { SliceCreator } from '../types';
 
 export interface RoomActions {
@@ -13,6 +13,8 @@ export interface RoomActions {
   moveOnMap: (key: string, anchor: number) => boolean;
   /** Puts a cosmetic decoration on a free site tile (1.13). Returns success. */
   placeDecoration: (id: DecorationId, cell: number) => boolean;
+  /** Buys the next copy of a decoration with energy (1.53). Returns success. */
+  buyDecoration: (id: DecorationId) => boolean;
   /** Takes away the decoration on a tile (1.13). Returns success. */
   removeDecoration: (cell: number) => boolean;
 }
@@ -38,7 +40,13 @@ export const createRoomSlice =
     placeDecoration: (id, cell) => {
       const next = placeDecoration(get(), id, cell);
       if (!next) return false;
-      set(next, undefined, 'room/placeDecoration');
+      set({ mapDecorations: next }, undefined, 'room/placeDecoration');
+      return true;
+    },
+    buyDecoration: (id) => {
+      const next = buyDecoration(get(), id);
+      if (!next) return false;
+      set(next, undefined, 'room/buyDecoration');
       return true;
     },
     removeDecoration: (cell) => {

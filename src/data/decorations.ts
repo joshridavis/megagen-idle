@@ -2,8 +2,9 @@ import type { SpriteId } from '../assets';
 
 /**
  * Map decorations (1.13, playtest 15): cosmetic only. Player levels,
- * achievements and contracts are requirements; each copy is then bought with
- * energy when placed (1.53), every copy of a kind costing more than the last.
+ * achievements and contracts are requirements; each copy is then bought once
+ * with energy (1.53), every copy of a kind costing more than the last, and
+ * placed or removed freely afterwards.
  * They take no room, give no bonus and never block a machine.
  */
 export type DecorationId = 'tree' | 'flag' | 'pond' | 'windsock' | 'lamp' | 'statue';
@@ -19,11 +20,7 @@ export interface DecorationDef {
   price: number;
 }
 
-/**
- * How many of each decoration may stand on the map at once. Kept with 1.53:
- * prices rise per copy bought, and removing one refunds nothing but keeps the
- * count, so the limit only keeps the map tidy.
- */
+/** Copies of each decoration that can be bought, and so stand on the map at once (1.53). */
 export const DECORATION_LIMIT = 6;
 
 /** Each copy of a kind costs this much more than the one before (1.53). */

@@ -10,14 +10,17 @@ import { useStore } from '../store';
 import { migrateSave, pickSaved, SAVE_VERSION } from '../store/migrations';
 import { GeneratorType } from '../types/generator';
 import type { GameState } from '../types/state';
-import { decorationPrice, isDecorationUnlocked, placeBlock, placeDecoration, removeDecoration, unlockedDecorations } from './decorations';
+import { buyBlock, buyDecoration, decorationPrice, isDecorationUnlocked, placeBlock, placeDecoration, removeDecoration, unlockedDecorations } from './decorations';
 import { energyForLevel } from './playerLevel';
 import { deriveRates } from './simulation';
 import { getProducerPlacement, layoutSite } from './siteMap';
 
 afterEach(cleanup);
 
-const s0 = (extra: Partial<GameState> = {}): GameState => deriveRates({ ...createInitialState(0), roomCapacity: 48, energy: 1e9, ...extra });
+/** Owns every copy of every kind unless the test says otherwise (1.53: copies are bought before placing). */
+const ALL_OWNED = Object.fromEntries(DECORATIONS.map((d) => [d.id, DECORATION_LIMIT]));
+const s0 = (extra: Partial<GameState> = {}): GameState =>
+  deriveRates({ ...createInitialState(0), roomCapacity: 48, energy: 1e9, decorationsBought: ALL_OWNED, ...extra });
 const achieved = (n: number) => Object.fromEntries(Array.from({ length: n }, (_, i) => [`a${i}`, 1]));
 /** A free tile: inside the site and not under a machine. */
 const freeTile = (s: GameState) => {
@@ -46,11 +49,11 @@ describe('map decorations (1.13)', () => {
     expect(placeBlock(s, 'tree', machine)).toBe('A machine stands there.');
     expect(placeBlock(s, 'tree', layoutSite(s).capacity)).toBe('Decorations go inside your site.');
     const once = placeDecoration(s, 'tree', tile)!;
-    expect(once.mapDecorations[tile]).toBe('tree');
-    expect(placeBlock({ ...s, ...once }, 'tree', tile)).toBe('Something is already there.');
+    expect(once[tile]).toBe('tree');
+    expect(placeBlock({ ...s, mapDecorations: once }, 'tree', tile)).toBe('Something is already there.');
     const full = Object.fromEntries(Array.from({ length: DECORATION_LIMIT }, (_, i) => [1000 + i, 'tree' as const]));
-    expect(placeBlock({ ...s, mapDecorations: full }, 'tree', tile)).toBe(`At most ${DECORATION_LIMIT} of each.`);
-    expect(removeDecoration(once.mapDecorations, tile)).toEqual({});
+    expect(placeBlock({ ...s, mapDecorations: full }, 'tree', tile)).toBe(`All ${DECORATION_LIMIT} you own are placed: buy another first.`);
+    expect(removeDecoration(once, tile)).toEqual({});
     expect(removeDecoration({}, tile)).toBeNull();
   });
 
@@ -141,41 +144,49 @@ describe('map decorations (1.13)', () => {
   });
 });
 
-describe('decorations bought with energy (1.53)', () => {
+describe('decorations bought with energy, then placed freely (1.53, owner playtest 24)', () => {
   const unlockedAll = (extra: Partial<GameState> = {}) =>
     s0({ lifetimeEnergy: energyForLevel(20), achievements: achieved(15), contracts: { ...createInitialState(0).contracts, done: 50 }, ...extra });
 
-  it('each copy costs more than the last, and energy is spent', () => {
-    const s = s0({ lifetimeEnergy: energyForLevel(5), energy: 10_000 });
-    const tile = freeTile(s);
+  it('each copy is bought once with energy, the next costing more, up to 6 of a kind', () => {
+    const s = s0({ lifetimeEnergy: energyForLevel(5), energy: 10_000, decorationsBought: {} });
     const base = DECORATIONS_BY_ID.tree.price;
     expect(decorationPrice(s, 'tree')).toBe(base);
-    const once = placeDecoration(s, 'tree', tile)!;
-    expect(once.energy).toBe(10_000 - base);
-    expect(once.decorationsBought).toEqual({ tree: 1 });
-    const after = { ...s, ...once };
-    expect(decorationPrice(after, 'tree')).toBe(Math.round(base * DECORATION_PRICE_GROWTH));
+    const once = buyDecoration(s, 'tree')!;
+    expect(once).toEqual({ energy: 10_000 - base, decorationsBought: { tree: 1 } });
+    expect(decorationPrice({ ...s, ...once }, 'tree')).toBe(Math.round(base * DECORATION_PRICE_GROWTH));
     expect(decorationPrice({ decorationsBought: { tree: 3 } }, 'tree')).toBe(Math.round(base * DECORATION_PRICE_GROWTH ** 3));
+    expect(buyBlock({ ...s, energy: 1e12, decorationsBought: { tree: DECORATION_LIMIT } }, 'tree')).toBe(`All ${DECORATION_LIMIT} bought.`);
     // the first Tree is a small early buy; the statue is a late-game sink
     expect(DECORATIONS_BY_ID.tree.price).toBeLessThan(DECORATIONS_BY_ID.statue.price / 1000);
   });
 
-  it('cannot be placed without enough energy, and the requirements still apply', () => {
-    const poor = s0({ lifetimeEnergy: energyForLevel(5), energy: DECORATIONS_BY_ID.tree.price - 1 });
-    expect(placeBlock(poor, 'tree', freeTile(poor))).toBe('Not enough energy.');
-    expect(placeDecoration(poor, 'tree', freeTile(poor))).toBeNull();
-    const rich = s0({ energy: 1e12 });
-    expect(placeBlock(rich, 'statue', freeTile(rich))).toBe('Not unlocked yet.');
+  it('cannot be bought without enough energy, and the requirements still apply', () => {
+    const poor = s0({ lifetimeEnergy: energyForLevel(5), energy: DECORATIONS_BY_ID.tree.price - 1, decorationsBought: {} });
+    expect(buyBlock(poor, 'tree')).toBe('Not enough energy.');
+    expect(buyDecoration(poor, 'tree')).toBeNull();
+    expect(buyBlock(s0({ energy: 1e12 }), 'statue')).toBe('Not unlocked yet.');
   });
 
-  it('removing refunds nothing and keeps the count, so the next copy still costs more', () => {
-    const s = s0({ lifetimeEnergy: energyForLevel(5), energy: 10_000 });
+  it('only owned copies can be placed, and placing, removing and placing again costs nothing', () => {
+    const s = s0({ lifetimeEnergy: energyForLevel(5), energy: 10_000, decorationsBought: {} });
     const tile = freeTile(s);
-    const placed = { ...s, ...placeDecoration(s, 'tree', tile)! };
-    const removed = { ...placed, mapDecorations: removeDecoration(placed.mapDecorations, tile)! };
-    expect(removed.energy).toBe(placed.energy);
-    expect(removed.decorationsBought.tree).toBe(1);
-    expect(decorationPrice(removed, 'tree')).toBeGreaterThan(DECORATIONS_BY_ID.tree.price);
+    expect(placeBlock(s, 'tree', tile)).toBe('Buy one first.');
+    const owned = { ...s, ...buyDecoration(s, 'tree')! };
+    const placed = { ...owned, mapDecorations: placeDecoration(owned, 'tree', tile)! };
+    expect(placed.energy).toBe(owned.energy);
+    // the one copy is on the map: a second tile needs another copy
+    const taken = new Set(layoutSite(s).placed.flatMap((p) => p.cells));
+    const other = [...Array(layoutSite(s).capacity).keys()].find((c) => !taken.has(c) && c !== tile)!;
+    expect(placeBlock(placed, 'tree', other)).toBe('All 1 you own are placed: buy another first.');
+    // remove it and place it elsewhere, for free, as often as you like
+    let st = placed;
+    for (let i = 0; i < 3; i++) {
+      st = { ...st, mapDecorations: removeDecoration(st.mapDecorations, i % 2 ? other : tile)! };
+      st = { ...st, mapDecorations: placeDecoration(st, 'tree', i % 2 ? tile : other)! };
+    }
+    expect(st.energy).toBe(owned.energy);
+    expect(st.decorationsBought.tree).toBe(1);
   });
 
   it('old saves keep their decorations, counted as bought for free', () => {
@@ -190,15 +201,16 @@ describe('decorations bought with energy (1.53)', () => {
   });
 
   it('achievements unlock with decorations bought and kinds bought', () => {
-    const s = unlockedAll();
+    const s = unlockedAll({ decorationsBought: {} });
     const ids = (st: GameState) => newlyEarned(st).map((a) => a.id);
     expect(ids(s)).not.toContain('decor_1');
     expect(ids({ ...s, decorationsBought: { tree: 1 } })).toContain('decor_1');
     expect(ids({ ...s, decorationsBought: { tree: 6, flag: 4 } })).toContain('decor_10');
     const every = Object.fromEntries(DECORATIONS.map((d) => [d.id, 1]));
     expect(ids({ ...s, decorationsBought: every })).toContain('decor_kinds');
-    expect(ids({ ...s, decorationsBought: { ...every, tree: 45 } })).toContain('decor_50');
-    expect(ACHIEVEMENTS_BY_ID.decor_50).toMatchObject({ bonus: true, title: true, tier: 'epic' });
+    expect(ids({ ...s, decorationsBought: { ...every, tree: 6, flag: 6, pond: 6, windsock: 6, lamp: 4 } })).not.toContain('decor_30'); // 29
+    expect(ids({ ...s, decorationsBought: ALL_OWNED })).toContain('decor_30'); // 36, the most there is
+    expect(ACHIEVEMENTS_BY_ID.decor_30).toMatchObject({ bonus: true, title: true, tier: 'epic' });
   });
 
   it('100% completion counts every kind once and a number bought in all', () => {
@@ -207,32 +219,39 @@ describe('decorations bought with energy (1.53)', () => {
     expect(part({}).done).toBe(0);
     const every = Object.fromEntries(DECORATIONS.map((d) => [d.id, 1]));
     expect(part({ decorationsBought: every }).done).toBe(DECORATIONS.length);
-    expect(part({ decorationsBought: { ...every, tree: DECORATION_COPIES_GOAL } }).done).toBe(DECORATIONS.length + 1);
+    expect(part({ decorationsBought: ALL_OWNED }).done).toBe(DECORATIONS.length + 1);
+    expect(DECORATION_COPIES_GOAL).toBeLessThanOrEqual(DECORATIONS.length * DECORATION_LIMIT);
   });
 
-  it('the panel shows each next price, red when energy is short, and placing pays it', () => {
+  it('the panel buys copies, shows prices red when short, and places owned copies for free', () => {
     useStore.getState().resetGame();
-    const s = s0({ lifetimeEnergy: energyForLevel(5), energy: 1500 });
+    const s = s0({ lifetimeEnergy: energyForLevel(5), energy: 1500, decorationsBought: {} });
     useStore.setState(s);
     const tile = freeTile(s);
     const { container } = render(<MapPanel onSelect={() => {}} />);
     fireEvent.click(screen.getByTestId('decor-open'));
-    expect(screen.getByTestId('map-decorations').textContent).toContain('refunds nothing');
-    const price = screen.getByTestId('decor-price-tree');
-    expect(price.textContent).toContain('1K');
-    expect(price.dataset.short).toBe('false');
-    expect(screen.getByTestId('decor-price-flag').dataset.short).toBe('true');
-    expect(screen.getByTestId('decor-price-flag').className).toContain('text-red-400');
+    expect(screen.getByTestId('map-decorations').textContent).toContain('for free');
+    expect((screen.getByTestId('decor-pick-tree') as HTMLButtonElement).disabled).toBe(true); // none owned yet
+    expect(screen.getByTestId('decor-price-tree').textContent).toContain('1K');
+    expect(screen.getByTestId('decor-price-tree').dataset.short).toBe('false');
+    fireEvent.click(screen.getByTestId('decor-buy-tree'));
+    expect(useStore.getState().energy).toBe(500);
+    expect(useStore.getState().decorationsBought.tree).toBe(1);
+    expect(screen.getByTestId('decor-count-tree').textContent).toBe('0/1 placed · 1/6 owned');
+    // the next copy costs 1,600 and 500 is left: red and disabled
+    expect(screen.getByTestId('decor-price-tree').dataset.short).toBe('true');
+    expect((screen.getByTestId('decor-buy-tree') as HTMLButtonElement).disabled).toBe(true);
+    // place, remove and place again: energy stays at 500
     fireEvent.click(screen.getByTestId('decor-pick-tree'));
     const tiles = container.querySelectorAll('[data-terrain]:not([data-terrain="sea"])');
     fireEvent.click(tiles[tile]);
+    expect(useStore.getState().mapDecorations[tile]).toBe('tree');
+    fireEvent.click(screen.getByTestId('decor-remove'));
+    fireEvent.click(tiles[tile]);
+    expect(useStore.getState().mapDecorations).toEqual({});
+    fireEvent.click(screen.getByTestId('decor-pick-tree'));
+    fireEvent.click(tiles[tile]);
+    expect(useStore.getState().mapDecorations[tile]).toBe('tree');
     expect(useStore.getState().energy).toBe(500);
-    expect(screen.getByTestId('map-info').textContent).toContain('Tree placed for');
-    // the next copy costs 1,600 and 500 is left: red, and a click says why
-    expect(screen.getByTestId('decor-price-tree').dataset.short).toBe('true');
-    const taken = new Set(layoutSite(s).placed.flatMap((p) => p.cells));
-    const other = [...Array(layoutSite(s).capacity).keys()].find((c) => !taken.has(c) && c !== tile)!;
-    fireEvent.click(tiles[other]);
-    expect(screen.getByTestId('map-info').textContent).toContain('Not enough energy');
   });
 });

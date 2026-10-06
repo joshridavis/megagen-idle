@@ -9,8 +9,8 @@ import { useNumberFormat } from './useNumberFormat';
 export type DecorTool = DecorationId | 'remove' | null;
 
 /**
- * Decorations (1.13): pick an unlocked decoration, then click free tiles to
- * place it; "Remove" takes them away. Cosmetic only. A floating panel over the
+ * Decorations (1.13): buy copies with energy (1.53), pick a kind, then click
+ * free tiles to place the copies you own; "Remove" takes them away for free. Cosmetic only. A floating panel over the
  * map (1.47): docked bottom right on wide screens, a bottom sheet on phones.
  * It is not modal, so the map stays usable; Close or Escape ends decorating.
  */
@@ -22,13 +22,14 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
   const bought = useStore((s) => s.decorationsBought);
   const energy = useStore((s) => s.energy);
   const fmt = useNumberFormat();
+  const buy = useStore((s) => s.buyDecoration);
   const unlockState = { lifetimeEnergy, achievements, contracts };
   const placedAny = Object.keys(decor).length > 0;
   return (
     <MapFloatingPanel
       id="decor-panel"
       title="🎨 Decorations"
-      subtitle="Just for looks: no room, no bonus. Each copy is bought with energy and costs more than the last. Removing one refunds nothing. Machines always go first."
+      subtitle="Just for looks: no room, no bonus. Buy each copy once with energy (the next costs more), then place, remove and place it again for free. Machines always go first."
       closeLabel="Close decorations"
       closeTestId="decor-close"
       testId="map-decorations"
@@ -39,16 +40,19 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
           const open = isDecorationUnlocked(unlockState, d.id);
           const p = unlockProgress(unlockState, d.unlock);
           const n = countPlaced(decor, d.id);
+          const owned = bought[d.id] ?? 0;
+          const maxed = owned >= DECORATION_LIMIT;
           const price = decorationPrice({ decorationsBought: bought }, d.id);
           const short = energy < price;
           return (
-            <li key={d.id}>
+            <li key={d.id} className="flex flex-col gap-1">
               <button
                 type="button"
-                disabled={!open}
+                disabled={!open || owned === 0}
                 aria-pressed={tool === d.id}
                 onClick={() => onTool(tool === d.id ? null : d.id)}
                 data-testid={`decor-pick-${d.id}`}
+                title={open && owned === 0 ? 'Buy one first' : undefined}
                 className={`flex w-full items-center gap-2 rounded border px-2 py-1 text-left ${
                   tool === d.id ? 'border-sky-300 bg-sky-900/60' : 'border-slate-700 bg-slate-900/40 hover:bg-slate-700'
                 } disabled:cursor-not-allowed disabled:opacity-50`}
@@ -56,19 +60,31 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
                 <img src={sprites[d.sprite]} alt="" width={24} height={24} className={`pixelated ${open ? '' : 'grayscale'}`} />
                 <span className="min-w-0">
                   <span className="block truncate">{d.name}</span>
-                  <span className="block text-xs text-slate-400">
-                    {open ? `${n}/${DECORATION_LIMIT} placed` : `🔒 ${unlockText(d.unlock)} (${Math.min(p.have, p.need)}/${p.need})`}
-                  </span>
-                  <span
-                    className={`block font-mono text-xs ${short ? 'text-red-400' : 'text-yellow-200'}`}
-                    data-testid={`decor-price-${d.id}`}
-                    data-short={short}
-                  >
-                    ⚡ {fmt.num(price)}
-                    {short && <span className="sr-only"> (not enough energy)</span>}
+                  <span className="block text-xs text-slate-400" data-testid={`decor-count-${d.id}`}>
+                    {open ? `${n}/${owned} placed · ${owned}/${DECORATION_LIMIT} owned` : `🔒 ${unlockText(d.unlock)} (${Math.min(p.have, p.need)}/${p.need})`}
                   </span>
                 </span>
               </button>
+              {open &&
+                (maxed ? (
+                  <span className="text-center text-xs text-emerald-400" data-testid={`decor-price-${d.id}`}>
+                    All {DECORATION_LIMIT} owned
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={short}
+                    onClick={() => buy(d.id)}
+                    data-testid={`decor-buy-${d.id}`}
+                    className="rounded bg-slate-700 px-2 py-0.5 text-xs hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    Buy {owned ? 'another' : 'one'}:{' '}
+                    <span className={`font-mono ${short ? 'text-red-400' : 'text-yellow-200'}`} data-testid={`decor-price-${d.id}`} data-short={short}>
+                      ⚡ {fmt.num(price)}
+                    </span>
+                    {short && <span className="sr-only"> (not enough energy)</span>}
+                  </button>
+                ))}
             </li>
           );
         })}

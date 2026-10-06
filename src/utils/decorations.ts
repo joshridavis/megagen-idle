@@ -4,7 +4,7 @@ import { getPlayerLevel } from './playerLevel';
 import { layoutSite, type SiteMap } from './siteMap';
 
 type UnlockState = Pick<GameState, 'lifetimeEnergy' | 'achievements' | 'contracts'>;
-type DecorState = Pick<GameState, 'activeGenerators' | 'producers' | 'completedResearch' | 'roomCapacity' | 'mapPins' | 'mapDecorations' | 'energy' | 'decorationsBought'> &
+type DecorState = Pick<GameState, 'activeGenerators' | 'producers' | 'completedResearch' | 'roomCapacity' | 'mapPins' | 'mapDecorations' | 'decorationsBought'> &
   UnlockState;
 
 /** Copies of a kind bought so far (1.53). */
@@ -54,29 +54,38 @@ export function placeBlock(s: DecorState, id: DecorationId, cell: number, map: S
   if (!Number.isInteger(cell) || cell < 0 || cell >= map.capacity) return 'Decorations go inside your site.';
   if (machineTiles(map).has(cell)) return 'A machine stands there.';
   if (s.mapDecorations[cell]) return 'Something is already there.';
-  if (countPlaced(s.mapDecorations, id) >= DECORATION_LIMIT) return `At most ${DECORATION_LIMIT} of each.`;
+  const owned = boughtCount(s, id);
+  if (countPlaced(s.mapDecorations, id) >= owned) return owned ? `All ${owned} you own are placed: buy another first.` : 'Buy one first.';
+  return null;
+}
+
+/** Why the next copy of a kind cannot be bought, or null if it can (1.53). */
+export function buyBlock(s: Pick<GameState, 'energy' | 'decorationsBought'> & UnlockState, id: DecorationId): string | null {
+  if (!DECORATIONS_BY_ID[id] || !isDecorationUnlocked(s, id)) return 'Not unlocked yet.';
+  if (boughtCount(s, id) >= DECORATION_LIMIT) return `All ${DECORATION_LIMIT} bought.`;
   if (s.energy < decorationPrice(s, id)) return 'Not enough energy.';
   return null;
 }
 
 /**
- * Buys and places a decoration (1.53): pays the next copy's price in energy
- * and counts the copy. Returns the changed fields, or null if not allowed. Pure.
+ * Buys the next copy of a decoration with energy (1.53, owner playtest 24):
+ * a copy is paid for once, then placed, moved and removed freely. Returns the
+ * changed fields, or null if not allowed. Pure.
  */
-export function placeDecoration(
-  s: DecorState,
+export function buyDecoration(
+  s: Pick<GameState, 'energy' | 'decorationsBought'> & UnlockState,
   id: DecorationId,
-  cell: number,
-): Pick<GameState, 'mapDecorations' | 'energy' | 'decorationsBought'> | null {
-  if (placeBlock(s, id, cell)) return null;
-  return {
-    mapDecorations: { ...s.mapDecorations, [cell]: id },
-    energy: s.energy - decorationPrice(s, id),
-    decorationsBought: { ...s.decorationsBought, [id]: boughtCount(s, id) + 1 },
-  };
+): Pick<GameState, 'energy' | 'decorationsBought'> | null {
+  if (buyBlock(s, id)) return null;
+  return { energy: s.energy - decorationPrice(s, id), decorationsBought: { ...s.decorationsBought, [id]: boughtCount(s, id) + 1 } };
 }
 
-/** Removes the decoration on `cell`; returns the new decorations, or null if there is none. Refunds nothing and keeps the bought count (1.53). Pure. */
+/** Places a copy the player owns on a free tile, at no cost. Returns the new decorations, or null if not allowed. Pure. */
+export function placeDecoration(s: DecorState, id: DecorationId, cell: number): GameState['mapDecorations'] | null {
+  return placeBlock(s, id, cell) ? null : { ...s.mapDecorations, [cell]: id };
+}
+
+/** Removes the decoration on `cell`; returns the new decorations, or null if there is none. The copy stays owned and can be placed again for free (1.53). Pure. */
 export function removeDecoration(decor: GameState['mapDecorations'], cell: number): GameState['mapDecorations'] | null {
   if (!decor[cell]) return null;
   const next = { ...decor };
