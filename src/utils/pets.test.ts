@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { STARTING_RESOURCES } from '../data/resources';
 import { EVENTS_BY_ID } from '../data/events';
 import { createInitialState } from '../data/initialState';
-import { GROW_HOURS, PET_STAGE_MULTIPLIERS, PETS, PETS_BY_ID } from '../data/pets';
+import { GROW_HOURS, PET_SLOT_UPGRADES, PET_STAGE_MULTIPLIERS, PETS, PETS_BY_ID } from '../data/pets';
 import { migrateSave } from '../store/migrations';
 import { useStore } from '../store';
 import { GeneratorType } from '../types/generator';
@@ -12,7 +12,8 @@ import { getCompletion } from './completion';
 import { NO_MODS } from './effectMods';
 import { applyEventEffect } from './eventEffects';
 import { energyForLevel } from './playerLevel';
-import { activePetBonus, addPet, canFeed, feedCost, feedPet, growingPet, otherPetGrowing, petClickBonus, setActivePet, updatePets, withPetMods } from './pets';
+import { activePetBonus, activePets, addPet, buyPetSlot, canFeed, feedCost, feedPet, growingPet, otherPetGrowing, petClickBonus, petSlotBlock, petSlots, restPet, setActivePet, updatePets, withPetMods } from './pets';
+import { getEnergyBreakdown } from './breakdown';
 import { eligibleEvents } from './randomEvents';
 import { advanceTime, deriveRates } from './simulation';
 
@@ -89,7 +90,7 @@ describe('energy pets (0.92)', () => {
     expect(part(s, 'Pets fully grown').done).toBe(0);
     const v13 = { ...createInitialState(0) } as Record<string, unknown>;
     delete v13.pets;
-    expect(migrateSave(v13, 13).pets).toEqual({ owned: {}, active: null });
+    expect(migrateSave(v13, 13).pets).toEqual({ owned: {}, active: null, extra: [], slots: 1 });
   });
 
   it('the store finds, feeds and switches pets', () => {
@@ -137,5 +138,70 @@ describe('one pet grows at a time, and maturity clearly pays (1.57)', () => {
       expect(young / baby).toBeCloseTo(2, 9);
       expect(adult / baby).toBeCloseTo(4, 9);
     }
+  });
+});
+
+describe('up to 3 active pets, slots bought with energy (1.59)', () => {
+  const adult = { stage: 3, growUntil: null, foundAt: 0 };
+  const zoo = (over: Partial<GameState> = {}) =>
+    s0({ pets: { owned: { cat: adult, robodog: adult, eel: adult, hamster: adult }, active: 'cat' }, ...over });
+
+  it('slots are bought with energy only, and need a player level', () => {
+    const [two, three] = PET_SLOT_UPGRADES;
+    expect(petSlots(zoo())).toBe(1); // an old save without slots has 1
+    const low = zoo({ energy: two.energy, lifetimeEnergy: energyForLevel(two.playerLevel - 1) });
+    expect(petSlotBlock(low)).toBe(`Needs player level ${two.playerLevel}.`);
+    expect(buyPetSlot(low)).toBe(low);
+    const poor = zoo({ energy: two.energy - 1, lifetimeEnergy: energyForLevel(two.playerLevel) });
+    expect(petSlotBlock(poor)).toBe('Not enough energy.');
+    const ok = zoo({ energy: two.energy + 5, lifetimeEnergy: energyForLevel(three.playerLevel) });
+    const bought = buyPetSlot(ok);
+    expect(petSlots(bought)).toBe(2);
+    expect(bought.energy).toBe(5);
+    expect(bought.resources).toEqual(ok.resources);
+    const third = buyPetSlot({ ...bought, energy: three.energy });
+    expect(petSlots(third)).toBe(3);
+    expect(petSlotBlock(third)).toBe('All slots owned.');
+  });
+
+  it('bonuses of up to 3 different pets stack; a pet fills one slot only', () => {
+    let s = zoo({ pets: { ...zoo().pets, slots: 3 } });
+    s = setActivePet(setActivePet(s, 'robodog'), 'eel');
+    expect(activePets(s)).toEqual(['cat', 'robodog', 'eel']);
+    expect(setActivePet(s, 'eel')).toBe(s); // already active
+    const mods = withPetMods(NO_MODS, s);
+    expect(mods.allEnergy).toBeCloseTo(PETS_BY_ID.cat.bonusByStage[2]);
+    expect(mods.allProduction).toBeCloseTo(PETS_BY_ID.robodog.bonusByStage[2]);
+    expect(mods.generator.hydro).toBeCloseTo(PETS_BY_ID.eel.bonusByStage[2]);
+    // full: a new one takes the first slot's place
+    const swapped = setActivePet(s, 'hamster');
+    expect(activePets(swapped)).toEqual(['hamster', 'robodog', 'eel']);
+    expect(petClickBonus(swapped)).toBeCloseTo(PETS_BY_ID.hamster.bonusByStage[2]);
+    // resting frees a slot; the last active pet stays
+    const rested = restPet(s, 'cat');
+    expect(activePets(rested)).toEqual(['robodog', 'eel']);
+    const one = restPet(restPet(rested, 'robodog'), 'eel');
+    expect(activePets(one)).toEqual(['eel']);
+    // a slot list with a duplicate counts the pet once
+    expect(activePets({ pets: { owned: { cat: adult }, active: 'cat', extra: ['cat'], slots: 3 } })).toEqual(['cat']);
+  });
+
+  it('the energy breakdown lists each active pet', () => {
+    const solar = { id: 'gen-1', type: GeneratorType.SOLAR, isActive: true, level: 1 };
+    const s = zoo({ activeGenerators: [solar], pets: { owned: { cat: adult, firefly: adult }, active: 'cat', extra: ['firefly'], slots: 2 } });
+    const sources = getEnergyBreakdown(s).modifiers.map((m) => m.source);
+    expect(sources.some((x) => x.includes('Static Cat'))).toBe(true);
+    expect(sources.some((x) => x.includes('Firefly Swarm'))).toBe(true);
+  });
+
+  it('old saves keep their one active pet; completion counts the two slots', () => {
+    const old = { ...createInitialState(0), pets: { owned: { cat: adult }, active: 'cat' } } as unknown as Record<string, unknown>;
+    const m = migrateSave(old, 21);
+    expect(activePets(m)).toEqual(['cat']);
+    expect(petSlots(m)).toBe(1);
+    const part = (st: GameState) => getCompletion(st).parts.find((p) => p.label === 'Pet slots')!;
+    expect(part(m)).toMatchObject({ done: 0, total: 2 });
+    expect(part({ ...m, pets: { ...m.pets, slots: 3 } }).done).toBe(2);
+    expect(activePetBonus(m)?.def.id).toBe('cat');
   });
 });

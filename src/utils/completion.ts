@@ -2,7 +2,7 @@ import { GENERATOR_TYPES, GENERATORS, UPGRADES } from '../data/generators';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { CONTRACT_MILESTONES, PERK_IDS, PERKS } from '../data/contracts';
 import { DECORATION_COPIES_GOAL, DECORATIONS } from '../data/decorations';
-import { PETS } from '../data/pets';
+import { PET_SLOT_UPGRADES, PETS } from '../data/pets';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { RESEARCH } from '../data/research';
 import { ROOM_TIERS } from '../data/rooms';
@@ -99,6 +99,11 @@ export function getCompletion(
         label: state.pets?.owned[p.id] ? p.name : '???',
         done: (state.pets?.owned[p.id]?.stage ?? 0) >= 3,
       })),
+    ),
+    // Pet slots (1.59): the 2nd and 3rd active slot
+    part(
+      'Pet slots',
+      PET_SLOT_UPGRADES.map((_, i) => ({ id: `pet-slot-${i + 2}`, label: `Active pet slot ${i + 2}`, done: (state.pets?.slots ?? 1) >= i + 2 })),
     ),
     // Decorations (1.53): every kind bought once, and a number bought in all
     part('Decorations', [

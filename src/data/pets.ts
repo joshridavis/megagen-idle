@@ -67,6 +67,18 @@ export const PET_STAGE_MULTIPLIERS: [number, number, number] = [1, 2, 4];
 /** Bonus by stage from the adult bonus. */
 const stages = (adult: number): [number, number, number] => PET_STAGE_MULTIPLIERS.map((m) => (adult * m) / 4) as [number, number, number];
 
+/**
+ * Extra active pet slots (1.59, owner request playtest 22): the 2nd and 3rd
+ * slot, bought with energy only and gated by player level. Very expensive,
+ * since the bonuses stack.
+ */
+export const PET_SLOT_UPGRADES: { energy: number; playerLevel: number }[] = [
+  { energy: 100_000_000, playerLevel: 45 },
+  { energy: 1_000_000_000, playerLevel: 80 },
+];
+/** Most active pets at once. */
+export const MAX_PET_SLOTS = 1 + PET_SLOT_UPGRADES.length;
+
 /** Hours to grow after feeding: to young, to adult. */
 export const GROW_HOURS: [number, number] = [2, 8];
 

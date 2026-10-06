@@ -67,3 +67,35 @@ describe('pet cards: one grows at a time, and the next stage bonus (1.57)', () =
     expect(screen.getByTestId('pet-feed-note-cat').textContent).toMatch(/^Another pet is growing \(.+ left\)$/);
   });
 });
+
+describe('pet slots in the Pets tab (1.59)', () => {
+  it('buys a slot with energy once the player level is reached, then shows each active slot', async () => {
+    const { energyForLevel } = await import('../utils/playerLevel');
+    const { PET_SLOT_UPGRADES } = await import('../data/pets');
+    const adult = { stage: 3, growUntil: null, foundAt: 0 };
+    useStore.getState().resetGame();
+    useStore.setState({
+      energy: PET_SLOT_UPGRADES[0].energy,
+      lifetimeEnergy: energyForLevel(PET_SLOT_UPGRADES[0].playerLevel - 1),
+      pets: { active: 'cat', owned: { cat: adult, eel: adult } },
+    });
+    render(<PetsPanel />);
+    const buy = screen.getByTestId('pet-slot-buy') as HTMLButtonElement;
+    expect(buy.disabled).toBe(true);
+    expect(buy.textContent).toContain(`Needs player level ${PET_SLOT_UPGRADES[0].playerLevel}`);
+    // full with one slot: Make active takes the cat's place
+    expect(screen.getByTestId('pet-activate-eel').textContent).toContain('in place of Static Cat');
+    cleanup();
+    useStore.setState({ lifetimeEnergy: energyForLevel(PET_SLOT_UPGRADES[0].playerLevel) });
+    render(<PetsPanel />);
+    expect((screen.getByTestId('pet-slot-buy') as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId('pet-slot-buy'));
+    expect(useStore.getState().energy).toBe(0);
+    expect(screen.getByTestId('pet-slots').textContent).toContain('Active pet slots: 2/3');
+    fireEvent.click(screen.getByTestId('pet-activate-eel'));
+    expect(useStore.getState().pets.extra).toEqual(['eel']);
+    expect(screen.getByTestId('pet-eel').textContent).toContain('Active (slot 2)');
+    fireEvent.click(screen.getByTestId('pet-rest-eel'));
+    expect(useStore.getState().pets.extra).toEqual([]);
+  });
+});

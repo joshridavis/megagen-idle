@@ -34,7 +34,8 @@ import { CONTRACT_MILESTONES, PERK_IDS } from '../data/contracts';
 import { seededRng } from '../utils/rng';
 import { PETS } from '../data/pets';
 import { EVENTS_BY_ID } from '../data/events';
-import { addPet, canFeed, feedCost, feedPet, petClickBonus, setActivePet, updatePets } from '../utils/pets';
+import { activePets, addPet, buyPetSlot, canFeed, feedCost, feedPet, nextPetSlot, petClickBonus, petSlotBlock, petSlots, updatePets } from '../utils/pets';
+import type { PetId } from '../data/pets';
 import { eventRatePerHour } from '../utils/randomEvents';
 import { deriveRates } from '../utils/simulation';
 import { unlockAchievements } from '../utils/achievements';
@@ -330,7 +331,12 @@ function act(s: GameState, now: number): GameState {
     const reserveFood = savingForRoom && nextTier ? (def.food === 'energy' ? nextTier.energy : (nextTier.resources[def.food] ?? 0)) : 0;
     if (left >= reserveFood) s = feedPet(s, def.id, now);
   }
-  if (s.pets.owned.cat) s = setActivePet(s, 'cat');
+  // active pets (1.59): buy the 2nd and 3rd slot with plenty of energy to
+  // spare, and keep the pets with the widest bonuses in them
+  const slot = nextPetSlot(s);
+  if (slot && !petSlotBlock(s) && s.energy - reserve >= slot.energy * PET_SLOT_COMFORT) s = buyPetSlot(s);
+  const want = SIM_PETS.filter((id) => s.pets.owned[id]).slice(0, petSlots(s));
+  if (want.length && want.join() !== activePets(s).join()) s = { ...s, pets: { ...s.pets, active: want[0], extra: want.slice(1) } };
   // 4d. decorations (1.53), for completion: the cheapest one still needed,
   // when it costs little next to the energy on hand
   s = buyDecoration(s, reserve);
@@ -340,6 +346,11 @@ function act(s: GameState, now: number): GameState {
   else if (tier && canExpandRoom(s) && s.energy > tier.energy * 3) s = expandRoom(s, undefined, now);
   return s;
 }
+
+/** The simulated player buys a pet slot only with this many times its price in hand (above room savings). */
+const PET_SLOT_COMFORT = 1.5;
+/** Pets the simulated player keeps active, best first: all energy, all production, uranium. */
+const SIM_PETS: PetId[] = ['cat', 'robodog', 'jellyfish'];
 
 /** The simulated player buys a decoration only with this many times its price in hand (above room savings). */
 const DECOR_COMFORT = 4;
@@ -468,6 +479,7 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
       if (pet && pet.stage >= 2) hit(`petYoung:${def.id}`, `${def.name} young`);
       if (pet && pet.stage >= 3) hit(`petAdult:${def.id}`, `${def.name} fully grown`);
     }
+    for (let n = 2; n <= petSlots(s); n++) hit(`petSlot:${n}`, `Active pet slot ${n}`);
     for (const id of PRODUCER_IDS) if ((s.producers[id] ?? 0) > 0) hit(`producer:${id}`, `Has ${/^[AEIOU]/.test(PRODUCERS[id].name) ? 'an' : 'a'} ${PRODUCERS[id].name}`);
     for (let i = 1; i <= s.expansionLevel; i++) hit(`room:${i}`, `Room expansion ${i} of ${ROOM_TIERS.length}`);
     s.completedResearch.forEach((id, i) => {

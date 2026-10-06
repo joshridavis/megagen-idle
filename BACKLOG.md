@@ -36,11 +36,11 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.67 Map events in random places each time (owner report; Done)
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion (Done)
 0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity (Done)
-0. 1.59 Pet slots: up to 3 active pets, bought with energy
+0. 1.59 Pet slots: up to 3 active pets, bought with energy (Done) → CHECKPOINT 24 (5 items since checkpoint 23, `PLAYTEST_EVERY = 5`)
 0. 1.58 Pet growing animation
 0. 1.60 Active pets walk on the screen
 0. 1.56 More pets
-0. 1.55 More random events → CHECKPOINT 24
+0. 1.55 More random events → CHECKPOINT 25
 0. 1.54 More decorations
 
 **After playtest 21 (owner, 2026-10-05):** these came first, in this order; 1.44 to 1.47 and 1.52 are Done, the rest follow the playtest 22 items above.
@@ -1224,13 +1224,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reduce motion: no animation, only the message.
 **Acceptance:** tests that the growing state and the stage-up celebration render, and that reduce motion turns the animation off; the build and all tests pass.
 
-### 1.59 — Pet slots: up to 3 active pets, bought with energy — CODE — Not started
+### 1.59 — Pet slots: up to 3 active pets, bought with energy — CODE — Done
 **Goal:** owner request after playtest 22: upgrades in the Pets tab to have more active pets at once, up to 3.
 **Details:**
 - The player starts with 1 active slot. Two upgrades in the Pets tab add a 2nd and a 3rd slot. **Energy only**, and very expensive (the bonuses stack), prices in `src/data/pets.ts`. Each also needs a player level (see 1.61).
 - Active bonuses from different pets stack; the same pet cannot fill two slots. The energy breakdown (0.53) lists each active pet.
 - Completion counts the two upgrades; rebalance with `npm run simulate` and report the hours.
 **Acceptance:** tests: slots are bought with energy, bonuses of up to 3 pets stack, the level requirement holds, old saves keep their one active pet; the simulation has no stalls; the build and all tests pass.
+**Notes:** `PET_SLOT_UPGRADES` in `src/data/pets.ts`: slot 2 costs 100M energy at player level 45, slot 3 costs 1B at level 80. The save keeps `pets.slots` and `pets.extra` (optional, so older saves load with 1 slot and their active pet; no save version bump). "Make active" fills a free slot, or takes the first slot's place when all are full (the button says whose); "Rest" frees a slot, but the last active pet stays. The energy, click and resource breakdowns list each active pet. Completion gains a "Pet slots" part (2 entries). 100% at 254.8 h (was 267.6 h after 1.57), no stalls.
 
 ### 1.60 — Active pets walk on the screen — CODE — Not started
 **Goal:** owner request after playtest 22: the active pets walk along the screen on every tab, do small things at random, and can be clicked; a setting turns it off.

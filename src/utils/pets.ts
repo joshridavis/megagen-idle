@@ -1,4 +1,4 @@
-import { GROW_HOURS, PETS, PETS_BY_ID, type PetDef, type PetId } from '../data/pets';
+import { GROW_HOURS, MAX_PET_SLOTS, PET_SLOT_UPGRADES, PETS, PETS_BY_ID, type PetDef, type PetId } from '../data/pets';
 import type { GameState, OwnedPet } from '../types/state';
 import type { EffectMods } from './effectMods';
 import { getPlayerLevel } from './playerLevel';
@@ -29,7 +29,7 @@ export function addPet(s: S, id: PetId, now: number): S {
   if (s.pets.owned[id]) return s;
   return {
     ...s,
-    pets: { owned: { ...s.pets.owned, [id]: { stage: 1, growUntil: null, foundAt: now } }, active: s.pets.active ?? id },
+    pets: { ...s.pets, owned: { ...s.pets.owned, [id]: { stage: 1, growUntil: null, foundAt: now } }, active: s.pets.active ?? id },
   };
 }
 
@@ -97,36 +97,91 @@ export function feedPet(s: S, id: PetId, now: number): S {
   return { ...s, ...paid, pets: { ...s.pets, owned: { ...s.pets.owned, [id]: { ...pet, growUntil } } } };
 }
 
+/** Active slots owned, 1 to 3 (1.59). */
+export const petSlots = (s: Pick<S, 'pets'>): number => Math.max(1, Math.min(MAX_PET_SLOTS, s.pets.slots ?? 1));
+
+/** The active pets, first slot first (1.59). */
+export function activePets(s: Pick<S, 'pets'>): PetId[] {
+  const ids = [s.pets.active, ...(s.pets.extra ?? [])].filter((id): id is string => !!id && !!s.pets.owned[id]);
+  return [...new Set(ids)].slice(0, petSlots(s)) as PetId[];
+}
+
+const withActive = (s: S, ids: PetId[]): S => ({ ...s, pets: { ...s.pets, active: ids[0] ?? null, extra: ids.slice(1) } });
+
+/**
+ * Makes a pet active (1.59): into a free slot if there is one, otherwise in
+ * place of the pet in the first slot. A pet never fills two slots.
+ */
 export function setActivePet(s: S, id: PetId): S {
-  return s.pets.owned[id] && s.pets.active !== id ? { ...s, pets: { ...s.pets, active: id } } : s;
+  if (!s.pets.owned[id]) return s;
+  const ids = activePets(s);
+  if (ids.includes(id)) return s;
+  return withActive(s, ids.length < petSlots(s) ? [...ids, id] : [id, ...ids.slice(1)]);
 }
 
-/** The active pet's bonus at its stage, as a fraction. */
+/** Takes a pet out of its slot (1.59). The last active pet stays. */
+export function restPet(s: S, id: PetId): S {
+  const ids = activePets(s);
+  if (!ids.includes(id) || ids.length <= 1) return s;
+  return withActive(
+    s,
+    ids.filter((x) => x !== id),
+  );
+}
+
+/** The next slot upgrade: its price and player level, or null when all 3 slots are owned (1.59). */
+export function nextPetSlot(s: Pick<S, 'pets'>): { energy: number; playerLevel: number } | null {
+  return PET_SLOT_UPGRADES[petSlots(s) - 1] ?? null;
+}
+
+/** Why the next slot cannot be bought, or null if it can (1.59). */
+export function petSlotBlock(s: Pick<S, 'pets' | 'energy' | 'lifetimeEnergy'>): string | null {
+  const next = nextPetSlot(s);
+  if (!next) return 'All slots owned.';
+  if (getPlayerLevel(s.lifetimeEnergy).level < next.playerLevel) return `Needs player level ${next.playerLevel}.`;
+  if (s.energy < next.energy) return 'Not enough energy.';
+  return null;
+}
+
+/** Buys the next active slot with energy (1.59). Returns the same state if not allowed. */
+export function buyPetSlot(s: S): S {
+  if (petSlotBlock(s)) return s;
+  const next = nextPetSlot(s)!;
+  return { ...s, energy: s.energy - next.energy, pets: { ...s.pets, slots: petSlots(s) + 1, extra: s.pets.extra ?? [] } };
+}
+
+/** Each active pet's bonus at its stage, as a fraction (1.59: up to 3 pets, bonuses stack). */
+export function activePetBonuses(s: Pick<S, 'pets'>): { def: PetDef; value: number }[] {
+  return activePets(s).map((id) => {
+    const def = PETS_BY_ID[id];
+    return { def, value: def.bonusByStage[Math.min(3, s.pets.owned[id]!.stage) - 1] };
+  });
+}
+
+/** The first active pet's bonus, or null. */
 export function activePetBonus(s: Pick<S, 'pets'>): { def: PetDef; value: number } | null {
-  const id = s.pets.active as PetId | null;
-  const pet = id ? s.pets.owned[id] : undefined;
-  if (!id || !pet) return null;
-  const def = PETS_BY_ID[id];
-  return { def, value: def.bonusByStage[Math.min(3, pet.stage) - 1] };
+  return activePetBonuses(s)[0] ?? null;
 }
 
-/** Adds the active pet's energy or production bonus to effect modifiers. */
+/** Adds every active pet's energy or production bonus to effect modifiers. */
 export function withPetMods(mods: EffectMods, s: Pick<S, 'pets'> | undefined): EffectMods {
-  const b = s?.pets ? activePetBonus(s) : null;
-  if (!b) return mods;
+  const list = s?.pets ? activePetBonuses(s) : [];
+  if (!list.length) return mods;
   const out: EffectMods = { ...mods, generator: { ...mods.generator }, resource: { ...mods.resource } };
-  const bonus = b.def.bonus;
-  if (bonus.kind === 'generator') for (const g of bonus.generators) out.generator[g] = (out.generator[g] ?? 0) + b.value;
-  else if (bonus.kind === 'energy') out.allEnergy += b.value;
-  else if (bonus.kind === 'production') {
-    if (bonus.resource) out.resource[bonus.resource] = (out.resource[bonus.resource] ?? 0) + b.value;
-    else out.allProduction += b.value;
+  for (const b of list) {
+    const bonus = b.def.bonus;
+    if (bonus.kind === 'generator') for (const g of bonus.generators) out.generator[g] = (out.generator[g] ?? 0) + b.value;
+    else if (bonus.kind === 'energy') out.allEnergy += b.value;
+    else if (bonus.kind === 'production') {
+      if (bonus.resource) out.resource[bonus.resource] = (out.resource[bonus.resource] ?? 0) + b.value;
+      else out.allProduction += b.value;
+    }
   }
   return out;
 }
 
-/** Extra click power from the active pet (fraction of the base click). */
+/** Extra click power from the active pets (fraction of the base click). */
 export function petClickBonus(s: Pick<S, 'pets'> | undefined): number {
-  const b = s?.pets ? activePetBonus(s) : null;
-  return b && b.def.bonus.kind === 'click' ? b.value : 0;
+  const list = s?.pets ? activePetBonuses(s) : [];
+  return list.reduce((sum, b) => sum + (b.def.bonus.kind === 'click' ? b.value : 0), 0);
 }

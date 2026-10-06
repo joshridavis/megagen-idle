@@ -4,7 +4,8 @@ import { GROW_HOURS, PET_PARTICLES, PET_REACT_MS, PET_STAGES, PETS, type PetDef,
 import { RESOURCE_NAMES } from '../data/resources';
 import { useStore } from '../store';
 import { formatDuration } from '../utils/format';
-import { canFeed, feedCost, otherPetGrowing } from '../utils/pets';
+import { activePets, canFeed, feedCost, nextPetSlot, otherPetGrowing, petSlotBlock, petSlots } from '../utils/pets';
+import { getPlayerLevel } from '../utils/playerLevel';
 import { useNumberFormat } from './useNumberFormat';
 
 const sprite = (id: string, stage: number) => `pet_${id}_${stage}` as SpriteId;
@@ -53,15 +54,22 @@ function PetPicture({ id, stage, name }: { id: PetId; stage: number; name: strin
   );
 }
 
-/** Energy pets (0.92): collection, feeding and growth, one active pet. */
+/** Energy pets (0.92): collection, feeding and growth; up to 3 active pets (1.59). */
 export default function PetsPanel() {
   const state = useStore((s) => s);
   const feed = useStore((s) => s.feedPet);
   const activate = useStore((s) => s.setActivePet);
+  const rest = useStore((s) => s.restPet);
+  const buySlot = useStore((s) => s.buyPetSlot);
   const fmt = useNumberFormat();
   const now = state.lastSavedTimestamp;
   const owned = state.pets.owned;
   const found = PETS.filter((p) => owned[p.id]).length;
+  const actives = activePets(state);
+  const slots = petSlots(state);
+  const next = nextPetSlot(state);
+  const slotBlock = petSlotBlock(state);
+  const level = getPlayerLevel(state.lifetimeEnergy).level;
   return (
     <section aria-label="Pets">
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
@@ -69,8 +77,31 @@ export default function PetsPanel() {
           Pets ({found}/{PETS.length})
         </h2>
         <span className="text-xs text-slate-400">
-          One pet is active at a time and gives its bonus. Feed pets to grow them, one at a time: an adult gives 4 times a baby's bonus.
+          Active pets give their bonus ({actives.length}/{slots} active). Feed pets to grow them, one at a time: an adult gives 4 times a baby's
+          bonus.
         </span>
+      </div>
+      <div className="mb-3 flex flex-wrap items-center gap-3 rounded-lg bg-slate-800 p-3" data-testid="pet-slots">
+        <div className="text-sm">
+          <span className="font-semibold">Active pet slots: {slots}/3</span>
+          <span className="block text-xs text-slate-400">Bonuses of different active pets add up. A pet fills one slot only.</span>
+        </div>
+        {next ? (
+          <button
+            type="button"
+            disabled={slotBlock !== null}
+            onClick={() => buySlot()}
+            data-testid="pet-slot-buy"
+            className="min-h-11 rounded bg-sky-700 px-3 py-1 text-sm font-semibold hover:bg-sky-600 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+          >
+            Buy slot {slots + 1}: ⚡ {fmt.num(next.energy)}
+            <span className={`block text-xs font-normal ${level < next.playerLevel ? 'text-red-300' : ''}`}>
+              {level < next.playerLevel ? `🔒 Needs player level ${next.playerLevel} (you: ${level})` : slotBlock ?? `Player level ${next.playerLevel} ✓`}
+            </span>
+          </button>
+        ) : (
+          <span className="text-xs text-emerald-400">All 3 slots owned.</span>
+        )}
       </div>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {PETS.map((def) => {
@@ -84,7 +115,8 @@ export default function PetsPanel() {
               </li>
             );
           }
-          const active = state.pets.active === def.id;
+          const slot = actives.indexOf(def.id);
+          const active = slot >= 0;
           const cost = feedCost(state, def.id);
           const busy = otherPetGrowing(state, def.id);
           const food = def.food === 'energy' ? 'energy' : RESOURCE_NAMES[def.food].toLowerCase();
@@ -99,7 +131,7 @@ export default function PetsPanel() {
                 <div className="min-w-0">
                   <div className="font-semibold">{def.name}</div>
                   <div className="text-xs text-amber-300">
-                    {PET_STAGES[pet.stage - 1]} {active && '· Active'}
+                    {PET_STAGES[pet.stage - 1]} {active && (slots > 1 ? `· Active (slot ${slot + 1})` : '· Active')}
                   </div>
                   <div className="text-xs text-emerald-300" data-testid={`pet-bonus-${def.id}`}>
                     {bonusText(def, def.bonusByStage[pet.stage - 1])}
@@ -132,8 +164,27 @@ export default function PetsPanel() {
                 <p className="text-xs text-emerald-400">Fully grown!</p>
               )}
               {!active && (
-                <button type="button" onClick={() => activate(def.id)} className="min-h-9 rounded bg-slate-600 px-2 text-sm hover:bg-slate-500">
+                <button
+                  type="button"
+                  onClick={() => activate(def.id)}
+                  className="min-h-9 rounded bg-slate-600 px-2 text-sm hover:bg-slate-500"
+                  data-testid={`pet-activate-${def.id}`}
+                  title={actives.length >= slots && actives[0] ? `Takes the place of ${PETS.find((p) => p.id === actives[0])?.name}` : undefined}
+                >
                   Make active
+                  {actives.length >= slots && actives[0] && (
+                    <span className="block text-xs text-slate-300">in place of {PETS.find((p) => p.id === actives[0])?.name}</span>
+                  )}
+                </button>
+              )}
+              {active && actives.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => rest(def.id)}
+                  className="min-h-9 rounded bg-slate-700 px-2 text-sm hover:bg-slate-600"
+                  data-testid={`pet-rest-${def.id}`}
+                >
+                  Rest (free the slot)
                 </button>
               )}
             </li>

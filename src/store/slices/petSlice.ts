@@ -1,7 +1,7 @@
 import { ENTRY_ICONS } from '../../data/logIcons';
 import { PETS_BY_ID, PET_STAGES, type PetId } from '../../data/pets';
 import type { PetsState } from '../../types/state';
-import { feedPet, setActivePet, updatePets } from '../../utils/pets';
+import { buyPetSlot, feedPet, restPet, setActivePet, updatePets } from '../../utils/pets';
 import { deriveRates } from '../../utils/simulation';
 import { pickSaved } from '../migrations';
 import type { LogInput } from '../../utils/eventLog';
@@ -12,6 +12,10 @@ export interface PetActions {
   tickPets: (now?: number) => void;
   feedPet: (id: PetId, now?: number) => boolean;
   setActivePet: (id: PetId) => void;
+  /** Takes a pet out of its active slot (1.59); the last active pet stays. */
+  restPet: (id: PetId) => void;
+  /** Buys the next active pet slot with energy (1.59). Returns success. */
+  buyPetSlot: () => boolean;
 }
 
 /** Log entries for pets found and grown, each kind with its own icon (1.40). */
@@ -50,5 +54,17 @@ export const createPetSlice =
       const before = pickSaved(get());
       const after = setActivePet(before, id);
       if (after !== before) set(deriveRates(after), undefined, 'pets/active');
+    },
+    restPet: (id) => {
+      const before = pickSaved(get());
+      const after = restPet(before, id);
+      if (after !== before) set(deriveRates(after), undefined, 'pets/rest');
+    },
+    buyPetSlot: () => {
+      const before = pickSaved(get());
+      const after = buyPetSlot(before);
+      if (after === before) return false;
+      set({ energy: after.energy, pets: after.pets }, undefined, 'pets/slot');
+      return true;
     },
   });

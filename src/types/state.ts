@@ -134,7 +134,15 @@ export interface OwnedPet {
 }
 
 export interface PetsState {
-  pets: { owned: Partial<Record<string, OwnedPet>>; active: string | null };
+  pets: {
+    owned: Partial<Record<string, OwnedPet>>;
+    /** The pet in the first active slot. */
+    active: string | null;
+    /** Pets in the bought 2nd and 3rd active slots (1.59). Missing in older saves: none. */
+    extra?: string[];
+    /** Active slots owned, 1 to 3 (1.59). Missing in older saves: 1. */
+    slots?: number;
+  };
 }
 
 /** Lifetime counters (achievements 0.65, statistics 0.39). */
