@@ -1180,6 +1180,112 @@ function jellyfish() {
   return c;
 }
 
+// ---------- pets added in 1.56 ----------
+
+function mole() {
+  const c = new Canvas(32, 32);
+  c.rect(2, 26, 28, 4, C.brown2); // tunnel floor
+  c.circle(10, 27, 3, C.black); // coal lumps
+  c.circle(25, 28, 2, C.black);
+  c.circle(15, 19, 9, C.brown4); // body
+  c.circle(23, 18, 5, C.brown4); // head
+  c.circle(27, 19, 2, C.red); // pink nose
+  c.set(23, 16, C.ink); // eye
+  c.rect(19, 11, 8, 3, C.amber); // miner's helmet
+  c.rect(21, 9, 4, 2, C.yellow); // lamp
+  c.rect(8, 25, 4, 3, C.cream); // paws
+  c.rect(19, 25, 4, 3, C.cream);
+  c.outline(C.ink);
+  return c;
+}
+
+function toad() {
+  const c = new Canvas(32, 32);
+  c.circle(8, 6, 3, C.sky, 160); // gas bubbles
+  c.circle(4, 12, 2, C.sky, 160);
+  c.circle(12, 2, 2, C.sky, 160);
+  c.circle(17, 21, 9, C.green); // body
+  c.circle(17, 24, 6, C.lime); // belly
+  c.circle(12, 13, 3, C.green); // eyes
+  c.circle(22, 13, 3, C.green);
+  c.set(12, 12, C.ink);
+  c.set(22, 12, C.ink);
+  c.line(13, 19, 21, 19, C.darkGreen); // mouth
+  c.rect(7, 27, 5, 2, C.darkGreen); // feet
+  c.rect(22, 27, 5, 2, C.darkGreen);
+  c.outline(C.ink);
+  return c;
+}
+
+function mouse() {
+  const c = new Canvas(32, 32);
+  c.circle(14, 21, 8, C.grey2); // body
+  c.circle(22, 16, 5, C.grey2); // head
+  c.circle(19, 10, 3, C.grey3); // ears
+  c.circle(25, 10, 3, C.grey3);
+  c.set(24, 15, C.ink);
+  c.set(27, 17, C.red); // nose
+  c.line(6, 24, 2, 18, C.red); // tail
+  c.rect(26, 24, 3, 6, C.cyan); // test tube
+  c.rect(26, 21, 3, 3, C.white);
+  c.outline(C.ink);
+  return c;
+}
+
+function pigeon() {
+  const c = new Canvas(32, 32);
+  c.circle(15, 19, 8, C.grey4); // body
+  c.polygon([[7, 17], [1, 22], [9, 23]], C.grey3); // tail
+  c.circle(22, 11, 5, C.grey4); // head
+  c.circle(21, 15, 3, C.teal); // shiny neck
+  c.set(23, 10, C.orange); // eye
+  c.polygon([[26, 11], [30, 12], [26, 13]], C.amber); // beak
+  c.polygon([[11, 15], [19, 15], [16, 22]], C.grey3); // wing
+  c.rect(10, 21, 9, 6, C.cream); // letter
+  c.line(10, 21, 14, 24, C.brown3);
+  c.line(18, 21, 14, 24, C.brown3);
+  c.rect(14, 27, 2, 3, C.orange); // legs
+  c.rect(18, 27, 2, 3, C.orange);
+  c.outline(C.ink);
+  return c;
+}
+
+function owl() {
+  const c = new Canvas(32, 32);
+  c.rect(4, 26, 24, 5, C.brown3); // chimney top
+  c.rect(4, 26, 24, 1, C.brown1);
+  c.circle(16, 17, 9, C.grey2); // sooty body
+  c.polygon([[8, 9], [10, 4], [13, 8]], C.grey2); // ear tufts
+  c.polygon([[19, 8], [22, 4], [24, 9]], C.grey2);
+  c.circle(12, 13, 3.5, C.cream); // eyes
+  c.circle(20, 13, 3.5, C.cream);
+  c.circle(12, 13, 1.5, C.orange);
+  c.circle(20, 13, 1.5, C.orange);
+  c.polygon([[15, 16], [17, 16], [16, 19]], C.amber); // beak
+  c.circle(16, 22, 4, C.grey3); // chest
+  c.circle(27, 6, 2, C.grey4, 140); // smoke puffs
+  c.circle(29, 2, 1.5, C.grey4, 120);
+  c.outline(C.ink);
+  return c;
+}
+
+function axolotl() {
+  const c = new Canvas(32, 32);
+  c.circle(16, 18, 13, C.mint, 40); // reactor glow
+  c.polygon([[3, 20], [9, 17], [9, 23]], C.plum); // tail
+  c.rect(8, 17, 14, 7, C.red); // body (pink-red)
+  c.circle(23, 17, 6, C.red); // head
+  for (const [x, y] of [[19, 10], [23, 9], [27, 10]]) c.line(x, y + 3, x, y, C.lime); // glowing gills
+  c.set(25, 16, C.ink);
+  c.line(23, 20, 26, 20, C.darkRed); // smile
+  c.rect(10, 24, 2, 3, C.red); // legs
+  c.rect(18, 24, 2, 3, C.red);
+  c.circle(12, 20, 1.5, C.lime); // glowing spots
+  c.circle(17, 19, 1, C.lime);
+  c.outline(C.ink);
+  return c;
+}
+
 /** A 32x32 sprite scaled down (nearest neighbor) and centerd near the bottom, for baby and young pets. */
 function scaledPet(src, factor) {
   const c = new Canvas(32, 32);
@@ -1195,7 +1301,7 @@ function scaledPet(src, factor) {
   return c;
 }
 
-const PET_DRAW = { hamster, firefly, tortoise, eel, robodog, cat: staticCat, beetle, jellyfish };
+const PET_DRAW = { hamster, firefly, tortoise, eel, robodog, cat: staticCat, beetle, jellyfish, mole, toad, mouse, pigeon, owl, axolotl };
 const PET_STAGE_SCALE = { 1: 0.55, 2: 0.78, 3: 1 };
 
 /** The same sprite desaturated by 40%, snapped back onto the AAP-64 palette. */

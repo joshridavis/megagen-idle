@@ -4,6 +4,7 @@ import { GENERATORS } from '../data/generators';
 import { RESEARCH_BY_ID } from '../data/research';
 import { useStore } from '../store';
 import { getBonuses } from '../utils/bonuses';
+import { petResearchSpeed } from '../utils/pets';
 import {
   getResearchBlock,
   getResearchCost,
@@ -100,7 +101,7 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
             )}
           </dd>
           <dt className="text-slate-400">Time</dt>
-          <dd>{formatDuration(getResearchDuration(def, bonuses))}</dd>
+          <dd>{formatDuration(getResearchDuration(def, bonuses, petResearchSpeed(state)))}</dd>
           {def.prerequisites.length > 0 && (
             <>
               <dt className="text-slate-400">Requires</dt>

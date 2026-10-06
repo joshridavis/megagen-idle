@@ -8,7 +8,21 @@ import { MATERIAL_COST_FACTOR } from './balance';
  * fed and then waiting (real time, offline too), and gives a themed bonus
  * while it is the active pet. All numbers here.
  */
-export type PetId = 'hamster' | 'firefly' | 'eel' | 'robodog' | 'cat' | 'jellyfish' | 'beetle' | 'tortoise';
+export type PetId =
+  | 'hamster'
+  | 'firefly'
+  | 'eel'
+  | 'robodog'
+  | 'cat'
+  | 'jellyfish'
+  | 'beetle'
+  | 'tortoise'
+  | 'mole'
+  | 'toad'
+  | 'mouse'
+  | 'pigeon'
+  | 'owl'
+  | 'axolotl';
 
 export type PetFind =
   | { kind: 'level'; level: number }
@@ -26,7 +40,11 @@ export type PetBonus =
   /** More energy from all generators. */
   | { kind: 'energy' }
   /** More energy per click. */
-  | { kind: 'click' };
+  | { kind: 'click' }
+  /** Faster research (1.56): research takes less time. */
+  | { kind: 'research' }
+  /** Bigger contract rewards (1.56): bundles and boosts, like the Rewards perk. */
+  | { kind: 'contracts' };
 
 export interface PetDef {
   id: PetId;
@@ -57,6 +75,12 @@ export const PET_PARTICLES: Record<PetId, string> = {
   cat: '⚡',
   beetle: '✧',
   jellyfish: '✦',
+  mole: '◆',
+  toad: '○',
+  mouse: '✎',
+  pigeon: '✉',
+  owl: '☁',
+  axolotl: '☢',
 };
 /**
  * Bonus by stage as a share of the adult bonus (1.57, owner request playtest
@@ -191,6 +215,73 @@ const PET_DEFS: PetDef[] = [
     bonusByStage: stages(0.3),
     food: 'energy',
     feedCost: [500_000, 10_000_000],
+  },
+  // ---- 1.56 (owner request, playtest 22): six more, each with a bonus no other pet gives ----
+  {
+    id: 'mole',
+    name: 'Coal Mole',
+    description: 'Digs tunnels toward the richest seams. Boosts coal production.',
+    find: { kind: 'level', level: 15 },
+    hint: 'Reach player level 15.',
+    bonus: { kind: 'production', resource: 'coal' },
+    bonusByStage: stages(0.15),
+    food: 'energy',
+    feedCost: [60_000, 1_200_000],
+  },
+  {
+    id: 'toad',
+    name: 'Bubble Toad',
+    description: 'Puffs up by the gas wells and sniffs out new pockets. Boosts natural gas production.',
+    find: { kind: 'build', generator: GeneratorType.GAS },
+    hint: 'Build a Gas Power Plant.',
+    bonus: { kind: 'production', resource: 'naturalGas' },
+    bonusByStage: stages(0.15),
+    food: 'coal',
+    feedCost: [300, 3_000],
+  },
+  {
+    id: 'mouse',
+    name: 'Lab Mouse',
+    description: 'Runs the lab mazes faster than your scientists. Research takes less time.',
+    find: { kind: 'research', id: 'automated_labs' },
+    hint: 'Research Automated Labs.',
+    bonus: { kind: 'research' },
+    bonusByStage: stages(0.1),
+    food: 'stone',
+    feedCost: [400, 4_000],
+  },
+  {
+    id: 'pigeon',
+    name: 'Courier Pigeon',
+    description: 'Carries the paperwork for your contracts. Bigger contract bundles and longer boosts.',
+    find: { kind: 'contracts', count: 25 },
+    hint: 'Complete 25 contracts.',
+    bonus: { kind: 'contracts' },
+    bonusByStage: stages(0.2),
+    food: 'metal',
+    feedCost: [600, 6_000],
+  },
+  {
+    id: 'owl',
+    name: 'Soot Owl',
+    description: 'Roosts on warm chimneys and keeps the burners tidy. Boosts coal, gas and oil plants.',
+    find: { kind: 'level', level: 35 },
+    hint: 'Reach player level 35.',
+    bonus: { kind: 'generator', generators: [GeneratorType.COAL, GeneratorType.GAS, GeneratorType.OIL] },
+    bonusByStage: stages(0.08),
+    food: 'energy',
+    feedCost: [2_000_000, 40_000_000],
+  },
+  {
+    id: 'axolotl',
+    name: 'Atomic Axolotl',
+    description: 'Glows happily in the reactor cooling tanks. Boosts fission and fusion plants.',
+    find: { kind: 'build', generator: GeneratorType.FUSION },
+    hint: 'Build a Fusion Reactor.',
+    bonus: { kind: 'generator', generators: [GeneratorType.NUCLEAR, GeneratorType.FUSION] },
+    bonusByStage: stages(0.1),
+    food: 'energy',
+    feedCost: [20_000_000, 400_000_000],
   },
 ];
 

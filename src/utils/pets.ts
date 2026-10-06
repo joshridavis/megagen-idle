@@ -191,3 +191,15 @@ export function petClickBonus(s: Pick<S, 'pets'> | undefined): number {
   const list = s?.pets ? activePetBonuses(s) : [];
   return list.reduce((sum, b) => sum + (b.def.bonus.kind === 'click' ? b.value : 0), 0);
 }
+
+/** Faster research from the active pets (1.56): added to the research speed bonus. */
+export function petResearchSpeed(s: Pick<S, 'pets'> | undefined): number {
+  const list = s?.pets ? activePetBonuses(s) : [];
+  return list.reduce((sum, b) => sum + (b.def.bonus.kind === 'research' ? b.value : 0), 0);
+}
+
+/** Bigger contract rewards from the active pets (1.56): added to the Rewards perk. */
+export function petContractBonus(s: Pick<S, 'pets'> | undefined): number {
+  const list = s?.pets ? activePetBonuses(s) : [];
+  return list.reduce((sum, b) => sum + (b.def.bonus.kind === 'contracts' ? b.value : 0), 0);
+}

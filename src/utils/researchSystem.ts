@@ -5,6 +5,7 @@ import type { ProducerId } from '../types/resource';
 import type { ResearchCost, ResearchDef } from '../types/research';
 import type { GameState } from '../types/state';
 import { getBonuses } from './bonuses';
+import { petResearchSpeed } from './pets';
 import { canAfford, consumeResource } from './resourceSystem';
 
 /** Cost after the research cost reduction bonus (rounded up). */
@@ -17,9 +18,9 @@ export function getResearchCost(def: ResearchDef, bonuses: Bonuses): ResearchCos
   return { energy: Math.ceil(def.cost.energy * f), resources };
 }
 
-/** Duration in seconds after the research speed bonus. */
-export function getResearchDuration(def: ResearchDef, bonuses: Bonuses): number {
-  return def.duration / (1 + bonuses.researchSpeed);
+/** Duration in seconds after the research speed bonus, plus any from active pets (1.56). */
+export function getResearchDuration(def: ResearchDef, bonuses: Bonuses, petSpeed = 0): number {
+  return def.duration / (1 + bonuses.researchSpeed + petSpeed);
 }
 
 export type ResearchBlock = 'unknown' | 'done' | 'busy' | 'prerequisites' | 'building' | 'level' | 'cost';
@@ -53,7 +54,7 @@ export function startResearch(state: GameState, id: string, now: number): GameSt
     ...state,
     energy: state.energy - cost.energy,
     resources: paid.resources,
-    currentResearch: { id, startTime: now, duration: getResearchDuration(def, bonuses) },
+    currentResearch: { id, startTime: now, duration: getResearchDuration(def, bonuses, petResearchSpeed(state)) },
   };
 }
 

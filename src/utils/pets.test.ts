@@ -23,8 +23,8 @@ const H = 3_600_000;
 const s0 = (over: Partial<GameState> = {}): GameState => ({ ...createInitialState(0), ...over });
 
 describe('energy pets (0.92)', () => {
-  it('has 8 pets on the energy theme, each with a hint and three stages of bonus', () => {
-    expect(PETS).toHaveLength(8);
+  it('has 14 pets on the energy theme, each with a hint and three stages of bonus', () => {
+    expect(PETS).toHaveLength(14);
     for (const p of PETS) {
       expect(p.hint.length).toBeGreaterThan(5);
       expect(p.bonusByStage[0]).toBeLessThan(p.bonusByStage[2]);
@@ -86,7 +86,7 @@ describe('energy pets (0.92)', () => {
   it('count toward completion and are saved', () => {
     const s = addPet(s0(), 'eel', 0);
     const part = (st: GameState, label: string) => getCompletion(st).parts.find((p) => p.label === label)!;
-    expect(part(s, 'Pets found')).toMatchObject({ done: 1, total: 8 });
+    expect(part(s, 'Pets found')).toMatchObject({ done: 1, total: PETS.length });
     expect(part(s, 'Pets fully grown').done).toBe(0);
     const v13 = { ...createInitialState(0) } as Record<string, unknown>;
     delete v13.pets;

@@ -23,6 +23,8 @@ function bonusText(def: PetDef, value: number): string {
   const b = def.bonus;
   if (b.kind === 'click') return `${pct} energy per click`;
   if (b.kind === 'energy') return `${pct} energy from all generators`;
+  if (b.kind === 'research') return `${pct} research speed`;
+  if (b.kind === 'contracts') return `${pct} contract bundles and boosts`;
   if (b.kind === 'production') return `${pct} ${b.resource ? RESOURCE_NAMES[b.resource].toLowerCase() : 'output from all producers'}`;
   return `${pct} energy from ${def.description.split('Boosts ')[1]?.replace('.', '') ?? 'some generators'}`;
 }
