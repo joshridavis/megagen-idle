@@ -42,7 +42,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.58 Pet growing animation (Done)
 0. 1.69 Fix: the Oil Rig's map tooltip shows no level and no oil use (owner report, playtest 24; Done)
 0. 1.70 Fix: decorations bought did not count in the Completion tab; completion needs all 6 of each (owner report, playtest 24; Done)
-0. 1.60 Active pets walk on the screen
+0. 1.60 Active pets walk on the screen (Done)
 0. 1.56 More pets
 0. 1.55 More random events → CHECKPOINT 25
 0. 1.54 More decorations
@@ -1250,7 +1250,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests: slots are bought with energy, bonuses of up to 3 pets stack, the level requirement holds, old saves keep their one active pet; the simulation has no stalls; the build and all tests pass.
 **Notes:** `PET_SLOT_UPGRADES` in `src/data/pets.ts`: slot 2 costs 100M energy at player level 45, slot 3 costs 1B at level 80. The save keeps `pets.slots` and `pets.extra` (optional, so older saves load with 1 slot and their active pet; no save version bump). "Make active" fills a free slot, or takes the first slot's place when all are full (the button says whose); "Rest" frees a slot, but the last active pet stays. The energy, click and resource breakdowns list each active pet. Completion gains a "Pet slots" part (2 entries). 100% at 254.8 h (was 267.6 h after 1.57), no stalls.
 
-### 1.60 — Active pets walk on the screen — CODE — Not started
+### 1.60 — Active pets walk on the screen — CODE — Done
 **Goal:** owner request after playtest 22: the active pets walk along the screen on every tab, do small things at random, and can be clicked; a setting turns it off.
 **Details:**
 - A layer at the bottom of the screen (above the content, below dialogs and toasts, never blocking clicks except on the pet itself) where each active pet walks left and right.
@@ -1260,6 +1260,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Light on performance: CSS transforms with one timer, paused when the tab is hidden.
 - On phones it does not cover the research chip or the bottom buttons.
 **Acceptance:** tests: the layer shows the active pets on every tab, the setting hides it, a click counts as petting, reduce motion stops the walking; Playwright at 375 px: no sideways scroll and the bottom controls stay clickable; the build and all tests pass.
+**Notes:** `PetWalkers` (`src/components/PetWalkers.tsx`) is a click-through layer (z-20) at the bottom of every tab; only the pets take clicks. The walk and action choices are pure (`src/utils/petWalk.ts`, numbers in `PET_WALK` in `src/data/pets.ts`): one 1 s timer, skipped while the tab is hidden; walks are CSS transform transitions. Actions eat 🍎, play ⚽, sleep 💤, sit 💭 and jump ❗ show a bubble and a CSS pose of the pet's current sprite. **Deviation:** no new sprite frames; the poses move the existing stage sprite, so no new art was added. While research runs, the layer sits just above the docked research chip, so the chip never hides the pets and stays clickable (z-30 above). Clicking a pet plays its 0.99 reaction; counting it as petting waits for 1.51, which adds the counter (`petClicks`). Settings → "Pets walk on screen" (`settings.petsWalk`, on by default; old saves get it from the default settings). Reduce motion: the pets stand still, spread out, with no poses. Playwright at 375 px: no sideways scroll, the research chip and the map buttons stay on top.
 
 ### 1.61 — Player level as a hard requirement — CODE — Done
 **Goal:** owner request after playtest 22: the player level should gate more things, for example each room expansion, more active pets and contract upgrades.

@@ -26,7 +26,7 @@ export const createInitialState = (now = Date.now()): GameState => ({
   mapPins: {},
   mapDecorations: {},
   decorationsBought: {},
-  settings: { notation: 'short', reduceMotion: false, tutorial: { step: 0, replay: false }, generatorSort: 'custom', cosmetics: { title: null, accent: 'amber' }, notifications: DEFAULT_NOTIFY },
+  settings: { notation: 'short', reduceMotion: false, tutorial: { step: 0, replay: false }, generatorSort: 'custom', cosmetics: { title: null, accent: 'amber' }, notifications: DEFAULT_NOTIFY, petsWalk: true },
   seenEvents: {},
   activeEffects: [],
   contracts: { open: [], nextOfferAt: 0, done: 0, points: 0, perks: {}, seq: 0 },

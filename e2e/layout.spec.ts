@@ -210,3 +210,61 @@ test('a machine tooltip shows beside the machine, near the top and the bottom of
   await expect(tip).toHaveAttribute('data-side', 'above');
   await page.screenshot({ path: 'test-results/machine-tip.png' });
 });
+
+// 1.60: active pets walk along the bottom of a 375px phone without sideways
+// scroll, and the research chip and the map buttons stay clickable over them.
+test('walking pets leave a 375px phone usable', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 700 });
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toBeVisible();
+  // import a copy of the stored save with two active pets and a running research
+  const file = await page.waitForFunction(async () => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const req = indexedDB.open('megagen-idle');
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    const raw = await new Promise<unknown>((resolve) => {
+      try {
+        const get = db.transaction('saves', 'readonly').objectStore('saves').get('megagen-idle-save');
+        get.onsuccess = () => resolve(get.result);
+        get.onerror = () => resolve(null);
+      } catch {
+        resolve(null);
+      }
+    });
+    db.close();
+    if (typeof raw !== 'string') return false;
+    const save = JSON.parse(raw);
+    const adult = { stage: 3, growUntil: null, foundAt: 0 };
+    const state = {
+      ...save.state,
+      pets: { active: 'cat', extra: ['eel'], slots: 2, owned: { cat: adult, eel: adult } },
+      currentResearch: { id: 'basic_solar', startTime: Date.now(), duration: 3600 },
+    };
+    return JSON.stringify({ game: 'megagen-idle', version: save.version, exportedAt: new Date().toISOString(), state });
+  });
+  await page.locator('#tab-settings').click();
+  await page.getByLabel('Import save file').setInputFiles({ name: 'pets.json', mimeType: 'application/json', buffer: Buffer.from((await file.jsonValue()) as string) });
+  await page.getByRole('button', { name: /^Load (it|this save)/ }).click();
+  await expect(page.getByTestId('walking-pet-cat')).toBeVisible();
+  await expect(page.getByTestId('walking-pet-eel')).toBeVisible();
+  const topAt = (sel: string) =>
+    page.evaluate((s) => {
+      const r = document.querySelector(s)!.getBoundingClientRect();
+      return !!document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.closest(s);
+    }, sel);
+  for (const tab of ['generators', 'map', 'pets', 'settings']) {
+    await page.locator(`#tab-${tab}`).click();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow, tab).toBeLessThanOrEqual(0);
+    expect(await topAt('[data-testid="research-chip-dock"] button'), `research chip on ${tab}`).toBe(true);
+  }
+  await page.locator('#tab-map').click();
+  expect(await topAt('[data-testid="decor-open"]')).toBe(true);
+  expect(await topAt('[data-testid="legend-open"]')).toBe(true);
+  // the layer itself lets clicks through: only the pets take them
+  expect(await page.getByTestId('pet-walkers').evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
+  await page.getByTestId('walking-pet-cat').dispatchEvent('click');
+  await expect(page.getByTestId('walking-pet-cat')).toHaveAttribute('data-playing', 'true');
+});

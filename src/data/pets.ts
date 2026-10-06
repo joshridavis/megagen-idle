@@ -79,6 +79,27 @@ export const PET_SLOT_UPGRADES: { energy: number; playerLevel: number }[] = [
 /** Most active pets at once. */
 export const MAX_PET_SLOTS = 1 + PET_SLOT_UPGRADES.length;
 
+/**
+ * Active pets walking along the bottom of the screen (1.60, owner request
+ * playtest 22). One timer moves every pet; walks are CSS transitions.
+ */
+export const PET_WALK = {
+  /** How often the walkers decide what to do next (ms). */
+  tickMs: 1000,
+  /** Walking speed, as a share of the screen width per second. */
+  speed: 0.04,
+  /** Chance that a pet does something instead of walking on, when it stops. */
+  actionChance: 0.45,
+  /** How long an action lasts (ms): shortest and longest. */
+  actionMs: [3000, 6000] as [number, number],
+  /** Sprite size on screen (px). */
+  size: 40,
+};
+export const PET_ACTIONS = ['eat', 'play', 'sleep', 'sit', 'jump'] as const;
+export type PetAction = (typeof PET_ACTIONS)[number];
+/** The bubble each action shows above the pet. */
+export const PET_ACTION_BUBBLES: Record<PetAction, string> = { eat: '🍎', play: '⚽', sleep: '💤', sit: '💭', jump: '❗' };
+
 /** Hours to grow after feeding: to young, to adult. */
 export const GROW_HOURS: [number, number] = [2, 8];
 
