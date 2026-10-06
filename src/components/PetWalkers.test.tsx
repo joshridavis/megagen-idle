@@ -30,7 +30,7 @@ describe('walker logic (1.60)', () => {
     expect(w.map((x) => x.x)).toEqual([1 / 3, 2 / 3]);
     let now = 0;
     const seen = new Set<string>();
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 3000; i++) {
       w = stepWalkers(w, ['cat', 'eel'], now, rng);
       for (const x of w) {
         expect(x.x).toBeGreaterThanOrEqual(0.05);
@@ -39,11 +39,11 @@ describe('walker logic (1.60)', () => {
       }
       now += PET_WALK.tickMs;
     }
-    expect(seen).toEqual(new Set(['walk', 'eat', 'play', 'sleep', 'sit', 'jump']));
+    expect(seen).toEqual(new Set(['walk', 'eat', 'play', 'rest', 'sleep', 'sit', 'jump']));
   });
 
   it('a walk faces the way it goes and lasts as long as the distance needs', () => {
-    const w = nextStep({ id: 'cat', from: 0.8, x: 0.8, left: false, action: 'sit', until: 0 }, 1000, () => 0.1);
+    const w = nextStep({ id: 'cat', from: 0.8, x: 0.8, left: false, action: 'rest', until: 0 }, 1000, () => 0.1);
     expect(w.action).toBe('walk');
     expect(w.x).toBeLessThan(0.8);
     expect(w.left).toBe(true);
@@ -99,10 +99,11 @@ describe('pets walk on screen (1.60)', () => {
     withPets();
     render(<PetWalkers />);
     await act(async () => {
-      vi.advanceTimersByTime(PET_WALK.tickMs * 3);
+      vi.advanceTimersByTime(PET_WALK.tickMs * 6);
     });
     const cat = screen.getByTestId('walking-pet-cat');
     expect(cat.getAttribute('data-action')).not.toBe('still');
+    expect(cat.getAttribute('data-action')).not.toBe('rest');
     expect(cat.className).toContain('pointer-events-auto');
     await act(async () => {
       fireEvent.click(cat);
@@ -127,5 +128,55 @@ describe('pets walk on screen (1.60)', () => {
     expect(cat.getAttribute('data-action')).toBe('still');
     expect(cat.getAttribute('style')).toBe(before);
     expect(cat.querySelector('img')!.className).not.toMatch(/pet-(walking|act-)/);
+  });
+
+  it('food lies on the ground in front of an eating pet, not above it (owner, playtest 25)', async () => {
+    vi.useFakeTimers();
+    // 0.1: rest 5 s, walk left to 0.14, then stop and eat (the first action)
+    vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    withPets();
+    render(<PetWalkers />);
+    await act(async () => {
+      vi.advanceTimersByTime(PET_WALK.tickMs * 12);
+    });
+    const cat = screen.getByTestId('walking-pet-cat');
+    expect(cat.getAttribute('data-action')).toBe('eat');
+    const food = screen.getByTestId('pet-prop-cat');
+    expect(food.textContent).toBe('🍎');
+    expect(food.className).toContain('bottom-0');
+    expect(food.className).toContain('pet-food');
+    // facing left after walking left, so the food is on its left
+    expect(food.className).toContain('right-full');
+    expect(screen.queryByTestId('pet-bubble-cat')).toBeNull();
+    vi.restoreAllMocks();
+  });
+
+  it('naps last long, pets rest without a bubble, and they stop often (owner, playtest 25)', () => {
+    const walking = { id: 'cat' as const, from: 0.5, x: 0.5, left: false, action: 'walk' as const, until: 0 };
+    // sleep is the last action in the weights: a roll near 1 picks it; the last roll sets the length
+    const rolls = [0.1, 0.99, 0];
+    const nap = nextStep(walking, 0, () => rolls.shift()!);
+    expect(nap.action).toBe('sleep');
+    expect(nap.until).toBeGreaterThanOrEqual(45_000);
+    // pets stop after most walks
+    const rng = seededRng(3);
+    let stops = 0;
+    for (let i = 0; i < 1000; i++) if (nextStep(walking, 0, rng).action !== 'walk') stops++;
+    expect(stops).toBeGreaterThan(650);
+    // after an action a pet may rest before walking on; after resting it walks
+    expect(nextStep({ ...walking, action: 'eat' }, 0, () => 0.1).action).toBe('rest');
+    expect(nextStep({ ...walking, action: 'rest' }, 0, () => 0.1).action).toBe('walk');
+  });
+
+  it('a resting pet stands still with no bubble or food', async () => {
+    vi.useFakeTimers();
+    withPets();
+    render(<PetWalkers />);
+    // the pets start out resting
+    const cat = screen.getByTestId('walking-pet-cat');
+    expect(cat.getAttribute('data-action')).toBe('rest');
+    expect(screen.queryByTestId('pet-bubble-cat')).toBeNull();
+    expect(screen.queryByTestId('pet-prop-cat')).toBeNull();
+    expect(cat.querySelector('img')!.className).not.toMatch(/pet-(walking|act-(eat|play|sleep|jump))/);
   });
 });

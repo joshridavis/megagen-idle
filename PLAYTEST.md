@@ -1,4 +1,32 @@
-# Playtest 25 (v0.25.0): pets that grow on screen and walk around, six more pets, and your three bug reports
+# Playtest 25.1 (v0.25.1, hotfix): pets eat and play on the ground, nap longer and rest
+
+The version at the bottom of the screen should read **v0.25.1**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 293.3 hours** (simulated, unchanged: this fix changes no balance).
+
+## What changed
+
+- **Eating and playing (1.74):** the apple and the ball no longer float above a walking pet. They lie on the ground in front of its mouth, on the side it faces. While eating, the pet nods down to the apple, which gets smaller bite by bite. While playing, the ball bounces in front of it. Sleeping 💤, sitting 💭 and jumping ❗ keep their bubble above the pet.
+- **Calmer pets (1.74):**
+  - A nap now lasts 45 seconds to 2 minutes.
+  - A new **rest**: the pet just stands still for 5 to 20 seconds, with no bubble. It is the most common thing they do.
+  - Pets stop after 3 walks out of 4 (fewer than half before), and after eating, playing and so on they often rest before walking on.
+
+## Things to try
+
+1. Watch the walking pets for a few minutes until one eats and one plays. Does it look right now?
+2. Do the pets now feel calm enough, or still too busy? Is a nap of up to 2 minutes the right length?
+
+---
+
+# Previous: Playtest 25 (v0.25.0): pets that grow on screen and walk around, six more pets, and your three bug reports
 
 The version at the bottom of the screen should read **v0.25.0**.
 

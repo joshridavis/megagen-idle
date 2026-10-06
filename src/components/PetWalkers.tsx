@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { sprites, type SpriteId } from '../assets';
-import { PET_ACTION_BUBBLES, PET_PARTICLES, PET_REACT_MS, PET_WALK, PETS_BY_ID, type PetId } from '../data/pets';
+import { PET_ACTION_BUBBLES, PET_GROUND_ACTIONS, PET_PARTICLES, PET_REACT_MS, PET_WALK, PETS_BY_ID, type PetId } from '../data/pets';
 import { platform } from '../platform';
 import { useStore } from '../store';
 import { activePets } from '../utils/pets';
@@ -35,10 +35,21 @@ function WalkingPet({ w, stage, still }: { w: Walker; stage: number; still: bool
         transition: walking ? `transform ${walkMs(w.from, w.x)}ms linear` : 'none',
       }}
     >
-      {!still && !walking && !playing && (
-        <span aria-hidden="true" className="pet-bubble pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 text-sm">
-          {PET_ACTION_BUBBLES[w.action as keyof typeof PET_ACTION_BUBBLES]}
-        </span>
+      {!still && !walking && !playing && w.action !== 'walk' && PET_ACTION_BUBBLES[w.action] && (
+        PET_GROUND_ACTIONS.includes(w.action) ? (
+          // food and toys lie on the ground in front of the pet's mouth (the sprites face right), not above it
+          <span
+            aria-hidden="true"
+            data-testid={`pet-prop-${w.id}`}
+            className={`pointer-events-none absolute bottom-0 text-xs leading-none ${w.action === 'eat' ? 'pet-food' : 'pet-ball'} ${w.left ? 'right-full -mr-2' : 'left-full -ml-2'}`}
+          >
+            {PET_ACTION_BUBBLES[w.action]}
+          </span>
+        ) : (
+          <span aria-hidden="true" data-testid={`pet-bubble-${w.id}`} className="pet-bubble pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 text-sm">
+            {PET_ACTION_BUBBLES[w.action]}
+          </span>
+        )
       )}
       <span className="block h-full w-full" style={{ transform: w.left ? 'scaleX(-1)' : undefined }}>
         <img src={sprites[`pet_${w.id}_${stage}` as SpriteId]} alt="" width={size} height={size} className={`pixelated block ${pose}`} />

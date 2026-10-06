@@ -369,7 +369,13 @@ body {
 /* Pets walking on screen (1.60): a bob while walking, a pose per action. */
 @keyframes pet-walk-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 .pet-walking { animation: pet-walk-bob 0.5s ease-in-out infinite; }
-@keyframes pet-eat { 0%, 100% { transform: rotate(0); } 50% { transform: translateY(2px) rotate(8deg); } }
+/* Eating: the head nods down toward the food in front of it, and the food gets smaller bite by bite. */
+@keyframes pet-eat { 0%, 100% { transform: rotate(0); } 50% { transform: translateY(3px) rotate(12deg); } }
+@keyframes pet-food { 0% { transform: scale(1); } 33% { transform: scale(0.8); } 66% { transform: scale(0.6); } 100% { transform: scale(0.4); } }
+.pet-food { transform-origin: bottom center; animation: pet-food 4.5s steps(1, end) forwards; }
+/* Playing: the ball bounces in front of the pet. */
+@keyframes pet-ball { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px) rotate(180deg); } }
+.pet-ball { animation: pet-ball 0.5s ease-in-out infinite; }
 .pet-act-eat { animation: pet-eat 0.6s ease-in-out infinite; }
 @keyframes pet-play { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg) translateY(-4px); } }
 .pet-act-play { animation: pet-play 0.5s ease-in-out infinite; }
@@ -412,7 +418,7 @@ body {
 .pet-grow-flash { opacity: 0; animation: pet-grow-flash 1.6s ease-out forwards; }
 .pet-grow-new { animation: pet-grow-new 1.6s ease-out forwards; }
 @media (prefers-reduced-motion: reduce) {
-  .pet-react, .pet-particle, .pet-growing, .pet-grow-old, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble { animation: none; }
+  .pet-react, .pet-particle, .pet-growing, .pet-grow-old, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball { animation: none; }
   .pet-sparkle, .pet-grow-flash, .pet-grow-old { display: none; }
 }
 
@@ -467,7 +473,7 @@ html[data-reduce-motion] :is(.click-pop, .click-pop-down, .spark) {
   opacity: 0;
 }
 html[data-reduce-motion]
-  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .pet-growing, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
+  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .pet-growing, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
   animation: none;
 }
 html[data-reduce-motion] :is(.pet-sparkle, .pet-grow-flash, .pet-grow-old) {

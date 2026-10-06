@@ -112,17 +112,30 @@ export const PET_WALK = {
   tickMs: 1000,
   /** Walking speed, as a share of the screen width per second. */
   speed: 0.04,
-  /** Chance that a pet does something instead of walking on, when it stops. */
-  actionChance: 0.45,
-  /** How long an action lasts (ms): shortest and longest. */
-  actionMs: [3000, 6000] as [number, number],
+  /** Chance that a pet stops to do something when a walk ends (owner, playtest 25: not walking nonstop). */
+  actionChance: 0.75,
+  /** Chance that a pet rests a while after an action, before walking again. */
+  restAfterAction: 0.35,
   /** Sprite size on screen (px). */
   size: 40,
 };
-export const PET_ACTIONS = ['eat', 'play', 'sleep', 'sit', 'jump'] as const;
+export const PET_ACTIONS = ['eat', 'play', 'rest', 'sit', 'jump', 'sleep'] as const;
 export type PetAction = (typeof PET_ACTIONS)[number];
-/** The bubble each action shows above the pet. */
-export const PET_ACTION_BUBBLES: Record<PetAction, string> = { eat: '🍎', play: '⚽', sleep: '💤', sit: '💭', jump: '❗' };
+/** How often each action is picked, relative to the others: resting (standing still) is the most common. */
+export const PET_ACTION_WEIGHTS: Record<PetAction, number> = { eat: 2, play: 2, rest: 4, sit: 2, jump: 1, sleep: 1 };
+/** How long each action lasts (ms): shortest and longest. A nap is long (owner, playtest 25), not a few seconds. */
+export const PET_ACTION_MS: Record<PetAction, [number, number]> = {
+  eat: [4_000, 8_000],
+  play: [4_000, 8_000],
+  rest: [5_000, 20_000],
+  sit: [6_000, 15_000],
+  jump: [2_000, 4_000],
+  sleep: [45_000, 120_000],
+};
+/** The emoji each action shows: above the pet as a bubble, or on the ground in front of it (PET_GROUND_ACTIONS). Resting shows none. */
+export const PET_ACTION_BUBBLES: Record<PetAction, string> = { eat: '🍎', play: '⚽', rest: '', sleep: '💤', sit: '💭', jump: '❗' };
+/** Actions whose emoji is a thing on the ground in front of the pet's mouth, not a thought bubble (owner, playtest 25). */
+export const PET_GROUND_ACTIONS: PetAction[] = ['eat', 'play'];
 
 /** Hours to grow after feeding: to young, to adult. */
 export const GROW_HOURS: [number, number] = [2, 8];
