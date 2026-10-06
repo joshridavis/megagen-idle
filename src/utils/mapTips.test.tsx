@@ -49,7 +49,19 @@ describe('map tooltips (1.63)', () => {
     const t = machineTip(s, quarry, fmt);
     expect(t.title).toBe('Stone Quarry');
     expect(t.lines[0]).toMatch(/^\+\d+\/h stone$/);
+    expect(t.lines[1]).toContain('Producer (no levels)');
     expect(t.lines[1]).toContain('you have 1');
+    expect(t.lines.some((l) => l.includes('burn'))).toBe(false);
+  });
+
+  it('a fuel producer shows what running generators burn and the net (playtest 24 report)', () => {
+    const s = withCoal();
+    const mine = layoutSite(s).placed.find((p) => p.kind === 'producer' && p.id === 'coalMine')!;
+    const t = machineTip(s, mine, fmt);
+    expect(t.title).toBe('Coal Mine');
+    const burn = t.lines.find((l) => l.startsWith('🔥'));
+    expect(burn).toMatch(/^🔥 Your generators burn \d+\/h coal · net [+−]\d+\/h$/);
+    expect(t.lines.some((l) => l.startsWith('Producer (no levels)'))).toBe(true);
   });
 
   it('hovering or focusing a machine on the map shows the tooltip beside it', () => {

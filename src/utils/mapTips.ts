@@ -41,7 +41,8 @@ function zoneLine(p: Placed): { line?: string; warning?: string } {
 
 /**
  * What the tooltip beside a machine on the map says (1.63): name and number, output, fuel,
- * level and its zone bonus. A producer shows what one of them makes, with its own map bonus.
+ * level and its zone bonus. A producer shows what one of them makes, with its own map bonus,
+ * what running generators burn of its resource, and that producers have no levels.
  */
 export function machineTip(state: GameState, p: Placed, fmt: TipFormat): MachineTip {
   const zone = zoneLine(p);
@@ -72,7 +73,13 @@ export function machineTip(state: GameState, p: Placed, fmt: TipFormat): Machine
   const b = getResourceBreakdown({ ...state }, def.resource);
   const boosts = b.modifiers.filter((m) => m.amount > 0 && m.source !== 'Placement on the map').reduce((sum, m) => sum + (m.percent ?? 0), 0);
   const each = owned > 0 ? (b.base / owned) * (1 + boosts + p.zoneBonus) : 0;
-  const lines = [`+${fmt.ratePer(each)} ${RESOURCE_NAMES[def.resource].toLowerCase()}`, `${p.cells.length} tile${p.cells.length > 1 ? 's' : ''} · you have ${owned}`];
+  const name = RESOURCE_NAMES[def.resource].toLowerCase();
+  const lines = [`+${fmt.ratePer(each)} ${name}`];
+  // a fuel's producer also shows what your running generators burn, and the net (owner report, playtest 24)
+  const burn = -b.modifiers.reduce((sum, m) => sum + (m.amount < 0 ? m.amount : 0), 0);
+  if (burn > 0) lines.push(`🔥 Your generators burn ${fmt.ratePer(burn)} ${name} · net ${b.total < 0 ? '−' : '+'}${fmt.ratePer(Math.abs(b.total))}`);
+  // producers have no levels: say so, so the tip is not read as missing one
+  lines.push(`Producer (no levels) · ${p.cells.length} tile${p.cells.length > 1 ? 's' : ''} · you have ${owned}`);
   if (zone.line) lines.push(zone.line);
   return { title: def.name, lines, ...(zone.warning ? { warning: zone.warning } : {}) };
 }
