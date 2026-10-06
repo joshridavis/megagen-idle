@@ -6,6 +6,8 @@ import { canUseAccent, canUseTitle } from '../../utils/achievements';
 export interface SettingsActions {
   setNotation: (notation: NumberNotation) => void;
   setReduceMotion: (on: boolean) => void;
+  /** Shows or hides the pets walking on screen (1.60). */
+  setPetsWalk: (on: boolean) => void;
   setGeneratorSort: (sort: GeneratorSort) => void;
   /** Cosmetic choices; locked ones are refused (1.01). */
   setCosmetics: (choice: { title?: string | null; accent?: string }) => void;
@@ -45,5 +47,6 @@ export const createSettingsSlice =
         undefined,
         'settings/notifications',
       ),
+    setPetsWalk: (petsWalk) => set((s) => ({ settings: { ...s.settings, petsWalk } }), undefined, 'settings/petsWalk'),
     setReduceMotion: (reduceMotion) => set((s) => ({ settings: { ...s.settings, reduceMotion } }), undefined, 'settings/reduceMotion'),
   });

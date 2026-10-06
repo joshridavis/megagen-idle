@@ -40,8 +40,8 @@ import { eventRatePerHour } from '../utils/randomEvents';
 import { deriveRates } from '../utils/simulation';
 import { unlockAchievements } from '../utils/achievements';
 import { ACHIEVEMENTS } from '../data/achievements';
-import { DECORATION_COPIES_GOAL, DECORATIONS } from '../data/decorations';
-import { boughtCount, buyBlock, buyDecoration, decorationPrice, totalBought } from '../utils/decorations';
+import { DECORATIONS } from '../data/decorations';
+import { buyBlock, buyDecoration, decorationPrice } from '../utils/decorations';
 
 export interface SimOptions {
   /** Simulated hours to run at most. */
@@ -355,13 +355,12 @@ const SIM_PETS: PetId[] = ['cat', 'robodog', 'jellyfish'];
 /** The simulated player buys a decoration only with this many times its price in hand (above room savings). */
 const DECOR_COMFORT = 4;
 /**
- * Buys the cheapest decoration completion still needs (every kind once, then
- * copies up to the goal). Placing it is free and changes nothing, so the
- * simulated player does not place them.
+ * Buys the cheapest decoration copy completion still needs (all 6 of every
+ * kind). Placing it is free and changes nothing, so the simulated player does
+ * not place them.
  */
 function simBuyDecoration(s: GameState, reserve: number): GameState {
-  const total = totalBought(s);
-  const options = DECORATIONS.filter((d) => buyBlock({ ...s, energy: Infinity }, d.id) === null && (boughtCount(s, d.id) === 0 || total < DECORATION_COPIES_GOAL)).sort(
+  const options = DECORATIONS.filter((d) => buyBlock({ ...s, energy: Infinity }, d.id) === null).sort(
     (a, b) => decorationPrice(s, a.id) - decorationPrice(s, b.id),
   );
   const d = options[0];

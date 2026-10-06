@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import MapPanel from '../components/MapPanel';
-import { DECORATION_COPIES_GOAL, DECORATION_LIMIT, DECORATION_PRICE_GROWTH, DECORATIONS, DECORATIONS_BY_ID } from '../data/decorations';
+import { DECORATION_LIMIT, DECORATION_PRICE_GROWTH, DECORATIONS, DECORATIONS_BY_ID } from '../data/decorations';
 import { ACHIEVEMENTS_BY_ID } from '../data/achievements';
 import { getCompletion } from './completion';
 import { newlyEarned } from './achievements';
@@ -213,14 +213,15 @@ describe('decorations bought with energy, then placed freely (1.53, owner playte
     expect(ACHIEVEMENTS_BY_ID.decor_30).toMatchObject({ bonus: true, title: true, tier: 'epic' });
   });
 
-  it('100% completion counts every kind once and a number bought in all', () => {
+  it('100% completion counts all 6 copies of every kind (owner, playtest 24)', () => {
     const part = (st: Partial<GameState>) => getCompletion({ ...createInitialState(0), ...st }).parts.find((p) => p.label === 'Decorations')!;
-    expect(part({}).total).toBe(DECORATIONS.length + 1);
+    expect(part({}).total).toBe(DECORATIONS.length);
     expect(part({}).done).toBe(0);
-    const every = Object.fromEntries(DECORATIONS.map((d) => [d.id, 1]));
-    expect(part({ decorationsBought: every }).done).toBe(DECORATIONS.length);
-    expect(part({ decorationsBought: ALL_OWNED }).done).toBe(DECORATIONS.length + 1);
-    expect(DECORATION_COPIES_GOAL).toBeLessThanOrEqual(DECORATIONS.length * DECORATION_LIMIT);
+    const one = Object.fromEntries(DECORATIONS.map((d) => [d.id, 1]));
+    expect(part({ decorationsBought: one }).done).toBe(0);
+    expect(part({ decorationsBought: one }).items[0].detail).toBe(`1/${DECORATION_LIMIT} bought`);
+    expect(part({ decorationsBought: { ...one, tree: DECORATION_LIMIT } }).done).toBe(1);
+    expect(part({ decorationsBought: ALL_OWNED }).done).toBe(DECORATIONS.length);
   });
 
   it('the panel buys copies, shows prices red when short, and places owned copies for free', () => {

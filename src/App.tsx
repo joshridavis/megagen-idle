@@ -15,6 +15,7 @@ import GuidePanel from './components/GuidePanel';
 import MapPanel from './components/MapPanel';
 import GeneratorGrid from './components/GeneratorGrid';
 import ProducerPanel from './components/ProducerPanel';
+import PetWalkers from './components/PetWalkers';
 import ResearchCelebration from './components/ResearchCelebration';
 import ResearchChip from './components/ResearchChip';
 import ResearchTree, { type OpenResearchRequest } from './components/ResearchTree';
@@ -200,6 +201,7 @@ export default function App() {
       </div>
       <EventLog />
       <VersionFooter />
+      <PetWalkers />
       {researching && (
         <div
           data-testid="research-chip-dock"

@@ -26,6 +26,8 @@ export interface Settings {
   cosmetics: { title: string | null; accent: string };
   /** Browser notifications (1.07): off until the player turns them on. */
   notifications: NotifySettings;
+  /** The active pets walk along the bottom of the screen (1.60); on by default. */
+  petsWalk?: boolean;
 }
 
 export interface EnergyState {

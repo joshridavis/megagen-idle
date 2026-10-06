@@ -16,9 +16,11 @@ export default function CompletionPanel() {
   const contracts = useStore((s) => s.contracts);
   const pets = useStore((s) => s.pets);
   const achievements = useStore((s) => s.achievements);
+  // owner report, playtest 24: without this the Decorations part always read 0 bought
+  const decorationsBought = useStore((s) => s.decorationsBought);
   const c = useMemo(
-    () => getCompletion({ completedResearch, records, expansionLevel, producers, contracts, pets, achievements }),
-    [completedResearch, records, expansionLevel, producers, contracts, pets, achievements],
+    () => getCompletion({ completedResearch, records, expansionLevel, producers, contracts, pets, achievements, decorationsBought }),
+    [completedResearch, records, expansionLevel, producers, contracts, pets, achievements, decorationsBought],
   );
   const [open, setOpen] = useState<string | null>(null);
   const seen = useStore((s) => s.seenEvents);
@@ -37,7 +39,7 @@ export default function CompletionPanel() {
         <ProgressBar value={c.ratio} label="Overall completion" />
         <p className="mt-2 text-xs text-slate-400">
           {c.done} of {c.total} done. 100% means every research, every generator type built and upgraded to max level,
-          every room expansion, every producer type, contract milestones, every contract perk, every pet found and grown, and every achievement (except bonus ones). Records are permanent: scrapping never lowers them.
+          every room expansion, every producer type, contract milestones, every contract perk, every pet found and grown, both pet slots, all 6 copies of every decoration, and every achievement (except bonus ones). Records are permanent: scrapping never lowers them.
         </p>
       </div>
       {c.parts.map((p) => {

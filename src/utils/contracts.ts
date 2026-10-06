@@ -14,6 +14,7 @@ import {
 import { EVENTS_BY_ID } from '../data/events';
 import type { Contract, GameState, ResourceId } from '../types/state';
 import { getBonuses } from './bonuses';
+import { petContractBonus } from './pets';
 import { getPlayerLevel } from './playerLevel';
 import { canAfford, consumeResource, getProductionRates } from './resourceSystem';
 import type { Rng } from './rng';
@@ -27,7 +28,8 @@ export const contractSlots = (s: Pick<S, 'contracts'>) => BASE_CONTRACT_SLOTS + 
 const offerMinutes = (lv: number) => OFFER_INTERVAL_MINUTES - PERK_STEP.offerMinutes * lv;
 export const offerIntervalMs = (s: Pick<S, 'contracts'>) => offerMinutes(perkLevel(s, 'offers')) * 60_000;
 const deadlineFactor = (s: Pick<S, 'contracts'>) => 1 + PERK_STEP.deadline * perkLevel(s, 'deadline');
-const rewardFactor = (s: Pick<S, 'contracts'>) => 1 + PERK_STEP.rewards * perkLevel(s, 'rewards');
+/** Rewards perk, plus the active pets' contract bonus (1.56). */
+const rewardFactor = (s: Pick<S, 'contracts'> & Partial<Pick<S, 'pets'>>) => 1 + PERK_STEP.rewards * perkLevel(s, 'rewards') + petContractBonus(s.pets ? { pets: s.pets } : undefined);
 const pctText = (f: number) => (f ? `+${Math.round(f * 100)}%` : 'normal');
 
 /** Resources the player is producing now, the ones a delivery may ask for. */

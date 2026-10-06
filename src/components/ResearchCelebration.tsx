@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { sprites } from '../assets';
+import { sprites, type SpriteId } from '../assets';
+import { PET_STAGES, PETS_BY_ID } from '../data/pets';
 import { ENERGY_BONUS_PER_LEVEL, PLAYER_LEVEL_BONUS_CAP } from '../data/playerLevel';
 import { RESEARCH_BY_ID } from '../data/research';
 import { CELEBRATION_MS } from '../data/time';
@@ -15,8 +16,8 @@ function levelBonusText(level: number): string {
 }
 
 /**
- * Global "Research complete!" and "Level up!" (0.90) burst, shown over any tab when research finishes
- * during live play. Auto-hides; click to dismiss; queued completions follow.
+ * Global "Research complete!", "Level up!" (0.90) and pet stage-up (1.58) burst, shown over any tab
+ * when it happens during live play. Auto-hides; click to dismiss; queued completions follow.
  */
 export default function ResearchCelebration() {
   const current = useStore((s) => s.celebrations[0]);
@@ -28,8 +29,11 @@ export default function ResearchCelebration() {
     return () => clearTimeout(t);
   }, [current, dismiss]);
 
-  const def = current && current.kind !== 'level' ? RESEARCH_BY_ID[current.id] : undefined;
+  const reduceMotion = useStore((s) => s.settings.reduceMotion);
+  const def = current && current.kind !== 'level' && current.kind !== 'pet' ? RESEARCH_BY_ID[current.id] : undefined;
   const level = current?.kind === 'level' ? current.level : null;
+  const pet = current?.kind === 'pet' ? current : null;
+  const petDef = pet ? PETS_BY_ID[pet.id] : undefined;
   return (
     <div aria-live="polite" className="pointer-events-none fixed inset-x-0 top-24 z-50 flex justify-center px-4">
       {level !== null && (
@@ -55,6 +59,45 @@ export default function ResearchCelebration() {
             <span className="block text-xs font-semibold uppercase tracking-wide text-sky-300">Level up!</span>
             <span className="block text-lg font-bold">Player level {level}</span>
             <span className="block text-sm text-sky-100">🎁 +{levelBonusText(level)} energy from all generators</span>
+          </span>
+        </button>
+      )}
+      {pet && petDef && (
+        <button
+          key={`pet-${pet.id}-${pet.at}`}
+          type="button"
+          onClick={dismiss}
+          data-testid="pet-celebration"
+          data-animated={!reduceMotion}
+          className="celebrate pointer-events-auto relative flex max-w-sm items-center gap-3 rounded-xl border-2 border-amber-400 bg-slate-900 px-5 py-3 text-left shadow-[0_0_30px_rgba(255,200,37,0.5)]"
+        >
+          {/* The old sprite grows into the new one with a flash (1.58); Reduce motion shows only the new one. */}
+          <span className="relative h-12 w-12 shrink-0">
+            {!reduceMotion && (
+              <>
+                <img
+                  src={sprites[`pet_${pet.id}_${Math.max(1, pet.stage - 1)}` as SpriteId]}
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="pet-grow-old pixelated absolute inset-0"
+                  data-testid="pet-celebration-old"
+                />
+                <span aria-hidden="true" className="pet-grow-flash absolute inset-0 rounded-full bg-yellow-100" />
+              </>
+            )}
+            <img
+              src={sprites[`pet_${pet.id}_${pet.stage}` as SpriteId]}
+              alt=""
+              width={48}
+              height={48}
+              className={`pixelated absolute inset-0 ${reduceMotion ? '' : 'pet-grow-new'}`}
+            />
+          </span>
+          <span>
+            <span className="block text-xs font-semibold uppercase tracking-wide text-amber-300">🐣 Your pet grew up!</span>
+            <span className="block text-lg font-bold">{petDef.name}</span>
+            <span className="block text-sm text-amber-100">Now {PET_STAGES[pet.stage - 1].toLowerCase()}: a bigger bonus</span>
           </span>
         </button>
       )}

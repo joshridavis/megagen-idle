@@ -5,11 +5,14 @@ import { buyPetSlot, feedPet, restPet, setActivePet, updatePets } from '../../ut
 import { deriveRates } from '../../utils/simulation';
 import { pickSaved } from '../migrations';
 import type { LogInput } from '../../utils/eventLog';
-import type { SliceCreator } from '../types';
+import type { SliceCreator, TransientState } from '../types';
 
 export interface PetActions {
-  /** Finds pets whose condition is met and finishes growth that is due (called by the idle engine). */
-  tickPets: (now?: number) => void;
+  /**
+   * Finds pets whose condition is met and finishes growth that is due (called
+   * by the idle engine). During live play a pet's stage-up is celebrated (1.58).
+   */
+  tickPets: (now?: number, live?: boolean) => void;
   feedPet: (id: PetId, now?: number) => boolean;
   setActivePet: (id: PetId) => void;
   /** Takes a pet out of its active slot (1.59); the last active pet stays. */
@@ -33,14 +36,18 @@ export function petLogEntries(found: PetId[], grown: PetId[], owned: PetsState['
 
 /** Energy pets (0.92). Game rules live in src/utils/pets.ts. */
 export const createPetSlice =
-  (initial: PetsState): SliceCreator<PetsState & PetActions> =>
+  (initial: PetsState): SliceCreator<PetsState & Pick<TransientState, 'celebrations'> & PetActions> =>
   (set, get) => ({
     ...initial,
-    tickPets: (now = Date.now()) => {
+    celebrations: [],
+    tickPets: (now = Date.now(), live = false) => {
       const s = get();
       const r = updatePets(pickSaved(s), now);
       if (!r.found.length && !r.grown.length) return;
-      set(deriveRates(r.state), undefined, 'pets/tick');
+      const grown = live
+        ? { celebrations: [...s.celebrations, ...r.grown.map((id) => ({ kind: 'pet' as const, id, stage: r.state.pets.owned[id]?.stage ?? 1, at: now }))] }
+        : {};
+      set({ ...deriveRates(r.state), ...grown }, undefined, 'pets/tick');
       s.logEvents(petLogEntries(r.found, r.grown, r.state.pets.owned), now);
     },
     feedPet: (id, now = Date.now()) => {

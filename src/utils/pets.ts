@@ -79,6 +79,12 @@ export function otherPetGrowing(s: Pick<S, 'pets'>, id: PetId): { id: PetId; unt
   return g && g.id !== id ? g : null;
 }
 
+/** How far a growing pet is toward its next stage, 0 to 1 (1.58). */
+export function growProgress(stage: number, growUntil: number, now: number): number {
+  const total = GROW_HOURS[Math.min(GROW_HOURS.length, Math.max(1, stage)) - 1] * 3_600_000;
+  return Math.min(1, Math.max(0, 1 - (growUntil - now) / total));
+}
+
 export function canFeed(s: S, id: PetId): boolean {
   const cost = feedCost(s, id);
   if (cost === null || otherPetGrowing(s, id)) return false;
@@ -184,4 +190,16 @@ export function withPetMods(mods: EffectMods, s: Pick<S, 'pets'> | undefined): E
 export function petClickBonus(s: Pick<S, 'pets'> | undefined): number {
   const list = s?.pets ? activePetBonuses(s) : [];
   return list.reduce((sum, b) => sum + (b.def.bonus.kind === 'click' ? b.value : 0), 0);
+}
+
+/** Faster research from the active pets (1.56): added to the research speed bonus. */
+export function petResearchSpeed(s: Pick<S, 'pets'> | undefined): number {
+  const list = s?.pets ? activePetBonuses(s) : [];
+  return list.reduce((sum, b) => sum + (b.def.bonus.kind === 'research' ? b.value : 0), 0);
+}
+
+/** Bigger contract rewards from the active pets (1.56): added to the Rewards perk. */
+export function petContractBonus(s: Pick<S, 'pets'> | undefined): number {
+  const list = s?.pets ? activePetBonuses(s) : [];
+  return list.reduce((sum, b) => sum + (b.def.bonus.kind === 'contracts' ? b.value : 0), 0);
 }

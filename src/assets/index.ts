@@ -128,6 +128,24 @@ import petBeetle3 from './sprites/pets/beetle_3.png';
 import petJellyfish1 from './sprites/pets/jellyfish_1.png';
 import petJellyfish2 from './sprites/pets/jellyfish_2.png';
 import petJellyfish3 from './sprites/pets/jellyfish_3.png';
+import petMole1 from './sprites/pets/mole_1.png';
+import petMole2 from './sprites/pets/mole_2.png';
+import petMole3 from './sprites/pets/mole_3.png';
+import petToad1 from './sprites/pets/toad_1.png';
+import petToad2 from './sprites/pets/toad_2.png';
+import petToad3 from './sprites/pets/toad_3.png';
+import petMouse1 from './sprites/pets/mouse_1.png';
+import petMouse2 from './sprites/pets/mouse_2.png';
+import petMouse3 from './sprites/pets/mouse_3.png';
+import petPigeon1 from './sprites/pets/pigeon_1.png';
+import petPigeon2 from './sprites/pets/pigeon_2.png';
+import petPigeon3 from './sprites/pets/pigeon_3.png';
+import petOwl1 from './sprites/pets/owl_1.png';
+import petOwl2 from './sprites/pets/owl_2.png';
+import petOwl3 from './sprites/pets/owl_3.png';
+import petAxolotl1 from './sprites/pets/axolotl_1.png';
+import petAxolotl2 from './sprites/pets/axolotl_2.png';
+import petAxolotl3 from './sprites/pets/axolotl_3.png';
 
 export const sprites = {
   energy_icon: energyIcon,
@@ -257,6 +275,24 @@ export const sprites = {
   pet_jellyfish_1: petJellyfish1,
   pet_jellyfish_2: petJellyfish2,
   pet_jellyfish_3: petJellyfish3,
+  pet_mole_1: petMole1,
+  pet_mole_2: petMole2,
+  pet_mole_3: petMole3,
+  pet_toad_1: petToad1,
+  pet_toad_2: petToad2,
+  pet_toad_3: petToad3,
+  pet_mouse_1: petMouse1,
+  pet_mouse_2: petMouse2,
+  pet_mouse_3: petMouse3,
+  pet_pigeon_1: petPigeon1,
+  pet_pigeon_2: petPigeon2,
+  pet_pigeon_3: petPigeon3,
+  pet_owl_1: petOwl1,
+  pet_owl_2: petOwl2,
+  pet_owl_3: petOwl3,
+  pet_axolotl_1: petAxolotl1,
+  pet_axolotl_2: petAxolotl2,
+  pet_axolotl_3: petAxolotl3,
 } as const;
 
 export type SpriteId = keyof typeof sprites;

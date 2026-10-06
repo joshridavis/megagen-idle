@@ -1,14 +1,14 @@
 import { GENERATOR_TYPES, GENERATORS, UPGRADES } from '../data/generators';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { CONTRACT_MILESTONES, PERK_IDS, PERKS } from '../data/contracts';
-import { DECORATION_COPIES_GOAL, DECORATIONS } from '../data/decorations';
+import { DECORATION_LIMIT, DECORATIONS } from '../data/decorations';
 import { PET_SLOT_UPGRADES, PETS } from '../data/pets';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { RESEARCH } from '../data/research';
 import { ROOM_TIERS } from '../data/rooms';
 import type { GeneratorType } from '../types/generator';
 import type { GameState } from '../types/state';
-import { boughtCount, totalBought } from './decorations';
+import { boughtCount } from './decorations';
 
 export interface CompletionItem {
   id: string;
@@ -105,16 +105,16 @@ export function getCompletion(
       'Pet slots',
       PET_SLOT_UPGRADES.map((_, i) => ({ id: `pet-slot-${i + 2}`, label: `Active pet slot ${i + 2}`, done: (state.pets?.slots ?? 1) >= i + 2 })),
     ),
-    // Decorations (1.53): every kind bought once, and a number bought in all
-    part('Decorations', [
-      ...DECORATIONS.map((d) => ({ id: `decor-${d.id}`, label: d.name, done: boughtCount(state, d.id) > 0, detail: `${boughtCount(state, d.id)} bought` })),
-      {
-        id: 'decor-copies',
-        label: `${DECORATION_COPIES_GOAL} decorations bought`,
-        done: totalBought(state) >= DECORATION_COPIES_GOAL,
-        detail: `${Math.min(totalBought(state), DECORATION_COPIES_GOAL)}/${DECORATION_COPIES_GOAL}`,
-      },
-    ]),
+    // Decorations (1.53): every copy of every kind (owner, playtest 24: up to 6 of a kind, so all 6 of each)
+    part(
+      'Decorations',
+      DECORATIONS.map((d) => ({
+        id: `decor-${d.id}`,
+        label: d.name,
+        done: boughtCount(state, d.id) >= DECORATION_LIMIT,
+        detail: `${Math.min(boughtCount(state, d.id), DECORATION_LIMIT)}/${DECORATION_LIMIT} bought`,
+      })),
+    ),
     // Achievements (0.65); bonus ones do not count
     part(
       'Achievements',

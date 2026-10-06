@@ -53,6 +53,8 @@ export default function SettingsPanel() {
   const [pending, setPending] = useState<GameState | null>(null);
   const notation = useStore((s) => s.settings.notation);
   const reduceMotion = useStore((s) => s.settings.reduceMotion);
+  const petsWalk = useStore((s) => s.settings.petsWalk ?? true);
+  const setPetsWalk = useStore((s) => s.setPetsWalk);
   const setReduceMotion = useStore((s) => s.setReduceMotion);
   const replayTutorial = useStore((s) => s.replayTutorial);
   const setNotation = useStore((s) => s.setNotation);
@@ -127,6 +129,19 @@ export default function SettingsPanel() {
             <span className="block text-xs text-slate-400">
               Stills the game's animations (celebrations, glows, map and random-event animations). Events still happen, and show as a notice instead.
             </span>
+          </span>
+        </label>
+        <label className="flex min-h-11 cursor-pointer items-center gap-3">
+          <input
+            type="checkbox"
+            checked={petsWalk}
+            onChange={(e) => setPetsWalk(e.target.checked)}
+            className="h-5 w-5 accent-sky-400"
+            data-testid="setting-pets-walk"
+          />
+          <span>
+            Pets walk on screen
+            <span className="block text-xs text-slate-400">Your active pets walk along the bottom of the screen on every tab. Click one to pet it.</span>
           </span>
         </label>
       </div>
