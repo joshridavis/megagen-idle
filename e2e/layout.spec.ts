@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 // Responsive layout and keyboard access (0.41): no tab scrolls the page
 // sideways at phone, tablet or desktop width, and the main loop works from
@@ -211,14 +211,13 @@ test('a machine tooltip shows beside the machine, near the top and the bottom of
   await page.screenshot({ path: 'test-results/machine-tip.png' });
 });
 
-// 1.60: active pets walk along the bottom of a 375px phone without sideways
-// scroll, and the research chip and the map buttons stay clickable over them.
-test('walking pets leave a 375px phone usable', async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 700 });
-  await page.goto('./');
-  await expect(page.getByLabel('Energy total')).toBeVisible();
-  // import a copy of the stored save with two active pets and a running research
-  const file = await page.waitForFunction(async () => {
+/**
+ * Imports a copy of the stored save through Settings → Import save, with
+ * `patch` merged into its state and a research running (the save-on-close
+ * safeguard would overwrite a save edited in storage before a reload).
+ */
+async function importSave(page: Page, patch: Record<string, unknown>) {
+  const file = await page.waitForFunction(async (patchJson: string) => {
     const db = await new Promise<IDBDatabase>((resolve, reject) => {
       const req = indexedDB.open('megagen-idle');
       req.onsuccess = () => resolve(req.result);
@@ -236,17 +235,23 @@ test('walking pets leave a 375px phone usable', async ({ page }) => {
     db.close();
     if (typeof raw !== 'string') return false;
     const save = JSON.parse(raw);
-    const adult = { stage: 3, growUntil: null, foundAt: 0 };
-    const state = {
-      ...save.state,
-      pets: { active: 'cat', extra: ['eel'], slots: 2, owned: { cat: adult, eel: adult } },
-      currentResearch: { id: 'basic_solar', startTime: Date.now(), duration: 3600 },
-    };
+    const state = { ...save.state, ...JSON.parse(patchJson), currentResearch: { id: 'basic_solar', startTime: Date.now(), duration: 3600 } };
     return JSON.stringify({ game: 'megagen-idle', version: save.version, exportedAt: new Date().toISOString(), state });
-  });
+  }, JSON.stringify(patch));
   await page.locator('#tab-settings').click();
   await page.getByLabel('Import save file').setInputFiles({ name: 'pets.json', mimeType: 'application/json', buffer: Buffer.from((await file.jsonValue()) as string) });
   await page.getByRole('button', { name: /^Load (it|this save)/ }).click();
+}
+
+// 1.60: active pets walk along the bottom of a 375px phone without sideways
+// scroll, and the research chip and the map buttons stay clickable over them.
+test('walking pets leave a 375px phone usable', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 700 });
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toBeVisible();
+  // a copy of the stored save with two active pets and a running research
+  const adult = { stage: 3, growUntil: null, foundAt: 0 };
+  await importSave(page, { pets: { active: 'cat', extra: ['eel'], slots: 2, owned: { cat: adult, eel: adult } } });
   await expect(page.getByTestId('walking-pet-cat')).toBeVisible();
   await expect(page.getByTestId('walking-pet-eel')).toBeVisible();
   const topAt = (sel: string) =>
@@ -267,4 +272,41 @@ test('walking pets leave a 375px phone usable', async ({ page }) => {
   expect(await page.getByTestId('pet-walkers').evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
   await page.getByTestId('walking-pet-cat').dispatchEvent('click');
   await expect(page.getByTestId('walking-pet-cat')).toHaveAttribute('data-playing', 'true');
+});
+
+// Owner reports, playtest 25: a hovered generator card (raised to z-40 for its
+// tooltip) covered the research chip docked at the bottom, and the walking pets.
+test('the research chip and the walking pets stay on top of a hovered card', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 700 });
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toBeVisible();
+  const adult = { stage: 3, growUntil: null, foundAt: 0 };
+  await importSave(page, { pets: { active: 'cat', extra: [], slots: 1, owned: { cat: adult } } });
+  // a still pet (in the middle of the screen) is easy to aim at
+  await page.getByRole('checkbox', { name: /Reduce motion/ }).check();
+  await page.locator('#tab-generators').click();
+  await expect(page.getByTestId('research-chip-dock').locator('button')).toBeVisible();
+  await expect(page.getByTestId('walking-pet-cat')).toBeVisible();
+  /** Scrolls a build card under the point (x, y), hovers the card, and says whether `sel` is still on top there. */
+  const onTopOfHoveredCard = async (sel: string, x: number, y: number) => {
+    const card = page.locator('[data-testid^="generator-card-"]:not([data-testid*="body"])').filter({ hasNotText: '🔒' });
+    const n = await card.count();
+    for (let i = 0; i < n; i++) {
+      const b = (await card.nth(i).boundingBox())!;
+      if (b.x < x && x < b.x + b.width) {
+        // the card's top 60 px above the point: hover it there, clear of the chip and the pets
+        await card.nth(i).evaluate((el, yy) => window.scrollBy(0, el.getBoundingClientRect().top - yy + 60), y);
+        const box = (await card.nth(i).boundingBox())!;
+        expect(box.y < y && y < box.y + box.height, 'the card lies under the point').toBe(true);
+        await page.mouse.move(x, box.y + 10);
+        expect(await card.nth(i).evaluate((el) => getComputedStyle(el).zIndex)).toBe('40');
+        return page.evaluate(([px, py, s]) => !!document.elementFromPoint(px as number, py as number)?.closest(s as string), [x, y, sel]);
+      }
+    }
+    throw new Error(`no build card under x=${x}`);
+  };
+  const c = (await page.getByTestId('research-chip-dock').locator('button').boundingBox())!;
+  expect(await onTopOfHoveredCard('[data-testid="research-chip-dock"]', c.x + 20, c.y + c.height / 2)).toBe(true);
+  const p = (await page.getByTestId('walking-pet-cat').boundingBox())!;
+  expect(await onTopOfHoveredCard('[data-testid="walking-pet-cat"]', p.x + p.width / 2, p.y + p.height / 2)).toBe(true);
 });

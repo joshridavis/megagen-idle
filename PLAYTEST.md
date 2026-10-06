@@ -1,4 +1,28 @@
-# Playtest 25.1 (v0.25.1, hotfix): pets eat and play on the ground, nap longer and rest
+# Playtest 25.2 (v0.25.2, hotfix): the research chip and the pets stay on top
+
+The version at the bottom of the screen should read **v0.25.2**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 293.3 hours** (simulated, unchanged: this fix changes no balance).
+
+## What changed
+
+- **Hovered cards no longer cover things (1.75):** a generator card you hover is lifted so its tooltip shows over the cards around it. Near the bottom of the screen it was also lifted over the research chip and the walking pets. Both now stay on top of a hovered card. The map buttons and panels, the pinned top bar, toasts and dialogs are still above them.
+
+## Things to try
+
+1. With a research running, scroll so a generator card sits behind the research chip, and hover it: the chip stays in front.
+2. Do the same where a pet is walking: the pet stays in front.
+
+---
+
+# Previous: Playtest 25.1 (v0.25.1, hotfix): pets eat and play on the ground, nap longer and rest
 
 The version at the bottom of the screen should read **v0.25.1**.
 
