@@ -1,4 +1,4 @@
-import { PET_ACTIONS, PET_WALK, type PetAction, type PetId } from '../data/pets';
+import { PET_ACTION_MS, PET_ACTION_WEIGHTS, PET_ACTIONS, PET_WALK, type PetAction, type PetId } from '../data/pets';
 import type { Rng } from './rng';
 
 /**
@@ -20,24 +20,42 @@ export interface Walker {
   until: number;
 }
 
-/** Spread pets evenly across the screen, standing still. */
+/** Spread pets evenly across the screen, resting a moment before they set off. */
 export function startWalkers(ids: PetId[], now: number): Walker[] {
   return ids.map((id, i) => {
     const x = (i + 1) / (ids.length + 1);
-    return { id, from: x, x, left: false, action: 'sit', until: now };
+    return { id, from: x, x, left: false, action: 'rest', until: now + PET_ACTION_MS.rest[0] };
   });
 }
 
 /** How long a walk between two positions takes (ms). */
 export const walkMs = (from: number, to: number): number => Math.max(500, (Math.abs(to - from) / PET_WALK.speed) * 1000);
 
-/** What a pet does next: an action where it stands, or a walk to a random place. */
-export function nextStep(w: Walker, now: number, rng: Rng): Walker {
-  if (w.action === 'walk' && rng() < PET_WALK.actionChance) {
-    const action = PET_ACTIONS[Math.floor(rng() * PET_ACTIONS.length)] ?? 'sit';
-    const [min, max] = PET_WALK.actionMs;
-    return { ...w, from: w.x, action, until: now + min + rng() * (max - min) };
+/** An action picked by PET_ACTION_WEIGHTS. */
+function pickAction(rng: Rng): PetAction {
+  const total = PET_ACTIONS.reduce((n, a) => n + PET_ACTION_WEIGHTS[a], 0);
+  let r = rng() * total;
+  for (const a of PET_ACTIONS) {
+    r -= PET_ACTION_WEIGHTS[a];
+    if (r < 0) return a;
   }
+  return 'rest';
+}
+
+/** Starts an action where the pet stands, for its PET_ACTION_MS duration. */
+function act(w: Walker, action: PetAction, now: number, rng: Rng): Walker {
+  const [min, max] = PET_ACTION_MS[action];
+  return { ...w, from: w.x, action, until: now + min + rng() * (max - min) };
+}
+
+/**
+ * What a pet does next (owner, playtest 25: pets stop often and do nothing for
+ * a while): after a walk it usually stops for an action; after an action it
+ * may rest before walking on; after resting it walks.
+ */
+export function nextStep(w: Walker, now: number, rng: Rng): Walker {
+  if (w.action === 'walk' && rng() < PET_WALK.actionChance) return act(w, pickAction(rng), now, rng);
+  if (w.action !== 'walk' && w.action !== 'rest' && rng() < PET_WALK.restAfterAction) return act(w, 'rest', now, rng);
   // a new target at least a little way off, kept off the very edges
   let to = 0.05 + rng() * 0.9;
   if (Math.abs(to - w.x) < 0.1) to = w.x < 0.5 ? Math.min(0.95, w.x + 0.3) : Math.max(0.05, w.x - 0.3);

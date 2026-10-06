@@ -35,7 +35,7 @@ function WalkingPet({ w, stage, still }: { w: Walker; stage: number; still: bool
         transition: walking ? `transform ${walkMs(w.from, w.x)}ms linear` : 'none',
       }}
     >
-      {!still && !walking && !playing && w.action !== 'walk' && (
+      {!still && !walking && !playing && w.action !== 'walk' && PET_ACTION_BUBBLES[w.action] && (
         PET_GROUND_ACTIONS.includes(w.action) ? (
           // food and toys lie on the ground in front of the pet's mouth (the sprites face right), not above it
           <span
