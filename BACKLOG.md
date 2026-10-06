@@ -27,11 +27,15 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 **After playtest 22 (owner, 2026-10-05):** these come first, in this order (approximate priority, set by Claude at the owner's request), then the rest of the playtest 21 list below.
 
 0. 1.64 Fix: the Decorations button out of reach on a big map (playtest 22 bug; Done) → HOTFIX v0.22.1
+0. 1.68 Cloud menu buttons styled like Settings (owner request; small)
 0. 1.62 Harder research level gates (owner: research level 21 in under a week is too easy)
 0. 1.61 Player level as a hard requirement
-0. 1.63 Map tooltips on hover, next to the machine
+0. 1.65 Map legend in a floating panel, like Decorations (owner request after hotfix 22.1)
+0. 1.63 Map tooltips on hover, next to the machine → CHECKPOINT 23
+0. 1.66 Title tiers by difficulty, each with its own color (owner request)
+0. 1.67 Map events in random places each time (owner report)
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
-0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity → CHECKPOINT 23
+0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity
 0. 1.59 Pet slots: up to 3 active pets, bought with energy
 0. 1.58 Pet growing animation
 0. 1.60 Active pets walk on the screen
@@ -1115,6 +1119,56 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The panel is never taller than the space under the pinned bar. Remove and Close stay pinned at its bottom.
 **Acceptance:** Playwright at 1280×520 and 375×640, scrolled to the bottom of the map: the button is fully on screen and not covered, and the panel, ✕, Remove and Close are fully on screen (below the bar on wide screens); unit tests updated; the build and all tests pass.
 
+### 1.65 — Map legend in a floating panel, like Decorations — CODE — Done
+**Goal:** owner request after hotfix 22.1: the decorations panel now works as expected. The map legend (zones, their bonuses and machines, "Only zones on your site", and the "Dimmed land" note) still sits under the map, so on a big map you scroll down to read it and back up to use it. Give it the same treatment as 1.64.
+**Details:**
+- Replace the legend under the map with a floating **🗺️ Legend** button at the bottom right of the screen on the Map tab, next to (left of) the 🎨 Decorations button. It uses the same style and stays clear of the research chip on phones.
+- It opens a non-modal panel in the same corner (a bottom sheet on phones), never taller than the space under the pinned bar. The panel holds everything the legend has now: the zone rows, the ⭐ explanation, the "Show all zones / Only zones on your site" toggle, the "Dimmed land: the next room expansion adds N tiles" note and the Exclusion Zone hint.
+- Hovering or tapping a row still lights up that zone on the map (1.39); the map stays usable while the panel is open.
+- Only one of the two panels is open at a time: opening one closes the other. Close, ✕ and Escape close it, and focus returns to its button.
+- Nothing about the legend remains under the map.
+**Acceptance:** tests: the button opens and closes the panel, a row still highlights its zone, opening Legend closes Decorations and the other way round, and nothing legend-related is under the map. Playwright at 1280×520 and 375×640, scrolled to the bottom of the map: both buttons fully on screen without overlapping each other or the research chip, and the panel fully on screen. The 1.39 legend test still passes (updated to open the panel). The build and all tests pass.
+**Notes:** a shared `MapFloatingPanel` (`src/components/MapFloatingPanel.tsx`) now frames both panels; the legend panel is a little wider on computers and lists the zones in one column. Closing the legend clears the zone highlight. While a panel is open, both floating buttons step aside (the panel sits in their corner).
+
+### 1.66 — Title tiers by difficulty, each with its own color — CODE — Not started
+**Goal:** owner request after hotfix 22.1: sort the unlockable titles (1.01) into tiers by how hard each one is to earn, and color each title by its tier.
+**Details:**
+- Five tiers, for example **Common, Uncommon, Rare, Epic, Legendary**, each with one color from the AAP-64 palette that reads well on the dark top bar (for example gray, green, blue, purple, gold). Tiers and colors live in a data file (for example `src/data/achievements.ts`), so balancing is easy.
+- Give every current title (16 today, such as `energy_100k`, `level_25`, `research_all`, `maxed_all`) a tier. Base the tier on when the simulator (`npm run simulate`) reaches it, or on how rare it is for titles the simulator does not track (for example `sight_5`). Rough guide: within the first ~10 h Common, ~10-50 h Uncommon, ~50-120 h Rare, ~120-200 h Epic, near 100% completion Legendary. List the tier of each title in the PR.
+- The chosen title in the top bar (`PlayerLevelBadge`) shows in its tier color; Legendary may get a subtle shine (off under Reduce motion).
+- The title picker in Achievements → Cosmetics groups titles by tier, from highest to lowest, each with its tier name and color. Locked titles are listed too, grayed out with what earns them, so the player sees what to aim for.
+- Achievements that give a title show the tier on their card.
+- New titles added later (for example by 1.53 or 1.51) must declare a tier; a test checks every title has one.
+- Cosmetic only: no gameplay effect.
+**Acceptance:** tests: every title has a tier; the top bar title uses its tier color; the picker groups by tier and shows locked titles; colors are AAP-64 and readable (contrast at least 4.5:1 on the bar background); the build and all tests pass.
+
+### 1.67 — Map events in random places each time — CODE — Not started
+**Goal:** owner report after hotfix 22.1: some map events (the birds, the delivery truck) always seem to appear in the same place. Each appearance should be somewhere new, anywhere on the map.
+**Details:**
+- **Checked in the code:**
+  - The birds (`map_flock`, target `sky`) are always drawn on the same top row: `MapEventLayer` places them at a fixed height and `pickMapTarget` rolls nothing for the sky.
+  - The falling star (`map_star`) only uses the top 4 rows of the sea (`ev.at % 4`).
+  - The delivery truck goes to a random producer but always drives in from the left edge along that producer's row.
+  - Lightning and fire already pick a random machine; the flood covers the whole river by design.
+- **Fix:** `pickMapTarget` (`src/utils/mapEvents.ts`) rolls a position with the event's `rng` and stores it in the saved `MapEventState`, so a reload shows the same position. The layer draws from the stored position, never from a fixed row or `ev.at`.
+  - **Birds:** a random row anywhere over the map's visible height, and a random direction (left to right or right to left, with the sprite mirrored so they never fly backwards, playtest 19); optionally a slight random slope.
+  - **Falling star:** a random row over the whole height of the sea.
+  - **Truck:** still goes to a random producer (as now). It enters from a random side (left or right edge, mirrored to face its way) and stops on that side of the producer.
+  - Any later map event follows the same rule: positions come from the rng and are saved.
+- Old saves with an event in progress (no stored position) fall back to the old placement.
+- Reduce motion: still no movement, shown at the random spot.
+**Acceptance:** tests with a seeded rng: different seeds give different rows or sides for the birds, star and truck, and the full range of rows is reachable; the stored position survives a save and load; the birds and truck face their direction of travel; old saves without a position still draw; the build and all tests pass.
+
+### 1.68 — Cloud menu buttons styled like Settings — CODE — Done
+**Goal:** owner request after hotfix 22.1: in the ☁️ menu in the top bar (1.46), "Save to cloud now" looks like plain text. It should stand out as the main action, as it does in Settings → Account.
+**Details:**
+- In `CloudButton`'s menu, **Save to cloud now** becomes a filled primary button in the same blue as in Settings (`bg-sky-700`, hover `bg-sky-600`, white bold text, rounded, at least 44 px tall), full width.
+- **Load cloud save** becomes a secondary button like in Settings (`bg-slate-600`, hover `bg-slate-500`), below it. Account settings stays a link-style row.
+- While saving, the primary button shows "Saving…" and is disabled, then the "Saved to the cloud." notice as now.
+- Share the button styles with `AccountPanel` (one constant or small component), so the two places cannot drift apart.
+- Signed out, **Sign in** gets the primary style too.
+**Acceptance:** tests that the menu's Save button has the primary style and shows "Saving…" while busy, and that Settings uses the same style; the existing 1.46 tests still pass; the build and all tests pass.
+
 ### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Not started
 **Goal:** owner request after playtest 22: decorations start locked and are bought with energy, one at a time, each copy costing more than the last.
 **Details:**
@@ -1185,15 +1239,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - On phones it does not cover the research chip or the bottom buttons.
 **Acceptance:** tests: the layer shows the active pets on every tab, the setting hides it, a click counts as petting, reduce motion stops the walking; Playwright at 375 px: no sideways scroll and the bottom controls stay clickable; the build and all tests pass.
 
-### 1.61 — Player level as a hard requirement — CODE — Not started
+### 1.61 — Player level as a hard requirement — CODE — Done
 **Goal:** owner request after playtest 22: the player level should gate more things, for example each room expansion, more active pets and contract upgrades.
 **Details:**
 - A minimum player level for each room expansion tier (`src/data/rooms.ts`), each pet slot (1.59) and each contract perk level (`src/data/contracts.ts`). More gates may follow the same pattern (for example decoration kinds).
 - The button shows "Needs player level N" and is disabled until then; the requirement shows in its tooltip.
 - Pick the levels from the simulated timeline so no gate is reached before its level comes naturally by much; rerun `npm run simulate`, check there are no stalls and report the hours.
 **Acceptance:** tests for each gate (blocked below the level, allowed at it), and the simulator honors the gates; the build and all tests pass.
+**Notes:** room expansions need player level 1, 3, 5, 8, 10, 13, 17, 22, 50, 70 (`playerLevel` in `src/data/rooms.ts`); contract perk levels need 10, 30, 55, 75 (`PERK_PLAYER_LEVELS` in `src/data/contracts.ts`). Pet slots get their level with 1.59. The simulator uses the same rules: 100% at 264.7 h (was 251.0 h), no stalls; details in `BALANCE_REPORT.md`.
 
-### 1.62 — Harder research level gates — CODE — Not started
+### 1.62 — Harder research level gates — CODE — Done
 **Goal:** owner feedback after playtest 22: research is too easy to climb. The highest research needs only research level 14, and the owner reached research level 21 in under a week of play. High-level research must need a clearly higher research level.
 **Details:**
 - (Replaces the first draft "research points": the owner confirmed no new point currency; the research level is the requirement.)
@@ -1203,14 +1258,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Old saves: research already done stays done; a research in progress finishes. Only new starts check the new requirements.
 - Rerun `npm run simulate`: no stalls, 100% stays above the 200 h target. Report the new hours and the research level timeline in the PR.
 **Acceptance:** tests that the new requirements block and then allow research, and that old saves keep their research; the simulation has no stalls; the build and all tests pass.
+**Notes:** the research level is 1 + research completed (39 research, top level 40). Levels 1-6 stay; the upper requirements were stretched in order (7→9, 8→13, 9→17, 10→21, 11→26, 12→31, 13→35, 14→38), so the duration rule still holds. Nuclear Fission now needs 16 research done, Fusion Ignition 25, and Stellar Harvest all but one of the others. Tests check that every research stays reachable. The simulation is unchanged (251.0 h, no stalls): the simulated player already researches in tree order, so the gates stop skipping ahead rather than slowing a normal game. If the game should also be slower overall, that is a separate pacing item.
 
-### 1.63 — Map tooltips on hover, next to the machine — CODE — Not started
+### 1.63 — Map tooltips on hover, next to the machine — CODE — Done
 **Goal:** owner request after playtest 22: on a big map, the info line above it is out of view; hovering a machine should show its details beside it.
 **Details:**
 - Hovering (or focusing) a generator or producer on the map shows a small tooltip next to it: name and number, output per second, fuel use, zone bonus or the zone it needs, and level if upgraded. Reuse `FloatingTip` and the side logic (`useTipSide`), so it stays inside the screen and under the pinned bar rules (1.42).
 - On touch screens a tap shows it (the first tap selects for moving, as now; the tooltip shows with the selection).
 - The info line above the map stays.
 **Acceptance:** tests: hovering a generator and a producer shows their details; the tooltip stays on screen near the edges; Playwright: hover a machine near the bottom of a scrolled map and the tooltip is visible; the build and all tests pass.
+**Notes:** the text comes from `machineTip` (`src/utils/mapTips.ts`), drawn by `MachineTip`. A producer shows what one of them makes, with research, event, pet and its own map bonus. While the ⭐ tooltip is open, the machine tooltip steps aside, so only one shows. The tooltip hides while a moving machine's outline is pointed at a tile.
 
 ### 1.43 — Fix: sign-up fails with "Invalid path specified in request URL" — CODE — Done
 **Goal:** fix an owner report after playtest 21: creating an account on the live site showed "Invalid path specified in request URL".
@@ -1590,3 +1647,5 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 21.1 (v0.21.1, hotfix) | 1.07, 1.43, 1.44 | 2026-10-05 | Sign-up showed "Invalid path specified in request URL". Bug: after a cloud save, signing in from an incognito tab did not load it, and "Load cloud save" did nothing. Requests: a click button by the pinned bar, cloud save from anywhere, decorations in a panel over the map, better sprites, a designed loader, a logo, petting achievements. | 1.43, 1.44 (fixed); 1.45-1.51 |
 | 22 (v0.22.0) | 1.45, 1.46, 1.47 (and 1.52) | 2026-10-05 | 100% completion simulated at 251.0 h (unchanged). Before testing, owner notes: decorations bought with energy at rising prices, with achievements and completion; more decorations; more random events; more pets; raise one pet at a time, with a stronger effect as it matures; a growing animation; active pets walking on screen on every tab (with a setting); up to 3 active pets, bought with expensive energy upgrades; player level as a hard requirement for room expansions, pet slots and contract perks; research points for high-level research; map tooltips beside the machine. | 1.53-1.63 |
 | 22 (after test) | 1.45, 1.46, 1.47 | 2026-10-05 | ⚡ and ☁️ buttons are fine. Decorations panel not good enough: on a big map, scrolled down, the button cannot be seen; bottom right is a good place. Research points: not a spent currency; research level requirements are too low (the top research needs level 14, the owner is research level 21 within a week): make them harder. Order the new items by approximate priority. | 1.64 (hotfix v0.22.1); 1.62 rewritten; 1.53-1.63 ordered |
+| 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. Sort the unlocked titles into tiers by difficulty, with a color per tier. Some map events (birds, truck) seem to always appear in the same place: they should appear anywhere, at random. In the ☁️ menu, highlight "Save to cloud now" like in Settings. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65, 1.66, 1.67, 1.68 |
+| 23 (v0.23.0) | 1.68, 1.62, 1.61, 1.65, 1.63 | 2026-10-05 | 100% completion simulated at 264.7 h (was 251.0 h): the player level gates slow the middle game. | |

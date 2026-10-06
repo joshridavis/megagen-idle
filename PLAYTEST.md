@@ -1,4 +1,71 @@
-# Playtest 22.1 (v0.22.1, hotfix): the Decorations button is always in reach
+# Playtest 23 (v0.23.0): map tooltips, a legend panel, harder research and player level gates
+
+The version at the bottom of the screen should read **v0.23.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+Your save carries over.
+
+## Estimated play time
+
+- **100% completion: about 264.7 hours** (simulated; was 251 h). The new player level gates on room expansions and contract perks slow the middle game a little. No stalls.
+- Key milestones: first research 15 min, first Wind Turbine 2.3 h, first Coal Plant 3.2 h, 25% at 8.9 h, 50% at 31.9 h, first Nuclear Fission Plant 54.9 h, 75% at 85.0 h, first Fusion Reactor 120.5 h, first Micro-Supernova 228.1 h, 100% at 264.7 h.
+- Room expansions now come at 0.6, 2.2, 2.9, 5.2, 7.3, 10.9, 15.4, 28.6, 61.7 and 92.1 h. Expansion 8 moved the most (was 19.9 h).
+
+## What is new since playtest 22.1
+
+- **Map tooltips (1.63):** hover (or tap) a machine on the map and a small tooltip appears right beside it, so you no longer need the info line above the map:
+  - its name and number, energy per second, fuel it burns, and its level;
+  - for producers, what one of them makes;
+  - its zone bonus, or the bonus it would get on its zone;
+  - a red line if it is switched off or on the wrong land.
+  
+  The tooltip stays on screen: below the machine when it is just under the top bar, above it otherwise.
+- **The legend in a floating panel (1.65):** a **🗺️ Legend** button now sits next to **🎨 Decorations** at the bottom right of the Map tab. It opens a panel with everything that was under the map: the zones, the ⭐ note, "Show all zones", the "Dimmed land" note and the Exclusion Zone hint. Hovering a row still lights that zone on the map. Only one panel opens at a time.
+- **Harder research gates (1.62):** the upper research now needs a much higher research level:
+
+  | Research | Needs research level |
+  |---|---|
+  | Nuclear Fission | 17 (was 9) |
+  | Heavy Water and Fusion Ignition | 26 (was 11) |
+  | Fast-Time Dimension | 35 (was 13) |
+  | Stellar Harvest | 38 (was 14), all but one of the other research |
+
+  Research you already finished stays finished, and a research in progress completes.
+- **Player level as a hard requirement (1.61):**
+  - Room expansions need player level 1, 3, 5, 8, 10, 13, 17, 22, 50 and 70 (Generators tab → Room shows "Requires player level N (you have M)").
+  - Each contract perk level needs player level 10, 30, 55 and 75 (1st to 4th level).
+  - Pet slots will get theirs with item 1.59.
+- **☁️ menu buttons (1.68):** "Save to cloud now" is now a blue button, as in Settings, and shows "Saving…" while it saves. "Load cloud save" is the gray button below it.
+
+## Things to try
+
+1. Map tab: hover a few machines (a Solar Panel, a Coal Plant, a producer). Is the tooltip readable and in the right place? Try one at the very bottom of your big map.
+2. On a phone, tap a machine on the map: the tooltip shows with the selection.
+3. Click **🗺️ Legend**, hover the rows, then **🎨 Decorations**: only one panel opens at a time.
+4. Research tab: look at Heavy Water or Fast-Time Dimension. Do the new level requirements feel right for where you are (research level 21)?
+5. Generators tab → Room: your next expansion is 10 of 10 or later, so check whether it now waits for a player level.
+6. Contracts tab: the perk shop shows "Needs player level N" where you are below a perk's level.
+7. ☁️ in the top bar: the Save button is blue and says "Saving…" for a moment.
+
+## Known issues
+
+- Your save is far along, so most of the new gates are already behind you. The research gates from Heavy Water up are the ones you will meet.
+- The simulator researches in tree order, so the research gates alone did not change its timeline; the slower middle game comes from the player level gates.
+
+## Questions
+
+1. Map tooltips: is there anything else you want in them (for example upgrade cost or the refund for scrapping)?
+2. Are the research levels now hard enough, or should the research level also rise more slowly?
+3. Player level gates: are 50 and 70 right for the last two room expansions?
+4. Next in the order are 1.66 (title tiers), 1.67 (map events in random places) and 1.53 (decorations bought with energy). Keep that order?
+
+---
+
+# Previous: Playtest 22.1 (v0.22.1, hotfix): the Decorations button is always in reach
 
 The version at the bottom of the screen should read **v0.22.1**.
 

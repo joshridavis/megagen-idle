@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
 import { sprites } from '../assets';
+import MapFloatingPanel from './MapFloatingPanel';
 import { DECORATION_LIMIT, DECORATIONS, type DecorationId } from '../data/decorations';
 import { useStore } from '../store';
 import { countPlaced, isDecorationUnlocked, unlockProgress, unlockText } from '../utils/decorations';
@@ -20,39 +20,16 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
   const decor = useStore((s) => s.mapDecorations);
   const unlockState = { lifetimeEnergy, achievements, contracts };
   const placedAny = Object.keys(decor).length > 0;
-  const box = useRef<HTMLDivElement>(null);
-  // focus moves into the panel when it opens
-  useEffect(() => {
-    box.current?.focus();
-  }, []);
   return (
-    <div
-      ref={box}
+    <MapFloatingPanel
       id="decor-panel"
-      role="dialog"
-      aria-modal="false"
-      aria-labelledby="decor-title"
-      tabIndex={-1}
-      className="fixed inset-x-0 bottom-0 z-[44] max-h-[45vh] overflow-y-auto rounded-t-xl border border-slate-600 bg-slate-800/95 p-3 text-sm shadow-2xl shadow-black/60 backdrop-blur focus-visible:outline-2 focus-visible:outline-sky-400 sm:inset-x-auto sm:right-4 sm:bottom-4 sm:max-h-[calc(100vh-10rem)] sm:w-96 sm:rounded-xl"
-      data-testid="map-decorations"
+      title="🎨 Decorations"
+      subtitle="Just for looks: no room, no bonus. Machines always go first."
+      closeLabel="Close decorations"
+      closeTestId="decor-close"
+      testId="map-decorations"
+      onClose={onClose}
     >
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <div>
-          <h3 id="decor-title" className="font-semibold">
-            🎨 Decorations
-          </h3>
-          <p className="text-xs text-slate-400">Just for looks: no room, no bonus. Machines always go first.</p>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close decorations"
-          data-testid="decor-close"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded text-lg hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-sky-400"
-        >
-          ✕
-        </button>
-      </div>
       <ul className="grid grid-cols-2 gap-2">
         {DECORATIONS.map((d) => {
           const open = isDecorationUnlocked(unlockState, d.id);
@@ -98,6 +75,6 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
           Close
         </button>
       </div>
-    </div>
+    </MapFloatingPanel>
   );
 }

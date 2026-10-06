@@ -11,6 +11,7 @@ import {
 } from '../utils/roomSystem';
 import { ZONES, type Zone } from '../data/map';
 import { expansionTerrain, grantedTiles } from '../utils/siteMap';
+import { getPlayerLevel } from '../utils/playerLevel';
 import CostList from './CostList';
 import { useNumberFormat } from './useNumberFormat';
 
@@ -90,6 +91,7 @@ export default function RoomPanel() {
   const expand = useStore((s) => s.expandRoom);
   const next = getNextRoomTier(state.expansionLevel);
   const block = getExpandBlock(state);
+  const level = getPlayerLevel(state.lifetimeEnergy).level;
   const warn = isRoomNearlyFull(state);
   const elapsed = useExpansionElapsed(state.lastExpansionAt);
   const fmt = useNumberFormat();
@@ -145,6 +147,11 @@ export default function RoomPanel() {
               .join(', ')}{' '}
             (see the Map tab)
           </div>
+          {next.playerLevel > 1 && (
+            <div className={`text-xs ${level >= next.playerLevel ? 'text-slate-400' : 'text-sky-300'}`} data-testid="expansion-level">
+              Requires player level {next.playerLevel} (you have {level})
+            </div>
+          )}
           <div>
             <span className="text-slate-400">Cost: </span>
             <span className="inline-flex flex-wrap gap-x-2">
@@ -158,7 +165,7 @@ export default function RoomPanel() {
             onClick={expand}
             className="min-h-11 w-full rounded bg-amber-600 px-3 py-2 font-semibold text-white hover:bg-amber-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
           >
-            {block ? 'Not enough energy or resources' : `Expand room (+${next.capacity})`}
+            {block === 'level' ? `Needs player level ${next.playerLevel}` : block ? 'Not enough energy or resources' : `Expand room (+${next.capacity})`}
           </button>
         </div>
       ) : (

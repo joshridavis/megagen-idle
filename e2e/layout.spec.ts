@@ -23,6 +23,7 @@ test('the map legend fits a 375px phone, with every zone shown (1.39)', async ({
   await page.setViewportSize({ width: 375, height: 800 });
   await page.goto('./');
   await page.locator('#tab-map').click();
+  await page.getByTestId('legend-open').click();
   await page.getByTestId('legend-toggle').click();
   await expect(page.getByTestId('legend-lake')).toBeVisible();
   const legend = page.getByTestId('map-legend');
@@ -151,3 +152,61 @@ for (const [width, height] of [[1280, 520], [375, 640]] as const) {
     await expect(page.getByTestId('decor-open')).toBeFocused();
   });
 }
+
+// 1.65: the legend opens from a floating button too; both buttons and the panel stay on screen deep in a tall map.
+for (const [width, height] of [[1280, 520], [375, 640]] as const) {
+  test(`the legend panel stays reachable deep in a tall map at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await page.goto('./');
+    await page.locator('#tab-map').click();
+    const map = page.getByTestId('site-map');
+    await map.evaluate((el) => window.scrollBy(0, el.getBoundingClientRect().bottom - window.innerHeight + 40));
+    const legend = page.getByTestId('legend-open');
+    const decor = page.getByTestId('decor-open');
+    await expect(legend).toBeInViewport({ ratio: 1 });
+    await expect(decor).toBeInViewport({ ratio: 1 });
+    const l = (await legend.boundingBox())!;
+    const d = (await decor.boundingBox())!;
+    expect(l.x + l.width).toBeLessThanOrEqual(d.x); // side by side, no overlap
+    await legend.click();
+    const panel = page.getByTestId('legend-panel');
+    await expect(panel).toBeInViewport({ ratio: 1 });
+    await expect(page.getByTestId('legend-close')).toBeInViewport({ ratio: 1 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+    if (width < 640) {
+      // the sheet scrolls inside itself; its last line can be scrolled into view
+      await page.getByTestId('exclusion-hint').scrollIntoViewIfNeeded();
+      await expect(page.getByTestId('exclusion-hint')).toBeInViewport();
+    }
+    await page.screenshot({ path: `test-results/legend-${width}.png` });
+    await page.getByTestId('legend-close').click();
+    await expect(page.getByTestId('legend-open')).toBeFocused();
+  });
+}
+
+// 1.63: the machine tooltip opens beside the machine and stays on screen, however the map is scrolled.
+test('a machine tooltip shows beside the machine, near the top and the bottom of the screen', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 600 });
+  await page.goto('./');
+  await page.locator('#tab-map').click();
+  const quarry = page.getByTestId('map-quarry-1');
+  const tip = page.getByTestId('machine-tip');
+  const bar = (await page.getByTestId('top-bar').boundingBox())!;
+  // just under the pinned bar: the tip opens below the machine
+  await quarry.evaluate((el, barBottom) => window.scrollBy(0, el.getBoundingClientRect().top - barBottom - 4), bar.y + bar.height);
+  await quarry.hover();
+  await expect(tip).toBeInViewport({ ratio: 1 });
+  await expect(tip).toHaveAttribute('data-side', 'below');
+  await expect(tip).toContainText('Stone Quarry');
+  const q = (await quarry.boundingBox())!;
+  const t = (await tip.boundingBox())!;
+  expect(t.y).toBeGreaterThanOrEqual(q.y + q.height);
+  // near the bottom of the screen: the tip opens above and stays on screen
+  await page.mouse.move(5, 5);
+  await quarry.evaluate((el) => window.scrollBy(0, el.getBoundingClientRect().bottom - window.innerHeight + 10));
+  await quarry.hover();
+  await expect(tip).toBeInViewport({ ratio: 1 });
+  await expect(tip).toHaveAttribute('data-side', 'above');
+  await page.screenshot({ path: 'test-results/machine-tip.png' });
+});

@@ -10,11 +10,13 @@ import {
   contractSlots,
   contractsUnlocked,
   perkCost,
+  perkPlayerLevel,
   perkEffectText,
   perkLevel,
   sharesNeed,
 } from '../utils/contracts';
 import { formatDuration } from '../utils/format';
+import { getPlayerLevel } from '../utils/playerLevel';
 import CostList from './CostList';
 import ProgressBar from './ProgressBar';
 import { useNumberFormat } from './useNumberFormat';
@@ -115,6 +117,7 @@ function ContractCard({ c }: { c: Contract }) {
 export default function ContractsPanel() {
   const state = useStore((s) => s);
   const buy = useStore((s) => s.buyPerk);
+  const playerLevel = getPlayerLevel(state.lifetimeEnergy).level;
   if (!contractsUnlocked(state)) {
     return (
       <section aria-label="Contracts" className="max-w-2xl panel">
@@ -171,6 +174,8 @@ export default function ContractsPanel() {
         <ul className="flex flex-col gap-2">
           {PERK_IDS.map((id) => {
             const cost = perkCost(state, id);
+            const needLevel = perkPlayerLevel(state, id) ?? 0;
+            const lacksLevel = playerLevel < needLevel;
             const lv = perkLevel(state, id);
             const effect = perkEffectText(state, id);
             return (
@@ -195,12 +200,16 @@ export default function ContractsPanel() {
                   ) : (
                     <button
                       type="button"
-                      disabled={points < cost}
+                      disabled={points < cost || lacksLevel}
                       onClick={() => buy(id)}
                       data-testid={`perk-buy-${id}`}
                       className="min-h-9 w-full rounded bg-amber-600 px-2 text-xs font-semibold hover:bg-amber-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
                     >
-                      {points >= cost ? `Buy for ${cost} points` : `Costs ${cost} points · need ${cost - points} more`}
+                      {lacksLevel
+                        ? `Needs player level ${needLevel} · costs ${cost} points`
+                        : points >= cost
+                          ? `Buy for ${cost} points`
+                          : `Costs ${cost} points · need ${cost - points} more`}
                     </button>
                   )}
                 </div>

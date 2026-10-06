@@ -1,5 +1,6 @@
 import { EXPANSION_ANIMATION_MS, ROOM_TIERS, ROOM_WARNING_RATIO, type RoomTier } from '../data/rooms';
 import type { GameState } from '../types/state';
+import { getPlayerLevel } from './playerLevel';
 import { canAfford, consumeResource } from './resourceSystem';
 import { deriveRates } from './simulation';
 
@@ -8,11 +9,12 @@ export function getNextRoomTier(expansionLevel: number): RoomTier | null {
   return ROOM_TIERS[expansionLevel] ?? null;
 }
 
-export type ExpandBlock = 'maxed' | 'cost';
+export type ExpandBlock = 'maxed' | 'level' | 'cost';
 
 export function getExpandBlock(state: GameState): ExpandBlock | null {
   const tier = getNextRoomTier(state.expansionLevel);
   if (!tier) return 'maxed';
+  if (getPlayerLevel(state.lifetimeEnergy).level < tier.playerLevel) return 'level';
   if (state.energy < tier.energy || !canAfford(state.resources, tier.resources)) return 'cost';
   return null;
 }

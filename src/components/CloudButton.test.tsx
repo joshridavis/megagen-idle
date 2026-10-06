@@ -1,6 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import App from '../App';
+import { CLOUD_PRIMARY } from './cloudStyles';
 import { createInitialState } from '../data/initialState';
 import { useStore } from '../store';
 import { useAccount, type AccountState } from '../store/account';
@@ -129,6 +130,28 @@ describe('Cloud save from any tab (1.46)', () => {
     fireEvent.keyDown(save, { key: 'Escape' });
     await waitFor(() => expect(screen.queryByTestId('cloud-menu')).toBeNull());
     await waitFor(() => expect(document.activeElement).toBe(screen.getByTestId('cloud-button')));
+  });
+
+  it('styles Save like Settings and shows "Saving…" while it runs (1.68)', async () => {
+    let finish: () => void = () => undefined;
+    const svc = service();
+    const slow: CloudService = {
+      ...svc,
+      saves: { ...svc.saves, save: (...args) => new Promise((done) => (finish = () => void svc.saves.save(...args).then(done))) },
+    };
+    setCloudServiceForTests(slow);
+    await renderApp({ status: 'signedIn', user });
+    fireEvent.click(screen.getByTestId('cloud-button'));
+    const save = await screen.findByTestId('menu-save-cloud');
+    expect(save.className).toContain(CLOUD_PRIMARY);
+    fireEvent.click(save);
+    await waitFor(() => expect(screen.getByTestId('menu-save-cloud').textContent).toBe('Saving…'));
+    expect((screen.getByTestId('menu-save-cloud') as HTMLButtonElement).disabled).toBe(true);
+    await act(async () => finish());
+    await waitFor(() => expect(screen.getByTestId('menu-save-cloud').textContent).toBe('Save to cloud now'));
+    // Settings → Account uses the same primary style
+    fireEvent.click(screen.getByRole('tab', { name: /Settings/ }));
+    expect((await screen.findByTestId('settings-save-cloud')).className).toContain(CLOUD_PRIMARY);
   });
 
   it('shows an error state on the button', async () => {

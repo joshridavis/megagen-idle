@@ -5,6 +5,7 @@ import {
   CONTRACTS_UNLOCK_LEVEL,
   OFFER_INTERVAL_MINUTES,
   PERKS,
+  PERK_PLAYER_LEVELS,
   PERK_STEP,
   REWARDS,
   type ContractKind,
@@ -13,6 +14,7 @@ import {
 import { EVENTS_BY_ID } from '../data/events';
 import type { Contract, GameState, ResourceId } from '../types/state';
 import { getBonuses } from './bonuses';
+import { getPlayerLevel } from './playerLevel';
 import { canAfford, consumeResource, getProductionRates } from './resourceSystem';
 import type { Rng } from './rng';
 
@@ -126,9 +128,16 @@ export function perkCost(s: Pick<S, 'contracts'>, id: PerkId): number | null {
   return PERKS[id].costs[perkLevel(s, id)] ?? null;
 }
 
+/** Player level needed for the next level of a perk, or null when it is maxed (1.61). */
+export function perkPlayerLevel(s: Pick<S, 'contracts'>, id: PerkId): number | null {
+  if (perkCost(s, id) === null) return null;
+  return PERK_PLAYER_LEVELS[perkLevel(s, id)] ?? PERK_PLAYER_LEVELS[PERK_PLAYER_LEVELS.length - 1];
+}
+
 export function buyPerk(s: S, id: PerkId): S {
   const cost = perkCost(s, id);
   if (cost === null || s.contracts.points < cost) return s;
+  if (getPlayerLevel(s.lifetimeEnergy).level < (perkPlayerLevel(s, id) ?? 0)) return s;
   return {
     ...s,
     contracts: { ...s.contracts, points: s.contracts.points - cost, perks: { ...s.contracts.perks, [id]: perkLevel(s, id) + 1 } },

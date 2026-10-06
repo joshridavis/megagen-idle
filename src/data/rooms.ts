@@ -7,6 +7,8 @@ export interface RoomTier {
   capacity: number;
   energy: number;
   resources: ResourceAmounts;
+  /** Player level needed to buy it (owner, playtest 22: a hard requirement, 1.61). */
+  playerLevel: number;
 }
 
 /**
@@ -21,20 +23,20 @@ export const ROOM_WARNING_RATIO = 0.9;
 /** Length of the construction animation after an expansion (ms): fade in, then out. */
 export const EXPANSION_ANIMATION_MS = 2000;
 
-/** Expansions, bought in order. */
+/** Expansions, bought in order. Player levels sit a little above where the simulator reaches each one, so they hold. */
 const ROOM_TIER_DEFS: RoomTier[] = [
-  { tier: 1, capacity: 10, energy: 500, resources: { metal: 50, stone: 20 } },
-  { tier: 2, capacity: 15, energy: 2000, resources: { metal: 150, stone: 80 } },
-  { tier: 3, capacity: 25, energy: 8000, resources: { metal: 400, stone: 200 } },
+  { tier: 1, capacity: 10, energy: 500, resources: { metal: 50, stone: 20 }, playerLevel: 1 },
+  { tier: 2, capacity: 15, energy: 2000, resources: { metal: 150, stone: 80 }, playerLevel: 3 },
+  { tier: 3, capacity: 25, energy: 8000, resources: { metal: 400, stone: 200 }, playerLevel: 5 },
   // Playtest 7: more tiers (finite). First guesses, tuned by the balance simulator (0.35).
-  { tier: 4, capacity: 35, energy: 30_000, resources: { metal: 1000, stone: 500 } },
-  { tier: 5, capacity: 50, energy: 100_000, resources: { metal: 2500, stone: 1200, coal: 100 } },
-  { tier: 6, capacity: 70, energy: 350_000, resources: { metal: 3000, stone: 1500, coal: 150 } },
-  { tier: 7, capacity: 100, energy: 1_200_000, resources: { metal: 5000, stone: 2500, coal: 300 } },
-  { tier: 8, capacity: 140, energy: 4_000_000, resources: { metal: 10_000, stone: 5000, coal: 600, naturalGas: 50 } },
+  { tier: 4, capacity: 35, energy: 30_000, resources: { metal: 1000, stone: 500 }, playerLevel: 8 },
+  { tier: 5, capacity: 50, energy: 100_000, resources: { metal: 2500, stone: 1200, coal: 100 }, playerLevel: 10 },
+  { tier: 6, capacity: 70, energy: 350_000, resources: { metal: 3000, stone: 1500, coal: 150 }, playerLevel: 13 },
+  { tier: 7, capacity: 100, energy: 1_200_000, resources: { metal: 5000, stone: 2500, coal: 300 }, playerLevel: 17 },
+  { tier: 8, capacity: 140, energy: 4_000_000, resources: { metal: 10_000, stone: 5000, coal: 600, naturalGas: 50 }, playerLevel: 22 },
   // 0.34: room for the fictional generators (fusion 16, supernova 25). First guesses, tuned by the simulator.
-  { tier: 9, capacity: 180, energy: 20_000_000, resources: { metal: 25_000, stone: 12_000, uranium: 40 } },
-  { tier: 10, capacity: 240, energy: 80_000_000, resources: { metal: 50_000, stone: 25_000, uranium: 100, deuterium: 30 } },
+  { tier: 9, capacity: 180, energy: 20_000_000, resources: { metal: 25_000, stone: 12_000, uranium: 40 }, playerLevel: 50 },
+  { tier: 10, capacity: 240, energy: 80_000_000, resources: { metal: 50_000, stone: 25_000, uranium: 100, deuterium: 30 }, playerLevel: 70 },
 ];
 
 /** The expansions, slightly harder (playtest 19.3): energy x ROOM_ENERGY_FACTOR, metal and stone x MATERIAL_COST_FACTOR. */
