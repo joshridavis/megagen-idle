@@ -1,4 +1,69 @@
-# Playtest 24 (v0.24.0): title tiers, map events anywhere, decorations for energy, pet growth and pet slots
+# Playtest 25 (v0.25.0): pets that grow on screen and walk around, six more pets, and your three bug reports
+
+The version at the bottom of the screen should read **v0.25.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+Your save carries over.
+
+## Estimated play time
+
+- **100% completion: about 293.3 hours** (simulated; was 243.9 h). No stalls.
+  - Completion now needs all 6 copies of every decoration (257.1 h with that alone).
+  - The six new pets add 12 completion entries and long feeding times, since one pet grows at a time. The Soot Owl and the Atomic Axolotl eat a lot of energy, which pushes player level 80, and with it the 3rd pet slot, later.
+- Key milestones: first research 15 min, first Wind Turbine 2.3 h, first Coal Plant 3.1 h, 25% at 10.1 h, 50% at 35.3 h, first Nuclear Fission Plant 54.9 h, 75% at 93.1 h, first Fusion Reactor 93.1 h, 2nd pet slot 97.5 h, every contract perk 179.1 h, first Micro-Supernova 191.3 h, 3rd pet slot and 100% at 293.3 h.
+
+## What is new since playtest 24
+
+- **Your bug reports:**
+  - **Oil Rig tooltip (1.69):** the Oil Rig is a *producer*: it makes oil, has no levels and burns nothing. That is why it showed no level, unlike generators such as the Oil Power Plant. Every producer's map tooltip now says "Producer (no levels)". A producer of a fuel also shows what your running generators burn of it, and the net, for example "🔥 Your generators burn 12/h oil · net +7.8/h".
+  - **Decorations in the Completion tab (1.70):** the Decorations part always read "0 bought". The Completion tab left your decorations out, while the % on its tab button counted them, so the two disagreed. Fixed. The achievements were fine: they unlock from what you own.
+  - **"25 decorations bought" (1.70):** gone. Each decoration kind now counts as done in Completion when you own all 6 copies, shown as "n/6 bought".
+- **Pets growing (1.58):** a growing pet pulses gently with small sparkles, and its card shows a progress bar and "Growing to young: Xh left". When it reaches the next stage while you play, a celebration shows on any tab: the old sprite grows, flashes and turns into the new one. Growth that happens while you are away is only logged (🐣), like research.
+- **Pets walk on screen (1.60):** your active pets walk along the bottom of the screen on every tab. Now and then they stop to eat 🍎, play ⚽, sleep 💤, sit 💭 or jump ❗. Click one to see its reaction. While research runs, they walk just above the research chip, so they never hide it. Settings → Motion → **Pets walk on screen** turns them off; Reduce motion makes them stand still.
+- **Six more pets (1.56):**
+
+  | Pet | How to find it | Adult bonus |
+  |---|---|---|
+  | Coal Mole | player level 15 | +15% coal |
+  | Bubble Toad | build a Gas Power Plant | +15% natural gas |
+  | Lab Mouse | research Automated Labs | research 10% faster |
+  | Courier Pigeon | complete 25 contracts | +20% contract bundles and boosts |
+  | Soot Owl | player level 35 | +8% from coal, gas and oil plants |
+  | Atomic Axolotl | build a Fusion Reactor | +10% from fission and fusion plants |
+
+  Babies give a quarter and young pets half of that, as for the others. "Full House" and "Proud Keeper" now need all 14 pets.
+
+## Things to try
+
+1. Map tab: hover an Oil Rig, then a Coal Mine. Do the "Producer (no levels)" line and the 🔥 burn line answer what you were looking for?
+2. Completion tab → Decorations: does it now show what you own (for example "6/6 bought" for the Tree)?
+3. Pets tab: you probably meet several new pets at once (you are past level 35 and have built gas plants). Feed one and watch its card: the pulse, the sparkles and the bar.
+4. Leave the game open on another tab until that pet grows: does the celebration show, and is it clear what happened?
+5. Watch the pets at the bottom of the screen for a minute on a few tabs. Click one. Do they ever get in the way?
+6. On a phone, with a research running: the pets walk above the chip, and the chip and the map buttons stay clickable.
+7. Settings → Motion: turn "Pets walk on screen" off and on, then try Reduce motion.
+
+## Known issues
+
+- The walking pets use the same sprite as their card, with a pose for each action (squash, tilt, hop) instead of new animation frames: no new art.
+- Clicking a walking pet plays its reaction but is not counted yet; counting pets petted is item 1.51 (petting achievements).
+- 100% completion moved to 293.3 h. The 3rd pet slot (player level 80) is still the last thing reached.
+
+## Questions
+
+1. Oil Rig: was the missing level what you expected from a producer, or would you like producers to get levels (upgrades) of their own? That would be a new feature, so it would be a new backlog item.
+2. Decorations: is "all 6 of each kind" right for 100% completion? Should Landscape Architect (30 bought, a bonus achievement) become "all 36"?
+3. Walking pets: is the speed right, and are the actions and bubbles fun or distracting?
+4. New pets: are the bonuses and where you find them about right? Are the Soot Owl's and the Atomic Axolotl's energy feeding costs (2M/40M and 20M/400M) too steep?
+5. Next in the order are 1.55 (more random events) and 1.54 (more decorations). Keep that order?
+
+---
+
+# Previous: Playtest 24 (v0.24.0): title tiers, map events anywhere, decorations for energy, pet growth and pet slots
 
 The version at the bottom of the screen should read **v0.24.0**.
 
