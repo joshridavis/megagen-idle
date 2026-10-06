@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { MAX_OFFLINE_SECONDS, TICK_INTERVAL_MS } from '../data/time';
+import { LIVE_TICK_MAX_SECONDS, MAX_OFFLINE_SECONDS, TICK_INTERVAL_MS } from '../data/time';
 import { platform } from '../platform';
 import { useStore } from '../store';
 
@@ -29,7 +29,8 @@ export function tick(now = Date.now(), maxSeconds = MAX_OFFLINE_SECONDS, catchUp
   const visible = !platform.isBackground();
   useStore.getState().rollRandomEvents(delta, { foreground: visible && !catchUp, catchUp }, Math.random, now);
   useStore.getState().tickContracts(now);
-  useStore.getState().tickPets(now);
+  // a pet's stage-up is celebrated only during live play (1.58), like research
+  useStore.getState().tickPets(now, !catchUp && delta <= LIVE_TICK_MAX_SECONDS);
   return delta;
 }
 

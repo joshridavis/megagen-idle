@@ -4,11 +4,19 @@ import { GROW_HOURS, PET_PARTICLES, PET_REACT_MS, PET_STAGES, PETS, type PetDef,
 import { RESOURCE_NAMES } from '../data/resources';
 import { useStore } from '../store';
 import { formatDuration } from '../utils/format';
-import { activePets, canFeed, feedCost, nextPetSlot, otherPetGrowing, petSlotBlock, petSlots } from '../utils/pets';
+import { activePets, canFeed, feedCost, growProgress, nextPetSlot, otherPetGrowing, petSlotBlock, petSlots } from '../utils/pets';
 import { getPlayerLevel } from '../utils/playerLevel';
+import ProgressBar from './ProgressBar';
 import { useNumberFormat } from './useNumberFormat';
 
 const sprite = (id: string, stage: number) => `pet_${id}_${stage}` as SpriteId;
+/** Where the sparkles around a growing pet sit (left %, top %). */
+const GROW_SPARKLES: [number, number][] = [
+  [0, 10],
+  [80, 0],
+  [85, 60],
+  [5, 70],
+];
 
 function bonusText(def: PetDef, value: number): string {
   const pct = `+${+(value * 100).toFixed(value < 0.1 ? 2 : 1)}%`;
@@ -19,8 +27,8 @@ function bonusText(def: PetDef, value: number): string {
   return `${pct} energy from ${def.description.split('Boosts ')[1]?.replace('.', '') ?? 'some generators'}`;
 }
 
-/** An owned pet's picture: clicking it plays a short reaction (0.99), unless Reduce motion is on. */
-function PetPicture({ id, stage, name }: { id: PetId; stage: number; name: string }) {
+/** An owned pet's picture: clicking it plays a short reaction (0.99), unless Reduce motion is on. A growing pet pulses gently, with sparkles (1.58). */
+function PetPicture({ id, stage, name, growing = false }: { id: PetId; stage: number; name: string; growing?: boolean }) {
   const reduceMotion = useStore((s) => s.settings.reduceMotion);
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
@@ -37,8 +45,27 @@ function PetPicture({ id, stage, name }: { id: PetId; stage: number; name: strin
       className="relative shrink-0 rounded"
       data-testid={`pet-picture-${id}`}
       data-playing={playing}
+      data-growing={growing && !reduceMotion}
     >
-      <img src={sprites[sprite(id, stage)]} alt="" width={64} height={64} className={`pixelated ${playing ? 'pet-react' : ''}`} />
+      <img
+        src={sprites[sprite(id, stage)]}
+        alt=""
+        width={64}
+        height={64}
+        className={`pixelated ${playing ? 'pet-react' : growing && !reduceMotion ? 'pet-growing' : ''}`}
+      />
+      {growing &&
+        !reduceMotion &&
+        GROW_SPARKLES.map(([left, top], i) => (
+          <span
+            key={i}
+            aria-hidden="true"
+            className="pet-sparkle pointer-events-none absolute text-xs text-sky-200"
+            style={{ left: `${left}%`, top: `${top}%`, animationDelay: `${i * 600}ms` }}
+          >
+            ✦
+          </span>
+        ))}
       {playing &&
         [0, 1, 2, 3, 4].map((i) => (
           <span
@@ -127,7 +154,7 @@ export default function PetsPanel() {
               data-testid={`pet-${def.id}`}
             >
               <div className="flex items-center gap-3">
-                <PetPicture id={def.id} stage={pet.stage} name={def.name} />
+                <PetPicture id={def.id} stage={pet.stage} name={def.name} growing={pet.growUntil !== null} />
                 <div className="min-w-0">
                   <div className="font-semibold">{def.name}</div>
                   <div className="text-xs text-amber-300">
@@ -145,7 +172,12 @@ export default function PetsPanel() {
               </div>
               <p className="text-xs text-slate-400">{def.description}</p>
               {pet.growUntil !== null ? (
-                <p className="text-xs text-sky-300">Growing: {formatDuration((pet.growUntil - now) / 1000)} left</p>
+                <div data-testid={`pet-growing-${def.id}`}>
+                  <ProgressBar value={growProgress(pet.stage, pet.growUntil, now)} label={`${def.name} growing to ${PET_STAGES[pet.stage]}`} />
+                  <p className="mt-1 text-xs text-sky-300">
+                    Growing to {PET_STAGES[pet.stage].toLowerCase()}: {formatDuration(Math.max(0, pet.growUntil - now) / 1000)} left
+                  </p>
+                </div>
               ) : cost !== null ? (
                 <button
                   type="button"

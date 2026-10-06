@@ -7,6 +7,7 @@ import type { LogActions } from './slices/logSlice';
 import type { EventActions } from './slices/eventSlice';
 import type { ContractActions } from './slices/contractSlice';
 import type { PetActions } from './slices/petSlice';
+import type { PetId } from '../data/pets';
 import type { EnergyActions } from './slices/energySlice';
 import type { ResourceActions } from './slices/resourceSlice';
 import type { GeneratorActions } from './slices/generatorSlice';
@@ -37,12 +38,15 @@ export interface WelcomeBackReport {
   levels?: { from: number; to: number };
 }
 
-/** A research id, or a player level reached (0.90). */
-export type Celebration = { kind?: 'research'; id: string; at: number } | { kind: 'level'; level: number; at: number };
+/** A research id, a player level reached (0.90), or a pet reaching its next stage (1.58). */
+export type Celebration =
+  | { kind?: 'research'; id: string; at: number }
+  | { kind: 'level'; level: number; at: number }
+  | { kind: 'pet'; id: PetId; stage: number; at: number };
 
 /** Transient UI events: never saved. */
 export interface TransientState {
-  /** Live research completions and player level-ups waiting to be celebrated (oldest first). */
+  /** Live research completions, player level-ups and pet stage-ups waiting to be celebrated (oldest first). */
   celebrations: Celebration[];
   welcomeBack: WelcomeBackReport | null;
   /** Set while the tab is hidden (0.79). */

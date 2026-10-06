@@ -24,7 +24,7 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold (owner, 2026-10-06, after playtest 23):** build nothing else from the backlog until the owner says so. The order below stays (owner confirmed 1.66, 1.67, 1.53 next).
+**On hold lifted (owner, 2026-10-06, after playtest 24):** the owner asked to continue from the order below.
 
 **After playtest 22 (owner, 2026-10-05):** these come first, in this order (approximate priority, set by Claude at the owner's request), then the rest of the playtest 21 list below.
 
@@ -39,7 +39,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion (Done)
 0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity (Done)
 0. 1.59 Pet slots: up to 3 active pets, bought with energy (Done) → CHECKPOINT 24 (5 items since checkpoint 23, `PLAYTEST_EVERY = 5`)
-0. 1.58 Pet growing animation
+0. 1.58 Pet growing animation (Done)
 0. 1.60 Active pets walk on the screen
 0. 1.56 More pets
 0. 1.55 More random events → CHECKPOINT 25
@@ -1218,13 +1218,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests: a second pet cannot start growing, the old-save case, the bonus per stage; the simulation has no stalls; the build and all tests pass.
 **Notes:** `PET_STAGE_MULTIPLIERS = [1, 2, 4]` in `src/data/pets.ts`; each pet keeps its old adult bonus, so Baby and Young are lower than before and the step to Adult is clearly bigger. Feed is disabled on the other pets while one grows ("Another pet is growing (Xh left)"); a save with several growing lets them all finish. Pet cards show "Grows to: +X% as Young/Adult", with decimals for small bonuses. 100% completion at 267.6 h (was 250.1 h after 1.53), no stalls.
 
-### 1.58 — Pet growing animation — CODE — Not started
+### 1.58 — Pet growing animation — CODE — Done
 **Goal:** owner request after playtest 22: show the pet growing.
 **Details:**
 - While a pet grows, its card shows a gentle animation (for example a slow pulse and small sparkles) and a progress bar with time left.
 - When it reaches the next stage: a short animation where the old sprite grows into the new one with a flash, on any tab if the Pets tab is closed (like the research celebration), and a log entry (🐣, as now).
 - Reduce motion: no animation, only the message.
 **Acceptance:** tests that the growing state and the stage-up celebration render, and that reduce motion turns the animation off; the build and all tests pass.
+**Notes:** a growing pet's picture pulses slowly with four sparkles, and its card shows a progress bar and "Growing to young: Xh left" (`growProgress` in `src/utils/pets.ts`). A stage-up during live play queues a `pet` celebration (the same queue as research and level-ups, shown over any tab, including Pets): the old sprite grows, flashes and turns into the new one, with "🐣 Your pet grew up!". Catching up on time away only logs it (🐣), like research. Reduce motion: no pulse, no sparkles, no flash; the celebration shows the message and the new sprite.
 
 ### 1.59 — Pet slots: up to 3 active pets, bought with energy — CODE — Done
 **Goal:** owner request after playtest 22: upgrades in the Pets tab to have more active pets at once, up to 3.

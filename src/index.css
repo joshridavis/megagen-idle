@@ -366,8 +366,39 @@ body {
   100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
 }
 .pet-particle { top: 10%; opacity: 0; animation: pet-particle 1.6s ease-out forwards; }
+/* A growing pet (1.58): a slow pulse and small sparkles on its card. */
+@keyframes pet-grow-pulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.06); filter: brightness(1.15); }
+}
+.pet-growing { animation: pet-grow-pulse 3s ease-in-out infinite; }
+@keyframes pet-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.pet-sparkle { opacity: 0; animation: pet-sparkle 2.4s ease-in-out infinite; }
+/* Stage-up (1.58): the old sprite grows and fades, a flash, then the new sprite. */
+@keyframes pet-grow-old {
+  0% { opacity: 1; transform: scale(0.8); }
+  45% { opacity: 1; transform: scale(1.15); }
+  55%, 100% { opacity: 0; transform: scale(1.2); }
+}
+@keyframes pet-grow-flash {
+  0%, 40% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 0.95; transform: scale(1.4); }
+  75%, 100% { opacity: 0; transform: scale(1.8); }
+}
+@keyframes pet-grow-new {
+  0%, 50% { opacity: 0; transform: scale(0.9); }
+  65% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.pet-grow-old { animation: pet-grow-old 1.6s ease-in-out forwards; }
+.pet-grow-flash { opacity: 0; animation: pet-grow-flash 1.6s ease-out forwards; }
+.pet-grow-new { animation: pet-grow-new 1.6s ease-out forwards; }
 @media (prefers-reduced-motion: reduce) {
-  .pet-react, .pet-particle { animation: none; }
+  .pet-react, .pet-particle, .pet-growing, .pet-grow-old, .pet-grow-new { animation: none; }
+  .pet-sparkle, .pet-grow-flash, .pet-grow-old { display: none; }
 }
 
 /* Map events (1.12): they play on the map, at their target */
@@ -421,8 +452,11 @@ html[data-reduce-motion] :is(.click-pop, .click-pop-down, .spark) {
   opacity: 0;
 }
 html[data-reduce-motion]
-  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
+  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .pet-growing, .pet-grow-new, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
   animation: none;
+}
+html[data-reduce-motion] :is(.pet-sparkle, .pet-grow-flash, .pet-grow-old) {
+  display: none;
 }
 html[data-reduce-motion] .frame-b {
   animation: none;

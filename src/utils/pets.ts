@@ -79,6 +79,12 @@ export function otherPetGrowing(s: Pick<S, 'pets'>, id: PetId): { id: PetId; unt
   return g && g.id !== id ? g : null;
 }
 
+/** How far a growing pet is toward its next stage, 0 to 1 (1.58). */
+export function growProgress(stage: number, growUntil: number, now: number): number {
+  const total = GROW_HOURS[Math.min(GROW_HOURS.length, Math.max(1, stage)) - 1] * 3_600_000;
+  return Math.min(1, Math.max(0, 1 - (growUntil - now) / total));
+}
+
 export function canFeed(s: S, id: PetId): boolean {
   const cost = feedCost(s, id);
   if (cost === null || otherPetGrowing(s, id)) return false;
