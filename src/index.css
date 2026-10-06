@@ -286,6 +286,20 @@ body {
   }
 }
 
+/* Legendary title in the top bar (1.66): a subtle glow. */
+@keyframes title-shine {
+  0%, 100% { text-shadow: 0 0 0 rgb(255 213 65 / 0); }
+  50% { text-shadow: 0 0 6px rgb(255 213 65 / 0.8); }
+}
+.title-shine {
+  animation: title-shine 3s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-shine {
+    animation: none;
+  }
+}
+
 /* Random-event sightings (0.84). Durations come from --dur. */
 .sighting-fly-right { top: 18%; animation: fly-right var(--dur) linear forwards; }
 .sighting-fly-left { top: 12%; animation: fly-left var(--dur) linear forwards; }
@@ -407,7 +421,7 @@ html[data-reduce-motion] :is(.click-pop, .click-pop-down, .spark) {
   opacity: 0;
 }
 html[data-reduce-motion]
-  :is(.appear, .mini-click, .unlock-glow, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
+  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
   animation: none;
 }
 html[data-reduce-motion] .frame-b {

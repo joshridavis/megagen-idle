@@ -37,10 +37,49 @@ export interface AchievementDef {
   bonus?: boolean;
   /** Unlocks this achievement's name as a title to show in the top bar (1.01). */
   title?: boolean;
+  /** How hard the title is to earn (1.66). Every title has one. */
+  tier?: TitleTierId;
 }
 
-/** Achievements whose name becomes a title to show (1.01, cosmetic only). */
-const TITLES = new Set(['energy_100k', 'energy_10m', 'energy_1b', 'energy_2b', 'level_10', 'level_25', 'level_50', 'level_75', 'contracts_50', 'contracts_200', 'adult_all', 'research_all', 'maxed_all', 'types_all', 'clicks_10k', 'sight_5']);
+/**
+ * Title tiers by difficulty (1.66, cosmetic only), from lowest to highest.
+ * `color` is an AAP-64 color that reads on the top bar (contrast at least
+ * 4.5:1 on its slate background, checked by a test).
+ */
+export const TITLE_TIERS = [
+  { id: 'common', name: 'Common', color: '#8b93af' },
+  { id: 'uncommon', name: 'Uncommon', color: '#9cdb43' },
+  { id: 'rare', name: 'Rare', color: '#249fde' },
+  { id: 'epic', name: 'Epic', color: '#e86a73' },
+  { id: 'legendary', name: 'Legendary', color: '#ffd541' },
+] as const;
+export type TitleTierId = (typeof TITLE_TIERS)[number]['id'];
+
+/**
+ * Achievements whose name becomes a title to show (1.01), with their tier
+ * (1.66). Tiers follow when `npm run simulate` reaches each title: Common
+ * within ~10 h, Uncommon ~10-50 h, Rare ~50-120 h, Epic ~120-200 h,
+ * Legendary near 100% completion. Titles the simulator does not track
+ * (clicks, sightings) are tiered by how rare they are.
+ */
+const TITLES: Record<string, TitleTierId> = {
+  energy_100k: 'common', // 3.8 h
+  level_10: 'common', // 7.3 h
+  energy_10m: 'uncommon', // 21.8 h
+  level_25: 'uncommon', // 25.1 h
+  contracts_50: 'uncommon', // 47.9 h
+  level_50: 'rare', // 61.7 h
+  level_75: 'rare', // 100 h
+  energy_1b: 'rare', // 103 h
+  clicks_10k: 'rare', // play style: 10,000 clicks
+  sight_5: 'rare', // luck: 5 different sightings
+  contracts_200: 'epic', // 128 h
+  energy_2b: 'epic', // 132 h
+  adult_all: 'epic', // 176 h
+  types_all: 'legendary', // 228 h
+  research_all: 'legendary', // 243 h
+  maxed_all: 'legendary', // 265 h (100%)
+};
 
 const a = (
   id: string,
@@ -50,7 +89,7 @@ const a = (
   metric: AchievementMetric,
   target: number,
   bonus = false,
-): AchievementDef => ({ id, name, description, category, metric, target, ...(bonus ? { bonus } : {}), ...(TITLES.has(id) ? { title: true } : {}) });
+): AchievementDef => ({ id, name, description, category, metric, target, ...(bonus ? { bonus } : {}), ...(TITLES[id] ? { title: true, tier: TITLES[id] } : {}) });
 
 export const ACHIEVEMENTS: AchievementDef[] = [
   a('energy_1k', 'First Spark', 'Produce 1,000 energy in total.', 'Energy', 'lifetimeEnergy', 1e3),
@@ -113,3 +152,9 @@ export const ACCENTS = [
 export type AccentId = (typeof ACCENTS)[number]['id'];
 
 export const ACHIEVEMENTS_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((x) => [x.id, x]));
+
+/** The tier of a title, or null for an id that is not a title (1.66). */
+export function titleTier(id: string | null | undefined): (typeof TITLE_TIERS)[number] | null {
+  const tier = id ? ACHIEVEMENTS_BY_ID[id]?.tier : undefined;
+  return TITLE_TIERS.find((t) => t.id === tier) ?? null;
+}

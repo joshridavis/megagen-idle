@@ -32,7 +32,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.61 Player level as a hard requirement
 0. 1.65 Map legend in a floating panel, like Decorations (owner request after hotfix 22.1)
 0. 1.63 Map tooltips on hover, next to the machine → CHECKPOINT 23
-0. 1.66 Title tiers by difficulty, each with its own color (owner request)
+0. 1.66 Title tiers by difficulty, each with its own color (owner request; Done)
 0. 1.67 Map events in random places each time (owner report)
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
 0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity
@@ -1130,7 +1130,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests: the button opens and closes the panel, a row still highlights its zone, opening Legend closes Decorations and the other way round, and nothing legend-related is under the map. Playwright at 1280×520 and 375×640, scrolled to the bottom of the map: both buttons fully on screen without overlapping each other or the research chip, and the panel fully on screen. The 1.39 legend test still passes (updated to open the panel). The build and all tests pass.
 **Notes:** a shared `MapFloatingPanel` (`src/components/MapFloatingPanel.tsx`) now frames both panels; the legend panel is a little wider on computers and lists the zones in one column. Closing the legend clears the zone highlight. While a panel is open, both floating buttons step aside (the panel sits in their corner).
 
-### 1.66 — Title tiers by difficulty, each with its own color — CODE — Not started
+### 1.66 — Title tiers by difficulty, each with its own color — CODE — Done
 **Goal:** owner request after hotfix 22.1: sort the unlockable titles (1.01) into tiers by how hard each one is to earn, and color each title by its tier.
 **Details:**
 - Five tiers, for example **Common, Uncommon, Rare, Epic, Legendary**, each with one color from the AAP-64 palette that reads well on the dark top bar (for example gray, green, blue, purple, gold). Tiers and colors live in a data file (for example `src/data/achievements.ts`), so balancing is easy.
@@ -1141,6 +1141,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - New titles added later (for example by 1.53 or 1.51) must declare a tier; a test checks every title has one.
 - Cosmetic only: no gameplay effect.
 **Acceptance:** tests: every title has a tier; the top bar title uses its tier color; the picker groups by tier and shows locked titles; colors are AAP-64 and readable (contrast at least 4.5:1 on the bar background); the build and all tests pass.
+**Notes:** tiers and colors are `TITLE_TIERS` in `src/data/achievements.ts`: Common `#8b93af` gray, Uncommon `#9cdb43` green, Rare `#249fde` blue, Epic `#e86a73` rose, Legendary `#ffd541` gold. Epic is rose, not purple: no AAP-64 purple reaches 4.5:1 on the slate-800 bar, and the light lavender was too close to the gray. Tiers by simulated time (v0.23.0): Common: Live Wire (3.8 h), Apprentice (7.3 h). Uncommon: Power Station (21.8 h), Engineer (25.1 h), Trusted Partner (47.9 h). Rare: Chief Engineer (61.7 h), Energy Baron (100 h), Grid Operator (103 h), Human Dynamo (10,000 clicks), Sky Watcher (5 sightings). Epic: Grid Backbone (128 h), MegaGen (132 h), Proud Keeper (176 h). Legendary: Every Kind (228 h), Know-it-all (243 h), Perfect Machines (265 h). The picker is a select with one group per tier (locked titles disabled, with what earns them), plus a list of every title by tier under it.
 
 ### 1.67 — Map events in random places each time — CODE — Not started
 **Goal:** owner report after hotfix 22.1: some map events (the birds, the delivery truck) always seem to appear in the same place. Each appearance should be somewhere new, anywhere on the map.

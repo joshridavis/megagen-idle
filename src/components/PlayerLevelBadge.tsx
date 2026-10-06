@@ -1,4 +1,4 @@
-import { ACHIEVEMENTS_BY_ID } from '../data/achievements';
+import { ACHIEVEMENTS_BY_ID, titleTier } from '../data/achievements';
 import { useStore } from '../store';
 import { getPlayerLevel, playerLevelEnergyBonus } from '../utils/playerLevel';
 import ProgressBar from './ProgressBar';
@@ -12,6 +12,7 @@ export default function PlayerLevelBadge() {
   const bonus = playerLevelEnergyBonus(lifetime);
   const titleId = useStore((s) => s.settings.cosmetics?.title ?? null);
   const title = titleId ? ACHIEVEMENTS_BY_ID[titleId]?.name : null;
+  const tier = titleTier(titleId);
 
   return (
     <div
@@ -31,7 +32,13 @@ export default function PlayerLevelBadge() {
         <ProgressBar value={lv.progress} label="Progress to next player level" />
       </div>
       {title && (
-        <div className="mt-1 truncate text-[10px] font-semibold text-violet-300" data-testid="player-title" title={title}>
+        <div
+          className={`mt-1 truncate text-[10px] font-semibold ${tier?.id === 'legendary' ? 'title-shine' : ''}`}
+          style={{ color: tier?.color }}
+          data-testid="player-title"
+          data-tier={tier?.id}
+          title={tier ? `${title} (${tier.name} title)` : title}
+        >
           {title}
         </div>
       )}
