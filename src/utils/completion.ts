@@ -1,12 +1,14 @@
 import { GENERATOR_TYPES, GENERATORS, UPGRADES } from '../data/generators';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { CONTRACT_MILESTONES, PERK_IDS, PERKS } from '../data/contracts';
+import { DECORATION_COPIES_GOAL, DECORATIONS } from '../data/decorations';
 import { PETS } from '../data/pets';
 import { PRODUCER_IDS, PRODUCERS } from '../data/producers';
 import { RESEARCH } from '../data/research';
 import { ROOM_TIERS } from '../data/rooms';
 import type { GeneratorType } from '../types/generator';
 import type { GameState } from '../types/state';
+import { boughtCount, totalBought } from './decorations';
 
 export interface CompletionItem {
   id: string;
@@ -32,7 +34,7 @@ export interface CompletionPart {
  */
 export function getCompletion(
   state: Pick<GameState, 'completedResearch' | 'records' | 'expansionLevel' | 'producers'> &
-    Partial<Pick<GameState, 'contracts' | 'pets' | 'achievements'>>,
+    Partial<Pick<GameState, 'contracts' | 'pets' | 'achievements' | 'decorationsBought'>>,
 ): { parts: CompletionPart[]; done: number; total: number; ratio: number } {
   const maxOf = (t: GeneratorType) => GENERATORS[t].maxLevel ?? UPGRADES.maxLevel;
   const part = (label: string, items: CompletionItem[]): CompletionPart => ({
@@ -98,6 +100,16 @@ export function getCompletion(
         done: (state.pets?.owned[p.id]?.stage ?? 0) >= 3,
       })),
     ),
+    // Decorations (1.53): every kind bought once, and a number bought in all
+    part('Decorations', [
+      ...DECORATIONS.map((d) => ({ id: `decor-${d.id}`, label: d.name, done: boughtCount(state, d.id) > 0, detail: `${boughtCount(state, d.id)} bought` })),
+      {
+        id: 'decor-copies',
+        label: `${DECORATION_COPIES_GOAL} decorations bought`,
+        done: totalBought(state) >= DECORATION_COPIES_GOAL,
+        detail: `${Math.min(totalBought(state), DECORATION_COPIES_GOAL)}/${DECORATION_COPIES_GOAL}`,
+      },
+    ]),
     // Achievements (0.65); bonus ones do not count
     part(
       'Achievements',

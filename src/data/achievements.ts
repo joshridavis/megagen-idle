@@ -1,3 +1,4 @@
+import { DECORATIONS } from './decorations';
 import { GENERATOR_TYPES } from './generators';
 import { PETS } from './pets';
 import { RESEARCH } from './research';
@@ -25,13 +26,15 @@ export type AchievementMetric =
   | 'petsAdult'
   | 'sightings'
   | 'effectEvents'
-  | 'returns';
+  | 'returns'
+  | 'decorations'
+  | 'decorKinds';
 
 export interface AchievementDef {
   id: string;
   name: string;
   description: string;
-  category: 'Energy' | 'Building' | 'Research' | 'Progress' | 'Contracts' | 'Pets' | 'Discovery';
+  category: 'Energy' | 'Building' | 'Research' | 'Progress' | 'Contracts' | 'Pets' | 'Decorations' | 'Discovery';
   metric: AchievementMetric;
   target: number;
   bonus?: boolean;
@@ -76,6 +79,7 @@ const TITLES: Record<string, TitleTierId> = {
   contracts_200: 'epic', // 128 h
   energy_2b: 'epic', // 132 h
   adult_all: 'epic', // 176 h
+  decor_50: 'epic', // play style: 50 decorations bought, prices rising each copy
   types_all: 'legendary', // 228 h
   research_all: 'legendary', // 243 h
   maxed_all: 'legendary', // 265 h (100%)
@@ -131,6 +135,10 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   a('pets_all', 'Full House', 'Find every pet.', 'Pets', 'petsFound', PETS.length),
   a('adult_1', 'All Grown Up', 'Raise a pet to adult.', 'Pets', 'petsAdult', 1),
   a('adult_all', 'Proud Keeper', 'Raise every pet to adult.', 'Pets', 'petsAdult', PETS.length),
+  a('decor_1', 'Green Thumb', 'Buy your first decoration.', 'Decorations', 'decorations', 1),
+  a('decor_10', 'Site Beautifier', 'Buy 10 decorations.', 'Decorations', 'decorations', 10),
+  a('decor_kinds', 'Collector', 'Buy every kind of decoration.', 'Decorations', 'decorKinds', DECORATIONS.length),
+  a('decor_50', 'Landscape Architect', 'Buy 50 decorations.', 'Decorations', 'decorations', 50, true),
   a('sight_1', 'What Was That?', 'Spot your first sighting.', 'Discovery', 'sightings', 1, true),
   a('sight_5', 'Sky Watcher', 'Spot 5 different sightings.', 'Discovery', 'sightings', 5, true),
   a('events_10', 'Weathered', 'Experience 10 events that change the game.', 'Discovery', 'effectEvents', 10, true),

@@ -2,7 +2,8 @@ import { sprites } from '../assets';
 import MapFloatingPanel from './MapFloatingPanel';
 import { DECORATION_LIMIT, DECORATIONS, type DecorationId } from '../data/decorations';
 import { useStore } from '../store';
-import { countPlaced, isDecorationUnlocked, unlockProgress, unlockText } from '../utils/decorations';
+import { countPlaced, decorationPrice, isDecorationUnlocked, unlockProgress, unlockText } from '../utils/decorations';
+import { useNumberFormat } from './useNumberFormat';
 
 /** What a map click does while decorating: place one kind, or remove. */
 export type DecorTool = DecorationId | 'remove' | null;
@@ -18,13 +19,16 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
   const achievements = useStore((s) => s.achievements);
   const contracts = useStore((s) => s.contracts);
   const decor = useStore((s) => s.mapDecorations);
+  const bought = useStore((s) => s.decorationsBought);
+  const energy = useStore((s) => s.energy);
+  const fmt = useNumberFormat();
   const unlockState = { lifetimeEnergy, achievements, contracts };
   const placedAny = Object.keys(decor).length > 0;
   return (
     <MapFloatingPanel
       id="decor-panel"
       title="🎨 Decorations"
-      subtitle="Just for looks: no room, no bonus. Machines always go first."
+      subtitle="Just for looks: no room, no bonus. Each copy is bought with energy and costs more than the last. Removing one refunds nothing. Machines always go first."
       closeLabel="Close decorations"
       closeTestId="decor-close"
       testId="map-decorations"
@@ -35,6 +39,8 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
           const open = isDecorationUnlocked(unlockState, d.id);
           const p = unlockProgress(unlockState, d.unlock);
           const n = countPlaced(decor, d.id);
+          const price = decorationPrice({ decorationsBought: bought }, d.id);
+          const short = energy < price;
           return (
             <li key={d.id}>
               <button
@@ -52,6 +58,14 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
                   <span className="block truncate">{d.name}</span>
                   <span className="block text-xs text-slate-400">
                     {open ? `${n}/${DECORATION_LIMIT} placed` : `🔒 ${unlockText(d.unlock)} (${Math.min(p.have, p.need)}/${p.need})`}
+                  </span>
+                  <span
+                    className={`block font-mono text-xs ${short ? 'text-red-400' : 'text-yellow-200'}`}
+                    data-testid={`decor-price-${d.id}`}
+                    data-short={short}
+                  >
+                    ⚡ {fmt.num(price)}
+                    {short && <span className="sr-only"> (not enough energy)</span>}
                   </span>
                 </span>
               </button>

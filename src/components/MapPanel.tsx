@@ -24,7 +24,7 @@ import { machineTip } from '../utils/mapTips';
 import MapLegend, { ZONE_SPRITE } from './MapLegend';
 import MapDecorations, { type DecorTool } from './MapDecorations';
 import { DECORATIONS_BY_ID } from '../data/decorations';
-import { machineTiles, placeBlock } from '../utils/decorations';
+import { decorationPrice, machineTiles, placeBlock } from '../utils/decorations';
 
 const TERRAIN_SPRITE: Record<Terrain, SpriteId> = { plain: 'tile_ground', ...ZONE_SPRITE };
 const KEY_STEPS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
@@ -158,12 +158,12 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   /** A tile click while decorating (1.13): place or remove. */
   const decorate = (c: number) => {
     if (decorTool === 'remove') {
-      setNote(removeDecoration(c) ? 'Decoration removed.' : 'No decoration there.');
+      setNote(removeDecoration(c) ? 'Decoration removed (no refund).' : 'No decoration there.');
       return;
     }
     if (!decorTool) return;
     const why = placeBlock(state, decorTool, c, map);
-    setNote(why ?? `${DECORATIONS_BY_ID[decorTool].name} placed.`);
+    setNote(why ?? `${DECORATIONS_BY_ID[decorTool].name} placed for ⚡ ${fmt.num(decorationPrice(state, decorTool))}.`);
     if (!why) placeDecoration(decorTool, c);
   };
   const pick = (p: Placed) => {

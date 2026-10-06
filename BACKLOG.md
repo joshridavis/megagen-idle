@@ -34,7 +34,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.63 Map tooltips on hover, next to the machine → CHECKPOINT 23
 0. 1.66 Title tiers by difficulty, each with its own color (owner request; Done)
 0. 1.67 Map events in random places each time (owner report; Done)
-0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
+0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion (Done)
 0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity
 0. 1.59 Pet slots: up to 3 active pets, bought with energy
 0. 1.58 Pet growing animation
@@ -1171,7 +1171,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Signed out, **Sign in** gets the primary style too.
 **Acceptance:** tests that the menu's Save button has the primary style and shows "Saving…" while busy, and that Settings uses the same style; the existing 1.46 tests still pass; the build and all tests pass.
 
-### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Not started
+### 1.53 — Decorations bought with energy, at rising prices, with achievements and completion — CODE — Done
 **Goal:** owner request after playtest 22: decorations start locked and are bought with energy, one at a time, each copy costing more than the last.
 **Details:**
 - Every decoration kind starts locked. Each placed copy is bought with **energy only** when placed: the first copy of a kind costs its base price, each next copy of the same kind costs more (for example base × 1.6^owned). Base prices and the growth factor go in `src/data/decorations.ts`, scaled so the first Tree is a small early purchase and the rarest decorations are a late-game energy sink.
@@ -1182,6 +1182,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - 100% completion counts decorations (for example every kind bought at least once, plus a number of copies). Update `src/utils/completion.ts`, the Completion panel and `npm run simulate`, and report the new hours to 100%.
 - Save migration: decorations already placed count as bought (no charge).
 **Acceptance:** tests: the price rises with each copy, energy is spent, removal refunds nothing, the requirements still apply, old saves keep their decorations; achievements unlock; completion includes decorations; the simulation finishes with no stalls; the build and all tests pass.
+**Notes:** base prices in `src/data/decorations.ts`: Tree 1K, Company flag 5K, Pond 100K, Windsock 250K, Lamp post 1M, Founder statue 10M; ×1.6 per copy (`DECORATION_PRICE_GROWTH`). The bought count is saved as `decorationsBought` (save version 22; decorations already placed count as bought, free). `DECORATION_LIMIT` (6 of a kind on the map at once) stays, only to keep the map tidy: prices already rise per copy. Achievements: Green Thumb (1), Site Beautifier (10), Collector (every kind), and Landscape Architect (50, a bonus achievement with an Epic title). Completion: a "Decorations" part with every kind once plus 25 bought in all (`DECORATION_COPIES_GOAL`). The simulated player buys them; 100% at 250.1 h (was 264.7 h), no stalls (see `BALANCE_REPORT.md`).
 
 ### 1.54 — More decorations — CODE — Not started
 **Goal:** owner request after playtest 22: more decorations for the map.

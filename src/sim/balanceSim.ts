@@ -39,6 +39,8 @@ import { eventRatePerHour } from '../utils/randomEvents';
 import { deriveRates } from '../utils/simulation';
 import { unlockAchievements } from '../utils/achievements';
 import { ACHIEVEMENTS } from '../data/achievements';
+import { DECORATION_COPIES_GOAL, DECORATIONS } from '../data/decorations';
+import { boughtCount, decorationPrice, isDecorationUnlocked, machineTiles, placeBlock, placeDecoration, totalBought } from '../utils/decorations';
 
 export interface SimOptions {
   /** Simulated hours to run at most. */
@@ -329,10 +331,47 @@ function act(s: GameState, now: number): GameState {
     if (left >= reserveFood) s = feedPet(s, def.id, now);
   }
   if (s.pets.owned.cat) s = setActivePet(s, 'cat');
+  // 4d. decorations (1.53), for completion: the cheapest one still needed,
+  // when it costs little next to the energy on hand
+  s = buyDecoration(s, reserve);
   // 5. room
   const tier = getNextRoomTier(s.expansionLevel);
   if (tier && s.roomCapacity - s.roomUsed < 10 && canExpandRoom(s)) s = expandRoom(s, undefined, now);
   else if (tier && canExpandRoom(s) && s.energy > tier.energy * 3) s = expandRoom(s, undefined, now);
+  return s;
+}
+
+/** The simulated player buys a decoration only with this many times its price in hand (above room savings). */
+const DECOR_COMFORT = 4;
+let decorMiss: unknown[] | null = null;
+
+/**
+ * Buys and places the cheapest decoration completion still needs (every kind
+ * once, then copies up to the goal) on a free tile. A site with no free tile
+ * is not searched again until it changes (speed).
+ */
+function buyDecoration(s: GameState, reserve: number): GameState {
+  const total = totalBought(s);
+  const options = DECORATIONS.filter((d) => isDecorationUnlocked(s, d.id) && (boughtCount(s, d.id) === 0 || total < DECORATION_COPIES_GOAL)).sort(
+    (a, b) => decorationPrice(s, a.id) - decorationPrice(s, b.id),
+  );
+  const d = options[0];
+  if (!d || s.energy - reserve < decorationPrice(s, d.id) * DECOR_COMFORT) return s;
+  const site = [s.activeGenerators, s.producers, s.roomCapacity, s.mapPins, s.mapDecorations];
+  if (decorMiss && decorMiss.every((x, i) => x === site[i])) return s;
+  const map = layoutSite(s);
+  const taken = machineTiles(map);
+  for (let c = 0; c < map.capacity; c++) {
+    if (taken.has(c) || s.mapDecorations[c]) continue;
+    for (const o of options) {
+      if (s.energy - reserve < decorationPrice(s, o.id) * DECOR_COMFORT) break;
+      if (placeBlock(s, o.id, c, map)) continue;
+      const next = placeDecoration(s, o.id, c);
+      if (next) return { ...s, ...next };
+    }
+    break;
+  }
+  decorMiss = site;
   return s;
 }
 

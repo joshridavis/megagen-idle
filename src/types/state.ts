@@ -78,6 +78,8 @@ export interface RoomState {
   mapPins: Record<string, number>;
   /** Cosmetic decorations the player placed (1.13): tile -> decoration id. No effect on play. */
   mapDecorations: Record<number, DecorationId>;
+  /** Copies of each decoration ever bought (1.53). Never goes down, so removing one does not make the next cheaper. */
+  decorationsBought: Partial<Record<DecorationId, number>>;
 }
 
 export interface SettingsState {

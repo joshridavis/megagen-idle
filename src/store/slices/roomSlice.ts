@@ -38,7 +38,7 @@ export const createRoomSlice =
     placeDecoration: (id, cell) => {
       const next = placeDecoration(get(), id, cell);
       if (!next) return false;
-      set({ mapDecorations: next }, undefined, 'room/placeDecoration');
+      set(next, undefined, 'room/placeDecoration');
       return true;
     },
     removeDecoration: (cell) => {
