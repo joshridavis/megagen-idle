@@ -71,8 +71,9 @@ function WalkingPet({ w, stage, still }: { w: Walker; stage: number; still: bool
 
 /**
  * The active pets walk along the bottom of the screen on every tab (1.60).
- * The layer sits above the content (and above the research chip while it is
- * docked, so the chip never hides the pets) but below the research chip, the map
+ * The layer (z-41) sits above the content, hovered cards included (z-40, owner
+ * report playtest 25), and above the research chip's place while it is docked,
+ * so the chip never hides the pets; but below the research chip (z-42), the map
  * buttons, dialogs and toasts, and lets clicks through except on a pet. One
  * timer, paused while the tab is hidden. Settings → "Pets walk on screen"
  * hides it; Reduce motion makes the pets stand still.
@@ -104,7 +105,7 @@ export default function PetWalkers() {
       aria-label="Your pets"
       data-testid="pet-walkers"
       data-raised={researching}
-      className={`@container pointer-events-none fixed inset-x-0 z-20 mb-[env(safe-area-inset-bottom)] overflow-x-clip ${researching ? 'bottom-[4.5rem]' : 'bottom-0'}`}
+      className={`@container pointer-events-none fixed inset-x-0 z-[41] mb-[env(safe-area-inset-bottom)] overflow-x-clip ${researching ? 'bottom-[4.5rem]' : 'bottom-0'}`}
       style={{ height: PET_WALK.size }}
     >
       {walkers.map((w) => {

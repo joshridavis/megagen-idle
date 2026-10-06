@@ -27,6 +27,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 **Hold lifted (owner, 2026-10-06):** after playtest 24 the owner asked to continue. 1.58, 1.60, 1.56 and the bug fixes 1.72 and 1.73 were built for checkpoint 25 (PR #42, in the order below); the playtest 24 requests 1.69 to 1.71 were written on `main` at the same time and come next.
 
 0. 1.74 Fix: walking pets: food and toys on the ground, long naps, and rests (owner reports, playtest 25; Done) → HOTFIX v0.25.1
+0. 1.75 Fix: a hovered generator card covers the research chip and the walking pets (owner reports, playtest 25; Done) → HOTFIX v0.25.2
 
 **After playtest 24 (owner, 2026-10-06):** these come first after checkpoint 25, then the rest of the playtest 22 list below (1.55, 1.54, ...).
 
@@ -1173,6 +1174,12 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests with a seeded rng: different seeds give different rows or sides for the birds, star and truck, and the full range of rows is reachable; the stored position survives a save and load; the birds and truck face their direction of travel; old saves without a position still draw; the build and all tests pass.
 **Notes:** `pickMapTarget` rolls a `pos` (`y` share of the height, `dir`, and for the birds a `slope` of up to ±1.5 rows, `FLOCK_MAX_SLOPE`) and keeps it in the event's `MapEventState`. Deviation: the map event in progress is not part of the save (it lasts seconds and a load clears it, as before), so "survives a save and load" became "stays put while the event plays"; an event without `pos` still draws in the old place. The truck from the right is mirrored and stops right of the producer; the flock from the right is mirrored as a whole, so the leader stays in front.
 
+### 1.75 — Fix: a hovered generator card covers the research chip and the walking pets — CODE — Done
+**Goal:** owner reports, playtest 25: hovering a generator card near the bottom of the screen draws the card over the research chip docked at the bottom, and over the walking pets.
+**Details:** a hovered card is raised to z-40 so its tooltip shows above its neighbors; the research chip dock was at z-30 and the walking pets at z-20. Put the chip at z-42 and the pets at z-41: above hovered cards, below the map's floating buttons and panels (z-44), the pinned top bar (z-45), and toasts, celebrations and dialogs (z-50).
+**Acceptance:** Playwright at 1280 px: with a card hovered under the chip, the chip is on top; with a card hovered under a pet, the pet is on top; the test fails without the fix; the build and all tests pass.
+**Notes:** `src/App.tsx` (chip dock) and `src/components/PetWalkers.tsx`; the e2e test imports a save with a running research and an active pet (a shared `importSave` helper in `e2e/layout.spec.ts`).
+
 ### 1.74 — Fix: walking pets: food and toys on the ground, long naps, and rests — CODE — Done
 **Goal:** owner reports, playtest 25: when a walking pet eats, the apple shows above its head, so it does not look like eating; the same goes for the ball when it plays. A sleeping pet should sleep for a long while, not a few seconds. Pets should sometimes stop and do nothing, not walk nonstop.
 **Details:** eat and play put their emoji on the ground in front of the pet's mouth (on the side it faces), not in a thought bubble. Eating nods the head down to the food, which gets smaller bite by bite; the ball bounces in front of the pet. Sleep, sit and jump keep their bubble above the pet. A nap lasts 45 s to 2 min. A new "rest" action: the pet stands still with no bubble, the most common action. Pets stop after most walks and often rest after an action. Reduce motion: no movement.
@@ -1743,3 +1750,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 24 (bug reports) | | 2026-10-06 | The owner asked to continue. Bugs: the Oil Rig's map tooltip shows no level and no oil use; the Completion tab showed 0 decorations bought; "25 decorations bought" makes no sense with 6 of each kind. | 1.72, 1.73 |
 | 25 (v0.25.0) | 1.58, 1.72, 1.73, 1.60, 1.56 | 2026-10-06 | 100% completion simulated at 293.3 h (was 243.9 h): all 6 copies of every decoration and six more pets. Waiting for feedback. | |
 | 25 (report) | 1.58, 1.72, 1.73, 1.60, 1.56 | 2026-10-06 | The apple shows above the pet when it eats; same for the ball when it plays. A sleeping pet should sleep longer; pets should sometimes stop and do nothing, not move nonstop. | 1.74 (hotfix v0.25.1) |
+| 25.1 (v0.25.1, hotfix) | 1.74 | 2026-10-06 | A hovered generator card hides the research chip at the bottom, and the walking pets. | 1.75 (hotfix v0.25.2) |

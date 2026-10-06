@@ -202,10 +202,13 @@ export default function App() {
       <EventLog />
       <VersionFooter />
       <PetWalkers />
+      {/* The research chip stays above hovered cards (z-40) and the walking pets (z-41) (owner report,
+          playtest 25), but below the map's floating buttons and panels (z-44), the pinned top bar (z-45),
+          and toasts and celebrations. */}
       {researching && (
         <div
           data-testid="research-chip-dock"
-          className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-[42] flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
         >
           <div className="pointer-events-auto w-full max-w-md shadow-[0_8px_30px_rgba(0,0,0,0.6)]">
             <ResearchChip
