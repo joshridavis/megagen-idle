@@ -2,11 +2,11 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from '../App';
 import { createInitialState } from '../data/initialState';
-import { PET_REACT_MS, PET_WALK } from '../data/pets';
+import { PET_REACT_MS, PET_STAGE_HEIGHT, PET_WALK } from '../data/pets';
 import { useStore } from '../store';
 import { seededRng } from '../utils/rng';
 import { nextStep, startWalkers, stepWalkers, walkMs } from '../utils/petWalk';
-import PetWalkers from './PetWalkers';
+import PetWalkers, { bubblePlace } from './PetWalkers';
 import SettingsPanel from './SettingsPanel';
 
 afterEach(() => {
@@ -178,5 +178,20 @@ describe('pets walk on screen (1.60)', () => {
     expect(screen.queryByTestId('pet-bubble-cat')).toBeNull();
     expect(screen.queryByTestId('pet-prop-cat')).toBeNull();
     expect(cat.querySelector('img')!.className).not.toMatch(/pet-(walking|act-(eat|play|sleep|jump))/);
+  });
+
+  it('the 💤 sits just above the pet, over its head, not far above a small pet (owner, playtest 25)', async () => {
+    // baby: drawn 55% tall, curled up to 80% of that while asleep; head on the side it faces
+    expect(bubblePlace({ action: 'sleep', left: false }, 1)).toEqual({ bottom: 'calc(44% - 6px)', left: '70%' });
+    expect(bubblePlace({ action: 'sleep', left: true }, 1)).toEqual({ bottom: 'calc(44% - 6px)', left: '30%' });
+    expect(bubblePlace({ action: 'sit', left: false }, 3)).toEqual({ bottom: 'calc(100% - 6px)', left: '50%' });
+    expect(bubblePlace({ action: 'jump', left: true }, 2)).toEqual({ bottom: 'calc(78% - 6px)', left: '50%' });
+    // the same heights as the sprite script draws
+    const { readFileSync } = await import('node:fs');
+    const script = readFileSync('scripts/generate-generic-assets.mjs', 'utf8');
+    expect(script).toContain(`const PET_STAGE_SCALE = { 1: ${PET_STAGE_HEIGHT[0]}, 2: ${PET_STAGE_HEIGHT[1]}, 3: ${PET_STAGE_HEIGHT[2]} };`);
+    // the bob animation does not repeat the centering shift
+    const css = readFileSync('src/index.css', 'utf8');
+    expect(css).toMatch(/@keyframes pet-bubble \{ 0%, 100% \{ transform: translateY\(0\); \}/);
   });
 });

@@ -1,4 +1,38 @@
-# Playtest 25.2 (v0.25.2, hotfix): the research chip and the pets stay on top
+# Playtest 25.3 (v0.25.3, hotfix): the 💤 sits on the pet, and tooltips say Generator or Producer
+
+The version at the bottom of the screen should read **v0.25.3**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 293.3 hours** (simulated, unchanged: these fixes change no balance).
+
+## What changed
+
+- **The 💤 stays with the pet (1.76):** it showed far above and beside a small sleeping pet. It now sits just above the pet, over its head, at the pet's real size: low for a baby, higher for an adult. Other bubbles (💭, ❗) also sit just above the pet.
+- **Generator or Producer in the map tooltips (1.77):** as you asked, the producer tooltip no longer mentions levels or fuel burned. Every machine's tooltip has a small tag next to its name instead: **⚡ Generator** (amber, makes energy) or **⛏ Producer** (blue, makes a resource).
+
+## Things to try
+
+1. Watch a sleeping pet (a baby one if you have it out): the 💤 is right above its head.
+2. Map tab: hover an Oil Rig and an Oil Power Plant. Is the Generator / Producer tag clear enough?
+
+## Backlog (not built yet, on hold until you say)
+
+- 1.78: Landscape Architect needs all 36 decorations.
+- 1.79: walking pets at different speeds.
+- 1.80: pets celebrate your level ups, research, achievements and so on, and react to random events.
+- 1.81: two or three active pets on screen sometimes interact: greet, play, nap side by side or share food.
+
+They come after 1.69, 1.70 and 1.71 and before 1.55 and 1.54. Move them if you prefer.
+
+---
+
+# Previous: Playtest 25.2 (v0.25.2, hotfix): the research chip and the pets stay on top
 
 The version at the bottom of the screen should read **v0.25.2**.
 

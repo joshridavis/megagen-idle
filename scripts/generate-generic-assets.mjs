@@ -1302,6 +1302,7 @@ function scaledPet(src, factor) {
 }
 
 const PET_DRAW = { hamster, firefly, tortoise, eel, robodog, cat: staticCat, beetle, jellyfish, mole, toad, mouse, pigeon, owl, axolotl };
+// keep in step with PET_STAGE_HEIGHT in src/data/pets.ts (where bubbles sit above a walking pet)
 const PET_STAGE_SCALE = { 1: 0.55, 2: 0.78, 3: 1 };
 
 /** The same sprite desaturated by 40%, snapped back onto the AAP-64 palette. */

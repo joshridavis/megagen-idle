@@ -24,16 +24,27 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**Hold lifted (owner, 2026-10-06):** after playtest 24 the owner asked to continue. 1.58, 1.60, 1.56 and the bug fixes 1.72 and 1.73 were built for checkpoint 25 (PR #42, in the order below); the playtest 24 requests 1.69 to 1.71 were written on `main` at the same time and come next.
+**On hold (owner, 2026-10-06, after playtest 25):** do not develop new backlog items until the owner says so. Hotfixes for what the owner reports on the current version are still made.
+
+**Hold lifted earlier (owner, 2026-10-06):** after playtest 24 the owner asked to continue. 1.58, 1.60, 1.56 and the bug fixes 1.72 and 1.73 were built for checkpoint 25 (PR #42, in the order below); the playtest 24 requests 1.69 to 1.71 were written on `main` at the same time and come next.
 
 0. 1.74 Fix: walking pets: food and toys on the ground, long naps, and rests (owner reports, playtest 25; Done) → HOTFIX v0.25.1
 0. 1.75 Fix: a hovered generator card covers the research chip and the walking pets (owner reports, playtest 25; Done) → HOTFIX v0.25.2
+0. 1.76 Fix: the 💤 floats far from a small sleeping pet (owner report, playtest 25; Done) → HOTFIX v0.25.3
+0. 1.77 Fix: machine tooltips say "Generator" or "Producer"; no level or fuel lines on producers (owner correction to 1.72, playtest 25; Done) → HOTFIX v0.25.3
 
 **After playtest 24 (owner, 2026-10-06):** these come first after checkpoint 25, then the rest of the playtest 22 list below (1.55, 1.54, ...).
 
 0. 1.69 Collapse and expand the Cosmetics section in the Achievements tab (owner request; small)
 0. 1.70 Remove all decorations from the map at once (owner request; small)
 0. 1.71 Working machines animate on the map (owner request)
+
+**After playtest 25 (owner, 2026-10-06):** the owner kept the order 1.69, 1.70, 1.71, then 1.55 and 1.54; these new items come right after 1.71 (Claude's placement; the owner can move them).
+
+0. 1.78 Landscape Architect: own all 36 decorations (owner request; small)
+0. 1.79 Walking pets at different speeds (owner request; small)
+0. 1.80 Pets celebrate your milestones and react to random events (owner request)
+0. 1.81 Active pets on screen interact with each other (owner request)
 
 **After playtest 22 (owner, 2026-10-05):** these come first, in this order (approximate priority, set by Claude at the owner's request), then the rest of the playtest 21 list below.
 
@@ -1174,6 +1185,58 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests with a seeded rng: different seeds give different rows or sides for the birds, star and truck, and the full range of rows is reachable; the stored position survives a save and load; the birds and truck face their direction of travel; old saves without a position still draw; the build and all tests pass.
 **Notes:** `pickMapTarget` rolls a `pos` (`y` share of the height, `dir`, and for the birds a `slope` of up to ±1.5 rows, `FLOCK_MAX_SLOPE`) and keeps it in the event's `MapEventState`. Deviation: the map event in progress is not part of the save (it lasts seconds and a load clears it, as before), so "survives a save and load" became "stays put while the event plays"; an event without `pos` still draws in the old place. The truck from the right is mirrored and stops right of the producer; the flock from the right is mirrored as a whole, so the leader stays in front.
 
+### 1.76 — Fix: the 💤 floats far from a small sleeping pet — CODE — Done
+**Goal:** owner report, playtest 25 (screenshot): a sleeping baby pet's 💤 shows far above and to the side of it.
+**Details:** two causes. The bubble's bob animation repeated the half-width centering shift that its Tailwind class already applies, so it moved sideways twice. It was also pinned above the full 40 px sprite box, while a baby is drawn only 55% tall (young 78%) and a sleeping pet is curled up lower still.
+**Acceptance:** tests: the bubble sits just above the pet's drawn height for its stage (lower when asleep) and over its head while sleeping; the stage heights match the sprite script; the bob does not repeat the centering; the build and all tests pass.
+**Notes:** `bubblePlace` in `src/components/PetWalkers.tsx` with `PET_STAGE_HEIGHT` and `PET_SLEEP_SQUASH` in `src/data/pets.ts` (kept in step with `PET_STAGE_SCALE` in the sprite script; a test checks). The bubble is tucked down 6 px, since emoji glyphs leave room under themselves. While sleeping it sits at 70% across (30% when facing left), over the head. Checked with zoomed browser screenshots of a sleeping baby and adult.
+
+### 1.77 — Fix: machine tooltips say "Generator" or "Producer"; no level or fuel lines on producers — CODE — Done
+**Goal:** owner correction, playtest 25: the producer tooltip from 1.72 should not mention levels or how much is burned; instead every machine tooltip should say briefly and clearly whether it is a producer or a generator.
+**Details:** remove the "Producer (no levels)" and "🔥 Your generators burn … · net …" lines from producer tooltips. Every tooltip on the map gets a small tag beside its name: "⚡ Generator" (amber) or "⛏ Producer" (blue), with "Makes energy" / "Makes a resource" on hover.
+**Acceptance:** tests: a producer tooltip has no level or burn line and its kind is Producer; a generator's kind is Generator; the tag shows on hover; the build and all tests pass.
+**Notes:** `MachineTip.kind` in `src/utils/mapTips.ts`, drawn by `src/components/MachineTip.tsx`. Replaces the extra lines added by 1.72.
+
+### 1.78 — Landscape Architect: own all 36 decorations — CODE — Not started
+**Goal:** owner request, playtest 25: the Landscape Architect achievement (today: buy 30 decorations, a bonus achievement with an Epic title) should need every decoration copy that can be bought: all 6 of each kind, 36 today.
+**Details:**
+- Target = `DECORATIONS.length × DECORATION_LIMIT`, so it grows when 1.54 adds kinds. Its description says "Own all N decorations".
+- Decide with the owner's answer whether it stays a bonus achievement (outside 100%); keep it a bonus unless the owner says otherwise. Its Epic title stays.
+- Saves that already earned it at 30 keep it (achievements are never taken away); say so in the PR.
+- Rename the id only if the code needs it; otherwise keep `decor_30` so earned saves stay valid, with a comment.
+**Acceptance:** tests: it unlocks at all copies owned and not one short; the target follows the decoration count; an old save that earned it keeps it; the build and all tests pass.
+
+### 1.79 — Walking pets at different speeds — CODE — Not started
+**Goal:** owner request, playtest 25: the walking speed is fine on average, but every walk is the same speed; pets should move at different speeds.
+**Details:**
+- Each walk picks a pace: a slow stroll, the normal walk, or a short trot or run, with weights and speeds in `src/data/pets.ts` (for example 0.5×, 1×, 2× of `PET_WALK.speed`), so the average stays about the same.
+- Optionally each pet kind has its own base pace (the Solar Tortoise slow, the Wind-up Robot Dog quick), kept in the data file.
+- The walking bob follows the pace (faster bob when running). Reduce motion: unchanged (pets stand still).
+**Acceptance:** tests with a seeded rng: walks come in several speeds, a walk's duration matches its distance and pace, and the long-run average stays within 20% of today's; the build and all tests pass.
+
+### 1.80 — Pets celebrate your milestones and react to random events — CODE — Not started
+**Goal:** owner request, playtest 25: the walking pets should celebrate when something good happens (player level up, research completed, achievement unlocked, and similar) and react when a random event happens.
+**Details:**
+- **Celebrate:** when a live celebration or achievement fires (research complete, level up, pet stage-up from 1.58, achievement unlocked, contract completed), every walking pet stops and plays a short celebration (a jump with sparkles or confetti and a 🎉 bubble) for a few seconds, then carries on.
+- **React to random events:** each random event gets a reaction in `src/data/events.ts` or a mapping in `src/data/pets.ts`: for example 😮 and looking up for a sighting (spaceship, meteor shower, aurora), ☀ happy for a sunny spell, 🌧 hiding for a storm or overcast, 😨 for a negative event, 💰 for a delivery. Events with no specific reaction use a generic 👀.
+- Reactions come from the store (celebrations, the event log or a small transient "pet reaction" queue), not from timers; at most one reaction plays at a time, and a burst of events plays one.
+- Reduce motion: the pets stay still; only the bubble shows. The "Pets walk on screen" setting off: nothing.
+**Acceptance:** tests: a level up, a research completion and an achievement each make the walking pets celebrate; a random event plays its reaction (and the generic one for an unmapped event); reactions do not pile up; Reduce motion shows only the bubble; the build and all tests pass.
+
+### 1.81 — Active pets on screen interact with each other — CODE — Not started
+**Goal:** owner request, playtest 25: when more than one pet is active and walking on screen (pet slots, 1.59), they should sometimes interact with each other.
+**Details:**
+- Now and then (tunable chance in `src/data/pets.ts`), two walking pets meet: one walks toward the other, they stop facing each other and do a short shared action, then go their own ways. For example:
+  - greet: a ❤ or 👋 bubble between them;
+  - play together: chase each other, or pass the ⚽ back and forth on the ground (1.74);
+  - nap side by side: both sleep next to each other (long naps as in 1.74);
+  - share food: both eat from one 🍎 on the ground between them.
+- Only pets that are idle or resting are picked; a pet that is reacting or celebrating (1.80) is left alone. Interactions are rarer than solo actions, so they stay special.
+- Pure logic in `src/utils/petWalk.ts` (pairing, meeting point, facing), tested with a seeded rng; the one existing timer drives it, no new timers.
+- Clicking either pet during an interaction still plays its reaction.
+- Reduce motion: no interactions (pets stand still). With one active pet nothing changes.
+**Acceptance:** tests: with two or three active pets an interaction happens at its rate and never with one pet; the two pets meet, face each other and end free again; a busy pet is not picked; Reduce motion turns it off; the build and all tests pass.
+
 ### 1.75 — Fix: a hovered generator card covers the research chip and the walking pets — CODE — Done
 **Goal:** owner reports, playtest 25: hovering a generator card near the bottom of the screen draws the card over the research chip docked at the bottom, and over the walking pets.
 **Details:** a hovered card is raised to z-40 so its tooltip shows above its neighbors; the research chip dock was at z-30 and the walking pets at z-20. Put the chip at z-42 and the pets at z-41: above hovered cards, below the map's floating buttons and panels (z-44), the pinned top bar (z-45), and toasts, celebrations and dialogs (z-50).
@@ -1299,7 +1362,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** a test that fails before the fix: the panel shows the copies owned and matches the tab %; the decoration achievements unlock through the store; completion needs 6 of each kind; the simulation has no stalls; the build and all tests pass.
 **Notes:** fixed in `src/components/CompletionPanel.tsx`; entries read "n/6 bought". 100% completion at 257.1 h (was 243.9 h), no stalls. The achievements stay as they were (Green Thumb 1, Site Beautifier 10, Collector every kind, Landscape Architect 30 as a bonus).
 
-### 1.72 — Fix: the Oil Rig's map tooltip shows no level and no oil use — CODE — Done
+### 1.72 — Fix: the Oil Rig's map tooltip shows no level and no oil use — CODE — Done (replaced by 1.77)
 **Goal:** owner report, playtest 24: hovering an Oil Rig on the map shows no level, while other machines do, and no oil consumption.
 **Details:** the Oil Rig is a producer: it makes oil, has no levels and burns nothing, unlike generators (the Oil Power Plant shows its level and the oil it burns). Make the producer tooltip say so, and show the fuel side of the resource it makes.
 **Acceptance:** a producer's map tooltip says "Producer (no levels)"; a producer of a fuel (coal, gas, oil, uranium, deuterium) also shows what the running generators burn of it and the net per hour; tests; the build and all tests pass.
@@ -1751,3 +1814,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 25 (v0.25.0) | 1.58, 1.72, 1.73, 1.60, 1.56 | 2026-10-06 | 100% completion simulated at 293.3 h (was 243.9 h): all 6 copies of every decoration and six more pets. Waiting for feedback. | |
 | 25 (report) | 1.58, 1.72, 1.73, 1.60, 1.56 | 2026-10-06 | The apple shows above the pet when it eats; same for the ball when it plays. A sleeping pet should sleep longer; pets should sometimes stop and do nothing, not move nonstop. | 1.74 (hotfix v0.25.1) |
 | 25.1 (v0.25.1, hotfix) | 1.74 | 2026-10-06 | A hovered generator card hides the research chip at the bottom, and the walking pets. | 1.75 (hotfix v0.25.2) |
+| 25 (answers) | 1.58, 1.72, 1.73, 1.60, 1.56 (and hotfixes 1.74, 1.75) | 2026-10-06 | Producers should show no level or fuel lines (the earlier note was a mistake); each tooltip should say briefly and clearly whether it is a producer or a generator. Landscape Architect should need all 36 decorations. Walking speed fine, but pets should walk at different speeds; pets should celebrate level ups, research, achievements and so on, and react to random events. Active pets on screen should interact with each other. New pets and their feeding costs fine. Keep the order 1.69, 1.70, 1.71, 1.55, 1.54. Bug: the 💤 still shows far from the pet. Do not develop new backlog items until the owner says so. | 1.76, 1.77 (hotfix v0.25.3); 1.78-1.81 |

@@ -134,6 +134,14 @@ export const PET_ACTION_MS: Record<PetAction, [number, number]> = {
 };
 /** The emoji each action shows: above the pet as a bubble, or on the ground in front of it (PET_GROUND_ACTIONS). Resting shows none. */
 export const PET_ACTION_BUBBLES: Record<PetAction, string> = { eat: '🍎', play: '⚽', rest: '', sleep: '💤', sit: '💭', jump: '❗' };
+/**
+ * How tall a pet is drawn in its 32x32 sprite by stage (baby, young, adult), as
+ * a share of the sprite; the same scale as scripts/generate-generic-assets.mjs.
+ * Bubbles sit just above the pet, not above the empty top of the sprite.
+ */
+export const PET_STAGE_HEIGHT: [number, number, number] = [0.55, 0.78, 1];
+/** A sleeping pet curls up to this share of its height (the pet-sleep pose in index.css). */
+export const PET_SLEEP_SQUASH = 0.8;
 /** Actions whose emoji is a thing on the ground in front of the pet's mouth, not a thought bubble (owner, playtest 25). */
 export const PET_GROUND_ACTIONS: PetAction[] = ['eat', 'play'];
 
