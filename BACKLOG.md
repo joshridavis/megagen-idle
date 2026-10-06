@@ -33,6 +33,10 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.76 Fix: the 💤 floats far from a small sleeping pet (owner report, playtest 25; Done) → HOTFIX v0.25.3
 0. 1.77 Fix: machine tooltips say "Generator" or "Producer"; no level or fuel lines on producers (owner correction to 1.72, playtest 25; Done) → HOTFIX v0.25.3
 
+**First when the hold lifts (owner, 2026-10-06):** fix this before the items below.
+
+0. 1.82 Fix: thought bubbles beside the pet's head, not straight above it (owner report, playtest 25.3)
+
 **After playtest 24 (owner, 2026-10-06):** these come first after checkpoint 25, then the rest of the playtest 22 list below (1.55, 1.54, ...).
 
 0. 1.69 Collapse and expand the Cosmetics section in the Achievements tab (owner request; small)
@@ -1223,6 +1227,19 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reduce motion: the pets stay still; only the bubble shows. The "Pets walk on screen" setting off: nothing.
 **Acceptance:** tests: a level up, a research completion and an achievement each make the walking pets celebrate; a random event plays its reaction (and the generic one for an unmapped event); reactions do not pile up; Reduce motion shows only the bubble; the build and all tests pass.
 
+### 1.82 — Fix: thought bubbles beside the pet's head, not straight above it — CODE — Not started
+**Goal:** owner report, playtest 25.3 (screenshot): a walking pet's thought bubble (💭 while sitting, ❗ while jumping, 💤 while sleeping) sits straight above the pet, which looks unnatural. It should float up and to the side the pet faces: to the right when it faces right, to the left when it faces left, like a comic thought bubble.
+**Details:**
+- In `bubblePlace` (`src/components/PetWalkers.tsx`, 1.76) every bubble, not only 💤, goes beside the head on the facing side: the bubble's near edge just past the head, slightly above it, instead of centered over the pet. Keep the height rules from 1.76 (by stage, lower while asleep, tucked down for the emoji glyph).
+- It may stick out past the 40 px pet box; the layer clips sideways overflow, so near the screen edge flip it to the other side, or keep it inside the screen, so it is never cut off.
+- Optionally two or three small dots between the head and the bubble (a thought trail), drawn with CSS, not new art.
+- Food and toys on the ground (1.74) stay as they are.
+- Reduce motion: same place, no bob.
+**Acceptance:**
+- Tests: a bubble sits right of the head when facing right and left of it when facing left, for every bubble action and stage; near the screen edges it stays fully on screen.
+- Zoomed browser screenshots of a baby and an adult pet, facing each way.
+- The build and all tests pass.
+
 ### 1.81 — Active pets on screen interact with each other — CODE — Not started
 **Goal:** owner request, playtest 25: when more than one pet is active and walking on screen (pet slots, 1.59), they should sometimes interact with each other.
 **Details:**
@@ -1815,3 +1832,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 25 (report) | 1.58, 1.72, 1.73, 1.60, 1.56 | 2026-10-06 | The apple shows above the pet when it eats; same for the ball when it plays. A sleeping pet should sleep longer; pets should sometimes stop and do nothing, not move nonstop. | 1.74 (hotfix v0.25.1) |
 | 25.1 (v0.25.1, hotfix) | 1.74 | 2026-10-06 | A hovered generator card hides the research chip at the bottom, and the walking pets. | 1.75 (hotfix v0.25.2) |
 | 25 (answers) | 1.58, 1.72, 1.73, 1.60, 1.56 (and hotfixes 1.74, 1.75) | 2026-10-06 | Producers should show no level or fuel lines (the earlier note was a mistake); each tooltip should say briefly and clearly whether it is a producer or a generator. Landscape Architect should need all 36 decorations. Walking speed fine, but pets should walk at different speeds; pets should celebrate level ups, research, achievements and so on, and react to random events. Active pets on screen should interact with each other. New pets and their feeding costs fine. Keep the order 1.69, 1.70, 1.71, 1.55, 1.54. Bug: the 💤 still shows far from the pet. Do not develop new backlog items until the owner says so. | 1.76, 1.77 (hotfix v0.25.3); 1.78-1.81 |
+| 25.3 (v0.25.3, hotfix) | 1.76, 1.77 | 2026-10-06 | The thought bubble sits straight above the pet, which looks unnatural: it should be to the right or left, depending on the way the pet faces. Add it as a fix for the next development run. | 1.82 |
