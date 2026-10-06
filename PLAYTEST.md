@@ -1,4 +1,87 @@
-# Playtest 23 (v0.23.0): map tooltips, a legend panel, harder research and player level gates
+# Playtest 24 (v0.24.0): title tiers, map events anywhere, decorations for energy, pet growth and pet slots
+
+The version at the bottom of the screen should read **v0.24.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+Your save carries over. Decorations you already placed count as bought, free of charge.
+
+## Estimated play time
+
+- **100% completion: about 254.8 hours** (simulated; was 264.7 h). No stalls.
+  - Decorations and the two pet slots add new things to buy, and completion now includes them.
+  - Pets give less as babies but the same as adults, and only one grows at a time.
+  - Slot 2 and 3 let three pets' bonuses add up, which speeds up the end game.
+- Key milestones: first research 15 min, first Wind Turbine 2.3 h, first Coal Plant 3.1 h, 25% at 8.9 h, 50% at 33.4 h, first Nuclear Fission Plant 54.9 h, 75% at 84.9 h, 2nd pet slot 88.0 h, first Fusion Reactor 115.0 h, every contract perk 176.6 h, first Micro-Supernova 227.7 h, 3rd pet slot 243.6 h, 100% at 254.8 h.
+- Decorations in the simulation: first at 2.2 h, 10 at 21.7 h, every kind at 91.4 h.
+
+## What is new since playtest 23
+
+- **Title tiers (1.66):** every title now has a tier, each with its own color:
+
+  | Tier | Color | Titles |
+  |---|---|---|
+  | Common | gray | Live Wire, Apprentice |
+  | Uncommon | green | Power Station, Engineer, Trusted Partner |
+  | Rare | blue | Chief Engineer, Energy Baron, Grid Operator, Human Dynamo, Sky Watcher |
+  | Epic | rose | Grid Backbone, MegaGen, Proud Keeper, Landscape Architect (new) |
+  | Legendary | gold, with a soft glow | Every Kind, Know-it-all, Perfect Machines |
+
+  - The title under your player level shows in its tier color.
+  - Achievements → Cosmetics groups the titles by tier, highest first. Locked titles are listed too, grayed out, with what earns them.
+  - Achievement cards say which tier of title they give.
+  - Epic is rose rather than purple: no purple in the game's palette is readable enough on the dark top bar.
+- **Map events anywhere (1.67):**
+  - The birds fly at a random height, either way across (they face the way they fly), on a slight slope.
+  - The falling star can land anywhere in the sea.
+  - The delivery truck comes in from the left or the right edge and stops on that side of its producer.
+- **Decorations cost energy (1.53):**
+  - Each copy is bought when you place it. Prices for the first copy: Tree 1K, Company flag 5K, Pond 100K, Windsock 250K, Lamp post 1M, Founder statue 10M.
+  - Each next copy of the same kind costs ×1.6. The 🎨 panel shows each next price, red when you are short.
+  - Removing a decoration refunds nothing and does not make the next one cheaper.
+  - The old requirements (level, achievements, contracts) still apply, and the limit of 6 of a kind on the map stays.
+  - New achievements: Green Thumb (1), Site Beautifier (10), Collector (every kind), and Landscape Architect (50, a bonus achievement with an Epic title).
+  - Completion has a new "Decorations" part: every kind once, plus 25 bought in all.
+- **Pets grow one at a time (1.57):**
+  - While one pet grows, Feed is off on the others ("Another pet is growing (Xh left)").
+  - Bonuses are now Baby 1×, Young 2×, Adult 4× of a base value. Adults give the same as before, so babies and young pets give less.
+  - Each card shows "Grows to: +X% as Young/Adult".
+- **Pet slots (1.59):** in the Pets tab you can buy a 2nd active slot (100M energy, player level 45) and a 3rd (1B, player level 80).
+  - Bonuses of different active pets add up, and the energy breakdown lists each pet.
+  - **Make active** fills a free slot. When all slots are full, it takes the first slot's place (the button says whose).
+  - **Rest** frees a slot.
+  - Completion counts the two slots.
+
+## Things to try
+
+1. Achievements tab: pick a title. Is its color right in the top bar? Do the tiers make sense to you, and is it clear what earns each locked title?
+2. Map tab: watch for a while. Do the birds, the star and the truck now show up in different places?
+3. 🎨 Decorations: place a Tree, then another. Does the second price feel right? Remove one and check that the next one is still pricier.
+4. Achievements tab: are the new decoration achievements (Green Thumb, Site Beautifier, Collector) earned where you expect?
+5. Pets tab: feed one pet, then look at another. Feed should be off with the time left. Check the "Grows to" line.
+6. Pets tab: you are past player level 45, so the 2nd slot only waits for 100M energy. Buy it, make a second pet active, and look at the energy breakdown (hover the energy rate).
+7. Completion tab: open "Decorations" and "Pet slots".
+
+## Known issues
+
+- Locked decorations show their price in red, since you cannot buy them yet anyway.
+- The 3rd pet slot comes very late in the simulation (243.6 h), close to 100%. It is meant as an end-game energy sink.
+- Babies and young pets now give less than before; adults are unchanged.
+
+## Questions
+
+1. Title tier colors: is rose fine for Epic, or would you rather have a less readable purple?
+2. Decoration prices: is ×1.6 per copy right, and are the base prices about right for where each one unlocks?
+3. Should the limit of 6 of a kind on the map stay, now that prices rise with each copy?
+4. Pet slots: are 100M at level 45 and 1B at level 80 right? The stacked bonuses make 100% about 13 h faster.
+5. Next in the order are 1.58 (pet growing animation), 1.60 (pets walking on screen), 1.56 (more pets), 1.55 (more random events) and 1.54 (more decorations). Keep that order?
+
+---
+
+# Previous: Playtest 23 (v0.23.0): map tooltips, a legend panel, harder research and player level gates
 
 The version at the bottom of the screen should read **v0.23.0**.
 

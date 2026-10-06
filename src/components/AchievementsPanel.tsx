@@ -23,12 +23,12 @@ export default function AchievementsPanel() {
       <div className="rounded-lg bg-slate-800 p-3" data-testid="cosmetics">
         <h2 className="mb-2 panel-title">Cosmetics</h2>
         <div className="flex flex-wrap items-start gap-6">
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex w-full min-w-0 max-w-xs flex-col gap-1 text-sm">
             <span className="text-xs text-slate-400">Title shown in the top bar</span>
             <select
               value={cosmetics.title ?? ''}
               onChange={(e) => setCosmetics({ title: e.target.value || null })}
-              className="min-h-9 rounded border border-slate-600 bg-slate-900 px-2 font-semibold"
+              className="min-h-9 w-full min-w-0 rounded border border-slate-600 bg-slate-900 px-2 font-semibold"
               style={{ color: chosenTier?.color }}
               data-testid="title-select"
             >
