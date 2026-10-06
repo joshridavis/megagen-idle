@@ -33,7 +33,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.65 Map legend in a floating panel, like Decorations (owner request after hotfix 22.1)
 0. 1.63 Map tooltips on hover, next to the machine → CHECKPOINT 23
 0. 1.66 Title tiers by difficulty, each with its own color (owner request; Done)
-0. 1.67 Map events in random places each time (owner report)
+0. 1.67 Map events in random places each time (owner report; Done)
 0. 1.53 Decorations bought with energy, at rising prices, with achievements and completion
 0. 1.57 Pets: raise one at a time, and a bonus that grows clearly with maturity
 0. 1.59 Pet slots: up to 3 active pets, bought with energy
@@ -1143,7 +1143,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests: every title has a tier; the top bar title uses its tier color; the picker groups by tier and shows locked titles; colors are AAP-64 and readable (contrast at least 4.5:1 on the bar background); the build and all tests pass.
 **Notes:** tiers and colors are `TITLE_TIERS` in `src/data/achievements.ts`: Common `#8b93af` gray, Uncommon `#9cdb43` green, Rare `#249fde` blue, Epic `#e86a73` rose, Legendary `#ffd541` gold. Epic is rose, not purple: no AAP-64 purple reaches 4.5:1 on the slate-800 bar, and the light lavender was too close to the gray. Tiers by simulated time (v0.23.0): Common: Live Wire (3.8 h), Apprentice (7.3 h). Uncommon: Power Station (21.8 h), Engineer (25.1 h), Trusted Partner (47.9 h). Rare: Chief Engineer (61.7 h), Energy Baron (100 h), Grid Operator (103 h), Human Dynamo (10,000 clicks), Sky Watcher (5 sightings). Epic: Grid Backbone (128 h), MegaGen (132 h), Proud Keeper (176 h). Legendary: Every Kind (228 h), Know-it-all (243 h), Perfect Machines (265 h). The picker is a select with one group per tier (locked titles disabled, with what earns them), plus a list of every title by tier under it.
 
-### 1.67 — Map events in random places each time — CODE — Not started
+### 1.67 — Map events in random places each time — CODE — Done
 **Goal:** owner report after hotfix 22.1: some map events (the birds, the delivery truck) always seem to appear in the same place. Each appearance should be somewhere new, anywhere on the map.
 **Details:**
 - **Checked in the code:**
@@ -1159,6 +1159,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Old saves with an event in progress (no stored position) fall back to the old placement.
 - Reduce motion: still no movement, shown at the random spot.
 **Acceptance:** tests with a seeded rng: different seeds give different rows or sides for the birds, star and truck, and the full range of rows is reachable; the stored position survives a save and load; the birds and truck face their direction of travel; old saves without a position still draw; the build and all tests pass.
+**Notes:** `pickMapTarget` rolls a `pos` (`y` share of the height, `dir`, and for the birds a `slope` of up to ±1.5 rows, `FLOCK_MAX_SLOPE`) and keeps it in the event's `MapEventState`. Deviation: the map event in progress is not part of the save (it lasts seconds and a load clears it, as before), so "survives a save and load" became "stays put while the event plays"; an event without `pos` still draws in the old place. The truck from the right is mirrored and stops right of the producer; the flock from the right is mirrored as a whole, so the leader stays in front.
 
 ### 1.68 — Cloud menu buttons styled like Settings — CODE — Done
 **Goal:** owner request after hotfix 22.1: in the ☁️ menu in the top bar (1.46), "Save to cloud now" looks like plain text. It should stand out as the main action, as it does in Settings → Account.
