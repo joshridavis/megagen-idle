@@ -1193,7 +1193,11 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 ### 1.71 — Working machines animate on the map — CODE — Not started
 **Goal:** owner request after playtest 24: every machine on the map that is working should look like it is working. Today a running generator shows a still "active" sprite and a stopped one shows the "inactive" sprite; nothing moves.
 **Details:**
-- **What counts as working:** a generator that is switched on and producing (not off, not out of fuel); a producer that is producing. A machine that is off, out of fuel or idle stays still with its inactive look, as now.
+- **What counts as working:** a generator that is switched on and producing (not out of fuel); a producer that is producing.
+- **Turned off means static (owner):** a machine the player switches off is completely still, with its inactive look as now. The same goes for one that is out of fuel or idle.
+  - Switching a machine off stops its animation at once.
+  - Switching it back on starts the animation again.
+  - No reload or tab change is needed for either.
 - **One animation per machine type**, fitting what it does. For example:
   - Solar Panel: a light glint sweeping across.
   - Wind Turbine: turning blades.
@@ -1211,6 +1215,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Tests:
   - every generator and producer type has an animation or effect;
   - a working machine renders animated and an off or out-of-fuel one renders still;
+  - switching a machine off makes it static right away, and switching it on animates it again;
   - Reduce motion stops the animation;
   - the new frames are listed in `src/assets/generic-assets.json`.
 - `npm run check:assets` passes.
