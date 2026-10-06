@@ -121,8 +121,10 @@ export const PET_WALK = {
 };
 export const PET_ACTIONS = ['eat', 'play', 'sleep', 'sit', 'jump'] as const;
 export type PetAction = (typeof PET_ACTIONS)[number];
-/** The bubble each action shows above the pet. */
+/** The emoji each action shows: above the pet as a bubble, or on the ground in front of it (PET_GROUND_ACTIONS). */
 export const PET_ACTION_BUBBLES: Record<PetAction, string> = { eat: '🍎', play: '⚽', sleep: '💤', sit: '💭', jump: '❗' };
+/** Actions whose emoji is a thing on the ground in front of the pet's mouth, not a thought bubble (owner, playtest 25). */
+export const PET_GROUND_ACTIONS: PetAction[] = ['eat', 'play'];
 
 /** Hours to grow after feeding: to young, to adult. */
 export const GROW_HOURS: [number, number] = [2, 8];

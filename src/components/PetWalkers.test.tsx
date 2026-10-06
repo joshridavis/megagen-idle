@@ -128,4 +128,25 @@ describe('pets walk on screen (1.60)', () => {
     expect(cat.getAttribute('style')).toBe(before);
     expect(cat.querySelector('img')!.className).not.toMatch(/pet-(walking|act-)/);
   });
+
+  it('food lies on the ground in front of an eating pet, not above it (owner, playtest 25)', async () => {
+    vi.useFakeTimers();
+    // 0.1: walk left to 0.14, then stop and eat (the first action)
+    vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    withPets();
+    render(<PetWalkers />);
+    await act(async () => {
+      vi.advanceTimersByTime(PET_WALK.tickMs * 7);
+    });
+    const cat = screen.getByTestId('walking-pet-cat');
+    expect(cat.getAttribute('data-action')).toBe('eat');
+    const food = screen.getByTestId('pet-prop-cat');
+    expect(food.textContent).toBe('🍎');
+    expect(food.className).toContain('bottom-0');
+    expect(food.className).toContain('pet-food');
+    // facing left after walking left, so the food is on its left
+    expect(food.className).toContain('right-full');
+    expect(screen.queryByTestId('pet-bubble-cat')).toBeNull();
+    vi.restoreAllMocks();
+  });
 });

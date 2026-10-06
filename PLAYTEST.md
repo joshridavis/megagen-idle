@@ -1,4 +1,27 @@
-# Playtest 25 (v0.25.0): pets that grow on screen and walk around, six more pets, and your three bug reports
+# Playtest 25.1 (v0.25.1, hotfix): pets eat and play on the ground
+
+The version at the bottom of the screen should read **v0.25.1**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 293.3 hours** (simulated, unchanged: this fix changes no balance).
+
+## What changed
+
+- **Eating and playing (1.74):** the apple and the ball no longer float above a walking pet. They lie on the ground in front of its mouth, on the side it faces. While eating, the pet nods down to the apple, which gets smaller bite by bite. While playing, the ball bounces in front of it. Sleeping 💤, sitting 💭 and jumping ❗ keep their bubble above the pet.
+
+## Things to try
+
+1. Watch the walking pets for a minute or two until one eats and one plays. Does it look right now?
+
+---
+
+# Previous: Playtest 25 (v0.25.0): pets that grow on screen and walk around, six more pets, and your three bug reports
 
 The version at the bottom of the screen should read **v0.25.0**.
 
