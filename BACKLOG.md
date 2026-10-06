@@ -32,6 +32,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 0. 1.69 Collapse and expand the Cosmetics section in the Achievements tab (owner request; small)
 0. 1.70 Remove all decorations from the map at once (owner request; small)
+0. 1.71 Working machines animate on the map (owner request)
 
 **After playtest 22 (owner, 2026-10-05):** these come first, in this order (approximate priority, set by Claude at the owner's request), then the rest of the playtest 21 list below.
 
@@ -1189,6 +1190,33 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - A pure function (for example `removeAllDecorations` in `src/utils/decorations.ts`) and a store action; the map note says "All decorations removed: place them again any time for free."
 **Acceptance:** tests: the button is disabled with nothing placed; confirming empties `mapDecorations` and leaves energy and `decorationsBought` unchanged; Cancel and Escape change nothing; the copies can be placed again for free afterwards; Playwright at 375 px: the button and the confirmation are fully on screen; the build and all tests pass.
 
+### 1.71 — Working machines animate on the map — CODE — Not started
+**Goal:** owner request after playtest 24: every machine on the map that is working should look like it is working. Today a running generator shows a still "active" sprite and a stopped one shows the "inactive" sprite; nothing moves.
+**Details:**
+- **What counts as working:** a generator that is switched on and producing (not off, not out of fuel); a producer that is producing. A machine that is off, out of fuel or idle stays still with its inactive look, as now.
+- **One animation per machine type**, fitting what it does. For example:
+  - Solar Panel: a light glint sweeping across.
+  - Wind Turbine: turning blades.
+  - Coal, Gas and Oil plants: rising smoke from the chimney.
+  - Hydropower Dam and Tidal Station: moving water.
+  - Nuclear Fission Plant: steam from the cooling tower.
+  - Fusion Reactor and Micro-Supernova: a pulsing glow.
+  - Producers: the mine cart or pickaxe moves, the quarry crusher shakes, the wells and rigs pump, the extractor bubbles.
+- **Frames from the generic asset script:** 2 to 4 frames per animated machine, made by `scripts/generate-generic-assets.mjs` at the same size and AAP-64 palette as today's sprite. Add them to the Asset manifest in this file, `src/assets/sprite-manifest.json` and the typed `sprites`. No hand-made or AI art. Effects that are not frames (a glint, a glow, smoke puffs) may be CSS on top of the sprite.
+- Animate with the existing `Frames` component and CSS. Give machines of one type a random start offset, so a row of turbines does not move in lockstep.
+- **Performance:** CSS animations only, no per-frame JavaScript. The animations pause when the page is hidden or the Map tab is closed. A full late-game map (about 880 tiles, hundreds of machines) must stay smooth: use one shared animation per type, not a timer per machine.
+- **Reduce motion** (in-game setting and the system setting): no movement; working machines show their first frame.
+- Drag-and-drop (1.16), tooltips (1.63), map events (1.12) and the zone highlight (1.39) keep working on animated machines.
+**Acceptance:**
+- Tests:
+  - every generator and producer type has an animation or effect;
+  - a working machine renders animated and an off or out-of-fuel one renders still;
+  - Reduce motion stops the animation;
+  - the new frames are listed in `src/assets/generic-assets.json`.
+- `npm run check:assets` passes.
+- Playwright at 1280 px on a large site: the Map tab shows the animation classes, and no sideways scroll.
+- The build and all tests pass.
+
 ### 1.68 — Cloud menu buttons styled like Settings — CODE — Done
 **Goal:** owner request after hotfix 22.1: in the ☁️ menu in the top bar (1.46), "Save to cloud now" looks like plain text. It should stand out as the main action, as it does in Settings → Account.
 **Details:**
@@ -1683,4 +1711,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 22.1 (v0.22.1, hotfix) | 1.64 | 2026-10-05 | The decorations panel works as expected now. Put the map legend (under the map) into a similar floating panel. Sort the unlocked titles into tiers by difficulty, with a color per tier. Some map events (birds, truck) seem to always appear in the same place: they should appear anywhere, at random. In the ☁️ menu, highlight "Save to cloud now" like in Settings. (The first v0.22.1 deploy failed on a flaky test, fixed in PR #37.) | 1.65, 1.66, 1.67, 1.68 |
 | 23 (v0.23.0) | 1.68, 1.62, 1.61, 1.65, 1.63 | 2026-10-06 | 100% completion simulated at 264.7 h (was 251.0 h): the player level gates slow the middle game. Map tooltips fine for now. Research requirements fine for now. Player levels 50 and 70 for the last two room expansions are right. Keep the order 1.66, 1.67, 1.53. Do not develop the next items until the owner says so. | (none) |
 | 24 (v0.24.0) | 1.66, 1.67, 1.53, 1.57, 1.59 | 2026-10-06 | 100% completion simulated at 243.9 h (was 264.7 h): decorations and pet slots add purchases and completion entries; the stacked bonuses of up to 3 active pets speed up the end game. Owner note before testing: decorations are paid to unlock copies (up to 6 of a kind), then placed and removed freely; 1.53 reworked in the same PR. | 1.53 reworked |
-| 24 (after review) | 1.66, 1.67, 1.53, 1.57, 1.59 | 2026-10-06 | Rose for Epic titles: yes. ×1.6 per copy and the decoration prices: right. Decorations stay as they are now (6 copies of a kind, bought once, placed and removed freely). Pet slot prices and player levels: right. Requests: open and close the Cosmetics section in the Achievements tab; a button to remove all decorations from the map at once. Do not develop the next items until the owner says so. | 1.69, 1.70 |
+| 24 (after review) | 1.66, 1.67, 1.53, 1.57, 1.59 | 2026-10-06 | Rose for Epic titles: yes. ×1.6 per copy and the decoration prices: right. Decorations stay as they are now (6 copies of a kind, bought once, placed and removed freely). Pet slot prices and player levels: right. Requests: open and close the Cosmetics section in the Achievements tab; a button to remove all decorations from the map at once; working machines on the map should look like they are working (an animation). Do not develop the next items until the owner says so. | 1.69, 1.70, 1.71 |
