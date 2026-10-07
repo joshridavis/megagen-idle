@@ -42,7 +42,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 **After playtest 25 (owner, 2026-10-06):** the owner kept the order 1.69, 1.70, 1.71, then 1.55 and 1.54; these new items come right after 1.71 (Claude's placement; the owner can move them).
 
 0. 1.78 Landscape Architect: own all 36 decorations (owner request; small; Done)
-0. 1.79 Walking pets at different speeds (owner request; small)
+0. 1.79 Walking pets at different speeds (owner request; small; Done) → CHECKPOINT 26 (5 items since checkpoint 25: 1.69, 1.70, 1.71, 1.78, 1.79)
 0. 1.80 Pets celebrate your milestones and react to random events (owner request)
 0. 1.81 Active pets on screen interact with each other (owner request)
 
@@ -1210,13 +1210,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** target `DECORATIONS.length × DECORATION_LIMIT` in `src/data/achievements.ts`, description "Own all 36 decorations." It stays a bonus achievement (outside 100%) with its Epic title. The id stays `decor_30` (comment in the data) so saves that earned it at 30 keep it; achievements are never taken away. Tests in `src/utils/decorations.test.tsx`.
 
-### 1.79 — Walking pets at different speeds — CODE — Not started
+### 1.79 — Walking pets at different speeds — CODE — Done
 **Goal:** owner request, playtest 25: the walking speed is fine on average, but every walk is the same speed; pets should move at different speeds.
 **Details:**
 - Each walk picks a pace: a slow stroll, the normal walk, or a short trot or run, with weights and speeds in `src/data/pets.ts` (for example 0.5×, 1×, 2× of `PET_WALK.speed`), so the average stays about the same.
 - Optionally each pet kind has its own base pace (the Solar Tortoise slow, the Wind-up Robot Dog quick), kept in the data file.
 - The walking bob follows the pace (faster bob when running). Reduce motion: unchanged (pets stand still).
 **Acceptance:** tests with a seeded rng: walks come in several speeds, a walk's duration matches its distance and pace, and the long-run average stays within 20% of today's; the build and all tests pass.
+
+**Notes:** `PET_PACES` (stroll 0.5×, walk 1×, trot 2×, weights 0.2 / 0.5 / 0.3) and `PET_BASE_PACE` (Solar Tortoise 0.6×, Wind-up Robot Dog 1.3×, hamster 1.15×) in `src/data/pets.ts`; `pickPace` and a `pace` on each walk in `src/utils/petWalk.ts`; `PetWalkers` times the walk and the bob (0.5 s ÷ pace) by it. A seeded run of 4,000 walks averages within 20% of the old speed. Reduce motion unchanged. Tests in `src/components/PetWalkers.test.tsx`.
 
 ### 1.80 — Pets celebrate your milestones and react to random events — CODE — Not started
 **Goal:** owner request, playtest 25: the walking pets should celebrate when something good happens (player level up, research completed, achievement unlocked, and similar) and react when a random event happens.
