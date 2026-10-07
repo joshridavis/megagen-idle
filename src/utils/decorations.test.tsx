@@ -10,7 +10,7 @@ import { useStore } from '../store';
 import { migrateSave, pickSaved, SAVE_VERSION } from '../store/migrations';
 import { GeneratorType } from '../types/generator';
 import type { GameState } from '../types/state';
-import { buyBlock, buyDecoration, decorationPrice, isDecorationUnlocked, placeBlock, placeDecoration, removeDecoration, unlockedDecorations } from './decorations';
+import { buyBlock, buyDecoration, decorationPrice, isDecorationUnlocked, placeBlock, placeDecoration, removeAllDecorations, removeDecoration, unlockedDecorations } from './decorations';
 import { energyForLevel } from './playerLevel';
 import { deriveRates } from './simulation';
 import { getProducerPlacement, layoutSite } from './siteMap';
@@ -209,8 +209,26 @@ describe('decorations bought with energy, then placed freely (1.53, owner playte
     const every = Object.fromEntries(DECORATIONS.map((d) => [d.id, 1]));
     expect(ids({ ...s, decorationsBought: every })).toContain('decor_kinds');
     expect(ids({ ...s, decorationsBought: { ...every, tree: 6, flag: 6, pond: 6, windsock: 6, lamp: 4 } })).not.toContain('decor_30'); // 29
-    expect(ids({ ...s, decorationsBought: ALL_OWNED })).toContain('decor_30'); // 36, the most there is
+    expect(ids({ ...s, decorationsBought: ALL_OWNED })).toContain('decor_30'); // every copy (1.78)
     expect(ACHIEVEMENTS_BY_ID.decor_30).toMatchObject({ bonus: true, title: true, tier: 'epic' });
+  });
+
+  it('Landscape Architect needs every copy of every kind, and an old save keeps it (1.78)', () => {
+    const s = unlockedAll({ decorationsBought: {} });
+    const ids = (st: GameState) => newlyEarned(st).map((a) => a.id);
+    const all = DECORATIONS.length * DECORATION_LIMIT;
+    expect(ACHIEVEMENTS_BY_ID.decor_30.target).toBe(all);
+    expect(ACHIEVEMENTS_BY_ID.decor_30.description).toBe(`Own all ${all} decorations.`);
+    // one copy short of all of them
+    const oneShort = { ...ALL_OWNED, [DECORATIONS[0].id]: DECORATION_LIMIT - 1 };
+    expect(ids({ ...s, decorationsBought: oneShort })).not.toContain('decor_30');
+    // 30 bought, enough before 1.78, is no longer enough
+    const thirty = Object.fromEntries(DECORATIONS.map((d, i) => [d.id, i < 5 ? 6 : 0]));
+    expect(ids({ ...s, decorationsBought: thirty })).not.toContain('decor_30');
+    // a save that earned it at 30 keeps it: achievements are never taken away
+    const earned = migrateSave({ ...s, decorationsBought: thirty, achievements: { decor_30: 123 } }, SAVE_VERSION);
+    expect(earned.achievements.decor_30).toBe(123);
+    expect(ids(earned)).not.toContain('decor_30');
   });
 
   it('100% completion counts all 6 copies of every kind (owner, playtest 24)', () => {
@@ -254,5 +272,68 @@ describe('decorations bought with energy, then placed freely (1.53, owner playte
     fireEvent.click(tiles[tile]);
     expect(useStore.getState().mapDecorations[tile]).toBe('tree');
     expect(useStore.getState().energy).toBe(500);
+  });
+});
+
+describe('remove all decorations at once (1.70)', () => {
+  it('is pure: empties the map, or null when nothing is placed', () => {
+    expect(removeAllDecorations({})).toBeNull();
+    expect(removeAllDecorations({ 3: 'tree', 9: 'flag' })).toEqual({});
+  });
+
+  /** A site with a tree and a flag on free tiles, and one tree hidden under a machine. */
+  const decorated = () => {
+    useStore.getState().resetGame();
+    const s = s0({ lifetimeEnergy: energyForLevel(20), achievements: achieved(15) });
+    const taken = new Set(layoutSite(s).placed.flatMap((p) => p.cells));
+    const [a, b] = [...Array(layoutSite(s).capacity).keys()].filter((c) => !taken.has(c));
+    const machine = layoutSite(s).placed[0].cells[0];
+    useStore.setState({ ...s, mapDecorations: { [a]: 'tree', [b]: 'flag', [machine]: 'tree' } });
+    return { a, s };
+  };
+
+  it('is disabled with nothing placed', () => {
+    useStore.getState().resetGame();
+    useStore.setState(s0({ lifetimeEnergy: energyForLevel(5) }));
+    render(<MapPanel onSelect={() => {}} />);
+    fireEvent.click(screen.getByTestId('decor-open'));
+    expect((screen.getByTestId('decor-remove-all') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('asks first; Cancel and Escape change nothing and keep the panel open', async () => {
+    decorated();
+    const before = useStore.getState().mapDecorations;
+    render(<MapPanel onSelect={() => {}} />);
+    fireEvent.click(screen.getByTestId('decor-open'));
+    const button = screen.getByTestId('decor-remove-all');
+    fireEvent.click(button);
+    const confirm = screen.getByTestId('decor-remove-all-confirm');
+    expect(confirm.textContent).toContain('Take all 3 decorations off the map?');
+    expect(confirm.textContent).toContain('You keep every copy');
+    fireEvent.click(screen.getByTestId('decor-remove-all-cancel'));
+    expect(screen.queryByTestId('decor-remove-all-confirm')).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(button));
+    fireEvent.click(button);
+    fireEvent.keyDown(screen.getByTestId('decor-remove-all-cancel'), { key: 'Escape' });
+    expect(screen.queryByTestId('decor-remove-all-confirm')).toBeNull();
+    expect(screen.getByTestId('map-decorations')).toBeTruthy();
+    expect(useStore.getState().mapDecorations).toBe(before);
+  });
+
+  it('empties the map for free, keeps every copy, and the copies can be placed again for free', () => {
+    const { a } = decorated();
+    const { energy, decorationsBought } = useStore.getState();
+    render(<MapPanel onSelect={() => {}} />);
+    fireEvent.click(screen.getByTestId('decor-open'));
+    fireEvent.click(screen.getByTestId('decor-remove-all'));
+    fireEvent.click(screen.getByTestId('decor-remove-all-yes'));
+    const after = useStore.getState();
+    expect(after.mapDecorations).toEqual({});
+    expect(after.energy).toBe(energy);
+    expect(after.decorationsBought).toEqual(decorationsBought);
+    expect(screen.getByTestId('map-info').textContent).toContain('All decorations removed: place them again any time for free.');
+    expect((screen.getByTestId('decor-remove-all') as HTMLButtonElement).disabled).toBe(true);
+    expect(useStore.getState().placeDecoration('tree', a)).toBe(true);
+    expect(useStore.getState().energy).toBe(energy);
   });
 });

@@ -310,3 +310,76 @@ test('the research chip and the walking pets stay on top of a hovered card', asy
   const p = (await page.getByTestId('walking-pet-cat').boundingBox())!;
   expect(await onTopOfHoveredCard('[data-testid="walking-pet-cat"]', p.x + p.width / 2, p.y + p.height / 2)).toBe(true);
 });
+
+// 1.69: the Cosmetics section folds away; the Achievements tab fits a 360px phone open or closed.
+test('the Cosmetics section opens and closes with no sideways scroll at 360px', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto('./');
+  await page.locator('#tab-achievements').click();
+  const toggle = page.getByTestId('cosmetics-toggle');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  await toggle.focus();
+  await page.keyboard.press('Enter');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByTestId('cosmetics-summary')).toBeVisible();
+  await expect(page.getByTestId('title-tiers')).toHaveCount(0);
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  await page.screenshot({ path: 'test-results/cosmetics-closed-360.png' });
+  await page.keyboard.press(' ');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+});
+
+// 1.70: Remove all and its question fit a 375px phone.
+test('Remove all decorations and its question fit a 375px phone', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 700 });
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toBeVisible();
+  await importSave(page, { decorationsBought: { tree: 1, flag: 1 }, mapDecorations: { 10: 'tree', 11: 'flag' } });
+  await page.locator('#tab-map').click();
+  await page.getByTestId('decor-open').click();
+  const onScreen = async (testId: string) => {
+    const box = (await page.getByTestId(testId).boundingBox())!;
+    expect(box.x, testId).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width, testId).toBeLessThanOrEqual(375);
+    expect(box.y, testId).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height, testId).toBeLessThanOrEqual(700);
+  };
+  await onScreen('decor-remove-all');
+  await page.getByTestId('decor-remove-all').click();
+  await expect(page.getByTestId('decor-remove-all-confirm')).toBeVisible();
+  await onScreen('decor-remove-all-yes');
+  await onScreen('decor-remove-all-cancel');
+  await page.screenshot({ path: 'test-results/decor-remove-all-375.png' });
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('decor-remove-all-confirm')).toHaveCount(0);
+  await expect(page.getByTestId('map-decorations')).toBeVisible();
+  await expect(page.getByTestId('decor-remove-all')).toBeFocused();
+  await page.getByTestId('decor-remove-all').click();
+  await page.getByTestId('decor-remove-all-yes').click();
+  await expect(page.getByTestId('decor-remove-all')).toBeDisabled();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
+// 1.71: working machines animate on a large site; switched-off ones stay still.
+test('working machines animate on the map at 1280px', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toBeVisible();
+  const types = ['solar', 'wind', 'coal', 'hydro', 'tidal', 'gas', 'oil', 'nuclear', 'fusion', 'supernova'];
+  const activeGenerators = types.flatMap((type) => [1, 2].map((i) => ({ id: `${type}-${i}`, type, isActive: !(type === 'solar' && i === 2), level: 1 })));
+  const producers = { quarry: 2, mine: 2, coalMine: 2, gasWell: 2, oilRig: 2, uraniumMine: 2, deuteriumExtractor: 2 };
+  await importSave(page, { activeGenerators, producers, roomCapacity: 400, resources: { coal: 1e9, stone: 1e9, metal: 1e9, naturalGas: 1e9, oil: 1e9, uranium: 1e9, deuterium: 1e9 } });
+  await page.locator('#tab-map').click();
+  await expect(page.locator('[data-anim="on"]').first()).toBeVisible();
+  expect(await page.locator('.frame-b').count()).toBeGreaterThan(0);
+  for (const fx of ['glint', 'smoke', 'steam', 'glow', 'bubbles']) expect(await page.locator(`[data-fx="${fx}"]`).count(), fx).toBeGreaterThan(0);
+  expect(await page.locator('.machine-shake').count()).toBeGreaterThan(0);
+  await expect(page.locator('[data-testid="map-solar-2"] [data-testid="machine-sprite"]')).toHaveAttribute('data-anim', 'still');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  await page.getByTestId('site-map').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: 'test-results/machines-animated-1280.png' });
+});

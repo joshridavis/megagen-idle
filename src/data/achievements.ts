@@ -1,4 +1,4 @@
-import { DECORATIONS } from './decorations';
+import { DECORATION_LIMIT, DECORATIONS } from './decorations';
 import { GENERATOR_TYPES } from './generators';
 import { PETS } from './pets';
 import { RESEARCH } from './research';
@@ -79,7 +79,7 @@ const TITLES: Record<string, TitleTierId> = {
   contracts_200: 'epic', // 128 h
   energy_2b: 'epic', // 132 h
   adult_all: 'epic', // 176 h
-  decor_30: 'epic', // play style: 30 of the 36 decorations bought, prices rising each copy
+  decor_30: 'epic', // play style: every decoration copy bought (36 today), prices rising each copy (1.78)
   types_all: 'legendary', // 228 h
   research_all: 'legendary', // 243 h
   maxed_all: 'legendary', // 265 h (100%)
@@ -138,7 +138,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   a('decor_1', 'Green Thumb', 'Buy your first decoration.', 'Decorations', 'decorations', 1),
   a('decor_10', 'Site Beautifier', 'Buy 10 decorations.', 'Decorations', 'decorations', 10),
   a('decor_kinds', 'Collector', 'Buy every kind of decoration.', 'Decorations', 'decorKinds', DECORATIONS.length),
-  a('decor_30', 'Landscape Architect', 'Buy 30 decorations.', 'Decorations', 'decorations', 30, true),
+  // Every copy of every kind (1.78; was 30). The id stays decor_30 so saves that earned it keep it.
+  a('decor_30', 'Landscape Architect', `Own all ${DECORATIONS.length * DECORATION_LIMIT} decorations.`, 'Decorations', 'decorations', DECORATIONS.length * DECORATION_LIMIT, true),
   a('sight_1', 'What Was That?', 'Spot your first sighting.', 'Discovery', 'sightings', 1, true),
   a('sight_5', 'Sky Watcher', 'Spot 5 different sightings.', 'Discovery', 'sightings', 5, true),
   a('events_10', 'Weathered', 'Experience 10 events that change the game.', 'Discovery', 'effectEvents', 10, true),

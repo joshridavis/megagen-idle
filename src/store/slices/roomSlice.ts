@@ -3,7 +3,7 @@ import { expandRoom } from '../../utils/roomSystem';
 import { deriveRates } from '../../utils/simulation';
 import { moveOnMap } from '../../utils/siteMap';
 import type { DecorationId } from '../../data/decorations';
-import { buyDecoration, placeDecoration, removeDecoration } from '../../utils/decorations';
+import { buyDecoration, placeDecoration, removeAllDecorations, removeDecoration } from '../../utils/decorations';
 import type { SliceCreator } from '../types';
 
 export interface RoomActions {
@@ -17,6 +17,8 @@ export interface RoomActions {
   buyDecoration: (id: DecorationId) => boolean;
   /** Takes away the decoration on a tile (1.13). Returns success. */
   removeDecoration: (cell: number) => boolean;
+  /** Takes every decoration off the map; the copies stay owned (1.70). Returns how many were removed. */
+  removeAllDecorations: () => number;
 }
 
 export const createRoomSlice =
@@ -54,5 +56,12 @@ export const createRoomSlice =
       if (!next) return false;
       set({ mapDecorations: next }, undefined, 'room/removeDecoration');
       return true;
+    },
+    removeAllDecorations: () => {
+      const n = Object.keys(get().mapDecorations).length;
+      const next = removeAllDecorations(get().mapDecorations);
+      if (!next) return 0;
+      set({ mapDecorations: next }, undefined, 'room/removeAllDecorations');
+      return n;
     },
   });

@@ -1,4 +1,56 @@
-# Playtest 25.3 (v0.25.3, hotfix): the 💤 sits on the pet, and tooltips say Generator or Producer
+# Playtest 26 (v0.26.0): a foldable Cosmetics section, Remove all decorations, working machines that move, and pets at different speeds
+
+The version at the bottom of the screen should read **v0.26.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 293.3 hours** (simulated with `npm run simulate`, unchanged: nothing in this round changes balance).
+- Key times: first Wind Turbine 2.3 h, first Coal Plant 3.1 h, first Hydropower Dam 6.0 h, first Oil Power Plant 22.9 h, first Nuclear Fission Plant 54.9 h, first Fusion Reactor 93.1 h, last room expansion 97.0 h, first Micro-Supernova 191.3 h, 100% at 293.3 h.
+
+## What changed
+
+- **Fold away Cosmetics (1.69):** in the Achievements tab, the "Cosmetics" heading is now a button with a ▸/▾ arrow. Closed, it shows one line, "Title: … · Accent: …", with the title in its tier color. The game remembers your choice, also after a reload. It is open for a new player.
+- **Remove all decorations (1.70):** the 🎨 Decorations panel has a **🧹 Remove all** button next to Remove and Close. It asks first ("Take all N decorations off the map? …"). Removing is free, and you keep every copy you bought, so you can place them again for free. Escape or Cancel changes nothing.
+- **Working machines move on the map (1.71):** wind turbines turn and dam, tidal and oil-rig water flows. Coal, gas and oil plants smoke, the nuclear tower steams and solar panels glint. Fusion reactors and supernova cores pulse. Producers work too: mine carts roll, the gas-well pump nods, the coal-mine wheel turns, the quarry shakes and the deuterium extractor bubbles. A machine you switch off, or one out of fuel, is completely still, at once. Machines of one kind don't move in step. Reduce motion (in the game or on your system) keeps them all still. The animations stop while the page is hidden.
+- **Landscape Architect needs every decoration (1.78):** it now asks you to **own all 36 decorations** (all 6 of each kind; the number grows if more kinds come). It is still a bonus achievement with its Epic title. If you already earned it at 30, you keep it.
+- **Pets walk at different speeds (1.79):** each walk is a slow stroll, a normal walk or a quick trot, and the walking bob speeds up when they trot. On average they move at about the same speed as before. The Solar Tortoise is slower than most and the Wind-up Robot Dog is quicker; the Wheel Hamster is a little quick too.
+
+## Things to try
+
+1. Achievements tab: close Cosmetics, reload the page, and check that it stays closed and the summary line is right. Open it again with the keyboard (Tab to it, then Enter).
+2. Map tab: place a few decorations, then 🎨 → 🧹 Remove all. Try Cancel and Escape first, then confirm. Place them again: it costs nothing.
+3. Map tab: look over your site. Is every machine's animation clear and fitting? Is any of them too busy or too fast (the quarry shake, the turbines)?
+4. Switch a generator off on the Generators tab, then look at it on the map: it should be still. Switch it on again.
+5. Turn on Reduce motion in Settings: every machine on the map stops.
+6. With pets walking, watch for a while: do you see slow strolls and quick trots? If you have the Solar Tortoise or the Wind-up Robot Dog, put it out.
+7. Check the Landscape Architect card in the Achievements tab: it should say "Own all 36 decorations."
+
+## Known issues
+
+- None known in the new features. In this cloud sandbox two slow checks sometimes run out of time when everything runs at once (the balance-simulator test and one browser smoke test); both pass on their own, and nothing in the game is affected.
+
+## Questions
+
+1. The machine animations: right amount of movement, or would you like them calmer (slower or subtler), or livelier?
+2. Do the second frames read well at map size (the turning wind turbine, the nodding pump jack, the rolling mine carts)?
+3. The pet speeds: is the mix of strolls and trots right, and is the trot too fast?
+4. Should Landscape Architect stay a bonus achievement (outside 100%), or count toward 100% now that it needs every copy?
+
+## Next in the order
+
+- 1.82: thought bubbles beside the pet's head, on the side it faces (your report on v0.25.3).
+- 1.80: pets celebrate your level ups, research, achievements and so on, and react to random events.
+- 1.81: two or three active pets on screen sometimes interact.
+- Then 1.55 (more random events) and 1.54 (more decorations).
+
+---
+
+# Previous: Playtest 25.3 (v0.25.3, hotfix): the 💤 sits on the pet, and tooltips say Generator or Producer
 
 The version at the bottom of the screen should read **v0.25.3**.
 

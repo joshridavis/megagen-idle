@@ -49,7 +49,7 @@ function WalkingPet({ w, stage, still }: { w: Walker; stage: number; still: bool
         width: size,
         height: size,
         transform: `translateX(calc(${w.x} * (100cqw - ${size}px)))`,
-        transition: walking ? `transform ${walkMs(w.from, w.x)}ms linear` : 'none',
+        transition: walking ? `transform ${walkMs(w.from, w.x, w.pace)}ms linear` : 'none',
       }}
     >
       {!still && !walking && !playing && w.action !== 'walk' && PET_ACTION_BUBBLES[w.action] && (
@@ -74,7 +74,11 @@ function WalkingPet({ w, stage, still }: { w: Walker; stage: number; still: bool
         )
       )}
       <span className="block h-full w-full" style={{ transform: w.left ? 'scaleX(-1)' : undefined }}>
-        <img src={sprites[`pet_${w.id}_${stage}` as SpriteId]} alt="" width={size} height={size} className={`pixelated block ${pose}`} />
+        <img src={sprites[`pet_${w.id}_${stage}` as SpriteId]} alt="" width={size} height={size} className={`pixelated block ${pose}`}
+          // the walking bob follows the pace: quicker steps when trotting (1.79)
+          style={walking && !playing ? { animationDuration: `${0.5 / (w.pace ?? 1)}s` } : undefined}
+          data-pace={walking ? (w.pace ?? 1) : undefined}
+        />
       </span>
       {playing &&
         [0, 1, 2].map((i) => (

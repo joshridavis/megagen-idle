@@ -28,6 +28,8 @@ export interface Settings {
   notifications: NotifySettings;
   /** The active pets walk along the bottom of the screen (1.60); on by default. */
   petsWalk?: boolean;
+  /** The Cosmetics section of the Achievements tab is open (1.69); open by default. */
+  cosmeticsOpen?: boolean;
 }
 
 export interface EnergyState {

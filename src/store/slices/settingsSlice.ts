@@ -8,6 +8,8 @@ export interface SettingsActions {
   setReduceMotion: (on: boolean) => void;
   /** Shows or hides the pets walking on screen (1.60). */
   setPetsWalk: (on: boolean) => void;
+  /** Opens or closes the Cosmetics section of the Achievements tab (1.69). */
+  setCosmeticsOpen: (open: boolean) => void;
   setGeneratorSort: (sort: GeneratorSort) => void;
   /** Cosmetic choices; locked ones are refused (1.01). */
   setCosmetics: (choice: { title?: string | null; accent?: string }) => void;
@@ -47,6 +49,7 @@ export const createSettingsSlice =
         undefined,
         'settings/notifications',
       ),
+    setCosmeticsOpen: (cosmeticsOpen) => set((s) => ({ settings: { ...s.settings, cosmeticsOpen } }), undefined, 'settings/cosmeticsOpen'),
     setPetsWalk: (petsWalk) => set((s) => ({ settings: { ...s.settings, petsWalk } }), undefined, 'settings/petsWalk'),
     setReduceMotion: (reduceMotion) => set((s) => ({ settings: { ...s.settings, reduceMotion } }), undefined, 'settings/reduceMotion'),
   });

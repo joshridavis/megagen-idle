@@ -443,8 +443,22 @@ body {
 .frame-a { animation: frame-a var(--frame, 0.4s) steps(1) infinite; }
 .frame-b { animation: frame-b var(--frame, 0.4s) steps(1) infinite; }
 .map-bounce { animation: map-bounce 0.35s ease-in-out infinite; }
+/* Working machines on the map (1.71): one shared animation per effect, CSS only. */
+@keyframes machine-glint { 0%, 55% { transform: translateX(0) skewX(-20deg); } 100% { transform: translateX(200%) skewX(-20deg); } }
+@keyframes machine-puff { 0% { transform: translate(0, 0) scale(0.6); opacity: 0.9; } 100% { transform: translate(4px, -14px) scale(1.6); opacity: 0; } }
+@keyframes machine-bubble { 0% { transform: translateY(0); opacity: 0.9; } 100% { transform: translateY(-12px); opacity: 0; } }
+@keyframes machine-glow { 0%, 100% { opacity: 0.35; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.1); } }
+@keyframes machine-shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-1.5%, 0.5%); } 75% { transform: translate(1.5%, -0.5%); } }
+.machine-glint { animation: machine-glint var(--fx, 4s) ease-in infinite; transform-box: view-box; }
+.machine-puff { animation: machine-puff var(--fx, 2s) ease-out infinite; transform-box: fill-box; transform-origin: center; }
+.machine-bubble { animation: machine-bubble var(--fx, 2s) ease-in infinite; transform-box: fill-box; transform-origin: center; }
+.machine-glow { animation: machine-glow var(--fx, 1.5s) ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.machine-shake { animation: machine-shake var(--fx, 0.3s) steps(2) infinite; }
+/* the page is hidden: machines on the map stop moving */
+[data-paused] :is(.frame-a, .frame-b, .machine-glint, .machine-puff, .machine-bubble, .machine-glow, .machine-shake) { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
-  .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce { animation: none; }
+  .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .machine-shake { animation: none; }
+  .machine-glint, .machine-puff, .machine-bubble, .machine-glow { animation: none; display: none; }
   .frame-b { animation: none; opacity: 0; }
 }
 
@@ -474,10 +488,13 @@ html[data-reduce-motion] :is(.click-pop, .click-pop-down, .spark) {
   opacity: 0;
 }
 html[data-reduce-motion]
-  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .pet-growing, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
+  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .pet-growing, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .machine-shake, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
   animation: none;
 }
 html[data-reduce-motion] :is(.pet-sparkle, .pet-grow-flash, .pet-grow-old) {
+  display: none;
+}
+html[data-reduce-motion] :is(.machine-glint, .machine-puff, .machine-bubble, .machine-glow) {
   display: none;
 }
 html[data-reduce-motion] .frame-b {

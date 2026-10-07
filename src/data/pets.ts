@@ -119,6 +119,18 @@ export const PET_WALK = {
   /** Sprite size on screen (px). */
   size: 40,
 };
+/**
+ * Walking paces (1.79, owner playtest 25): each walk picks one, as a multiple of
+ * PET_WALK.speed. The weights keep the long-run average speed (distance over
+ * walking time) close to the old single speed: sum(weight / pace) ≈ 1.05.
+ */
+export const PET_PACES = [
+  { id: 'stroll', pace: 0.5, weight: 0.2 },
+  { id: 'walk', pace: 1, weight: 0.5 },
+  { id: 'trot', pace: 2, weight: 0.3 },
+] as const;
+/** Pets that are slower or quicker than most on every walk (1.79); the rest are 1. */
+export const PET_BASE_PACE: Partial<Record<PetId, number>> = { tortoise: 0.6, robodog: 1.3, hamster: 1.15 };
 export const PET_ACTIONS = ['eat', 'play', 'rest', 'sit', 'jump', 'sleep'] as const;
 export type PetAction = (typeof PET_ACTIONS)[number];
 /** How often each action is picked, relative to the others: resting (standing still) is the most common. */

@@ -146,6 +146,15 @@ import petOwl3 from './sprites/pets/owl_3.png';
 import petAxolotl1 from './sprites/pets/axolotl_1.png';
 import petAxolotl2 from './sprites/pets/axolotl_2.png';
 import petAxolotl3 from './sprites/pets/axolotl_3.png';
+// second frames of working machines on the map (1.71)
+import windTurbine2 from './sprites/generators/wind_turbine_2.png';
+import hydroDam2 from './sprites/generators/hydro_dam_2.png';
+import tidalStation2 from './sprites/generators/tidal_station_2.png';
+import producerMine2 from './sprites/producers/mine_2.png';
+import producerCoalMine2 from './sprites/producers/coal_mine_2.png';
+import producerGasWell2 from './sprites/producers/gas_well_2.png';
+import producerOilRig2 from './sprites/producers/oil_rig_2.png';
+import producerUraniumMine2 from './sprites/producers/uranium_mine_2.png';
 
 export const sprites = {
   energy_icon: energyIcon,
@@ -293,6 +302,14 @@ export const sprites = {
   pet_axolotl_1: petAxolotl1,
   pet_axolotl_2: petAxolotl2,
   pet_axolotl_3: petAxolotl3,
+  wind_turbine_2: windTurbine2,
+  hydro_dam_2: hydroDam2,
+  tidal_station_2: tidalStation2,
+  producer_mine_2: producerMine2,
+  producer_coal_mine_2: producerCoalMine2,
+  producer_gas_well_2: producerGasWell2,
+  producer_oil_rig_2: producerOilRig2,
+  producer_uranium_mine_2: producerUraniumMine2,
 } as const;
 
 export type SpriteId = keyof typeof sprites;

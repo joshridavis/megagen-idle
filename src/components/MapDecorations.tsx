@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { sprites } from '../assets';
 import MapFloatingPanel from './MapFloatingPanel';
 import { DECORATION_LIMIT, DECORATIONS, type DecorationId } from '../data/decorations';
@@ -14,7 +15,18 @@ export type DecorTool = DecorationId | 'remove' | null;
  * map (1.47): docked bottom right on wide screens, a bottom sheet on phones.
  * It is not modal, so the map stays usable; Close or Escape ends decorating.
  */
-export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorTool; onTool: (t: DecorTool) => void; onClose: () => void }) {
+export default function MapDecorations({
+  tool,
+  onTool,
+  onClose,
+  onNote,
+}: {
+  tool: DecorTool;
+  onTool: (t: DecorTool) => void;
+  onClose: () => void;
+  /** Shows a line in the map's note bar. */
+  onNote?: (note: string) => void;
+}) {
   const lifetimeEnergy = useStore((s) => s.lifetimeEnergy);
   const achievements = useStore((s) => s.achievements);
   const contracts = useStore((s) => s.contracts);
@@ -24,7 +36,23 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
   const fmt = useNumberFormat();
   const buy = useStore((s) => s.buyDecoration);
   const unlockState = { lifetimeEnergy, achievements, contracts };
-  const placedAny = Object.keys(decor).length > 0;
+  const placedCount = Object.keys(decor).length;
+  const placedAny = placedCount > 0;
+  const removeAll = useStore((s) => s.removeAllDecorations);
+  // Remove all asks first (1.70); focus goes back to the button when the question closes.
+  const [confirming, setConfirming] = useState(false);
+  const removeAllButton = useRef<HTMLButtonElement>(null);
+  const endConfirm = () => {
+    setConfirming(false);
+    requestAnimationFrame(() => removeAllButton.current?.focus());
+  };
+  const confirmRemoveAll = () => {
+    if (removeAll() > 0) {
+      if (tool === 'remove') onTool(null);
+      onNote?.('All decorations removed: place them again any time for free.');
+    }
+    endConfirm();
+  };
   return (
     <MapFloatingPanel
       id="decor-panel"
@@ -89,7 +117,7 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
           );
         })}
       </ul>
-      {/* Remove and Close stay in view however long the list gets */}
+      {/* Remove, Remove all and Close stay in view however long the list gets */}
       <div className="sticky -bottom-3 -mx-3 -mb-3 mt-2 flex flex-wrap gap-2 border-t border-slate-700 bg-slate-800 px-3 py-2">
         <button
           type="button"
@@ -101,9 +129,49 @@ export default function MapDecorations({ tool, onTool, onClose }: { tool: DecorT
         >
           🧹 Remove
         </button>
+        <button
+          ref={removeAllButton}
+          type="button"
+          disabled={!placedAny}
+          aria-expanded={confirming}
+          aria-controls="decor-remove-all-confirm"
+          onClick={() => setConfirming(true)}
+          data-testid="decor-remove-all"
+          className="rounded bg-slate-700 px-2 py-0.5 text-xs hover:bg-slate-600 disabled:opacity-50"
+        >
+          🧹 Remove all
+        </button>
         <button type="button" onClick={onClose} className="rounded bg-slate-700 px-2 py-0.5 text-xs hover:bg-slate-600" data-testid="decor-done">
           Close
         </button>
+        {confirming && (
+          <div
+            id="decor-remove-all-confirm"
+            role="alertdialog"
+            aria-labelledby="decor-remove-all-question"
+            className="w-full rounded border border-yellow-700 p-2 text-xs"
+            data-testid="decor-remove-all-confirm"
+            onKeyDown={(e) => {
+              if (e.key !== 'Escape') return;
+              // Escape cancels the question only; the panel stays open.
+              e.preventDefault();
+              e.stopPropagation();
+              endConfirm();
+            }}
+          >
+            <p id="decor-remove-all-question" className="mb-2 text-yellow-100">
+              Take all {placedCount} decorations off the map? You keep every copy and can place them again for free.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={confirmRemoveAll} className="rounded bg-red-800 px-2 py-0.5 hover:bg-red-700" data-testid="decor-remove-all-yes">
+                Remove all
+              </button>
+              <button type="button" autoFocus onClick={endConfirm} className="rounded bg-slate-700 px-2 py-0.5 hover:bg-slate-600" data-testid="decor-remove-all-cancel">
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </MapFloatingPanel>
   );

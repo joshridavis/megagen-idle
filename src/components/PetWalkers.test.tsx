@@ -5,7 +5,7 @@ import { createInitialState } from '../data/initialState';
 import { PET_REACT_MS, PET_STAGE_HEIGHT, PET_WALK } from '../data/pets';
 import { useStore } from '../store';
 import { seededRng } from '../utils/rng';
-import { nextStep, startWalkers, stepWalkers, walkMs } from '../utils/petWalk';
+import { nextStep, pickPace, startWalkers, stepWalkers, walkMs, type Walker } from '../utils/petWalk';
 import PetWalkers, { bubblePlace } from './PetWalkers';
 import SettingsPanel from './SettingsPanel';
 
@@ -47,7 +47,9 @@ describe('walker logic (1.60)', () => {
     expect(w.action).toBe('walk');
     expect(w.x).toBeLessThan(0.8);
     expect(w.left).toBe(true);
-    expect(w.until).toBe(1000 + walkMs(0.8, w.x));
+    // a roll of 0.1 picks the slow stroll (1.79)
+    expect(w.pace).toBe(0.5);
+    expect(w.until).toBe(1000 + walkMs(0.8, w.x, 0.5));
   });
 
   it('keeps step with the active pets, and leaves walkers alone until their step ends', () => {
@@ -132,12 +134,12 @@ describe('pets walk on screen (1.60)', () => {
 
   it('food lies on the ground in front of an eating pet, not above it (owner, playtest 25)', async () => {
     vi.useFakeTimers();
-    // 0.1: rest 5 s, walk left to 0.14, then stop and eat (the first action)
+    // 0.1: rest 5 s, stroll left to 0.14 (about 33 s at half speed, 1.79), then stop and eat (the first action)
     vi.spyOn(Math, 'random').mockReturnValue(0.1);
     withPets();
     render(<PetWalkers />);
     await act(async () => {
-      vi.advanceTimersByTime(PET_WALK.tickMs * 12);
+      vi.advanceTimersByTime(PET_WALK.tickMs * 40);
     });
     const cat = screen.getByTestId('walking-pet-cat');
     expect(cat.getAttribute('data-action')).toBe('eat');
@@ -193,5 +195,66 @@ describe('pets walk on screen (1.60)', () => {
     // the bob animation does not repeat the centering shift
     const css = readFileSync('src/index.css', 'utf8');
     expect(css).toMatch(/@keyframes pet-bubble \{ 0%, 100% \{ transform: translateY\(0\); \}/);
+  });
+});
+
+describe('walking pets at different speeds (1.79)', () => {
+  const rest = (id: Walker['id'] = 'cat'): Walker => ({ id, from: 0.5, x: 0.5, left: false, action: 'rest', until: 0 });
+  /** Many walks with a seeded rng: every pace seen, and the distance over the walking time. */
+  const walks = (id: Walker['id'], n = 4000) => {
+    const rng = seededRng(11);
+    let w = rest(id);
+    const paces = new Set<number>();
+    let dist = 0;
+    let ms = 0;
+    for (let i = 0; i < n; i++) {
+      w = nextStep({ ...w, action: 'rest' }, 0, rng);
+      paces.add(w.pace!);
+      dist += Math.abs(w.x - w.from);
+      ms += w.until;
+    }
+    return { paces, speed: dist / (ms / 1000) };
+  };
+
+  it('walks come in several speeds', () => {
+    expect([...walks('cat').paces].sort()).toEqual([0.5, 1, 2]);
+  });
+
+  it("a walk's duration matches its distance and pace", () => {
+    const rng = seededRng(5);
+    for (let i = 0; i < 50; i++) {
+      const w = nextStep(rest(), 1000, rng);
+      expect(w.until - 1000).toBeCloseTo(walkMs(w.from, w.x, w.pace), 6);
+      if (Math.abs(w.x - w.from) / (PET_WALK.speed * w.pace!) > 0.5) expect(w.until - 1000).toBeCloseTo((Math.abs(w.x - w.from) / (PET_WALK.speed * w.pace!)) * 1000, 6);
+    }
+  });
+
+  it('the long-run average speed stays within 20% of the old single speed', () => {
+    const { speed } = walks('cat');
+    expect(Math.abs(speed / PET_WALK.speed - 1)).toBeLessThan(0.2);
+  });
+
+  it('some pets have their own pace: the tortoise is slow, the robot dog quick', () => {
+    expect(walks('tortoise').speed).toBeLessThan(walks('cat').speed);
+    expect(walks('robodog').speed).toBeGreaterThan(walks('cat').speed);
+    expect(pickPace('tortoise', () => 0.6)).toBeCloseTo(0.6);
+    expect(pickPace('cat', () => 0.99)).toBe(2);
+  });
+
+  it('the walking bob follows the pace', async () => {
+    vi.useFakeTimers();
+    // 0.99: after the first rest, a quick trot
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    withPets();
+    render(<PetWalkers />);
+    await act(async () => {
+      vi.advanceTimersByTime(PET_WALK.tickMs * 6);
+    });
+    const img = screen.getByTestId('walking-pet-cat').querySelector('img')!;
+    expect(screen.getByTestId('walking-pet-cat').getAttribute('data-action')).toBe('walk');
+    expect(img.getAttribute('data-pace')).toBe('2');
+    expect(img.style.animationDuration).toBe('0.25s');
+    vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 });

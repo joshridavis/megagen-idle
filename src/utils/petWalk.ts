@@ -1,4 +1,4 @@
-import { PET_ACTION_MS, PET_ACTION_WEIGHTS, PET_ACTIONS, PET_WALK, type PetAction, type PetId } from '../data/pets';
+import { PET_ACTION_MS, PET_ACTION_WEIGHTS, PET_ACTIONS, PET_BASE_PACE, PET_PACES, PET_WALK, type PetAction, type PetId } from '../data/pets';
 import type { Rng } from './rng';
 
 /**
@@ -18,6 +18,8 @@ export interface Walker {
   action: 'walk' | PetAction;
   /** When the current walk or action ends (ms). */
   until: number;
+  /** Speed of the current walk as a multiple of PET_WALK.speed (1.79); 1 when missing. */
+  pace?: number;
 }
 
 /** Spread pets evenly across the screen, resting a moment before they set off. */
@@ -28,8 +30,23 @@ export function startWalkers(ids: PetId[], now: number): Walker[] {
   });
 }
 
-/** How long a walk between two positions takes (ms). */
-export const walkMs = (from: number, to: number): number => Math.max(500, (Math.abs(to - from) / PET_WALK.speed) * 1000);
+/** How long a walk between two positions takes at a pace (ms). */
+export const walkMs = (from: number, to: number, pace = 1): number => Math.max(500, (Math.abs(to - from) / (PET_WALK.speed * pace)) * 1000);
+
+/** A pace for one walk (1.79): a stroll, a walk or a trot by PET_PACES, times the pet's own base pace. */
+export function pickPace(id: PetId, rng: Rng): number {
+  const total = PET_PACES.reduce((n, p) => n + p.weight, 0);
+  let r = rng() * total;
+  let pace: number = PET_PACES[PET_PACES.length - 1].pace;
+  for (const p of PET_PACES) {
+    r -= p.weight;
+    if (r < 0) {
+      pace = p.pace;
+      break;
+    }
+  }
+  return pace * (PET_BASE_PACE[id] ?? 1);
+}
 
 /** An action picked by PET_ACTION_WEIGHTS. */
 function pickAction(rng: Rng): PetAction {
@@ -59,7 +76,8 @@ export function nextStep(w: Walker, now: number, rng: Rng): Walker {
   // a new target at least a little way off, kept off the very edges
   let to = 0.05 + rng() * 0.9;
   if (Math.abs(to - w.x) < 0.1) to = w.x < 0.5 ? Math.min(0.95, w.x + 0.3) : Math.max(0.05, w.x - 0.3);
-  return { ...w, from: w.x, x: to, left: to < w.x, action: 'walk', until: now + walkMs(w.x, to) };
+  const pace = pickPace(w.id, rng);
+  return { ...w, from: w.x, x: to, left: to < w.x, action: 'walk', until: now + walkMs(w.x, to, pace), pace };
 }
 
 /**
