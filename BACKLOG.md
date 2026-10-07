@@ -24,6 +24,14 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
+**On hold (owner, 2026-10-07, after playtest 26):** do not develop the next backlog item until the owner says so. Hotfixes for what the owner reports on the current version are still made.
+
+**After playtest 26 (owner, 2026-10-07):** when the hold lifts, these come first, after 1.82 (Claude's placement; the owner can move them).
+
+0. 1.83 Machine animations: every machine visibly animated, the quarry calmer, the metal mine redone (owner feedback, playtest 26)
+0. 1.84 A map button to turn machine animations on and off (owner request, playtest 26; small)
+0. 1.85 Landscape Architect counts toward 100% (owner decision, playtest 26; small)
+
 **Hold lifted (owner, 2026-10-07):** the owner asked to continue from the order of work. The hold set after playtest 25 (2026-10-06) is over; the run went on with 1.69, 1.70, 1.71, 1.78 and 1.79 toward checkpoint 26. The 1.82 fix below (written on `main` while this run was underway) was not part of it and is the next item after checkpoint 26.
 
 **Hold lifted earlier (owner, 2026-10-06):** after playtest 24 the owner asked to continue. 1.58, 1.60, 1.56 and the bug fixes 1.72 and 1.73 were built for checkpoint 25 (PR #42, in the order below); the playtest 24 requests 1.69 to 1.71 were written on `main` at the same time and come next.
@@ -1233,6 +1241,34 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reduce motion: the pets stay still; only the bubble shows. The "Pets walk on screen" setting off: nothing.
 **Acceptance:** tests: a level up, a research completion and an achievement each make the walking pets celebrate; a random event plays its reaction (and the generic one for an unmapped event); reactions do not pile up; Reduce motion shows only the bubble; the build and all tests pass.
 
+### 1.83 — Machine animations: every machine visibly animated, the quarry calmer, the metal mine redone — CODE — Not started
+**Goal:** owner feedback, playtest 26, on 1.71: the amount of movement is generally fine, but some machines do not look animated (for example the Coal Power Plant), some look too busy (the Stone Quarry), and the Metal Mine looks a bit odd. The owner's favorites set the style: the Nuclear Fission Plant (steam) and the Fusion Reactor (pulsing glow), the Wind Turbine (turning blades), the Gas Well (nodding pump jack) and the Natural Gas Plant (smoke from the flare).
+**Details:**
+- **Not animated enough:** the Coal Power Plant's smoke puffs are light gray over the light-gray smoke already drawn in its sprite, so they barely show. Make its smoke clearly visible: darker, larger puffs that rise higher from the stack top, or a second frame where the painted smoke moves. Check every other machine the same way at map size (the Oil Power Plant's chimney and the solar glint in particular) and fix any that read as still.
+- **Too busy:** the Stone Quarry shakes the whole sprite 3 times a second. Replace it with a calmer motion in the spirit of the favorites: for example a second frame where the crane's hook goes up and down, or a slow small shake of only the crane, at a period of about 1 to 1.5 s.
+- **Metal Mine:** the cart jumps 8 px and lands over the tunnel entrance, which looks odd. Redraw: the cart moves a short way along the rail without overlapping the entrance (or rolls out of the tunnel), or use another clear motion such as a lamp at the entrance blinking. Check the Uranium Mine's cart the same way.
+- Keep everything else from 1.71: one shared CSS animation per type, frames from `scripts/generate-generic-assets.mjs` (AAP-64, same sizes; new or changed frames listed in the Asset manifest and `generic-assets.json`), still when off or out of fuel, Reduce motion.
+**Acceptance:**
+- Tests: the coal plant's effect uses a color with enough contrast against its sprite's smoke (or it has a second frame); the quarry no longer uses the fast whole-sprite shake and its period is at least 1 s; the metal mine's second frame keeps the cart off the entrance (a pixel check in the asset test, or a frame drawn without the cart over the entrance rectangle).
+- `npm run check:assets` passes; zoomed browser screenshots of the coal plant, quarry and metal mine, both frames.
+- The build and all tests pass.
+
+### 1.84 — A map button to turn machine animations on and off — CODE — Not started
+**Goal:** owner request, playtest 26: an option on the Map tab to turn the machine animations (1.71) on and off, separate from the Reduce motion option in Settings.
+**Details:**
+- A floating map button next to 🗺️ Legend and 🎨 Decorations, for example "🎞 Animations: on/off", a toggle with `aria-pressed`. It turns the working-machine animations (frames and effects) on and off; machines then show their still sprite. Map events, sightings and other motion are not affected.
+- Saved with the game (a setting such as `settings.mapAnimations`, on by default; old saves default to on). Not shown in Settings, as the owner asked; the Settings Reduce motion still wins: with it on, machines stay still even when this button is on, and the button's tooltip says why.
+- Fits a 375 px phone with the other floating buttons, and works with the keyboard.
+**Acceptance:** tests: the button turns animations off (no `data-anim="on"` on the map) and on again; the choice survives a reload; Reduce motion keeps them still with the button on; Playwright at 375 px: the three floating buttons are fully on screen with no sideways scroll; the build and all tests pass.
+
+### 1.85 — Landscape Architect counts toward 100% — CODE — Not started
+**Goal:** owner decision, playtest 26: now that Landscape Architect (1.78) needs every decoration copy, it is no longer a bonus achievement: it counts toward 100% completion.
+**Details:**
+- In `src/data/achievements.ts`, `decor_30` is no longer `bonus`. Its Epic title and tier stay. Update the test in `src/utils/achievements.test.ts` that lists which achievements may be bonus.
+- The Completion tab's Achievements part then includes it; the Decorations part (all 6 of each, 1.73) is unchanged, so 100% needs nothing new in play, only the achievement is counted.
+- Run `npm run simulate`: report whether the 100% time changes (it should not, since all copies are already required) and update `BALANCE_REPORT.md`.
+**Acceptance:** tests: `decor_30` is not a bonus achievement; completion counts it (100% is not reached without it); a save that earned it keeps it; the build and all tests pass; the simulator still reaches 100% with no stalls.
+
 ### 1.82 — Fix: thought bubbles beside the pet's head, not straight above it — CODE — Not started
 **Goal:** owner report, playtest 25.3 (screenshot): a walking pet's thought bubble (💭 while sitting, ❗ while jumping, 💤 while sleeping) sits straight above the pet, which looks unnatural. It should float up and to the side the pet faces: to the right when it faces right, to the left when it faces left, like a comic thought bubble.
 **Details:**
@@ -1846,3 +1882,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 25 (answers) | 1.58, 1.72, 1.73, 1.60, 1.56 (and hotfixes 1.74, 1.75) | 2026-10-06 | Producers should show no level or fuel lines (the earlier note was a mistake); each tooltip should say briefly and clearly whether it is a producer or a generator. Landscape Architect should need all 36 decorations. Walking speed fine, but pets should walk at different speeds; pets should celebrate level ups, research, achievements and so on, and react to random events. Active pets on screen should interact with each other. New pets and their feeding costs fine. Keep the order 1.69, 1.70, 1.71, 1.55, 1.54. Bug: the 💤 still shows far from the pet. Do not develop new backlog items until the owner says so. | 1.76, 1.77 (hotfix v0.25.3); 1.78-1.81 |
 | 25.3 (v0.25.3, hotfix) | 1.76, 1.77 | 2026-10-06 | The thought bubble sits straight above the pet, which looks unnatural: it should be to the right or left, depending on the way the pet faces. Add it as a fix for the next development run. | 1.82 |
 | 26 (v0.26.0) | 1.69, 1.70, 1.71, 1.78, 1.79 | 2026-10-07 | 100% completion simulated at 293.3 h (unchanged: no balance changes). The hold after playtest 25 was lifted (owner asked to continue). Waiting for feedback. | |
+| 26 (answers) | 1.69, 1.70, 1.71, 1.78, 1.79 | 2026-10-07 | Machine animations generally fine, but some do not look animated (coal plant), some are too busy (stone quarry), and the metal mine looks odd; the best are the nuclear and fusion plants, the wind turbine, the gas well and the natural gas plant. Wants a button on the map to turn the machine animations on and off, separate from Settings. New frames read clearly. Pet speeds better now. Landscape Architect should count toward 100%. Do not develop the next backlog item until the owner says so. | 1.83, 1.84, 1.85 |
