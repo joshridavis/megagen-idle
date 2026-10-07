@@ -41,7 +41,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 **After playtest 25 (owner, 2026-10-06):** the owner kept the order 1.69, 1.70, 1.71, then 1.55 and 1.54; these new items come right after 1.71 (Claude's placement; the owner can move them).
 
-0. 1.78 Landscape Architect: own all 36 decorations (owner request; small)
+0. 1.78 Landscape Architect: own all 36 decorations (owner request; small; Done)
 0. 1.79 Walking pets at different speeds (owner request; small)
 0. 1.80 Pets celebrate your milestones and react to random events (owner request)
 0. 1.81 Active pets on screen interact with each other (owner request)
@@ -1199,7 +1199,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests: a producer tooltip has no level or burn line and its kind is Producer; a generator's kind is Generator; the tag shows on hover; the build and all tests pass.
 **Notes:** `MachineTip.kind` in `src/utils/mapTips.ts`, drawn by `src/components/MachineTip.tsx`. Replaces the extra lines added by 1.72.
 
-### 1.78 — Landscape Architect: own all 36 decorations — CODE — Not started
+### 1.78 — Landscape Architect: own all 36 decorations — CODE — Done
 **Goal:** owner request, playtest 25: the Landscape Architect achievement (today: buy 30 decorations, a bonus achievement with an Epic title) should need every decoration copy that can be bought: all 6 of each kind, 36 today.
 **Details:**
 - Target = `DECORATIONS.length × DECORATION_LIMIT`, so it grows when 1.54 adds kinds. Its description says "Own all N decorations".
@@ -1207,6 +1207,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Saves that already earned it at 30 keep it (achievements are never taken away); say so in the PR.
 - Rename the id only if the code needs it; otherwise keep `decor_30` so earned saves stay valid, with a comment.
 **Acceptance:** tests: it unlocks at all copies owned and not one short; the target follows the decoration count; an old save that earned it keeps it; the build and all tests pass.
+
+**Notes:** target `DECORATIONS.length × DECORATION_LIMIT` in `src/data/achievements.ts`, description "Own all 36 decorations." It stays a bonus achievement (outside 100%) with its Epic title. The id stays `decor_30` (comment in the data) so saves that earned it at 30 keep it; achievements are never taken away. Tests in `src/utils/decorations.test.tsx`.
 
 ### 1.79 — Walking pets at different speeds — CODE — Not started
 **Goal:** owner request, playtest 25: the walking speed is fine on average, but every walk is the same speed; pets should move at different speeds.

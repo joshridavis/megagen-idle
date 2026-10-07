@@ -209,8 +209,26 @@ describe('decorations bought with energy, then placed freely (1.53, owner playte
     const every = Object.fromEntries(DECORATIONS.map((d) => [d.id, 1]));
     expect(ids({ ...s, decorationsBought: every })).toContain('decor_kinds');
     expect(ids({ ...s, decorationsBought: { ...every, tree: 6, flag: 6, pond: 6, windsock: 6, lamp: 4 } })).not.toContain('decor_30'); // 29
-    expect(ids({ ...s, decorationsBought: ALL_OWNED })).toContain('decor_30'); // 36, the most there is
+    expect(ids({ ...s, decorationsBought: ALL_OWNED })).toContain('decor_30'); // every copy (1.78)
     expect(ACHIEVEMENTS_BY_ID.decor_30).toMatchObject({ bonus: true, title: true, tier: 'epic' });
+  });
+
+  it('Landscape Architect needs every copy of every kind, and an old save keeps it (1.78)', () => {
+    const s = unlockedAll({ decorationsBought: {} });
+    const ids = (st: GameState) => newlyEarned(st).map((a) => a.id);
+    const all = DECORATIONS.length * DECORATION_LIMIT;
+    expect(ACHIEVEMENTS_BY_ID.decor_30.target).toBe(all);
+    expect(ACHIEVEMENTS_BY_ID.decor_30.description).toBe(`Own all ${all} decorations.`);
+    // one copy short of all of them
+    const oneShort = { ...ALL_OWNED, [DECORATIONS[0].id]: DECORATION_LIMIT - 1 };
+    expect(ids({ ...s, decorationsBought: oneShort })).not.toContain('decor_30');
+    // 30 bought, enough before 1.78, is no longer enough
+    const thirty = Object.fromEntries(DECORATIONS.map((d, i) => [d.id, i < 5 ? 6 : 0]));
+    expect(ids({ ...s, decorationsBought: thirty })).not.toContain('decor_30');
+    // a save that earned it at 30 keeps it: achievements are never taken away
+    const earned = migrateSave({ ...s, decorationsBought: thirty, achievements: { decor_30: 123 } }, SAVE_VERSION);
+    expect(earned.achievements.decor_30).toBe(123);
+    expect(ids(earned)).not.toContain('decor_30');
   });
 
   it('100% completion counts all 6 copies of every kind (owner, playtest 24)', () => {
