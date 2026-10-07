@@ -92,3 +92,12 @@ export function removeDecoration(decor: GameState['mapDecorations'], cell: numbe
   delete next[cell];
   return next;
 }
+
+/**
+ * Takes every decoration off the map at once (1.70), including any hidden under machines. Every
+ * bought copy stays owned and can be placed again for free. Returns the new (empty) decorations,
+ * or null if nothing is placed. Pure.
+ */
+export function removeAllDecorations(decor: GameState['mapDecorations']): GameState['mapDecorations'] | null {
+  return Object.keys(decor).length ? {} : null;
+}

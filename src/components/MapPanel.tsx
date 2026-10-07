@@ -469,7 +469,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
       {/* Decorations (1.64) and the legend (1.65): buttons floating at the bottom right of the screen, reachable
           however far the map is scrolled. On phones they sit above the research chip. A panel opens in the same
           corner, one at a time. */}
-      {panel === 'decor' && <MapDecorations tool={decorTool} onTool={setDecorTool} onClose={closePanel} />}
+      {panel === 'decor' && <MapDecorations tool={decorTool} onTool={setDecorTool} onClose={closePanel} onNote={setNote} />}
       {panel === 'legend' && (
         <MapFloatingPanel id="legend-panel" title="🗺️ Legend" closeLabel="Close legend" closeTestId="legend-close" testId="legend-panel" wide onClose={closePanel}>
           <MapLegend onSite={onSite} highlight={legendZone} onHighlight={setLegendZone} />

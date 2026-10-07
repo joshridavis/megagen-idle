@@ -330,3 +330,35 @@ test('the Cosmetics section opens and closes with no sideways scroll at 360px', 
   await page.keyboard.press(' ');
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
 });
+
+// 1.70: Remove all and its question fit a 375px phone.
+test('Remove all decorations and its question fit a 375px phone', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 700 });
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toBeVisible();
+  await importSave(page, { decorationsBought: { tree: 1, flag: 1 }, mapDecorations: { 10: 'tree', 11: 'flag' } });
+  await page.locator('#tab-map').click();
+  await page.getByTestId('decor-open').click();
+  const onScreen = async (testId: string) => {
+    const box = (await page.getByTestId(testId).boundingBox())!;
+    expect(box.x, testId).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width, testId).toBeLessThanOrEqual(375);
+    expect(box.y, testId).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height, testId).toBeLessThanOrEqual(700);
+  };
+  await onScreen('decor-remove-all');
+  await page.getByTestId('decor-remove-all').click();
+  await expect(page.getByTestId('decor-remove-all-confirm')).toBeVisible();
+  await onScreen('decor-remove-all-yes');
+  await onScreen('decor-remove-all-cancel');
+  await page.screenshot({ path: 'test-results/decor-remove-all-375.png' });
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('decor-remove-all-confirm')).toHaveCount(0);
+  await expect(page.getByTestId('map-decorations')).toBeVisible();
+  await expect(page.getByTestId('decor-remove-all')).toBeFocused();
+  await page.getByTestId('decor-remove-all').click();
+  await page.getByTestId('decor-remove-all-yes').click();
+  await expect(page.getByTestId('decor-remove-all')).toBeDisabled();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});

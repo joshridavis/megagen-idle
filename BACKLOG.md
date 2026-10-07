@@ -36,7 +36,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 **After playtest 24 (owner, 2026-10-06):** these come first after checkpoint 25, then the rest of the playtest 22 list below (1.55, 1.54, ...).
 
 0. 1.69 Collapse and expand the Cosmetics section in the Achievements tab (owner request; small; Done)
-0. 1.70 Remove all decorations from the map at once (owner request; small)
+0. 1.70 Remove all decorations from the map at once (owner request; small; Done)
 0. 1.71 Working machines animate on the map (owner request)
 
 **After playtest 25 (owner, 2026-10-06):** the owner kept the order 1.69, 1.70, 1.71, then 1.55 and 1.54; these new items come right after 1.71 (Claude's placement; the owner can move them).
@@ -1261,7 +1261,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** `settings.cosmeticsOpen` (saved with the game, open when missing) and `setCosmeticsOpen` in the settings slice; the heading button in `src/components/AchievementsPanel.tsx` shows a ▸/▾ chevron and, closed, "Title: … · Accent: …" with the title in its tier color. Closed means the body is not rendered, so there is no open/close animation at all. Tests: `src/components/CosmeticsToggle.test.tsx`, and a 360 px Playwright check in `e2e/layout.spec.ts`.
 
-### 1.70 — Remove all decorations from the map at once — CODE — Not started
+### 1.70 — Remove all decorations from the map at once — CODE — Done
 **Goal:** owner request after playtest 24: a button to clear every decoration from the map in one go, instead of removing them one by one.
 **Details:**
 - In the 🎨 Decorations panel, next to 🧹 Remove and Close in its pinned bottom bar, a **Remove all** button. Disabled when nothing is placed.
@@ -1269,6 +1269,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Removing all is free and keeps every bought copy (1.53): `decorationsBought` does not change, only `mapDecorations` becomes empty. Decorations hidden under machines are removed too.
 - A pure function (for example `removeAllDecorations` in `src/utils/decorations.ts`) and a store action; the map note says "All decorations removed: place them again any time for free."
 **Acceptance:** tests: the button is disabled with nothing placed; confirming empties `mapDecorations` and leaves energy and `decorationsBought` unchanged; Cancel and Escape change nothing; the copies can be placed again for free afterwards; Playwright at 375 px: the button and the confirmation are fully on screen; the build and all tests pass.
+
+**Notes:** `removeAllDecorations` in `src/utils/decorations.ts` and the store action of the same name (returns how many were removed). The question opens inline in the panel's pinned bottom bar (`role="alertdialog"`, Cancel focused); Escape there cancels only the question and keeps the panel open. Tests in `src/utils/decorations.test.tsx` and a 375 px Playwright check in `e2e/layout.spec.ts`.
 
 ### 1.71 — Working machines animate on the map — CODE — Not started
 **Goal:** owner request after playtest 24: every machine on the map that is working should look like it is working. Today a running generator shows a still "active" sprite and a stopped one shows the "inactive" sprite; nothing moves.
