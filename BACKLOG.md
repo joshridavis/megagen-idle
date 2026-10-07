@@ -24,7 +24,7 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold (owner, 2026-10-06, after playtest 25):** do not develop new backlog items until the owner says so. Hotfixes for what the owner reports on the current version are still made.
+**Hold lifted (owner, 2026-10-07):** the owner asked to continue from the order of work. The hold set after playtest 25 (2026-10-06) is over; the run goes on with 1.69, 1.70, 1.71, 1.78 and 1.79 toward checkpoint 26.
 
 **Hold lifted earlier (owner, 2026-10-06):** after playtest 24 the owner asked to continue. 1.58, 1.60, 1.56 and the bug fixes 1.72 and 1.73 were built for checkpoint 25 (PR #42, in the order below); the playtest 24 requests 1.69 to 1.71 were written on `main` at the same time and come next.
 
@@ -35,7 +35,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 **After playtest 24 (owner, 2026-10-06):** these come first after checkpoint 25, then the rest of the playtest 22 list below (1.55, 1.54, ...).
 
-0. 1.69 Collapse and expand the Cosmetics section in the Achievements tab (owner request; small)
+0. 1.69 Collapse and expand the Cosmetics section in the Achievements tab (owner request; small; Done)
 0. 1.70 Remove all decorations from the map at once (owner request; small)
 0. 1.71 Working machines animate on the map (owner request)
 
@@ -1249,7 +1249,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** tests: an eating pet's food sits at the bottom, on its facing side, with no bubble; a nap lasts at least 45 s; pets stop after most walks; a resting pet shows no bubble and no pose; the build and all tests pass.
 **Notes:** `PET_GROUND_ACTIONS` in `src/data/pets.ts`; the food and ball are drawn by `PetWalkers` with the CSS animations `pet-food` and `pet-ball`. Checked with browser screenshots. Timing in `src/data/pets.ts`: `PET_ACTION_MS` per action (sleep 45-120 s, rest 5-20 s, sit 6-15 s, eat and play 4-8 s, jump 2-4 s), `PET_ACTION_WEIGHTS` (rest 4, eat, play and sit 2, jump and sleep 1), `actionChance` 0.75 after a walk (was 0.45) and `restAfterAction` 0.35. Pets also start with a 5 s rest.
 
-### 1.69 — Collapse and expand the Cosmetics section in the Achievements tab — CODE — Not started
+### 1.69 — Collapse and expand the Cosmetics section in the Achievements tab — CODE — Done
 **Goal:** owner request after playtest 24: the Cosmetics section at the top of the Achievements tab (title picker, accent colors and the title tiers list from 1.66) has grown tall. The player should be able to close it and open it again.
 **Details:**
 - The "Cosmetics" heading becomes a toggle button (a ▸/▾ chevron, `aria-expanded`, `aria-controls`) that closes and opens the section. Keyboard: Enter and Space toggle it; it shows the focus ring.
@@ -1258,6 +1258,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reduce motion: no open/close animation.
 - The achievements list below is unchanged.
 **Acceptance:** tests: the section starts open; the toggle closes it (the title picker and tier list are gone, the summary shows) and opens it again; `aria-expanded` follows; the choice survives a reload (or a store reset of the UI only); Playwright at 360 px: no sideways scroll on the Achievements tab, open or closed; the build and all tests pass.
+
+**Notes:** `settings.cosmeticsOpen` (saved with the game, open when missing) and `setCosmeticsOpen` in the settings slice; the heading button in `src/components/AchievementsPanel.tsx` shows a ▸/▾ chevron and, closed, "Title: … · Accent: …" with the title in its tier color. Closed means the body is not rendered, so there is no open/close animation at all. Tests: `src/components/CosmeticsToggle.test.tsx`, and a 360 px Playwright check in `e2e/layout.spec.ts`.
 
 ### 1.70 — Remove all decorations from the map at once — CODE — Not started
 **Goal:** owner request after playtest 24: a button to clear every decoration from the map in one go, instead of removing them one by one.

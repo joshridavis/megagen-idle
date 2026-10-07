@@ -310,3 +310,23 @@ test('the research chip and the walking pets stay on top of a hovered card', asy
   const p = (await page.getByTestId('walking-pet-cat').boundingBox())!;
   expect(await onTopOfHoveredCard('[data-testid="walking-pet-cat"]', p.x + p.width / 2, p.y + p.height / 2)).toBe(true);
 });
+
+// 1.69: the Cosmetics section folds away; the Achievements tab fits a 360px phone open or closed.
+test('the Cosmetics section opens and closes with no sideways scroll at 360px', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto('./');
+  await page.locator('#tab-achievements').click();
+  const toggle = page.getByTestId('cosmetics-toggle');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  await toggle.focus();
+  await page.keyboard.press('Enter');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByTestId('cosmetics-summary')).toBeVisible();
+  await expect(page.getByTestId('title-tiers')).toHaveCount(0);
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  await page.screenshot({ path: 'test-results/cosmetics-closed-360.png' });
+  await page.keyboard.press(' ');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+});

@@ -18,10 +18,36 @@ export default function AchievementsPanel() {
   const cosmetics = state.settings.cosmetics ?? { title: null, accent: 'amber' };
   const titles = ACHIEVEMENTS.filter((a) => a.title && canUseTitle(state, a.id));
   const chosenTier = titleTier(cosmetics.title);
+  const cosOpen = state.settings.cosmeticsOpen ?? true;
+  const setOpen = useStore((s) => s.setCosmeticsOpen);
+  const titleName = ACHIEVEMENTS.find((a) => a.id === cosmetics.title)?.name;
+  const accentName = ACCENTS.find((x) => x.id === cosmetics.accent)?.name ?? cosmetics.accent;
   return (
     <section aria-label="Achievements" className="flex flex-col gap-4">
       <div className="rounded-lg bg-slate-800 p-3" data-testid="cosmetics">
-        <h2 className="mb-2 panel-title">Cosmetics</h2>
+        <h2 className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 ${cosOpen ? 'mb-2' : ''}`}>
+          <button
+            type="button"
+            onClick={() => setOpen(!cosOpen)}
+            aria-expanded={cosOpen}
+            aria-controls="cosmetics-body"
+            className="panel-title rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+            data-testid="cosmetics-toggle"
+          >
+            <span aria-hidden="true">{cosOpen ? '▾' : '▸'}</span> Cosmetics
+          </button>
+          {!cosOpen && (
+            <span className="text-xs font-normal text-slate-300" data-testid="cosmetics-summary">
+              Title:{' '}
+              <span className="font-semibold" style={{ color: chosenTier?.color }}>
+                {titleName ?? 'none'}
+              </span>{' '}
+              · Accent: {accentName}
+            </span>
+          )}
+        </h2>
+        {cosOpen && (
+        <div id="cosmetics-body">
         <div className="flex flex-wrap items-start gap-6">
           <label className="flex w-full min-w-0 max-w-xs flex-col gap-1 text-sm">
             <span className="text-xs text-slate-400">Title shown in the top bar</span>
@@ -102,6 +128,8 @@ export default function AchievementsPanel() {
             </div>
           ))}
         </div>
+        </div>
+        )}
       </div>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="panel-title">
