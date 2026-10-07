@@ -43,6 +43,7 @@ The version at the bottom of the screen should read **v0.26.0**.
 
 ## Next in the order
 
+- 1.82: thought bubbles beside the pet's head, on the side it faces (your report on v0.25.3).
 - 1.80: pets celebrate your level ups, research, achievements and so on, and react to random events.
 - 1.81: two or three active pets on screen sometimes interact.
 - Then 1.55 (more random events) and 1.54 (more decorations).
