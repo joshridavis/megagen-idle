@@ -25,6 +25,8 @@ import MapLegend, { ZONE_SPRITE } from './MapLegend';
 import MapDecorations, { type DecorTool } from './MapDecorations';
 import { DECORATIONS_BY_ID } from '../data/decorations';
 import { machineTiles, placeBlock } from '../utils/decorations';
+import MachineSprite from './MachineSprite';
+import { animationOffset, isMachineWorking, machineAnimation } from '../utils/machineAnimation';
 
 const TERRAIN_SPRITE: Record<Terrain, SpriteId> = { plain: 'tile_ground', ...ZONE_SPRITE };
 const KEY_STEPS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
@@ -46,6 +48,16 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const placeDecoration = useStore((s) => s.placeDecoration);
   const removeDecoration = useStore((s) => s.removeDecoration);
   const reduceMotion = useStore((s) => s.settings.reduceMotion);
+  // Working machines move (1.71) unless the in-game or the system Reduce motion is on.
+  const systemReduce = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const machinesMove = !reduceMotion && !systemReduce;
+  // and they stop while the page is hidden
+  const [pageHidden, setPageHidden] = useState(() => typeof document !== 'undefined' && document.hidden);
+  useEffect(() => {
+    const onVis = () => setPageHidden(document.hidden);
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, []);
   const researching = useStore((s) => s.currentResearch !== null);
   const fmt = useNumberFormat();
   const map = layoutSite(state);
@@ -331,6 +343,7 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
           className="relative grid"
           style={{ gridTemplateColumns: `repeat(${viewColumns}, minmax(20px, 1fr))`, minWidth: viewColumns * 20 }}
           data-testid="site-map"
+          data-paused={pageHidden || undefined}
           ref={gridRef}
           onMouseLeave={() => !drag.current && setHoverCell(null)}
         >
@@ -437,7 +450,12 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
                   data-testid={`map-${p.key}`}
                   className="tap-exempt group absolute z-10 flex cursor-grab items-center justify-center hover:z-30 focus-visible:z-30 active:cursor-grabbing"
                 >
-                  <img src={sprites[spriteOf(p)]} alt="" className="pixelated pointer-events-none max-h-full max-w-full object-contain p-0.5" />
+                  <MachineSprite
+                    sprite={spriteOf(p)}
+                    anim={machineAnimation(p)}
+                    animate={machinesMove && isMachineWorking(p, state.activeGenerators)}
+                    offset={animationOffset(p.key, machineAnimation(p).period)}
+                  />
                   {p.zoneBonus > 0 && (
                     <FloatingTip
                       className="absolute right-0 top-0 text-[10px] leading-none"

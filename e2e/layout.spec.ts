@@ -362,3 +362,24 @@ test('Remove all decorations and its question fit a 375px phone', async ({ page 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+// 1.71: working machines animate on a large site; switched-off ones stay still.
+test('working machines animate on the map at 1280px', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toBeVisible();
+  const types = ['solar', 'wind', 'coal', 'hydro', 'tidal', 'gas', 'oil', 'nuclear', 'fusion', 'supernova'];
+  const activeGenerators = types.flatMap((type) => [1, 2].map((i) => ({ id: `${type}-${i}`, type, isActive: !(type === 'solar' && i === 2), level: 1 })));
+  const producers = { quarry: 2, mine: 2, coalMine: 2, gasWell: 2, oilRig: 2, uraniumMine: 2, deuteriumExtractor: 2 };
+  await importSave(page, { activeGenerators, producers, roomCapacity: 400, resources: { coal: 1e9, stone: 1e9, metal: 1e9, naturalGas: 1e9, oil: 1e9, uranium: 1e9, deuterium: 1e9 } });
+  await page.locator('#tab-map').click();
+  await expect(page.locator('[data-anim="on"]').first()).toBeVisible();
+  expect(await page.locator('.frame-b').count()).toBeGreaterThan(0);
+  for (const fx of ['glint', 'smoke', 'steam', 'glow', 'bubbles']) expect(await page.locator(`[data-fx="${fx}"]`).count(), fx).toBeGreaterThan(0);
+  expect(await page.locator('.machine-shake').count()).toBeGreaterThan(0);
+  await expect(page.locator('[data-testid="map-solar-2"] [data-testid="machine-sprite"]')).toHaveAttribute('data-anim', 'still');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  await page.getByTestId('site-map').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: 'test-results/machines-animated-1280.png' });
+});

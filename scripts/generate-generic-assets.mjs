@@ -46,14 +46,23 @@ function cylinder(c, cx, top, r, h, light, dark, cap) {
   }
 }
 
-function waves(c, y, w, color, step = 8) {
+/** A row of waves; `offset` shifts them sideways (the second frame of moving water, 1.71). */
+function waves(c, y, w, color, step = 8, offset = 0) {
   for (let x = 0; x < w; x++) {
-    const phase = x % step;
+    const phase = (x + offset) % step;
     c.set(x, y + (phase < step / 2 ? 0 : 1), color);
   }
 }
 
+/** Points turned by `deg` degrees around (cx, cy), rounded to whole pixels (spinning parts, 1.71). */
+function turn(points, cx, cy, deg) {
+  if (!deg) return points;
+  const a = (deg * Math.PI) / 180;
+  return points.map(([x, y]) => [Math.round(cx + (x - cx) * Math.cos(a) - (y - cy) * Math.sin(a)), Math.round(cy + (x - cx) * Math.sin(a) + (y - cy) * Math.cos(a))]);
+}
+
 // ---------- generators ----------
+// A `frame` argument draws a later animation frame of a working machine (1.71); frame 0 is the still sprite.
 
 function solarPanel() {
   const c = new Canvas(48, 48);
@@ -78,17 +87,18 @@ function solarPanel() {
   return c;
 }
 
-function windTurbine() {
+function windTurbine(frame = 0) {
   const c = new Canvas(64, 64);
   c.polygon([[29, 20], [35, 20], [37, 60], [27, 60]], C.grey1); // tower
   c.polygon([[32, 20], [35, 20], [37, 60], [32, 60]], C.grey2);
   c.rect(24, 59, 16, 3, C.grey5);
   c.rect(29, 15, 9, 6, C.grey2); // nacelle
   c.rect(29, 15, 9, 2, C.white);
-  // three blades from the hub
-  c.polygon([[30, 17], [33, 16], [31, 2], [28, 3]], C.white);
-  c.polygon([[32, 19], [33, 17], [50, 26], [48, 29]], C.grey1);
-  c.polygon([[29, 17], [31, 19], [17, 31], [15, 29]], C.grey1);
+  // three blades from the hub; the second frame turns them by 60 degrees
+  const deg = frame * 60;
+  c.polygon(turn([[30, 17], [33, 16], [31, 2], [28, 3]], 31, 18, deg), C.white);
+  c.polygon(turn([[32, 19], [33, 17], [50, 26], [48, 29]], 31, 18, deg), C.grey1);
+  c.polygon(turn([[29, 17], [31, 19], [17, 31], [15, 29]], 31, 18, deg), C.grey1);
   c.circle(31, 18, 2.5, C.red); // hub
   c.outline(C.ink);
   return c;
@@ -113,11 +123,12 @@ function coalPlant() {
   return c;
 }
 
-function hydroDam() {
+function hydroDam(frame = 0) {
   const c = new Canvas(80, 64);
+  const shift = frame * 4;
   c.rect(0, 14, 30, 26, C.blue); // reservoir
-  waves(c, 18, 30, C.sky);
-  waves(c, 26, 30, C.sky);
+  waves(c, 18, 30, C.sky, 8, shift);
+  waves(c, 26, 30, C.sky, 8, shift);
   // concrete wall, trapezoid, lit from the left
   c.polygon([[26, 10], [52, 10], [62, 58], [18, 58]], C.grey2);
   c.polygon([[46, 10], [52, 10], [62, 58], [54, 58]], C.grey4);
@@ -125,9 +136,9 @@ function hydroDam() {
   for (let i = 0; i < 3; i++) c.rect(29 + i * 7, 14, 4, 4, C.grey5); // gates
   // spillway water
   c.rect(30, 40, 16, 18, C.sky);
-  for (let y = 41; y < 58; y += 3) c.line(31, y, 45, y, C.mint);
+  for (let y = 41 + frame; y < 58; y += 3) c.line(31, y, 45, y, C.mint);
   c.rect(0, 56, 80, 8, C.blue); // river
-  waves(c, 58, 80, C.sky);
+  waves(c, 58, 80, C.sky, 8, shift);
   c.rect(62, 50, 14, 8, C.grey3); // powerhouse
   c.rect(64, 52, 3, 3, C.amber);
   c.rect(70, 52, 3, 3, C.amber);
@@ -154,11 +165,11 @@ function gasPlant() {
   return c;
 }
 
-function tidalStation() {
+function tidalStation(frame = 0) {
   const c = new Canvas(64, 48);
   c.rect(0, 30, 64, 18, C.blue); // sea
-  waves(c, 32, 64, C.sky);
-  waves(c, 38, 64, C.sky, 12);
+  waves(c, 32, 64, C.sky, 8, frame * 4);
+  waves(c, 38, 64, C.sky, 12, frame * 6);
   c.rect(10, 18, 4, 22, C.grey4); // legs
   c.rect(50, 18, 4, 22, C.grey4);
   isoBlock(c, 6, 14, 48, 6, 4, C.grey1, C.grey2, C.grey4); // deck
@@ -168,9 +179,7 @@ function tidalStation() {
   // underwater turbine
   c.rect(31, 20, 2, 18, C.grey5);
   c.circle(32, 40, 2, C.yellow);
-  c.line(32, 40, 26, 44, C.grey1);
-  c.line(32, 40, 38, 44, C.grey1);
-  c.line(32, 40, 32, 35, C.grey1);
+  for (const [x, y] of turn([[26, 44], [38, 44], [32, 35]], 32, 40, frame * 60)) c.line(32, 40, x, y, C.grey1);
   c.outline(C.ink);
   return c;
 }
@@ -346,7 +355,7 @@ function quarry() {
   return c;
 }
 
-function mine() {
+function mine(frame = 0) {
   const c = new Canvas(48, 48);
   c.polygon([[0, 40], [10, 14], [24, 6], [38, 14], [48, 40]], C.brown3); // hill
   c.polygon([[0, 40], [10, 14], [24, 6], [20, 18], [8, 40]], C.brown2);
@@ -355,34 +364,36 @@ function mine() {
   c.rect(14, 20, 3, 20, C.brown4);
   c.rect(31, 20, 3, 20, C.brown4);
   c.rect(0, 40, 48, 3, C.grey4); // rail
-  c.rect(4, 32, 12, 7, C.grey3); // cart
-  c.rect(5, 30, 10, 3, C.steel); // ore
-  c.circle(7, 40, 1.5, C.grey6);
-  c.circle(13, 40, 1.5, C.grey6);
+  const cx = frame * 8; // the cart rolls along the rail
+  c.rect(4 + cx, 32, 12, 7, C.grey3); // cart
+  c.rect(5 + cx, 30, 10, 3, C.steel); // ore
+  c.circle(7 + cx, 40, 1.5, C.grey6);
+  c.circle(13 + cx, 40, 1.5, C.grey6);
   c.outline(C.ink);
   return c;
 }
 
-function gasWell() {
+function gasWell(frame = 0) {
   const c = new Canvas(48, 48);
   c.rect(2, 40, 44, 5, C.mud); // ground
+  const up = frame * 6; // the second frame: horse head up, crank down
   // pump jack: A-frame, walking beam, horse head, counterweight
   c.line(18, 40, 24, 16, C.grey4);
   c.line(30, 40, 24, 16, C.grey4);
   c.line(19, 40, 25, 16, C.grey5);
-  c.polygon([[6, 14], [40, 10], [41, 14], [7, 18]], C.amber); // beam
-  c.polygon([[4, 10], [10, 10], [11, 24], [5, 24]], C.orange); // horse head
-  c.line(7, 24, 7, 38, C.grey3); // polished rod
+  c.polygon([[6, 14 - up], [40, 10 + up / 2], [41, 14 + up / 2], [7, 18 - up]], C.amber); // beam
+  c.polygon([[4, 10 - up], [10, 10 - up], [11, 24 - up], [5, 24 - up]], C.orange); // horse head
+  c.line(7, 24 - up, 7, 38, C.grey3); // polished rod
   c.circle(38, 26, 6, C.grey4); // crank weight
   c.circle(38, 26, 3, C.grey5);
-  c.line(38, 26, 38, 14, C.grey3);
+  c.line(38, 26, 38, 14 + up / 2, C.grey3);
   c.rect(3, 36, 9, 4, C.grey5); // wellhead
   c.circle(44, 6, 2.5, C.sky); // gas flame
   c.outline(C.ink);
   return c;
 }
 
-function coalMine() {
+function coalMine(frame = 0) {
   const c = new Canvas(48, 48);
   c.rect(2, 38, 44, 6, C.mud); // ground
   // headframe tower
@@ -394,6 +405,8 @@ function coalMine() {
   c.line(16, 16, 24, 16, C.red);
   c.circle(20, 7, 4, C.grey3); // wheel
   c.circle(20, 7, 2, C.grey5);
+  // spokes: a + then an x, so the wheel turns when it works (1.71)
+  for (const [x, y] of turn([[20, 3], [24, 7]], 20, 7, frame * 45)) c.line(20 * 2 - x, 7 * 2 - y, x, y, C.grey5);
   isoBlock(c, 4, 30, 14, 8, 3, C.brown2, C.brown3, C.brown4); // shed
   // coal pile
   c.polygon([[28, 38], [36, 26], [46, 38]], C.grey6);
@@ -444,10 +457,10 @@ function capacity(fill, light, border) {
   return c;
 }
 
-function oilRig() {
+function oilRig(frame = 0) {
   const c = new Canvas(48, 48);
   c.rect(0, 38, 48, 10, C.blue); // sea
-  waves(c, 40, 48, C.sky);
+  waves(c, 40, 48, C.sky, 8, frame * 4);
   c.rect(10, 26, 3, 16, C.grey4); // legs
   c.rect(34, 26, 3, 16, C.grey4);
   isoBlock(c, 6, 22, 34, 5, 3, C.grey1, C.grey2, C.grey4); // deck
@@ -456,13 +469,14 @@ function oilRig() {
   c.line(28, 22, 22, 4, C.amber);
   c.line(18, 16, 26, 16, C.amber);
   c.line(20, 10, 24, 10, C.amber);
+  c.rect(21, 7 + frame * 6, 3, 3, C.grey5); // travelling block: pumps up and down
   c.rect(30, 14, 8, 8, C.cream); // cabin
   c.rect(32, 16, 2, 2, C.sky);
   c.outline(C.ink);
   return c;
 }
 
-function uraniumMine() {
+function uraniumMine(frame = 0) {
   const c = new Canvas(48, 48);
   c.polygon([[0, 40], [10, 22], [24, 16], [38, 22], [48, 40]], C.brown3); // hill
   c.polygon([[0, 40], [10, 22], [16, 20], [8, 40]], C.brown2);
@@ -470,10 +484,11 @@ function uraniumMine() {
   c.rect(18, 28, 12, 2, C.brown5);
   c.rect(0, 40, 48, 8, C.mud);
   // ore cart with glowing ore
-  c.rect(32, 36, 10, 5, C.grey4);
-  c.rect(33, 34, 8, 2, C.lime);
-  c.circle(34, 42, 1.5, C.grey6);
-  c.circle(40, 42, 1.5, C.grey6);
+  const cx = -frame * 6; // the cart rolls toward the tunnel
+  c.rect(32 + cx, 36, 10, 5, C.grey4);
+  c.rect(33 + cx, 34, 8, 2, C.lime);
+  c.circle(34 + cx, 42, 1.5, C.grey6);
+  c.circle(40 + cx, 42, 1.5, C.grey6);
   // hazard sign
   c.polygon([[8, 26], [3, 34], [13, 34]], C.yellow);
   c.rect(8, 29, 1, 3, C.ink);
@@ -1347,6 +1362,15 @@ const DRAW = {
   producer_uranium_mine: uraniumMine,
   producer_deuterium_extractor: deuteriumExtractor,
   room_expansion: roomExpansion,
+  // second frames of working machines (1.71)
+  wind_turbine_2: () => windTurbine(1),
+  hydro_dam_2: () => hydroDam(1),
+  tidal_station_2: () => tidalStation(1),
+  producer_mine_2: () => mine(1),
+  producer_coal_mine_2: () => coalMine(1),
+  producer_gas_well_2: () => gasWell(1),
+  producer_oil_rig_2: () => oilRig(1),
+  producer_uranium_mine_2: () => uraniumMine(1),
   tile_ground: groundTile,
   map_bird_1: () => mapBird(true),
   map_bird_2: () => mapBird(false),
