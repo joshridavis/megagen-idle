@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { GeneratorType, type Generator } from '../types/generator';
 import type { Resources } from '../types/state';
 import { getBonuses } from '../utils/bonuses';
+import { burnersFedByOne } from '../utils/fuelBalance';
 import { burnFuel, getFuelUseRates } from '../utils/resourceSystem';
 import { canStartResearch, completeResearch, getUnlockedGeneratorTypes, startResearch } from '../utils/researchSystem';
 import { GENERATORS } from './generators';
 import { createInitialState } from './initialState';
-import { PRODUCERS } from './producers';
 import { RESEARCH_BY_ID } from './research';
 
 const res = (r: Partial<Resources> = {}): Resources => ({ coal: 0, stone: 0, metal: 0, naturalGas: 0, oil: 0, uranium: 0, deuterium: 0, ...r });
@@ -38,10 +38,11 @@ describe('tier 3 generators (0.33)', () => {
     expect(r.depleted.sort()).toEqual(['oil', 'uranium']);
   });
 
-  it('one rig fuels two oil plants and one mine fuels two reactors', () => {
-    const perHour = (id: 'oilRig' | 'uraniumMine') => (PRODUCERS[id].amount * 3600) / PRODUCERS[id].intervalSeconds;
-    expect(perHour('oilRig')).toBe(2 * (GENERATORS[GeneratorType.OIL].maintenanceCost!.oil ?? 0));
-    expect(perHour('uraniumMine')).toBe(2 * (GENERATORS[GeneratorType.NUCLEAR].maintenanceCost!.uranium ?? 0));
+  it('late game, one rig fuels about two oil plants and one mine about two reactors (1.86)', () => {
+    expect(burnersFedByOne('oilRig', GeneratorType.OIL)).toBeGreaterThanOrEqual(1.5);
+    expect(burnersFedByOne('oilRig', GeneratorType.OIL)).toBeLessThanOrEqual(2.5);
+    expect(burnersFedByOne('uraniumMine', GeneratorType.NUCLEAR)).toBeGreaterThanOrEqual(1.5);
+    expect(burnersFedByOne('uraniumMine', GeneratorType.NUCLEAR)).toBeLessThanOrEqual(2.5);
   });
 
   it('research gates: the plants unlock only after their research, the producers are granted by it', () => {

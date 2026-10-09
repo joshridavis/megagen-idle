@@ -89,7 +89,7 @@ const RESEARCH_DEFS: ResearchDef[] = [
   {
     id: 'gas_extraction',
     name: 'Natural Gas Extraction',
-    description: 'Drills your first Gas Well: 1 natural gas every 10 minutes.',
+    description: 'Drills your first Gas Well: 1 natural gas every 35 minutes.',
     category: 'materials',
     requiredLevel: 5,
     cost: { energy: 8000, resources: { coal: 20, metal: 50 } },
@@ -366,7 +366,7 @@ const RESEARCH_DEFS: ResearchDef[] = [
   {
     id: 'oil_drilling',
     name: 'Oil Drilling',
-    description: 'Builds your first Oil Rig: 1 oil every 5 minutes.',
+    description: 'Builds your first Oil Rig: 1 oil every 16 minutes.',
     category: 'materials',
     requiredLevel: 9,
     cost: { energy: 40000, resources: { metal: 200, naturalGas: 10 } },
@@ -400,7 +400,7 @@ const RESEARCH_DEFS: ResearchDef[] = [
   {
     id: 'uranium_mining',
     name: 'Uranium Mining',
-    description: 'Opens your first Uranium Mine: 1 uranium every 30 minutes.',
+    description: 'Opens your first Uranium Mine: 1 uranium every 100 minutes.',
     category: 'materials',
     requiredLevel: 13,
     cost: { energy: 80000, resources: { metal: 400, stone: 200 } },
@@ -435,7 +435,7 @@ const RESEARCH_DEFS: ResearchDef[] = [
   {
     id: 'heavy_water',
     name: 'Heavy Water Extraction',
-    description: 'Opens your first Deuterium Extractor: 1 deuterium every 6 minutes, from sea water.',
+    description: 'Opens your first Deuterium Extractor: 1 deuterium every 90 minutes, from sea water.',
     category: 'materials',
     requiredLevel: 26,
     cost: { energy: 1_000_000, resources: { metal: 3000, stone: 1500 } },

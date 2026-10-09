@@ -32,46 +32,48 @@ const PRODUCER_DEFS: Record<ProducerId, ProducerDef> = {
     roomCost: 1,
     baseCost: { energy: 1200, resources: { metal: 15, stone: 10 } },
   },
-  // The first one is granted by Natural Gas Extraction. One well fuels three gas plants.
+  // The first one is granted by Natural Gas Extraction. With every late-game boost on both sides (research,
+  // zone, pets; see src/utils/fuelBalance.ts) one well fuels about three gas plants (1.86: was ten).
   gasWell: {
     id: 'gasWell',
     name: 'Gas Well',
     resource: 'naturalGas',
     amount: 1,
-    intervalSeconds: 600,
+    intervalSeconds: 2100,
     roomCost: 2,
     baseCost: { energy: 6000, resources: { metal: 60, stone: 30 } },
     requiresResearch: 'gas_extraction',
   },
-  // 0.33. The first one is granted by Oil Drilling. One rig fuels two oil plants.
+  // 0.33. The first one is granted by Oil Drilling. Late game, one rig fuels about two oil plants (1.86: was six).
   oilRig: {
     id: 'oilRig',
     name: 'Oil Rig',
     resource: 'oil',
     amount: 1,
-    intervalSeconds: 300,
+    intervalSeconds: 960,
     roomCost: 2,
     baseCost: { energy: 20000, resources: { metal: 200, stone: 100 } },
     requiresResearch: 'oil_drilling',
   },
-  // 0.33. The first one is granted by Uranium Mining. One mine fuels two reactors.
+  // 0.33. The first one is granted by Uranium Mining. Late game, one mine fuels about two reactors (1.86: was seven).
   uraniumMine: {
     id: 'uraniumMine',
     name: 'Uranium Mine',
     resource: 'uranium',
     amount: 1,
-    intervalSeconds: 1800,
+    intervalSeconds: 6000,
     roomCost: 2,
     baseCost: { energy: 60000, resources: { metal: 400, stone: 300 } },
     requiresResearch: 'uranium_mining',
   },
   // 0.34. Heavy water from the sea, for fusion. The first one is granted by Heavy Water Extraction.
+  // Late game, one extractor fuels about two Fusion Reactors or one Micro-Supernova (1.86: was thirty reactors).
   deuteriumExtractor: {
     id: 'deuteriumExtractor',
     name: 'Deuterium Extractor',
     resource: 'deuterium',
     amount: 1,
-    intervalSeconds: 360,
+    intervalSeconds: 5400,
     roomCost: 3,
     baseCost: { energy: 400000, resources: { metal: 1500, stone: 800 } },
     requiresResearch: 'heavy_water',

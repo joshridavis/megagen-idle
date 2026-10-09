@@ -13,17 +13,18 @@ describe('balance simulator (0.35)', () => {
     expect(a.finalState.energy).toBe(b.finalState.energy);
   });
 
-  it('a full run finishes well under 60 seconds and reaches 100% with no stalls', () => {
+  it('a full run finishes within 2 minutes and reaches 100% with no stalls', () => {
     const t = Date.now();
     const r = runBalanceSim();
-    expect(Date.now() - t).toBeLessThan(60_000);
+    expect(Date.now() - t).toBeLessThan(120_000);
     expect(r.completion).toBe(1);
     expect(r.gaps).toEqual([]);
     expect(r.milestones.find((m) => m.id === 'firstGenerator')!.hours).toBeLessThan(2 / 60);
-    // map layouts (1.05) made a run take several seconds: allow it, within the 60 s budget above.
+    // map layouts (1.05) made a run take several seconds: allow it, within the budget above.
     // The runner timeout sits above that budget so the check above decides, even when the
-    // full suite runs in parallel (the 211 h run since 1.28 takes about 25 s alone).
-  }, 90_000);
+    // full suite runs in parallel. 1.86's scarcer fuel made the run longer (327 h, about 50 s
+    // alone in a cloud sandbox, 67 s with the suite in parallel): the budget went from 60 s to 120 s.
+  }, 180_000);
 });
 
 describe('completion (0.66 groundwork)', () => {
