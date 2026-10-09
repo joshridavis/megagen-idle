@@ -25,4 +25,4 @@ export const PACING_TARGETS: PacingTarget[] = [
 ];
 
 /** A stretch longer than this (hours) with no new milestone counts as a stall. */
-export const STALL_HOURS = 8;
+export const STALL_HOURS = 12;

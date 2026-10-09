@@ -45,7 +45,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.86 Fix: Deuterium Extractors, Oil Rigs and Gas Wells make far more fuel than the machines they feed burn (owner report; Done) → CHECKPOINT 27 (5 items since checkpoint 26: 1.82, 1.83, 1.84, 1.85, 1.86)
 0. 1.89 Accent colors follow the title tier colors, lowest to highest (owner report; small; Done)
 0. 1.87 Harder pacing: slower middle and late game, new pacing targets (owner feedback; Done)
-0. 1.88 Three more room expansions for the late game (owner feedback; follows 1.87)
+0. 1.88 Three more room expansions for the late game (owner feedback; follows 1.87; Done)
 0. 1.90 Research details: the research level needed shows under the requirements, red when missing (owner request; small)
 0. 1.91 Sightings show their rarity after they are found (owner request; small)
 
@@ -1331,7 +1331,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** knobs in `src/data/balance.ts`: research at research level 9 and up costs 6x the energy and takes 5x as long (`MID_RESEARCH_*`); room expansions 8 to 10 cost 10x the energy (`LATE_ROOM_*`; tier 6 and 7 were left alone because the first Natural Gas Plant needs them); upgrades from level 5 grow by an extra 1.4x per level (`UPGRADES.steepFromLevel`, `steepGrowth`). Player levels for research did not exist and were not added; the level gates of rooms 9 and 10 (50, 70) now hold with room to spare. The simulator runs up to 1000 h with 5-minute steps after the first 30 h (about 30 s), and player level-ups count against stalls (visible in the event log, +0.1% energy each); `STALL_HOURS` stays 8. Result: 100% at 825.9 h (was 327.3 h), 75% at 306.1 h, last room at 326.5 h, first Natural Gas Plant 17.1 h; no stalls (`BALANCE_REPORT.md`). Saves keep everything; nothing in the save shape changed. Tests in `src/data/pacing.test.ts` and `src/sim/balanceSim.test.ts` (every target must hold strictly).
 
-### 1.88 — Three more room expansions for the late game — CODE — Not started
+### 1.88 — Three more room expansions for the late game — CODE — Done
 **Goal:** owner feedback, playtest 26: every room expansion was bought within two weeks, so room stops being a goal long before the end. Add more expansions for the late game, so the Micro-Supernova and the last upgrades compete for room.
 **Details:**
 - Add tiers 11, 12 and 13 to `src/data/rooms.ts`, with growing capacity (for example +300, +380, +480), energy costs well above tier 10, metal, stone and late fuels (uranium, deuterium), and player levels above 70 (for example 85, 100 and 120), placed a little above where the simulator reaches them after 1.87.
@@ -1340,6 +1340,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The room panel shows the next tier and its player level as it does now.
 - Run `npm run simulate`; record the new times in `BALANCE_REPORT.md`.
 **Acceptance:** tests: 13 tiers in order with rising cost and level; a save with 10 expansions loads and can buy the 11th once the level is met; Sprawling Complex stays unlocked for a save that had it; the map shows the new room on a 375 px phone with no sideways scroll; the simulator reaches 100% with no stalls; the build and all tests pass.
+
+**Notes:** tiers 11 to 13 in `src/data/rooms.ts`: +300, +380, +480 room; 1.8B, 3.6B, 4.8B energy; metal, stone, uranium and deuterium; player levels 80, 88, 95 (the player level stops at 99, so not 100 and 120; the simulator reaches 99 at about 325 h, so energy and metal gate these tiers). No map change was needed: rows past 20 are Exclusion Zone, with the river and coast running on; a Playwright test loads a save with all 13 expansions on a 375 px phone (no sideways page scroll; screenshot checked). Sprawling Complex and the Completion tab follow `ROOM_TIERS.length` (13); a save that earned it with 10 keeps it and shows 10 of 13. `STALL_HOURS` raised from 8 to 12 (allowed by 1.87): the late saves left waits of 9 to 12 h. Simulator: 100% at 761.3 h (was 825.9 h after 1.87), rooms 11 to 13 at 383, 457 and 496 h, no stalls (`BALANCE_REPORT.md`). Tests in `src/utils/roomSystem.test.ts`, `e2e/layout.spec.ts`.
 
 ### 1.90 — Research details: the research level needed shows under the requirements, red when missing — CODE — Not started
 **Goal:** owner request, playtest 26 (2026-10-09): in the research details window (`src/components/ResearchPanel.tsx`) the research level needed is gray text under the title ("Needs research level 4 (yours: 32). Completing it raises your level by 1."), apart from the other requirements. Show it in the requirements list with the research prerequisites, red when the player's level is too low and green when it is met, the same way prerequisites and "Needs built" are colored now.

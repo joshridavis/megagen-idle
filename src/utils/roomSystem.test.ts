@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { GENERATOR_TYPES } from '../data/generators';
 import { createInitialState } from '../data/initialState';
 import { ROOM_TIERS } from '../data/rooms';
+import { ACHIEVEMENTS } from '../data/achievements';
+import { migrateSave, pickSaved, SAVE_VERSION } from '../store/migrations';
+import { unlockAchievements } from './achievements';
+import { getCompletion } from './completion';
 import { GeneratorType } from '../types/generator';
 import type { GameState } from '../types/state';
 import { buildGenerator, getBuildBlock } from './generatorSystem';
@@ -109,8 +113,8 @@ describe('expansion animation: room bar (playtest 7 redesign, absorbs 0.21)', ()
 });
 
 describe('room tiers (playtest 7: more, finite)', () => {
-  it('there are 10 tiers (9 and 10 from 0.34), in order, each bigger and dearer than the last', () => {
-    expect(ROOM_TIERS).toHaveLength(10);
+  it('there are 13 tiers (9 and 10 from 0.34, 11 to 13 from 1.88), in order, each bigger and dearer than the last', () => {
+    expect(ROOM_TIERS).toHaveLength(13);
     ROOM_TIERS.forEach((t, i) => {
       expect(t.tier).toBe(i + 1);
       if (i > 0) {
@@ -119,5 +123,44 @@ describe('room tiers (playtest 7: more, finite)', () => {
         expect(t.resources.metal!).toBeGreaterThan(ROOM_TIERS[i - 1].resources.metal!);
       }
     });
+  });
+});
+
+describe('late-game room expansions (1.88)', () => {
+  it('13 tiers in order, with rising capacity, cost and player level', () => {
+    expect(ROOM_TIERS).toHaveLength(13);
+    ROOM_TIERS.forEach((t, i) => expect(t.tier).toBe(i + 1));
+    for (const t of ROOM_TIERS.slice(10)) {
+      const prev = ROOM_TIERS[t.tier - 2];
+      expect(t.capacity).toBeGreaterThan(prev.capacity);
+      expect(t.energy).toBeGreaterThan(prev.energy);
+      expect(t.resources.metal!).toBeGreaterThan(prev.resources.metal!);
+      expect(t.playerLevel).toBeGreaterThan(prev.playerLevel);
+      expect(t.playerLevel).toBeGreaterThan(70);
+      expect(t.playerLevel).toBeLessThanOrEqual(99); // the player level cap
+    }
+  });
+
+  it('a save with 10 expansions loads and buys the 11th once its level is met', () => {
+    const ten = 13 + ROOM_TIERS.slice(0, 10).reduce((sum, t) => sum + t.capacity, 0);
+    const base = createInitialState(0);
+    const saved = { ...base, expansionLevel: 10, roomCapacity: ten, energy: 1e12, resources: { ...base.resources, metal: 1e7, stone: 1e7, uranium: 1e5, deuterium: 1e5 } };
+    const loaded = migrateSave(JSON.parse(JSON.stringify(pickSaved(saved))), SAVE_VERSION);
+    expect(loaded.expansionLevel).toBe(10);
+    expect(getNextRoomTier(loaded.expansionLevel)?.tier).toBe(11);
+    const low = { ...loaded, lifetimeEnergy: energyForLevel(ROOM_TIERS[10].playerLevel - 1) };
+    expect(canExpandRoom(low)).toBe(false);
+    const ready = { ...loaded, lifetimeEnergy: energyForLevel(ROOM_TIERS[10].playerLevel) };
+    const after = expandRoom(ready);
+    expect(after.expansionLevel).toBe(11);
+    expect(after.roomCapacity).toBe(ten + ROOM_TIERS[10].capacity);
+  });
+
+  it('Sprawling Complex stays unlocked for a save that earned it with 10; completion shows 10 of 13', () => {
+    const s = { ...createInitialState(0), expansionLevel: 10, achievements: { room_all: 123 } };
+    expect(unlockAchievements(s, 1000).state.achievements.room_all).toBe(123);
+    const part = getCompletion(s).parts.find((p) => p.label === 'Room expansions')!;
+    expect([part.done, part.total]).toEqual([10, 13]);
+    expect(ACHIEVEMENTS.find((a) => a.id === 'room_all')!.target).toBe(13);
   });
 });

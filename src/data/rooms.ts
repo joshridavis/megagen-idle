@@ -37,6 +37,11 @@ const ROOM_TIER_DEFS: RoomTier[] = [
   // 0.34: room for the fictional generators (fusion 16, supernova 25). First guesses, tuned by the simulator.
   { tier: 9, capacity: 180, energy: 20_000_000, resources: { metal: 25_000, stone: 12_000, uranium: 40 }, playerLevel: 50 },
   { tier: 10, capacity: 240, energy: 80_000_000, resources: { metal: 50_000, stone: 25_000, uranium: 100, deuterium: 30 }, playerLevel: 70 },
+  // 1.88 (playtest 26): late-game room, so the Micro-Supernova and the last upgrades compete for it.
+  // Levels stay below the player level cap (99); tuned by the simulator.
+  { tier: 11, capacity: 300, energy: 150_000_000, resources: { metal: 80_000, stone: 40_000, uranium: 200, deuterium: 60 }, playerLevel: 80 },
+  { tier: 12, capacity: 380, energy: 300_000_000, resources: { metal: 120_000, stone: 60_000, uranium: 300, deuterium: 100 }, playerLevel: 88 },
+  { tier: 13, capacity: 480, energy: 400_000_000, resources: { metal: 130_000, stone: 65_000, uranium: 400, deuterium: 150 }, playerLevel: 95 },
 ];
 
 /**

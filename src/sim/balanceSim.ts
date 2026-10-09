@@ -13,6 +13,7 @@ import { hasSpotFor, layoutSite, terrainOfCell, withPlacementMods } from '../uti
 import { zoneFor } from '../utils/mapTerrain';
 import { getCompletion } from '../utils/completion';
 import { getPlayerLevel } from '../utils/playerLevel';
+import { STALL_HOURS } from '../data/pacingTargets';
 import {
   buildGenerator,
   generatorScrapRefund,
@@ -424,7 +425,7 @@ function chaseGeneratorCount(s: GameState, unlocked: ReturnType<typeof getUnlock
 }
 
 /** Runs the deterministic greedy player and records milestones. */
-export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): SimResult {
+export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = STALL_HOURS): SimResult {
   const o = { ...DEFAULT_SIM, ...opts };
   let s = createInitialState(T0);
   let t = T0;
