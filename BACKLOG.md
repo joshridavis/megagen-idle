@@ -24,7 +24,9 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold (owner, 2026-10-07, after playtest 26):** do not develop the next backlog item until the owner says so. Hotfixes for what the owner reports on the current version are still made.
+**Hold lifted (owner, 2026-10-09):** the owner asked to continue from the order of work. The hold set after playtest 26 (2026-10-07) is over; the run went on with 1.82, 1.83, 1.84, 1.85 and 1.86 toward checkpoint 27 (v0.27.0). The next items are 1.89, 1.87, 1.88, 1.90 and 1.91.
+
+~~On hold (owner, 2026-10-07, after playtest 26): do not develop the next backlog item until the owner says so.~~
 
 **After playtest 26 (owner, 2026-10-07):** when the hold lifts, these come first, after 1.82 (Claude's placement; the owner can move them).
 
@@ -32,7 +34,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.84 A map button to turn machine animations on and off (owner request, playtest 26; small; Done)
 0. 1.85 Landscape Architect counts toward 100% (owner decision, playtest 26; small; Done)
 
-**More playtest 26 notes (owner, 2026-10-09):** the owner sent more notes and screenshots (player level 73, 79.7% completion, every room expansion bought, all 7 producer types, 9 of 10 generator types built and at max level, 31 of 39 research, 111 of 200 contracts, 8 of 13 contract perks, 13 of 14 pets found and 8 fully grown, pet slot 2 of 3, 34 of 36 decorations). These come right after 1.85 (Claude's placement; the owner can move them). The hold above still applies.
+**More playtest 26 notes (owner, 2026-10-09):** the owner sent more notes and screenshots (player level 73, 79.7% completion, every room expansion bought, all 7 producer types, 9 of 10 generator types built and at max level, 31 of 39 research, 111 of 200 contracts, 8 of 13 contract perks, 13 of 14 pets found and 8 fully grown, pet slot 2 of 3, 34 of 36 decorations). These come right after 1.85 (Claude's placement; the owner can move them).
 
 0. 1.86 Fix: Deuterium Extractors, Oil Rigs and Gas Wells make far more fuel than the machines they feed burn (owner report; Done) → CHECKPOINT 27 (5 items since checkpoint 26: 1.82, 1.83, 1.84, 1.85, 1.86)
 0. 1.89 Accent colors follow the title tier colors, lowest to highest (owner report; small)
@@ -1965,3 +1967,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 26 (more notes) | 1.69, 1.70, 1.71, 1.78, 1.79 | 2026-10-09 | Deuterium Extractor makes too much: one extractor with 4 Fusion Reactors still gives +13.7 deuterium per hour; same for Oil Rig and Gas Well. Still too easy overall: in at most 2 weeks (about 6 to 8 hours active; the play-time stat shows 3 h 13 min, counted only since the account was made) the owner reached player level 73, every room expansion and 79.7% completion. Accent colors must follow the title tiers: the first accent (Amber) has the highest tier's color. | 1.86, 1.87, 1.88, 1.89 |
 | 26 (more notes) | | 2026-10-09 | In the research details window, the research level needed should show under the requirements, red when missing (today it is gray text under the title). | 1.90 |
 | 26 (more notes) | | 2026-10-09 | Sightings discovered: show the rarity of a sighting even after it is found (today only "???" rows show it). | 1.91 |
+| 27 (v0.27.0) | 1.82, 1.83, 1.84, 1.85, 1.86 | 2026-10-09 | 100% completion simulated at 327.3 h (was 293.3 h): fuel producers now feed about 2 to 3 plants each (1.86). The hold after playtest 26 was lifted (owner asked to continue). Waiting for feedback. | |
