@@ -39,6 +39,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.87 Harder pacing: slower middle and late game, new pacing targets (owner feedback)
 0. 1.88 Three more room expansions for the late game (owner feedback; follows 1.87)
 0. 1.90 Research details: the research level needed shows under the requirements, red when missing (owner request; small)
+0. 1.91 Sightings show their rarity after they are found (owner request; small)
 
 **Hold lifted (owner, 2026-10-07):** the owner asked to continue from the order of work. The hold set after playtest 25 (2026-10-06) is over; the run went on with 1.69, 1.70, 1.71, 1.78 and 1.79 toward checkpoint 26. The 1.82 fix below (written on `main` while this run was underway) was not part of it and is the next item after checkpoint 26.
 
@@ -1327,6 +1328,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The tree card text ("Needs level 5 · 7K") is unchanged.
 **Acceptance:** tests: the window shows the research level row in red when the level is too low and in green when it is met; the row shows for a research with no prerequisites; the level is no longer shown under the title; the build and all tests pass.
 
+### 1.91 — Sightings show their rarity after they are found — CODE — Not started
+**Goal:** owner request, playtest 26 (2026-10-09): in the Completion tab's "Sightings discovered" list, a sighting not yet seen shows its rarity ("??? (Rare)"), but once it is found only its name and count show, so the rarity is lost. Keep showing the rarity after it is found.
+**Details:**
+- In `src/components/CompletionPanel.tsx`, a found sighting shows its name, then its rarity from `RARITY_LABEL` in `src/data/events.ts` (for example "Aurora · Rare" or a small tag after the name), then the ×count on the right as now.
+- Color the rarity label, found or not, with the matching title tier color from `TITLE_TIERS` in `src/data/achievements.ts` (Common gray, Uncommon green, Rare blue, Legendary gold), so rarity colors are the same across the game; keep the 4.5:1 contrast on the dark row. Unfound rows keep "???" in gray with the colored rarity.
+- Fits a 375 px phone: long names wrap, no sideways scroll.
+**Acceptance:** tests: a found sighting shows its name, its rarity label and its count; an unfound one still shows "???" and its rarity; the rarity color matches the tier of the same name; the build and all tests pass.
+
 ### 1.82 — Fix: thought bubbles beside the pet's head, not straight above it — CODE — Not started
 **Goal:** owner report, playtest 25.3 (screenshot): a walking pet's thought bubble (💭 while sitting, ❗ while jumping, 💤 while sleeping) sits straight above the pet, which looks unnatural. It should float up and to the side the pet faces: to the right when it faces right, to the left when it faces left, like a comic thought bubble.
 **Details:**
@@ -1943,3 +1952,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 26 (answers) | 1.69, 1.70, 1.71, 1.78, 1.79 | 2026-10-07 | Machine animations generally fine, but some do not look animated (coal plant), some are too busy (stone quarry), and the metal mine looks odd; the best are the nuclear and fusion plants, the wind turbine, the gas well and the natural gas plant. Wants a button on the map to turn the machine animations on and off, separate from Settings. New frames read clearly. Pet speeds better now. Landscape Architect should count toward 100%. Do not develop the next backlog item until the owner says so. | 1.83, 1.84, 1.85 |
 | 26 (more notes) | 1.69, 1.70, 1.71, 1.78, 1.79 | 2026-10-09 | Deuterium Extractor makes too much: one extractor with 4 Fusion Reactors still gives +13.7 deuterium per hour; same for Oil Rig and Gas Well. Still too easy overall: in at most 2 weeks (about 6 to 8 hours active; the play-time stat shows 3 h 13 min, counted only since the account was made) the owner reached player level 73, every room expansion and 79.7% completion. Accent colors must follow the title tiers: the first accent (Amber) has the highest tier's color. | 1.86, 1.87, 1.88, 1.89 |
 | 26 (more notes) | | 2026-10-09 | In the research details window, the research level needed should show under the requirements, red when missing (today it is gray text under the title). | 1.90 |
+| 26 (more notes) | | 2026-10-09 | Sightings discovered: show the rarity of a sighting even after it is found (today only "???" rows show it). | 1.91 |
