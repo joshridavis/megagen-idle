@@ -1,4 +1,50 @@
-# Playtest 27.1 (v0.27.1, hotfix): the thought bubble's trail points at the pet
+# Playtest 28 (v0.28.0): harder middle and late game, three more room expansions, accents by tier, research level in the requirements, sighting rarity
+
+The version at the bottom of the screen should read **v0.28.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 761 hours** (simulated with `npm run simulate`; was 327.3 h), so roughly 4 to 5 weeks with the game closed most of the time.
+- Key times: first Wind Turbine 2.3 h, first Coal Plant 3.1 h, first Hydropower Dam 6.0 h, first Natural Gas Plant 17.1 h (all as before), 50% at 74.5 h (was 42.1 h), first Oil Power Plant 74.5 h (was 30.3 h), first Nuclear Fission Plant 143.1 h (was 54.9 h), 75% at 306.9 h (was 97.8 h), room expansion 10 at 326.5 h (was 113.7 h), first Fusion Reactor 335.8 h (was 97.7 h), first Micro-Supernova 440.4 h (was 186.7 h), last room expansion (13) at 496.4 h, 100% at 761.3 h.
+
+## What changed
+
+- **Harder pacing (1.87):** the first hours are unchanged, up to the first Natural Gas Plant. After that: research from research level 9 on (from Superconductors and Oil Drilling) costs 6 times the energy and takes 5 times as long. Room expansions 8 to 10 cost 10 times the energy. Generator upgrades from level 5 on get steeper (level 9 to 10 costs about 5 times more than before). New targets: last room expansion after at least 250 h, 75% after at least 300 h, 100% between 600 and 900 h. All are met. Your save keeps everything you have built, bought and researched.
+- **Three more room expansions (1.88):** +300, +380 and +480 room, for player levels 80, 88 and 95, costing 1.8, 3.6 and 4.8 billion energy plus metal, stone, uranium and deuterium. The player level stops at 99, so the 100 and 120 suggested in the backlog could not be used. The new land is Exclusion Zone, with the river and coast running through it. Sprawling Complex now needs all 13. If you already earned it, you keep it, and the Completion tab shows 10 of 13.
+- **Accents by tier (1.89):** one accent per title tier, in tier order and in the tier's exact color: Slate (Common, free), Lime (Uncommon, 5 achievements), Sky (Rare, 15), Rose (Epic, 25), Gold (Legendary, 36, the last). Violet is gone. Your old choice maps to the same color (Amber becomes Gold, Emerald becomes Lime). If that one is not unlocked yet, you get the highest accent you have unlocked.
+- **Research level in the requirements (1.90):** the research details window shows "Research level: 26 (yours: 21)" next to Cost, Time and Requires: red when your level is too low, green when it is met. The gray line under the title is gone. "Research level +1" still shows in the rewards.
+- **Sighting rarity (1.91):** Completion → Sightings discovered shows each sighting's rarity, found or not, in the matching tier color (Common gray, Uncommon green, Rare blue, Legendary gold).
+
+## Things to try
+
+1. Achievements → Cosmetics: check the five accents, their order and colors, and which one your save got. Pick one and look at the top bar.
+2. Research tab: open a research above your level and one below it. Is the red or green research level row clear?
+3. Completion tab → Sightings discovered: do the colored rarities read well, found and unfound?
+4. Room panel: look at expansion 11 (level 80) and its cost. Does it feel like a late-game goal?
+5. Map tab: if you buy expansion 11, scroll the new land and check the Micro-Supernova and Fusion Reactors still find a spot.
+6. Upgrade a generator from level 5 up and compare the costs with what you remember.
+7. Research tab: start one of the late research (for example Fusion Ignition) and check its time and cost.
+
+## Known issues
+
+- An existing late save is past most of the new gates: it keeps everything, so you will mainly feel the slower pace on the research you have left, the steeper upgrades and the three new expansions. A new game shows the full new pace.
+- The balance simulator's stall threshold went from 8 h to 12 h, and player level-ups now count as progress in it: while saving for the costly late expansions, the simulated player buys little else for 9 to 12 hours. A real player who keeps upgrading a little will see more happen.
+
+## Questions
+
+1. Pacing: the simulator says about 761 h to 100% and 307 h to 75%. Does a 5x longer middle-game research time feel right, or should more of the slowdown come from costs?
+2. Are room expansions 11 to 13 (levels 80, 88, 95; 1.8B to 4.8B energy) the right size and price?
+3. Accents: are the names (Slate, Lime, Sky, Rose, Gold) good, and is Gold being the last one right?
+4. Research details: is the new research level row placed well (after Time, before Requires)?
+
+---
+
+# Previous: Playtest 27.1 (v0.27.1, hotfix): the thought bubble's trail points at the pet
 
 The version at the bottom of the screen should read **v0.27.1**.
 

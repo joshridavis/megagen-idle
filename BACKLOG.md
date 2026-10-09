@@ -1995,4 +1995,5 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 26 (more notes) | | 2026-10-09 | Sightings discovered: show the rarity of a sighting even after it is found (today only "???" rows show it). | 1.91 |
 | 27 (v0.27.0) | 1.82, 1.83, 1.84, 1.85, 1.86 | 2026-10-09 | 100% completion simulated at 327.3 h (was 293.3 h): fuel producers now feed about 2 to 3 plants each (1.86). The hold after playtest 26 was lifted (owner asked to continue). Waiting for feedback. | |
 | 27 (answers) | 1.82, 1.83, 1.84, 1.85, 1.86 | 2026-10-09 | Machine animations look better now; the quarry crane, mine lamp and coal smoke are fine. Fuel is better now; the Coal Mine stays as it is. The animation switch's place and On/Off on a phone are good. The thought bubble does not make sense: the new dots between pet and bubble do, but small bubbles still go off to the side; fix now. Do not develop new backlog items until the owner says so. | 1.92 (hotfix v0.27.1) |
-| 27.1 (v0.27.1, hotfix) | 1.92 | 2026-10-09 | Waiting for feedback. | |
+| 27.1 (v0.27.1, hotfix) | 1.92 | 2026-10-09 | The owner asked to continue from the order of work (hold lifted). | |
+| 28 (v0.28.0) | 1.89, 1.87, 1.88, 1.90, 1.91 | 2026-10-09 | 100% completion simulated at 761.3 h (was 327.3 h); 75% at 306.9 h (was 97.8 h); last room expansion (13) at 496.4 h. Waiting for feedback. | |
