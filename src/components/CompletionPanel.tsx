@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { EVENTS, RARITY_LABEL } from '../data/events';
+import { EVENTS, RARITY_LABEL, rarityColor } from '../data/events';
 import { useStore } from '../store';
 import { formatCompletion, getCompletion } from '../utils/completion';
 import ProgressBar from './ProgressBar';
@@ -99,14 +99,12 @@ export default function CompletionPanel() {
         <ul className="mt-2 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
           {sightings.map((e) => (
             <li key={e.id} className="flex items-center gap-2 rounded bg-slate-900/60 px-2 py-1">
-              {seen[e.id] ? (
-                <>
-                  <span>{e.name}</span>
-                  <span className="ml-auto font-mono text-xs text-slate-400">×{seen[e.id].count}</span>
-                </>
-              ) : (
-                <span className="text-slate-500">??? ({RARITY_LABEL[e.rarity]})</span>
-              )}
+              {/* 1.91: the rarity shows found or not, in the title tier color of the same name */}
+              <span className={`min-w-0 break-words ${seen[e.id] ? '' : 'text-slate-500'}`}>{seen[e.id] ? e.name : '???'}</span>
+              <span className="text-xs font-semibold" style={{ color: rarityColor(e.rarity) }} data-testid={`sighting-rarity-${e.id}`}>
+                {RARITY_LABEL[e.rarity]}
+              </span>
+              {seen[e.id] && <span className="ml-auto font-mono text-xs text-slate-400">×{seen[e.id].count}</span>}
             </li>
           ))}
         </ul>

@@ -47,7 +47,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.87 Harder pacing: slower middle and late game, new pacing targets (owner feedback; Done)
 0. 1.88 Three more room expansions for the late game (owner feedback; follows 1.87; Done)
 0. 1.90 Research details: the research level needed shows under the requirements, red when missing (owner request; small; Done)
-0. 1.91 Sightings show their rarity after they are found (owner request; small)
+0. 1.91 Sightings show their rarity after they are found (owner request; small; Done) → CHECKPOINT 28 (5 items since checkpoint 27: 1.89, 1.87, 1.88, 1.90, 1.91)
 
 **Hold lifted (owner, 2026-10-07):** the owner asked to continue from the order of work. The hold set after playtest 25 (2026-10-06) is over; the run went on with 1.69, 1.70, 1.71, 1.78 and 1.79 toward checkpoint 26. The 1.82 fix below (written on `main` while this run was underway) was not part of it and is the next item after checkpoint 26.
 
@@ -1354,13 +1354,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** `src/components/ResearchPanel.tsx`: a "Research level" row ("4 (yours: 32)") in the requirements list, after Time and before Requires, shown for every research; green when met, red when not, plain for a research done or running without the level. The line under the title is gone; "Research level +1" stays in the rewards box only. No research has a player level requirement, so no other row was needed. Tests in `src/components/ResearchLevelRow.test.tsx`.
 
-### 1.91 — Sightings show their rarity after they are found — CODE — Not started
+### 1.91 — Sightings show their rarity after they are found — CODE — Done
 **Goal:** owner request, playtest 26 (2026-10-09): in the Completion tab's "Sightings discovered" list, a sighting not yet seen shows its rarity ("??? (Rare)"), but once it is found only its name and count show, so the rarity is lost. Keep showing the rarity after it is found.
 **Details:**
 - In `src/components/CompletionPanel.tsx`, a found sighting shows its name, then its rarity from `RARITY_LABEL` in `src/data/events.ts` (for example "Aurora · Rare" or a small tag after the name), then the ×count on the right as now.
 - Color the rarity label, found or not, with the matching title tier color from `TITLE_TIERS` in `src/data/achievements.ts` (Common gray, Uncommon green, Rare blue, Legendary gold), so rarity colors are the same across the game; keep the 4.5:1 contrast on the dark row. Unfound rows keep "???" in gray with the colored rarity.
 - Fits a 375 px phone: long names wrap, no sideways scroll.
 **Acceptance:** tests: a found sighting shows its name, its rarity label and its count; an unfound one still shows "???" and its rarity; the rarity color matches the tier of the same name; the build and all tests pass.
+
+**Notes:** `src/components/CompletionPanel.tsx`: every sighting row shows its rarity after the name (found: "Aurora Rare ×3"; unfound: "??? Rare"), colored by `rarityColor` in `src/data/events.ts`, which takes the title tier of the same name. Names wrap on a phone. Tests in `src/components/SightingRarity.test.tsx` (text, color and 4.5:1 contrast on the row).
 
 ### 1.92 — Fix: the thought bubble's small bubbles point away from the pet — CODE — Done
 **Goal:** owner report, playtest 27 (screenshot of a Wind-up Robot Dog facing left): the new small dots between the pet and the bubble make sense, but there are still "small bubbles" going off to the side, which looks bad. Fix now (hotfix).

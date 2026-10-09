@@ -1,5 +1,6 @@
 import { GeneratorType } from '../types/generator';
 import type { ResourceId } from '../types/state';
+import { TITLE_TIERS } from './achievements';
 
 /**
  * Random events (0.84, playtest 10). Each event rolls on its own; its tier
@@ -21,6 +22,9 @@ export const RARITY_LABEL: Record<Rarity, string> = {
   rare: 'Rare',
   legendary: 'Legendary',
 };
+
+/** A rarity's color: the title tier of the same name (1.91), so rarity colors match across the game. */
+export const rarityColor = (r: Rarity): string => TITLE_TIERS.find((t) => t.id === r)!.color;
 
 /** Every sighting stays on screen at least this long (ms), so it is hard to miss (playtest 11). */
 export const MIN_SIGHTING_MS = 15000;
