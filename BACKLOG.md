@@ -52,7 +52,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 **First when the hold lifts (owner, 2026-10-06):** fix this before the items below.
 
-0. 1.82 Fix: thought bubbles beside the pet's head, not straight above it (owner report, playtest 25.3)
+0. 1.82 Fix: thought bubbles beside the pet's head, not straight above it (owner report, playtest 25.3; Done)
 
 **After playtest 24 (owner, 2026-10-06):** these come first after checkpoint 25, then the rest of the playtest 22 list below (1.55, 1.54, ...).
 
@@ -1336,7 +1336,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Fits a 375 px phone: long names wrap, no sideways scroll.
 **Acceptance:** tests: a found sighting shows its name, its rarity label and its count; an unfound one still shows "???" and its rarity; the rarity color matches the tier of the same name; the build and all tests pass.
 
-### 1.82 — Fix: thought bubbles beside the pet's head, not straight above it — CODE — Not started
+### 1.82 — Fix: thought bubbles beside the pet's head, not straight above it — CODE — Done
 **Goal:** owner report, playtest 25.3 (screenshot): a walking pet's thought bubble (💭 while sitting, ❗ while jumping, 💤 while sleeping) sits straight above the pet, which looks unnatural. It should float up and to the side the pet faces: to the right when it faces right, to the left when it faces left, like a comic thought bubble.
 **Details:**
 - In `bubblePlace` (`src/components/PetWalkers.tsx`, 1.76) every bubble, not only 💤, goes beside the head on the facing side: the bubble's near edge just past the head, slightly above it, instead of centered over the pet. Keep the height rules from 1.76 (by stage, lower while asleep, tucked down for the emoji glyph).
@@ -1348,6 +1348,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Tests: a bubble sits right of the head when facing right and left of it when facing left, for every bubble action and stage; near the screen edges it stays fully on screen.
 - Zoomed browser screenshots of a baby and an adult pet, facing each way.
 - The build and all tests pass.
+
+**Notes:** `bubblePlace` in `src/components/PetWalkers.tsx` returns the side and the style: the bubble's near edge at 75% of the pet box on the facing side (`left: 75%` facing right, `right: 75%` facing left), with the 1.76 heights. Given the layer width (the window width), it flips inward when the bubble (`BUBBLE_WIDTH_PX` = 22) would leave the screen. A CSS thought trail (two small dots, `.pet-bubble::before`) sits between the head and the bubble on its side. Tests in `src/components/PetWalkers.test.tsx` cover every bubble action and stage, both facings, and the edges at 375 and 1280 px. Screenshots of the baby and adult cat, both facings, taken in Chromium at 3× zoom.
 
 ### 1.81 — Active pets on screen interact with each other — CODE — Not started
 **Goal:** owner request, playtest 25: when more than one pet is active and walking on screen (pet slots, 1.59), they should sometimes interact with each other.

@@ -6,7 +6,7 @@ import { PET_REACT_MS, PET_STAGE_HEIGHT, PET_WALK } from '../data/pets';
 import { useStore } from '../store';
 import { seededRng } from '../utils/rng';
 import { nextStep, pickPace, startWalkers, stepWalkers, walkMs, type Walker } from '../utils/petWalk';
-import PetWalkers, { bubblePlace } from './PetWalkers';
+import PetWalkers, { BUBBLE_WIDTH_PX, bubblePlace } from './PetWalkers';
 import SettingsPanel from './SettingsPanel';
 
 afterEach(() => {
@@ -182,12 +182,34 @@ describe('pets walk on screen (1.60)', () => {
     expect(cat.querySelector('img')!.className).not.toMatch(/pet-(walking|act-(eat|play|sleep|jump))/);
   });
 
-  it('the 💤 sits just above the pet, over its head, not far above a small pet (owner, playtest 25)', async () => {
-    // baby: drawn 55% tall, curled up to 80% of that while asleep; head on the side it faces
-    expect(bubblePlace({ action: 'sleep', left: false }, 1)).toEqual({ bottom: 'calc(44% - 6px)', left: '70%' });
-    expect(bubblePlace({ action: 'sleep', left: true }, 1)).toEqual({ bottom: 'calc(44% - 6px)', left: '30%' });
-    expect(bubblePlace({ action: 'sit', left: false }, 3)).toEqual({ bottom: 'calc(100% - 6px)', left: '50%' });
-    expect(bubblePlace({ action: 'jump', left: true }, 2)).toEqual({ bottom: 'calc(78% - 6px)', left: '50%' });
+  it('bubbles sit beside the head on the side the pet faces, never cut off at the edges (1.76, 1.82)', async () => {
+    // baby: drawn 55% tall, curled up to 80% of that while asleep
+    expect(bubblePlace({ action: 'sleep', left: false, x: 0.5 }, 1)).toEqual({ side: 'right', style: { bottom: 'calc(44% - 6px)', left: '75%' } });
+    expect(bubblePlace({ action: 'sleep', left: true, x: 0.5 }, 1)).toEqual({ side: 'left', style: { bottom: 'calc(44% - 6px)', right: '75%' } });
+    expect(bubblePlace({ action: 'sit', left: false, x: 0.5 }, 3).style.bottom).toBe('calc(100% - 6px)');
+    expect(bubblePlace({ action: 'jump', left: true, x: 0.5 }, 2).style.bottom).toBe('calc(78% - 6px)');
+    for (const action of ['sit', 'jump', 'sleep'] as const) {
+      for (const stage of [1, 2, 3]) {
+        expect(bubblePlace({ action, left: false, x: 0.5 }, stage, 375)).toMatchObject({ side: 'right', style: { left: '75%' } });
+        expect(bubblePlace({ action, left: true, x: 0.5 }, stage, 375)).toMatchObject({ side: 'left', style: { right: '75%' } });
+      }
+    }
+    // near the edges on a 375 px phone the bubble flips inward and stays fully on screen
+    const size = PET_WALK.size;
+    for (const layer of [375, 1280]) {
+      for (const x of [0, 0.05, 0.5, 0.95, 1]) {
+        for (const left of [false, true]) {
+          const { side } = bubblePlace({ action: 'sit', left, x }, 3, layer);
+          const petLeft = x * (layer - size);
+          const near = side === 'right' ? petLeft + size * 0.75 : petLeft + size * 0.25;
+          const [a, b] = side === 'right' ? [near, near + BUBBLE_WIDTH_PX] : [near - BUBBLE_WIDTH_PX, near];
+          expect(a).toBeGreaterThanOrEqual(0);
+          expect(b).toBeLessThanOrEqual(layer);
+        }
+      }
+    }
+    expect(bubblePlace({ action: 'sit', left: false, x: 1 }, 3, 375).side).toBe('left');
+    expect(bubblePlace({ action: 'sit', left: true, x: 0 }, 3, 375).side).toBe('right');
     // the same heights as the sprite script draws
     const { readFileSync } = await import('node:fs');
     const script = readFileSync('scripts/generate-generic-assets.mjs', 'utf8');

@@ -384,9 +384,21 @@ body {
 .pet-act-sit { transform: translateY(3px) scaleY(0.9); }
 @keyframes pet-jump { 0%, 60%, 100% { transform: translateY(0); } 25% { transform: translateY(-14px); } }
 .pet-act-jump { animation: pet-jump 1.2s ease-out infinite; }
-/* Only a bob: the centering is the element's own translate, so it is not applied twice (playtest 25). */
+/* Only a bob: the bubble is placed by its own left/right, so the bob never shifts it sideways (playtest 25, 1.82). */
 @keyframes pet-bubble { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 .pet-bubble { animation: pet-bubble 1.6s ease-in-out infinite; }
+/* A thought trail (1.82): two small dots between the head and the bubble, on the side it floats to. */
+.pet-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.75);
+}
+.pet-bubble[data-side='right']::before { left: -3px; box-shadow: -3px 3px 0 -0.5px rgb(255 255 255 / 0.6); }
+.pet-bubble[data-side='left']::before { right: -3px; box-shadow: 3px 3px 0 -0.5px rgb(255 255 255 / 0.6); }
 
 /* A growing pet (1.58): a slow pulse and small sparkles on its card. */
 @keyframes pet-grow-pulse {
