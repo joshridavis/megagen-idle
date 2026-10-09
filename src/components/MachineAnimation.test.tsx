@@ -159,3 +159,49 @@ describe('machine animations read clearly (1.83)', () => {
   });
 });
 
+
+describe('the map button turns machine animations on and off (1.84)', () => {
+  const working = () => setup([gen('w', GeneratorType.WIND), gen('k', GeneratorType.COAL)], { producers: { ...createInitialState(0).producers, quarry: 1 } });
+  const anyMoving = () => document.querySelector('[data-anim="on"]');
+
+  it('is on by default (old saves too), turns animations off and on again', () => {
+    working();
+    expect(useStore.getState().settings.mapAnimations).toBeUndefined();
+    render(<MapPanel onSelect={() => {}} />);
+    const button = screen.getByTestId('map-anim-toggle');
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(anyMoving()).toBeTruthy();
+    act(() => button.click());
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+    expect(button.textContent).toContain('Off');
+    expect(anyMoving()).toBeNull();
+    expect(document.querySelector('.frame-b, [data-fx]')).toBeNull();
+    act(() => button.click());
+    expect(anyMoving()).toBeTruthy();
+  });
+
+  it('the choice is saved with the game and survives a reload', async () => {
+    working();
+    render(<MapPanel onSelect={() => {}} />);
+    act(() => screen.getByTestId('map-anim-toggle').click());
+    const { pickSaved } = await import('../store/migrations');
+    const saved = pickSaved(useStore.getState());
+    expect(saved.settings.mapAnimations).toBe(false);
+    cleanup();
+    working();
+    useStore.setState({ settings: saved.settings });
+    render(<MapPanel onSelect={() => {}} />);
+    expect(screen.getByTestId('map-anim-toggle').getAttribute('aria-pressed')).toBe('false');
+    expect(anyMoving()).toBeNull();
+  });
+
+  it('Reduce motion keeps machines still with the button on, and the tooltip says why', () => {
+    working();
+    useStore.setState((s) => ({ settings: { ...s.settings, reduceMotion: true, mapAnimations: true } }));
+    render(<MapPanel onSelect={() => {}} />);
+    const button = screen.getByTestId('map-anim-toggle');
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(button.title).toMatch(/Reduce motion/);
+    expect(anyMoving()).toBeNull();
+  });
+});

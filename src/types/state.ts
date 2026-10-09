@@ -30,6 +30,8 @@ export interface Settings {
   petsWalk?: boolean;
   /** The Cosmetics section of the Achievements tab is open (1.69); open by default. */
   cosmeticsOpen?: boolean;
+  /** Working machines animate on the map (1.84): the map's own toggle, not in Settings; on by default. */
+  mapAnimations?: boolean;
 }
 
 export interface EnergyState {

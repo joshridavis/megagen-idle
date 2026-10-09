@@ -29,7 +29,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 **After playtest 26 (owner, 2026-10-07):** when the hold lifts, these come first, after 1.82 (Claude's placement; the owner can move them).
 
 0. 1.83 Machine animations: every machine visibly animated, the quarry calmer, the metal mine redone (owner feedback, playtest 26; Done)
-0. 1.84 A map button to turn machine animations on and off (owner request, playtest 26; small)
+0. 1.84 A map button to turn machine animations on and off (owner request, playtest 26; small; Done)
 0. 1.85 Landscape Architect counts toward 100% (owner decision, playtest 26; small)
 
 **More playtest 26 notes (owner, 2026-10-09):** the owner sent more notes and screenshots (player level 73, 79.7% completion, every room expansion bought, all 7 producer types, 9 of 10 generator types built and at max level, 31 of 39 research, 111 of 200 contracts, 8 of 13 contract perks, 13 of 14 pets found and 8 fully grown, pet slot 2 of 3, 34 of 36 decorations). These come right after 1.85 (Claude's placement; the owner can move them). The hold above still applies.
@@ -1266,13 +1266,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** Coal Power Plant: a second frame (`coal_plant_2`) where the painted smoke drifts up and to the right, plus dark puffs (`PUFF_DARK` #4a5462, radius 4) that rise higher (18 px); the still sprite's smoke is a little darker near the stack. Oil Power Plant: dark puffs too (radius 3.5); its painted smoke is light and the light puffs did not show. Solar glint brighter and wider, every 3 s instead of 4. Gas, nuclear and fusion unchanged (owner favorites). Stone Quarry: the whole-sprite shake is gone (the `shake` effect is removed); a second frame (`producer_quarry_2`) where the crane hook lifts a stone block, 1.2 s per cycle. Metal Mine: the cart is smaller and sits on the rail right of the entrance, rolling 3 px; a lamp over the entrance blinks. Uranium Mine: the cart rolls out, away from the tunnel, instead of over it. `puff` (color, radius) is a new optional field in `src/data/machineAnimations.ts`. Brand images and Steam capsules regenerated (`npm run brand`), since they draw the coal plant and mine. Tests in `src/components/MachineAnimation.test.tsx`: dark puffs at least 3:1 against the painted smoke, no shake and a quarry period of at least 1 s, and a pixel check that both frames of each mine draw the entrance exactly alike. Zoomed screenshots of both frames taken in Chromium.
 
-### 1.84 — A map button to turn machine animations on and off — CODE — Not started
+### 1.84 — A map button to turn machine animations on and off — CODE — Done
 **Goal:** owner request, playtest 26: an option on the Map tab to turn the machine animations (1.71) on and off, separate from the Reduce motion option in Settings.
 **Details:**
 - A floating map button next to 🗺️ Legend and 🎨 Decorations, for example "🎞 Animations: on/off", a toggle with `aria-pressed`. It turns the working-machine animations (frames and effects) on and off; machines then show their still sprite. Map events, sightings and other motion are not affected.
 - Saved with the game (a setting such as `settings.mapAnimations`, on by default; old saves default to on). Not shown in Settings, as the owner asked; the Settings Reduce motion still wins: with it on, machines stay still even when this button is on, and the button's tooltip says why.
 - Fits a 375 px phone with the other floating buttons, and works with the keyboard.
 **Acceptance:** tests: the button turns animations off (no `data-anim="on"` on the map) and on again; the choice survives a reload; Reduce motion keeps them still with the button on; Playwright at 375 px: the three floating buttons are fully on screen with no sideways scroll; the build and all tests pass.
+
+**Notes:** a third floating map button, "🎞️ Animations: On/Off" ("🎞️ On/Off" on phones, labeled "Machine animations" for screen readers), a toggle with `aria-pressed`, dimmed when off. Saved as `settings.mapAnimations` (optional, `?? true`, so old saves are on); not shown in Settings. Reduce motion (in-game or system) still keeps machines still, and the button's tooltip says so. Map events and sightings are not affected. Tests in `src/components/MachineAnimation.test.tsx` and a 375 px Playwright check in `e2e/layout.spec.ts` (all three buttons on screen, no sideways scroll, Enter toggles it).
 
 ### 1.85 — Landscape Architect counts toward 100% — CODE — Not started
 **Goal:** owner decision, playtest 26: now that Landscape Architect (1.78) needs every decoration copy, it is no longer a bonus achievement: it counts toward 100% completion.
