@@ -24,7 +24,9 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold (owner, 2026-10-09, after playtest 28):** do not develop new backlog items until the owner says so. Hotfixes for what the owner reports are still made (1.93 was, as v0.28.1).
+**Hold lifted (owner, 2026-10-09, after hotfix 28.1):** the owner confirmed the run continues from the order of work: 1.80, 1.81, 1.55, 1.54 and 1.51 toward checkpoint 29.
+
+~~On hold (owner, 2026-10-09, after playtest 28): do not develop new backlog items until the owner says so. Hotfixes for what the owner reports are still made (1.93 was, as v0.28.1).~~
 
 0. 1.93 Fix: Kinetic Capture and Grid Tap make a click worth far more than idling (owner report, playtest 28; Done) → HOTFIX v0.28.1
 
