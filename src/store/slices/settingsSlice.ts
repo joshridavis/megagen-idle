@@ -10,6 +10,7 @@ export interface SettingsActions {
   setPetsWalk: (on: boolean) => void;
   /** Opens or closes the Cosmetics section of the Achievements tab (1.69). */
   setCosmeticsOpen: (open: boolean) => void;
+  setMapAnimations: (on: boolean) => void;
   setGeneratorSort: (sort: GeneratorSort) => void;
   /** Cosmetic choices; locked ones are refused (1.01). */
   setCosmetics: (choice: { title?: string | null; accent?: string }) => void;
@@ -50,6 +51,7 @@ export const createSettingsSlice =
         'settings/notifications',
       ),
     setCosmeticsOpen: (cosmeticsOpen) => set((s) => ({ settings: { ...s.settings, cosmeticsOpen } }), undefined, 'settings/cosmeticsOpen'),
+    setMapAnimations: (mapAnimations) => set((s) => ({ settings: { ...s.settings, mapAnimations } }), undefined, 'settings/mapAnimations'),
     setPetsWalk: (petsWalk) => set((s) => ({ settings: { ...s.settings, petsWalk } }), undefined, 'settings/petsWalk'),
     setReduceMotion: (reduceMotion) => set((s) => ({ settings: { ...s.settings, reduceMotion } }), undefined, 'settings/reduceMotion'),
   });

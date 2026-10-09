@@ -37,6 +37,8 @@
   "wind_turbine_2": { "file": "generators/wind_turbine_2.png", "width": 64, "height": 64 },
   "hydro_dam_2": { "file": "generators/hydro_dam_2.png", "width": 80, "height": 64 },
   "tidal_station_2": { "file": "generators/tidal_station_2.png", "width": 64, "height": 48 },
+  "coal_plant_2": { "file": "generators/coal_plant_2.png", "width": 64, "height": 64 },
+  "producer_quarry_2": { "file": "producers/quarry_2.png", "width": 48, "height": 48 },
   "producer_mine_2": { "file": "producers/mine_2.png", "width": 48, "height": 48 },
   "producer_coal_mine_2": { "file": "producers/coal_mine_2.png", "width": 48, "height": 48 },
   "producer_gas_well_2": { "file": "producers/gas_well_2.png", "width": 48, "height": 48 },

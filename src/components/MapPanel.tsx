@@ -50,7 +50,11 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
   const reduceMotion = useStore((s) => s.settings.reduceMotion);
   // Working machines move (1.71) unless the in-game or the system Reduce motion is on.
   const systemReduce = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const machinesMove = !reduceMotion && !systemReduce;
+  // the map's own toggle (1.84) turns them off too; Reduce motion always wins
+  const mapAnimations = useStore((s) => s.settings.mapAnimations ?? true);
+  const setMapAnimations = useStore((s) => s.setMapAnimations);
+  const motionBlocked = reduceMotion || systemReduce;
+  const machinesMove = mapAnimations && !motionBlocked;
   // and they stop while the page is hidden
   const [pageHidden, setPageHidden] = useState(() => typeof document !== 'undefined' && document.hidden);
   useEffect(() => {
@@ -525,6 +529,24 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
             className={FLOAT_BUTTON}
           >
             <span aria-hidden="true">🎨</span> Decorations
+          </button>
+          <button
+            type="button"
+            aria-pressed={mapAnimations}
+            aria-label="Machine animations"
+            onClick={() => setMapAnimations(!mapAnimations)}
+            data-testid="map-anim-toggle"
+            title={
+              motionBlocked
+                ? 'Reduce motion is on (in Settings or on your device), so machines stay still.'
+                : mapAnimations
+                  ? 'Working machines move. Click to keep them still.'
+                  : 'Machines stay still. Click to let working machines move.'
+            }
+            className={`${FLOAT_BUTTON} ${mapAnimations ? '' : 'opacity-80'}`}
+          >
+            <span aria-hidden="true">🎞️</span>
+            <span className="hidden sm:inline">Animations:</span> {mapAnimations ? 'On' : 'Off'}
           </button>
         </div>
       )}

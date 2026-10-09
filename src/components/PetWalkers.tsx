@@ -8,23 +8,51 @@ import { startWalkers, stepWalkers, walkMs, type Walker } from '../utils/petWalk
 
 /** How far a bubble is tucked down toward the pet (px). */
 const BUBBLE_TUCK_PX = 6;
+/** Where the bubble's near edge starts, as a share of the pet box from the back: just past the head (1.82). */
+const BUBBLE_HEAD = 0.75;
+/** About how wide a bubble is drawn (an emoji at text-sm plus its trail), to keep it on screen (px). */
+export const BUBBLE_WIDTH_PX = 22;
 
 /**
- * Where a thought bubble sits (owner report, playtest 25: the 💤 floated far
- * from a small pet): just above the pet's drawn height for its stage, lower
- * when it is curled up asleep, and over its head (the side it faces) while
- * sleeping.
+ * Where a thought bubble sits (1.76, 1.82): beside the head on the side the
+ * pet faces, like a comic thought bubble, just above the pet's drawn height
+ * for its stage and lower when it is curled up asleep. It may stick out of the
+ * pet box; near a screen edge it flips to the other side so it is never cut
+ * off. `layerPx` is the width of the walking layer (unknown: no flip).
  */
-export function bubblePlace(w: Pick<Walker, 'action' | 'left'>, stage: number): { bottom: string; left: string } {
+export function bubblePlace(
+  w: Pick<Walker, 'action' | 'left' | 'x'>,
+  stage: number,
+  layerPx?: number,
+): { side: 'left' | 'right'; style: { bottom: string; left?: string; right?: string } } {
   // the emoji glyphs leave some room under themselves: tuck the bubble down by BUBBLE_TUCK_PX
   const sleep = w.action === 'sleep';
   const height = PET_STAGE_HEIGHT[Math.min(3, Math.max(1, stage)) - 1] * (sleep ? PET_SLEEP_SQUASH : 1);
-  const left = sleep ? (w.left ? 30 : 70) : 50;
-  return { bottom: `calc(${Math.round(height * 100)}% - ${BUBBLE_TUCK_PX}px)`, left: `${left}%` };
+  const bottom = `calc(${Math.round(height * 100)}% - ${BUBBLE_TUCK_PX}px)`;
+  let side: 'left' | 'right' = w.left ? 'left' : 'right';
+  if (layerPx) {
+    const size = PET_WALK.size;
+    const petLeft = w.x * (layerPx - size);
+    if (side === 'right' && petLeft + size * BUBBLE_HEAD + BUBBLE_WIDTH_PX > layerPx) side = 'left';
+    else if (side === 'left' && petLeft + size * (1 - BUBBLE_HEAD) - BUBBLE_WIDTH_PX < 0) side = 'right';
+  }
+  const at = `${Math.round(BUBBLE_HEAD * 100)}%`;
+  return { side, style: side === 'right' ? { bottom, left: at } : { bottom, right: at } };
+}
+
+/** The walking layer's width: it spans the window. */
+function useLayerWidth(): number {
+  const [width, setWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return width;
 }
 
 /** One walking pet: a button only as big as the pet, so the rest of the layer never blocks clicks. */
-function WalkingPet({ w, stage, still }: { w: Walker; stage: number; still: boolean }) {
+function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; still: boolean; layerPx: number }) {
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
     if (!playing) return;
@@ -63,14 +91,20 @@ function WalkingPet({ w, stage, still }: { w: Walker; stage: number; still: bool
             {PET_ACTION_BUBBLES[w.action]}
           </span>
         ) : (
-          <span
-            aria-hidden="true"
-            data-testid={`pet-bubble-${w.id}`}
-            className="pet-bubble pointer-events-none absolute -translate-x-1/2 text-sm leading-none"
-            style={bubblePlace(w, stage)}
-          >
-            {PET_ACTION_BUBBLES[w.action]}
-          </span>
+          (() => {
+            const place = bubblePlace(w, stage, layerPx);
+            return (
+              <span
+                aria-hidden="true"
+                data-testid={`pet-bubble-${w.id}`}
+                data-side={place.side}
+                className="pet-bubble pointer-events-none absolute text-sm leading-none"
+                style={place.style}
+              >
+                {PET_ACTION_BUBBLES[w.action]}
+              </span>
+            );
+          })()
         )
       )}
       <span className="block h-full w-full" style={{ transform: w.left ? 'scaleX(-1)' : undefined }}>
@@ -111,6 +145,7 @@ export default function PetWalkers() {
   // while the research chip is docked at the bottom, the pets walk just above it
   const researching = useStore((s) => s.currentResearch !== null);
   const key = activePets({ pets }).join(',');
+  const layerPx = useLayerWidth();
   const [walkers, setWalkers] = useState<Walker[]>(() => startWalkers(activePets({ pets }), Date.now()));
   useEffect(() => {
     const ids = (key ? key.split(',') : []) as PetId[];
@@ -136,7 +171,7 @@ export default function PetWalkers() {
     >
       {walkers.map((w) => {
         const stage = pets.owned[w.id]?.stage;
-        return stage ? <WalkingPet key={w.id} w={w} stage={stage} still={still} /> : null;
+        return stage ? <WalkingPet key={w.id} w={w} stage={stage} still={still} layerPx={layerPx} /> : null;
       })}
     </div>
   );

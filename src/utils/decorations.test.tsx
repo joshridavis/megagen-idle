@@ -210,7 +210,8 @@ describe('decorations bought with energy, then placed freely (1.53, owner playte
     expect(ids({ ...s, decorationsBought: every })).toContain('decor_kinds');
     expect(ids({ ...s, decorationsBought: { ...every, tree: 6, flag: 6, pond: 6, windsock: 6, lamp: 4 } })).not.toContain('decor_30'); // 29
     expect(ids({ ...s, decorationsBought: ALL_OWNED })).toContain('decor_30'); // every copy (1.78)
-    expect(ACHIEVEMENTS_BY_ID.decor_30).toMatchObject({ bonus: true, title: true, tier: 'epic' });
+    expect(ACHIEVEMENTS_BY_ID.decor_30).toMatchObject({ title: true, tier: 'epic' });
+    expect(ACHIEVEMENTS_BY_ID.decor_30.bonus).toBeUndefined(); // counts toward 100% (1.85)
   });
 
   it('Landscape Architect needs every copy of every kind, and an old save keeps it (1.78)', () => {
@@ -229,6 +230,10 @@ describe('decorations bought with energy, then placed freely (1.53, owner playte
     const earned = migrateSave({ ...s, decorationsBought: thirty, achievements: { decor_30: 123 } }, SAVE_VERSION);
     expect(earned.achievements.decor_30).toBe(123);
     expect(ids(earned)).not.toContain('decor_30');
+    // and it counts toward completion for that save (1.85)
+    const ach = (st: GameState) => getCompletion(st).parts.find((p) => p.label === 'Achievements')!.items.find((i) => i.id === 'ach-decor_30')!;
+    expect(ach(earned).done).toBe(true);
+    expect(ach({ ...s, decorationsBought: oneShort }).done).toBe(false);
   });
 
   it('100% completion counts all 6 copies of every kind (owner, playtest 24)', () => {

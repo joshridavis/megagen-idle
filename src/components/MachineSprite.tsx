@@ -1,14 +1,14 @@
 import type { CSSProperties } from 'react';
 import { sprites, type SpriteId } from '../assets';
 import manifest from '../assets/sprite-manifest.json';
-import type { MachineAnimation } from '../data/machineAnimations';
+import { PUFF_LIGHT, type MachineAnimation } from '../data/machineAnimations';
 
 const SIZE = manifest as Record<string, { width: number; height: number }>;
 
 /**
  * A machine's picture on the map (1.71). Working, it moves: a second frame swaps with
  * the still sprite and/or a CSS effect plays on top (smoke, steam, a glint, a glow,
- * bubbles, a shake). Stopped, switched off or with Reduce motion on, it is completely
+ * bubbles). Stopped, switched off or with Reduce motion on, it is completely
  * still. Never upscaled past the sprite's own size, as before.
  */
 export default function MachineSprite({
@@ -41,9 +41,9 @@ export default function MachineSprite({
             <img src={sprites[anim.frame2]} alt="" className={`${img} frame-b`} style={timing} data-frame2={anim.frame2} />
           </>
         ) : (
-          <img src={sprites[sprite]} alt="" className={`${img} ${animate && anim.effect === 'shake' ? 'machine-shake' : ''}`} style={animate ? timing : undefined} />
+          <img src={sprites[sprite]} alt="" className={img} />
         )}
-        {animate && anim.effect && anim.effect !== 'shake' && <Effect sprite={sprite} anim={anim} timing={timing} width={width} height={height} />}
+        {animate && anim.effect && <Effect sprite={sprite} anim={anim} timing={timing} width={width} height={height} />}
       </span>
     </span>
   );
@@ -72,12 +72,12 @@ function Effect({ sprite, anim, timing, width, height }: { sprite: SpriteId; ani
             </mask>
             <linearGradient id={`${id}-band`} x1="0" x2="1" y1="0" y2="0">
               <stop offset="0" stopColor="#fff" stopOpacity="0" />
-              <stop offset="0.5" stopColor="#fff" stopOpacity="0.6" />
+              <stop offset="0.5" stopColor="#fff" stopOpacity="0.85" />
               <stop offset="1" stopColor="#fff" stopOpacity="0" />
             </linearGradient>
           </defs>
           <g mask={`url(#${id}-mask)`}>
-            <rect className="machine-glint" x={-width * 0.4} y={-height * 0.2} width={width * 0.3} height={height * 1.4} fill={`url(#${id}-band)`} transform="skewX(-20)" style={timing} />
+            <rect className="machine-glint" x={-width * 0.4} y={-height * 0.2} width={width * 0.36} height={height * 1.4} fill={`url(#${id}-band)`} transform="skewX(-20)" style={timing} />
           </g>
         </>
       )}
@@ -88,8 +88,8 @@ function Effect({ sprite, anim, timing, width, height }: { sprite: SpriteId; ani
             className="machine-puff"
             cx={x}
             cy={y}
-            r={anim.effect === 'steam' ? 5 : 3}
-            fill={anim.effect === 'steam' ? '#ffffff' : '#b3b9d1'}
+            r={anim.puff?.r ?? (anim.effect === 'steam' ? 5 : 3)}
+            fill={anim.puff?.color ?? (anim.effect === 'steam' ? '#ffffff' : PUFF_LIGHT)}
             style={{ ...timing, animationDelay: `${Number.parseFloat(String(timing.animationDelay)) - (i * anim.period) / 3}s` }}
           />
         ))}

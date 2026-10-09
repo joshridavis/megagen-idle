@@ -306,7 +306,7 @@ describe('Producer rates', () => {
     useStore.setState(createInitialState(Date.now()));
     render(<App />);
     fireEvent.click(screen.getByRole('tab', { name: 'Producers' }));
-    expect(screen.getByTestId('producer-card-gasWell').textContent).toContain('+6 natural gas/h each');
+    expect(screen.getByTestId('producer-card-gasWell').textContent).toContain('+1.7 natural gas/h each');
     expect(screen.getByTestId('producer-card-quarry').textContent).toContain('+0.100 stone/s each');
   });
 });

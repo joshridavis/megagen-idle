@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { sprites } from '../assets';
 import generic from '../assets/generic-assets.json';
 import manifest from '../assets/sprite-manifest.json';
-import { GENERATOR_ANIMATIONS, PRODUCER_ANIMATIONS } from '../data/machineAnimations';
+import { GENERATOR_ANIMATIONS, PRODUCER_ANIMATIONS, PUFF_DARK, PUFF_LIGHT } from '../data/machineAnimations';
 import { createInitialState } from '../data/initialState';
 import { PRODUCER_IDS } from '../data/producers';
 import { useStore } from '../store';
@@ -74,13 +74,13 @@ describe('working machines animate on the map (1.71)', () => {
     expect(spriteOf('k').querySelector('[data-fx="smoke"]')).toBeTruthy();
     for (const k of ['s', 'c']) {
       expect(spriteOf(k).dataset.anim).toBe('still');
-      expect(spriteOf(k).querySelector('.frame-a, .frame-b, svg, .machine-shake')).toBeNull();
+      expect(spriteOf(k).querySelector('.frame-a, .frame-b, svg')).toBeNull();
     }
-    // producers work: the quarry shakes
+    // producers work: the quarry's crane lifts a block
     cleanup();
     setup([], { producers: { ...createInitialState(0).producers, quarry: 1 } });
     render(<MapPanel onSelect={() => {}} />);
-    expect(spriteOf('quarry-1').querySelector('.machine-shake')).toBeTruthy();
+    expect(spriteOf('quarry-1').querySelector('.frame-b')?.getAttribute('data-frame2')).toBe('producer_quarry_2');
   });
 
   it('switching a machine off stops it at once, and on starts it again', () => {
@@ -109,5 +109,99 @@ describe('working machines animate on the map (1.71)', () => {
     }
     expect(spriteOf('w').querySelector('img')!.getAttribute('src')).toBe(sprites.wind_turbine);
     useStore.getState().setReduceMotion(false);
+  });
+});
+
+/** WCAG contrast ratio of two #rrggbb colors. */
+const contrast = (a: string, b: string) => {
+  const lum = (hex: string) => {
+    const [r, g, b2] = [1, 3, 5].map((i) => {
+      const c = Number.parseInt(hex.slice(i, i + 2), 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b2;
+  };
+  const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+  return (x + 0.05) / (y + 0.05);
+};
+
+describe('machine animations read clearly (1.83)', () => {
+  it('the coal plant has a second frame and dark smoke that stands out from its painted smoke', () => {
+    const coal = GENERATOR_ANIMATIONS[GeneratorType.COAL];
+    expect(coal.frame2).toBe('coal_plant_2');
+    // the sprite's painted smoke is light gray (#b3b9d1); the puffs must stand apart from it
+    expect(coal.puff?.color).toBe(PUFF_DARK);
+    expect(contrast(PUFF_DARK, PUFF_LIGHT)).toBeGreaterThanOrEqual(3);
+    expect(coal.puff!.r).toBeGreaterThan(3);
+    expect(GENERATOR_ANIMATIONS[GeneratorType.OIL].puff?.color).toBe(PUFF_DARK);
+  });
+
+  it('the quarry no longer shakes: a calm second frame, at least 1 s per cycle', () => {
+    const q = PRODUCER_ANIMATIONS.quarry;
+    expect(q.effect).toBeUndefined();
+    expect(q.frame2).toBe('producer_quarry_2');
+    expect(q.period).toBeGreaterThanOrEqual(1);
+    for (const a of [...Object.values(GENERATOR_ANIMATIONS), ...Object.values(PRODUCER_ANIMATIONS)]) expect(a.effect).not.toBe('shake');
+  });
+
+  it('the mine carts never cover the tunnel entrance, in either frame', async () => {
+    // @ts-expect-error: a plain JS module
+    const { drawSprite } = await import('../../scripts/generate-generic-assets.mjs');
+    const same = (a: string, b: string, [x0, y0, x1, y1]: number[]) => {
+      const f0 = drawSprite(a);
+      const f1 = drawSprite(b);
+      for (let x = x0; x < x1; x++) for (let y = y0; y < y1; y++) expect(f1.getRGBA(x, y), `${b} ${x},${y}`).toEqual(f0.getRGBA(x, y));
+    };
+    // metal mine: the timber frame and entrance (x 14-33, y 20-39) stay as drawn; only the lamp above and the cart beside it change
+    same('producer_mine', 'producer_mine_2', [14, 20, 34, 40]);
+    // uranium mine: the tunnel (x 18-30, y 28-40)
+    same('producer_uranium_mine', 'producer_uranium_mine_2', [17, 27, 32, 41]);
+  });
+});
+
+
+describe('the map button turns machine animations on and off (1.84)', () => {
+  const working = () => setup([gen('w', GeneratorType.WIND), gen('k', GeneratorType.COAL)], { producers: { ...createInitialState(0).producers, quarry: 1 } });
+  const anyMoving = () => document.querySelector('[data-anim="on"]');
+
+  it('is on by default (old saves too), turns animations off and on again', () => {
+    working();
+    expect(useStore.getState().settings.mapAnimations).toBeUndefined();
+    render(<MapPanel onSelect={() => {}} />);
+    const button = screen.getByTestId('map-anim-toggle');
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(anyMoving()).toBeTruthy();
+    act(() => button.click());
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+    expect(button.textContent).toContain('Off');
+    expect(anyMoving()).toBeNull();
+    expect(document.querySelector('.frame-b, [data-fx]')).toBeNull();
+    act(() => button.click());
+    expect(anyMoving()).toBeTruthy();
+  });
+
+  it('the choice is saved with the game and survives a reload', async () => {
+    working();
+    render(<MapPanel onSelect={() => {}} />);
+    act(() => screen.getByTestId('map-anim-toggle').click());
+    const { pickSaved } = await import('../store/migrations');
+    const saved = pickSaved(useStore.getState());
+    expect(saved.settings.mapAnimations).toBe(false);
+    cleanup();
+    working();
+    useStore.setState({ settings: saved.settings });
+    render(<MapPanel onSelect={() => {}} />);
+    expect(screen.getByTestId('map-anim-toggle').getAttribute('aria-pressed')).toBe('false');
+    expect(anyMoving()).toBeNull();
+  });
+
+  it('Reduce motion keeps machines still with the button on, and the tooltip says why', () => {
+    working();
+    useStore.setState((s) => ({ settings: { ...s.settings, reduceMotion: true, mapAnimations: true } }));
+    render(<MapPanel onSelect={() => {}} />);
+    const button = screen.getByTestId('map-anim-toggle');
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(button.title).toMatch(/Reduce motion/);
+    expect(anyMoving()).toBeNull();
   });
 });

@@ -98,6 +98,27 @@ test('the small generate button by the pinned bar works at phone width', async (
   await expect(page.getByTestId('mini-click-button')).toHaveCount(0);
 });
 
+// 1.84: the three floating map buttons (legend, decorations, animations) fit a 375px phone, and the toggle works by keyboard.
+test('the floating map buttons fit a 375px phone, animations toggle included', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 700 });
+  await page.goto('./');
+  await page.locator('#tab-map').click();
+  for (const id of ['legend-open', 'decor-open', 'map-anim-toggle']) {
+    const b = (await page.getByTestId(id).boundingBox())!;
+    expect(b.x, id).toBeGreaterThanOrEqual(0);
+    expect(b.x + b.width, id).toBeLessThanOrEqual(375);
+    expect(b.y + b.height, id).toBeLessThanOrEqual(700);
+  }
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  const toggle = page.getByTestId('map-anim-toggle');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await toggle.focus();
+  await page.keyboard.press('Enter');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await page.screenshot({ path: 'test-results/map-buttons-375.png' });
+});
+
 // 1.47: the decorations panel fits a 375px phone and the map stays reachable above it.
 test('the decorations panel fits a 375px phone and the map stays reachable', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 700 });
@@ -376,7 +397,7 @@ test('working machines animate on the map at 1280px', async ({ page }) => {
   await expect(page.locator('[data-anim="on"]').first()).toBeVisible();
   expect(await page.locator('.frame-b').count()).toBeGreaterThan(0);
   for (const fx of ['glint', 'smoke', 'steam', 'glow', 'bubbles']) expect(await page.locator(`[data-fx="${fx}"]`).count(), fx).toBeGreaterThan(0);
-  expect(await page.locator('.machine-shake').count()).toBeGreaterThan(0);
+  expect(await page.locator('[data-frame2="producer_quarry_2"]').count()).toBeGreaterThan(0);
   await expect(page.locator('[data-testid="map-solar-2"] [data-testid="machine-sprite"]')).toHaveAttribute('data-anim', 'still');
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);

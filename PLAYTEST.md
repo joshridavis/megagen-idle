@@ -1,4 +1,60 @@
-# Playtest 26 (v0.26.0): a foldable Cosmetics section, Remove all decorations, working machines that move, and pets at different speeds
+# Playtest 27 (v0.27.0): thought bubbles beside the head, clearer machine animations, a map animation switch, Landscape Architect in 100%, and scarcer fuel
+
+The version at the bottom of the screen should read **v0.27.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 327.3 hours** (simulated with `npm run simulate`; was 293.3 h). The fuel change (1.86) makes the middle and late game a bit slower: you need more wells, rigs, mines and extractors, and they take room.
+- Key times: first Wind Turbine 2.3 h, first Coal Plant 3.1 h, first Hydropower Dam 6.0 h, first Natural Gas Plant 17.2 h (was 11.6 h), first Oil Power Plant 30.3 h (was 22.9 h), first Nuclear Fission Plant 54.9 h, first Fusion Reactor 97.7 h (was 93.1 h), last room expansion 113.7 h (was 97.0 h), first Micro-Supernova 186.7 h, 100% at 327.3 h.
+- The harder pacing you asked for (1.87, with targets of 600 to 900 h) is not in this version yet; it comes next.
+
+## What changed
+
+- **Thought bubbles beside the head (1.82):** a walking pet's 💭, ❗ and 💤 now float up beside its head on the side it faces, like a comic thought bubble, with two small dots trailing from the head. Near the edge of the screen the bubble flips to the other side so it is never cut off.
+- **Clearer machine animations (1.83):** the Coal Power Plant's smoke now moves: its painted smoke drifts, and darker puffs rise higher from the stack. The Oil Power Plant's smoke is darker too, and the solar glint is brighter and comes every 3 s. The Stone Quarry no longer shakes: its crane hook lifts a stone block out of the pit, about once a second. The Metal Mine was redrawn: a lamp over the entrance blinks, and the cart sits on the rail beside the entrance, rolling a little, never in front of it. The Uranium Mine's cart now rolls out, away from the tunnel. Your favorites (nuclear steam, fusion glow, wind turbine, gas well, gas flare) are unchanged.
+- **Animation switch on the map (1.84):** a third floating map button, **🎞️ Animations: On/Off** (just "🎞️ On/Off" on phones), next to Legend and Decorations. Off, every machine shows its still picture; map events and sightings still play. The game remembers your choice. It is not in Settings, as you asked; Reduce motion in Settings still keeps machines still, and the button's tooltip says so.
+- **Landscape Architect counts toward 100% (1.85):** it is no longer a bonus achievement. If you earned it under the old rule (30 decorations), you keep it, and it counts.
+- **Fuel is a real limit (1.86):** with all research, zones and pets, one producer now feeds about: **Gas Well → 3 Natural Gas Plants** (1 gas every 35 min, was 10), **Oil Rig → 2 Oil Power Plants** (1 oil every 16 min, was 5), **Uranium Mine → 2 Fission Plants** (1 uranium every 100 min, was 30), **Deuterium Extractor → 2 Fusion Reactors or 1 Micro-Supernova** (1 deuterium every 90 min, was 6). Your case of 1 extractor with 4 Fusion Reactors now burns more than it makes. The Coal Mine is unchanged: it is the first fuel, and slowing it would slow the first hours. You keep the fuel you already have.
+
+## Things to try
+
+1. Watch your walking pets: the bubbles should sit beside the head on the side each pet faces. Watch one walk to a screen edge: the bubble should stay on screen.
+2. Map tab: look at a working Coal Power Plant, the Stone Quarry, the Metal Mine and the Uranium Mine. Does each one now read as working, and does none feel too busy?
+3. Map tab: press 🎞️ to turn the animations off, reload the page, and check it is still off. Turn it on again.
+4. Turn on Reduce motion in Settings, then look at the 🎞️ button's tooltip on the map.
+5. Completion tab → Achievements: Landscape Architect should now be in the list.
+6. Stats → Resources per second: with your current machines, how do deuterium, oil, natural gas and uranium look? Some may now go negative. Build producers until they are positive again, and see how much room that takes.
+7. Producers tab: check the new rates on the Gas Well, Oil Rig, Uranium Mine and Deuterium Extractor cards.
+
+## Known issues
+
+- Existing saves keep their fuel stock, but with the new rates your fuel may now run down. When a fuel runs out, the plants that burn it switch off and the usual warning shows. Build more producers or switch some plants off.
+- In this cloud sandbox the balance-simulator test takes 50 to 70 s; its time limit is now 120 s (was 60 s). Nothing in the game is affected.
+
+## Questions
+
+1. Fuel: does it now feel like a real limit, without being a chore? Is "one producer feeds about 2 or 3 plants" the right ratio?
+2. Should the Coal Mine get the same treatment (it feeds about 10 Coal Plants late in the game), or stay generous as the starting fuel?
+3. The new quarry crane and the mine lamp: clear at map size? Is the coal smoke visible enough now?
+4. The animation switch: is its place next to Legend and Decorations good, and is "On/Off" clear enough on a phone?
+5. The thought bubbles: is the side placement and the dot trail what you had in mind?
+
+## Next in the order
+
+- 1.89: accent colors follow the title tier colors.
+- 1.87: harder pacing, a slower middle and late game (new targets: 100% in 600 to 900 h).
+- 1.88: three more room expansions for the late game.
+- 1.90: the research level needed shows in the requirements, red when missing.
+- 1.91: sightings keep showing their rarity after they are found.
+
+---
+
+# Previous: Playtest 26 (v0.26.0): a foldable Cosmetics section, Remove all decorations, working machines that move, and pets at different speeds
 
 The version at the bottom of the screen should read **v0.26.0**.
 

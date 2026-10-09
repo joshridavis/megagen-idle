@@ -104,7 +104,7 @@ function windTurbine(frame = 0) {
   return c;
 }
 
-function coalPlant() {
+function coalPlant(frame = 0) {
   const c = new Canvas(64, 64);
   isoBlock(c, 6, 34, 34, 24, 8, C.brown2, C.brown3, C.brown4); // hall
   for (let i = 0; i < 4; i++) c.rect(10 + i * 8, 42, 4, 6, C.amber); // lit windows
@@ -115,10 +115,16 @@ function coalPlant() {
   c.rect(44, 18, 10, 3, C.red);
   c.rect(44, 28, 10, 3, C.red);
   c.rect(43, 10, 12, 3, C.grey5);
-  // smoke
-  c.circle(50, 6, 4, C.grey2);
-  c.circle(56, 3, 3, C.grey2);
-  c.circle(45, 3, 2.5, C.grey1);
+  // smoke: the second frame lets it drift up and to the right (1.83), darker near the stack
+  if (frame) {
+    c.circle(49, 7, 3, C.grey4);
+    c.circle(53, 4, 3.5, C.grey3);
+    c.circle(58, 2, 2.5, C.grey2);
+  } else {
+    c.circle(50, 6, 4, C.grey3);
+    c.circle(56, 3, 3, C.grey2);
+    c.circle(45, 3, 2.5, C.grey2);
+  }
   c.outline(C.ink);
   return c;
 }
@@ -336,7 +342,7 @@ function deuteriumIcon() {
 
 // ---------- producers ----------
 
-function quarry() {
+function quarry(frame = 0) {
   const c = new Canvas(48, 48);
   // stepped pit, lit from top left
   c.polygon([[2, 26], [24, 14], [46, 26], [24, 40]], C.sand);
@@ -346,11 +352,13 @@ function quarry() {
   // stone blocks on the rim
   isoBlock(c, 30, 14, 7, 5, 3, C.grey1, C.grey2, C.grey4);
   isoBlock(c, 36, 18, 6, 4, 3, C.grey1, C.grey2, C.grey4);
-  // little crane
+  // little crane; in the second frame (1.83) its hook has lifted a stone block out of the pit
   c.rect(8, 6, 2, 18, C.amber);
   c.rect(8, 6, 14, 2, C.amber);
-  c.line(20, 8, 20, 18, C.grey5);
-  c.rect(19, 18, 3, 2, C.grey3);
+  const hook = frame ? 12 : 18;
+  c.line(20, 8, 20, hook, C.grey5);
+  c.rect(19, hook, 3, 2, C.grey3);
+  if (frame) c.rect(18, hook + 2, 5, 3, C.grey2);
   c.outline(C.ink);
   return c;
 }
@@ -364,11 +372,15 @@ function mine(frame = 0) {
   c.rect(14, 20, 3, 20, C.brown4);
   c.rect(31, 20, 3, 20, C.brown4);
   c.rect(0, 40, 48, 3, C.grey4); // rail
-  const cx = frame * 8; // the cart rolls along the rail
-  c.rect(4 + cx, 32, 12, 7, C.grey3); // cart
-  c.rect(5 + cx, 30, 10, 3, C.steel); // ore
-  c.circle(7 + cx, 40, 1.5, C.grey6);
-  c.circle(13 + cx, 40, 1.5, C.grey6);
+  // a lamp over the entrance blinks, and the cart rolls a little way along the rail
+  // beside the entrance, never in front of it (1.83)
+  c.rect(23, 16, 2, 4, C.grey5);
+  c.rect(22, 14, 4, 3, frame ? C.brown5 : C.yellow);
+  const cx = frame * 3;
+  c.rect(35 + cx, 33, 9, 6, C.grey3); // cart
+  c.rect(36 + cx, 31, 7, 3, C.steel); // ore
+  c.circle(37 + cx, 40, 1.5, C.grey6);
+  c.circle(42 + cx, 40, 1.5, C.grey6);
   c.outline(C.ink);
   return c;
 }
@@ -484,7 +496,7 @@ function uraniumMine(frame = 0) {
   c.rect(18, 28, 12, 2, C.brown5);
   c.rect(0, 40, 48, 8, C.mud);
   // ore cart with glowing ore
-  const cx = -frame * 6; // the cart rolls toward the tunnel
+  const cx = frame * 4; // the cart rolls out, away from the tunnel, never over it (1.83)
   c.rect(32 + cx, 36, 10, 5, C.grey4);
   c.rect(33 + cx, 34, 8, 2, C.lime);
   c.circle(34 + cx, 42, 1.5, C.grey6);
@@ -1366,6 +1378,8 @@ const DRAW = {
   wind_turbine_2: () => windTurbine(1),
   hydro_dam_2: () => hydroDam(1),
   tidal_station_2: () => tidalStation(1),
+  coal_plant_2: () => coalPlant(1),
+  producer_quarry_2: () => quarry(1),
   producer_mine_2: () => mine(1),
   producer_coal_mine_2: () => coalMine(1),
   producer_gas_well_2: () => gasWell(1),
