@@ -24,7 +24,9 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold (owner, 2026-10-09, after playtest 27):** do not develop new backlog items until the owner says so. Hotfixes for what the owner reports on the current version are still made. When the hold lifts, the next items are 1.89, 1.87, 1.88, 1.90 and 1.91.
+**Hold lifted (owner, 2026-10-09, after playtest 27):** the owner asked to continue from the order of work. The run goes on with 1.89, 1.87, 1.88, 1.90 and 1.91 toward checkpoint 28.
+
+~~On hold (owner, 2026-10-09, after playtest 27): do not develop new backlog items until the owner says so.~~
 
 0. 1.92 Fix: the 💭's own small bubbles pointed away from the pet when it faced left; the dot trail showed beside ❗ and 💤 too (owner report, playtest 27; Done) → HOTFIX v0.27.1
 
@@ -41,7 +43,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 **More playtest 26 notes (owner, 2026-10-09):** the owner sent more notes and screenshots (player level 73, 79.7% completion, every room expansion bought, all 7 producer types, 9 of 10 generator types built and at max level, 31 of 39 research, 111 of 200 contracts, 8 of 13 contract perks, 13 of 14 pets found and 8 fully grown, pet slot 2 of 3, 34 of 36 decorations). These come right after 1.85 (Claude's placement; the owner can move them).
 
 0. 1.86 Fix: Deuterium Extractors, Oil Rigs and Gas Wells make far more fuel than the machines they feed burn (owner report; Done) → CHECKPOINT 27 (5 items since checkpoint 26: 1.82, 1.83, 1.84, 1.85, 1.86)
-0. 1.89 Accent colors follow the title tier colors, lowest to highest (owner report; small)
+0. 1.89 Accent colors follow the title tier colors, lowest to highest (owner report; small; Done)
 0. 1.87 Harder pacing: slower middle and late game, new pacing targets (owner feedback)
 0. 1.88 Three more room expansions for the late game (owner feedback; follows 1.87)
 0. 1.90 Research details: the research level needed shows under the requirements, red when missing (owner request; small)
@@ -1306,7 +1308,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** new pure helpers in `src/utils/fuelBalance.ts` (`lateGameProductionBoost`: all research, the producer's best zone, the adult Robot Dog and the resource's own pet; `lateGameBurnPerHour`: all fuel research; `burnersFedByOne`). New rates in `src/data/producers.ts`: Gas Well 1 per 35 min (feeds 3.0 gas plants, was 10.4), Oil Rig 1 per 16 min (2.0 oil plants, was 6.4), Uranium Mine 1 per 100 min (2.2 fission plants, was 7.5; fixed as well, it was as far off), Deuterium Extractor 1 per 90 min (2.0 Fusion Reactors or 1.0 Micro-Supernova, was 30 reactors). The extractor needed 1 per 90 min, not the 30 min the item guessed, because fuel research also cuts the burn by 45%. Coal Mine unchanged: 3 Coal Plants at the start as designed, about 10 late; slowing it would slow the first hours. Research texts updated (Natural Gas Extraction, Oil Drilling, Uranium Mining, Heavy Water Extraction); the guide states no rates. Saves keep their fuel; the out-of-fuel path is unchanged. The simulator's fuel planning already buys producers for a short fuel: 100% at 327.3 h (was 293.3 h), no stalls (`BALANCE_REPORT.md`). The simulator test's time budget went from 60 s to 120 s: the longer run takes about 50 s alone in a cloud sandbox and 67 s with the suite in parallel. Tests in `src/utils/fuelBalance.test.ts` and `src/data/tier3.test.ts`.
 
-### 1.89 — Accent colors follow the title tier colors, lowest to highest — CODE — Not started
+### 1.89 — Accent colors follow the title tier colors, lowest to highest — CODE — Done
 **Goal:** owner report, playtest 26: the accent colors in Achievements → Cosmetics do not match the title tiers. Amber, the free first accent, is the Legendary color (the highest tier), and Rose, the last accent, is the Epic color. The order of accents should follow the tiers.
 **Details:**
 - In `src/data/achievements.ts`, make `ACCENTS` one per title tier, in the same order and using the same colors as `TITLE_TIERS`: Common (gray `#8b93af`, free), Uncommon (green `#9cdb43`), Rare (blue `#249fde`), Epic (rose `#e86a73`), Legendary (gold `#ffd541`, the last and hardest). Name each after its tier or its color (for example "Slate", "Lime", "Sky", "Rose", "Gold"); the button text shows the tier too. Use the tier color (inline style or matching classes) so accent and title colors are exactly the same. Violet goes, since no tier uses it.
@@ -1314,6 +1316,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The default accent for new saves becomes the Common one. Migration: a save whose chosen accent no longer exists, or is no longer unlocked, falls back to the highest accent it has unlocked. Old ids map to the new ones where the color stays (amber → gold, emerald → lime, sky → sky, rose → rose, violet → the highest unlocked).
 - The top bar ring and text follow the chosen accent as now; check contrast on the slate background (the existing 4.5:1 test).
 **Acceptance:** tests: accents are in tier order and each uses its tier's color; Common is free and Legendary needs the most achievements; old saves with amber, emerald, sky, violet or rose load with a valid accent; the build and all tests pass.
+
+**Notes:** `ACCENTS` in `src/data/achievements.ts` is now one per tier, colored from `TITLE_TIERS`: Slate (Common, free, the new default), Lime (Uncommon, 5), Sky (Rare, 15), Rose (Epic, 25), Gold (Legendary, 36). The unlock counts are kept; Gold is still the last. Buttons read "Slate · Common" and so on, in the tier color; the top bar number and ring use the same color (inline style). Save version 23: old ids map by color (amber → gold, emerald → lime, sky, rose), violet and any locked or unknown accent fall back to the highest unlocked (`resolveAccent` in `src/utils/achievements.ts`). The tier colors already pass the 4.5:1 test on the top bar. Tests in `src/utils/cosmetics.test.ts`.
 
 ### 1.87 — Harder pacing: slower middle and late game, new pacing targets — CODE — Not started
 **Goal:** owner feedback, playtest 26: the game is still too easy. In at most 2 weeks, with about 6 to 8 hours of active play, the owner reached player level 73, bought every room expansion and reached 79.7% completion (all producers, 9 of 10 generator types at max level, 31 of 39 research, 13 of 14 pets, 8 of 13 contract perks, 34 of 36 decorations). Make the game a bit more challenging, mainly from the middle game on, without making the start slower.

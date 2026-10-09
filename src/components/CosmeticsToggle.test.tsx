@@ -35,7 +35,7 @@ describe('collapsible Cosmetics section (1.69)', () => {
     expect(screen.queryByTestId('title-tiers')).toBeNull();
     const summary = screen.getByTestId('cosmetics-summary');
     expect(summary.textContent).toContain('Title: Live Wire');
-    expect(summary.textContent).toContain('Accent: Amber');
+    expect(summary.textContent).toContain('Accent: Slate');
     // The achievements list below is unchanged.
     expect(screen.getByTestId('achievement-energy_100k')).toBeTruthy();
     fireEvent.click(toggle);

@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, type CSSProperties } from 'react';
 import { sprites } from '../assets';
-import { ACCENTS } from '../data/achievements';
+import { ACCENTS, DEFAULT_ACCENT } from '../data/achievements';
 import { useStore } from '../store';
 import { getAvailableRoom, getTotalEnergyRate, selectEnergy } from '../store/selectors';
 import { getEnergyBreakdown } from '../utils/breakdown';
@@ -15,7 +15,7 @@ export default function EnergyDisplay() {
   const capacity = useStore((s) => s.roomCapacity);
   const free = useStore(getAvailableRoom);
   const fmt = useNumberFormat();
-  const accentId = useStore((s) => s.settings.cosmetics?.accent ?? 'amber');
+  const accentId = useStore((s) => s.settings.cosmetics?.accent ?? DEFAULT_ACCENT);
   const accent = ACCENTS.find((x) => x.id === accentId) ?? ACCENTS[0];
   const generators = useStore((s) => s.activeGenerators);
   const completed = useStore((s) => s.completedResearch);
@@ -33,10 +33,14 @@ export default function EnergyDisplay() {
   // overall change from all boosts (event effects can apply to one generator type only)
   const boost = breakdown.base > 0 ? breakdown.total / breakdown.base - 1 : breakdown.modifiers.reduce((sum, m) => sum + (m.percent ?? 0), 0);
   return (
-    <div className={`flex items-center gap-3 rounded-lg bg-slate-800/95 px-4 py-3 shadow-lg shadow-black/40 ring-2 backdrop-blur ${accent.ring}`} data-testid="energy-display">
+    <div className={`flex items-center gap-3 rounded-lg bg-slate-800/95 px-4 py-3 shadow-lg shadow-black/40 ring-2 backdrop-blur`}
+      style={{ '--tw-ring-color': `${accent.color}99` } as CSSProperties}
+      data-testid="energy-display"
+      data-accent={accent.id}
+    >
       <img src={sprites.energy_icon} alt="Energy" width={32} height={32} className="pixelated" />
       <div className="leading-tight">
-        <span className={`font-mono text-2xl ${accent.text}`} aria-label="Energy total">
+        <span className="font-mono text-2xl" style={{ color: accent.color }} aria-label="Energy total">
           {fmt.num(energy)}
         </span>
         <div className="text-xs text-slate-400">

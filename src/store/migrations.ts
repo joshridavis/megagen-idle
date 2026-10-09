@@ -5,9 +5,10 @@ import type { Generator } from '../types/generator';
 import type { GameState } from '../types/state';
 import { recordsFromGenerators } from '../utils/records';
 import { TUTORIAL_DONE } from '../data/tutorial';
+import { resolveAccent } from '../utils/achievements';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 22;
+export const SAVE_VERSION = 23;
 
 type AnySave = Record<string, unknown>;
 
@@ -72,6 +73,14 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
     const bought: Record<string, number> = {};
     for (const id of Object.values((save.mapDecorations as Record<string, string> | undefined) ?? {})) bought[id] = (bought[id] ?? 0) + 1;
     return { ...save, decorationsBought: bought };
+  },
+  // 1.89: one accent per title tier; old accent ids map to the same color, or the highest unlocked.
+  22: (save) => {
+    const settings = save.settings as { cosmetics?: { title: string | null; accent: string } } | undefined;
+    if (!settings?.cosmetics) return save;
+    const achievements = (save.achievements as Record<string, number> | undefined) ?? {};
+    const accent = resolveAccent({ achievements }, settings.cosmetics.accent);
+    return { ...save, settings: { ...settings, cosmetics: { ...settings.cosmetics, accent } } };
   },
 };
 

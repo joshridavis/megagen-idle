@@ -1,5 +1,5 @@
 import { sprites } from '../assets';
-import { ACCENTS, ACHIEVEMENTS, TITLE_TIERS, titleTier, type AchievementDef } from '../data/achievements';
+import { ACCENTS, ACHIEVEMENTS, DEFAULT_ACCENT, TITLE_TIERS, titleTier, type AchievementDef } from '../data/achievements';
 import { useStore } from '../store';
 import { achievementProgress, canUseAccent, canUseTitle, metricValue } from '../utils/achievements';
 import ProgressBar from './ProgressBar';
@@ -15,7 +15,7 @@ export default function AchievementsPanel() {
   const fmt = useNumberFormat();
   const unlocked = ACHIEVEMENTS.filter((a) => state.achievements[a.id] !== undefined).length;
   const setCosmetics = useStore((s) => s.setCosmetics);
-  const cosmetics = state.settings.cosmetics ?? { title: null, accent: 'amber' };
+  const cosmetics = state.settings.cosmetics ?? { title: null, accent: DEFAULT_ACCENT };
   const titles = ACHIEVEMENTS.filter((a) => a.title && canUseTitle(state, a.id));
   const chosenTier = titleTier(cosmetics.title);
   const cosOpen = state.settings.cosmeticsOpen ?? true;
@@ -83,6 +83,7 @@ export default function AchievementsPanel() {
             <div className="flex flex-wrap gap-2">
               {ACCENTS.map((x) => {
                 const open = canUseAccent(state, x.id);
+                const tier = TITLE_TIERS.find((t) => t.id === x.tier)!;
                 return (
                   <button
                     key={x.id}
@@ -90,11 +91,12 @@ export default function AchievementsPanel() {
                     disabled={!open}
                     aria-pressed={cosmetics.accent === x.id}
                     onClick={() => setCosmetics({ accent: x.id })}
-                    title={open ? x.name : `${x.name}: unlock ${x.need} achievements`}
-                    className={`min-h-9 rounded border px-2 text-xs font-semibold ${x.text} ${cosmetics.accent === x.id ? 'border-white' : 'border-slate-600'} disabled:opacity-40`}
+                    title={open ? `${x.name} (${tier.name})` : `${x.name} (${tier.name}): unlock ${x.need} achievements`}
+                    className={`min-h-9 rounded border px-2 text-xs font-semibold ${cosmetics.accent === x.id ? 'border-white' : 'border-slate-600'} disabled:opacity-40`}
+                    style={{ color: x.color }}
                     data-testid={`accent-${x.id}`}
                   >
-                    {open ? x.name : `🔒 ${x.need}`}
+                    {open ? `${x.name} · ${tier.name}` : `🔒 ${x.need} · ${tier.name}`}
                   </button>
                 );
               })}
