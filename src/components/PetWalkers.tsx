@@ -1,10 +1,22 @@
 import { useEffect, useState } from 'react';
 import { sprites, type SpriteId } from '../assets';
-import { PET_ACTION_BUBBLES, PET_GROUND_ACTIONS, PET_PARTICLES, PET_SLEEP_SQUASH, PET_STAGE_HEIGHT, PET_REACT_MS, PET_WALK, PETS_BY_ID, type PetId } from '../data/pets';
+import {
+  PET_ACTION_BUBBLES,
+  PET_CONFETTI,
+  PET_GROUND_ACTIONS,
+  PET_PARTICLES,
+  PET_REACTION_MS,
+  PET_SLEEP_SQUASH,
+  PET_STAGE_HEIGHT,
+  PET_REACT_MS,
+  PET_WALK,
+  PETS_BY_ID,
+  type PetId,
+} from '../data/pets';
 import { platform } from '../platform';
 import { useStore } from '../store';
 import { activePets } from '../utils/pets';
-import { startWalkers, stepWalkers, walkMs, type Walker } from '../utils/petWalk';
+import { applyReaction, endReactions, reactionDef, startWalkers, stepWalkers, walkMs, type Walker } from '../utils/petWalk';
 
 /** How far a bubble is tucked down toward the pet (px). */
 const BUBBLE_TUCK_PX = 6;
@@ -73,7 +85,8 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
   const name = PETS_BY_ID[w.id].name;
   const size = PET_WALK.size;
   const walking = !still && w.action === 'walk';
-  const pose = still ? '' : playing ? 'pet-react' : walking ? 'pet-walking' : `pet-act-${w.action}`;
+  const react = w.react;
+  const pose = still ? '' : playing ? 'pet-react' : react ? `pet-reaction-${react.pose}` : walking ? 'pet-walking' : `pet-act-${w.action}`;
   return (
     <button
       type="button"
@@ -83,6 +96,7 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
       data-testid={`walking-pet-${w.id}`}
       data-action={still ? 'still' : w.action}
       data-playing={playing}
+      data-reaction={react?.pose}
       className="pointer-events-auto absolute bottom-0 left-0 rounded"
       style={{
         width: size,
@@ -91,7 +105,24 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
         transition: walking ? `transform ${walkMs(w.from, w.x, w.pace)}ms linear` : 'none',
       }}
     >
-      {!still && !walking && !playing && w.action !== 'walk' && PET_ACTION_BUBBLES[w.action] && (
+      {react && !playing && (
+        // a celebration or event reaction (1.80): its bubble shows even with Reduce motion
+        (() => {
+          const place = bubblePlace(w, stage, layerPx);
+          return (
+            <span
+              aria-hidden="true"
+              data-testid={`pet-reaction-${w.id}`}
+              data-side={place.side}
+              className="pet-bubble pointer-events-none absolute text-sm leading-none"
+              style={place.style}
+            >
+              {react.emoji}
+            </span>
+          );
+        })()
+      )}
+      {!still && !react && !walking && !playing && w.action !== 'walk' && PET_ACTION_BUBBLES[w.action] && (
         PET_GROUND_ACTIONS.includes(w.action) ? (
           // food and toys lie on the ground in front of the pet's mouth (the sprites face right), not above it
           <span
@@ -128,6 +159,18 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
           data-pace={walking ? (w.pace ?? 1) : undefined}
         />
       </span>
+      {react?.pose === 'celebrate' && !still && !playing &&
+        PET_CONFETTI.map((c, i) => (
+          <span
+            key={`c${i}`}
+            aria-hidden="true"
+            data-testid={`pet-confetti-${w.id}`}
+            className="pet-particle pointer-events-none absolute text-xs"
+            style={{ left: `${5 + i * 35}%`, animationDelay: `${i * 300}ms`, animationIterationCount: 2 }}
+          >
+            {c}
+          </span>
+        ))}
       {playing &&
         [0, 1, 2].map((i) => (
           <span
@@ -174,6 +217,18 @@ export default function PetWalkers() {
     }, PET_WALK.tickMs);
     return () => clearInterval(t);
   }, [on, still, key]);
+  // celebrate milestones and react to random events (1.80): every pet stops for one reaction at a time
+  const reaction = useStore((s) => s.petReaction);
+  useEffect(() => {
+    if (!on || !reaction) return;
+    const now = Date.now();
+    const until = reaction.at + PET_REACTION_MS;
+    if (now >= until) return;
+    setWalkers((w) => applyReaction(w, reactionDef(reaction), now, until));
+    // standing still (Reduce motion) no step runs, so the bubble is cleared here
+    const t = setTimeout(() => setWalkers((w) => endReactions(w, Date.now())), until - now);
+    return () => clearTimeout(t);
+  }, [on, reaction]);
   if (!on || !key) return null;
   return (
     <div

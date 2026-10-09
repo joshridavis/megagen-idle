@@ -21,6 +21,8 @@ const withPets = (settings: Partial<ReturnType<typeof createInitialState>['setti
     pets: { active: 'cat', extra: ['eel'], slots: 2, owned: { cat: adult, eel: adult, hamster: adult } },
     settings: { ...createInitialState(0).settings, ...settings },
   });
+  // owning pets unlocks achievements, which the pets would celebrate (1.80): start calm
+  useStore.setState({ petReaction: null });
 };
 
 describe('walker logic (1.60)', () => {

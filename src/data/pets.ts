@@ -157,6 +157,57 @@ export const PET_SLEEP_SQUASH = 0.8;
 /** Actions whose emoji is a thing on the ground in front of the pet's mouth, not a thought bubble (owner, playtest 25). */
 export const PET_GROUND_ACTIONS: PetAction[] = ['eat', 'play'];
 
+/**
+ * Pet reactions (1.80, owner request playtest 25): the walking pets stop and
+ * celebrate your milestones, and react to random events. One plays at a time
+ * for PET_REACTION_MS; a burst of events plays only the first.
+ */
+export type PetReactionPose = 'celebrate' | 'look' | 'happy' | 'hide' | 'scared' | 'cheer';
+export interface PetReactionDef {
+  /** The bubble over the pet. */
+  emoji: string;
+  /** The pose it plays (CSS class `pet-reaction-{pose}` in index.css). */
+  pose: PetReactionPose;
+}
+export const PET_REACTION_MS = 4_000;
+/** Research complete, level up, a pet grown, an achievement or a contract complete. */
+export const PET_CELEBRATION: PetReactionDef = { emoji: '🎉', pose: 'celebrate' };
+/** Sparkles thrown up by a celebrating pet. */
+export const PET_CONFETTI = ['✨', '🎊', '✨'];
+/** A random event with no reaction of its own. */
+export const PET_GENERIC_REACTION: PetReactionDef = { emoji: '👀', pose: 'look' };
+/** A negative random event with no reaction of its own. */
+export const PET_NEGATIVE_REACTION: PetReactionDef = { emoji: '😨', pose: 'scared' };
+const lookUp: PetReactionDef = { emoji: '😮', pose: 'look' };
+const hide: PetReactionDef = { emoji: '🌧️', pose: 'hide' };
+const money: PetReactionDef = { emoji: '💰', pose: 'cheer' };
+/** Random events with their own reaction, by event id (src/data/events.ts). */
+export const PET_EVENT_REACTIONS: Record<string, PetReactionDef> = {
+  spaceship: lookUp,
+  meteor_shower: lookUp,
+  aurora: lookUp,
+  ufo: lookUp,
+  shooting_star: lookUp,
+  whale: lookUp,
+  rainbow: { emoji: '🌈', pose: 'happy' },
+  sunny_spell: { emoji: '☀️', pose: 'happy' },
+  strong_winds: { emoji: '🌬️', pose: 'happy' },
+  overcast: hide,
+  calm_air: hide,
+  map_lightning: { emoji: '⚡', pose: 'hide' },
+  map_flood: hide,
+  map_fire: { emoji: '🔥', pose: 'scared' },
+  grant: money,
+  map_delivery: money,
+  rich_seam: money,
+  coal_find: money,
+  contract_boost: money,
+  eureka: { emoji: '💡', pose: 'happy' },
+  map_star: { emoji: '⭐', pose: 'happy' },
+  birds: { emoji: '🐦', pose: 'look' },
+  map_flock: { emoji: '🐦', pose: 'look' },
+};
+
 /** Hours to grow after feeding: to young, to adult. */
 export const GROW_HOURS: [number, number] = [2, 8];
 

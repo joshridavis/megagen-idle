@@ -1,4 +1,5 @@
 import { EVENTS_BY_ID } from '../../data/events';
+import { LIVE_TICK_MAX_SECONDS } from '../../data/time';
 import { eventIcon } from '../../data/logIcons';
 import type { EventsState } from '../../types/state';
 import { rollEvents, recordSeen, type RollOptions } from '../../utils/randomEvents';
@@ -44,6 +45,7 @@ export const createEventSlice =
         }
         set({ ...(def.effect && !ev.claimUntil ? deriveRates(game) : {}), seenEvents: recordSeen(s.seenEvents, def.id, now), mapEvent: ev }, undefined, 'events/map');
         s.logEvents([{ kind: 'event', icon: eventIcon(def), text: `${def.name}: ${text}`, toast: true }], now);
+        s.reactPets({ kind: 'event', eventId: def.id }, now);
         return def.id;
       }
       return null;
@@ -108,6 +110,8 @@ export const createEventSlice =
         })),
         now,
       );
+      // the walking pets react to what happened while you watch (1.80); a burst plays the first
+      if (opts.foreground && !opts.catchUp && seconds <= LIVE_TICK_MAX_SECONDS) s.reactPets({ kind: 'event', eventId: hits[0].id }, now);
       return hits.map((e) => e.id);
     },
   });

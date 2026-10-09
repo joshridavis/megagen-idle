@@ -1,4 +1,19 @@
-import { PET_ACTION_MS, PET_ACTION_WEIGHTS, PET_ACTIONS, PET_BASE_PACE, PET_PACES, PET_WALK, type PetAction, type PetId } from '../data/pets';
+import { EVENTS_BY_ID } from '../data/events';
+import {
+  PET_ACTION_MS,
+  PET_ACTION_WEIGHTS,
+  PET_ACTIONS,
+  PET_BASE_PACE,
+  PET_CELEBRATION,
+  PET_EVENT_REACTIONS,
+  PET_GENERIC_REACTION,
+  PET_NEGATIVE_REACTION,
+  PET_PACES,
+  PET_WALK,
+  type PetAction,
+  type PetId,
+  type PetReactionDef,
+} from '../data/pets';
 import type { Rng } from './rng';
 
 /**
@@ -20,6 +35,8 @@ export interface Walker {
   until: number;
   /** Speed of the current walk as a multiple of PET_WALK.speed (1.79); 1 when missing. */
   pace?: number;
+  /** A celebration or event reaction playing until `until` (1.80); the pet stands still meanwhile. */
+  react?: PetReactionDef;
 }
 
 /** Spread pets evenly across the screen, resting a moment before they set off. */
@@ -71,6 +88,8 @@ function act(w: Walker, action: PetAction, now: number, rng: Rng): Walker {
  * may rest before walking on; after resting it walks.
  */
 export function nextStep(w: Walker, now: number, rng: Rng): Walker {
+  // a finished reaction: carry on walking (1.80)
+  if (w.react) w = { ...w, react: undefined, action: 'rest' };
   if (w.action === 'walk' && rng() < PET_WALK.actionChance) return act(w, pickAction(rng), now, rng);
   if (w.action !== 'walk' && w.action !== 'rest' && rng() < PET_WALK.restAfterAction) return act(w, 'rest', now, rng);
   // a new target at least a little way off, kept off the very edges
@@ -90,4 +109,36 @@ export function stepWalkers(walkers: Walker[], ids: PetId[], now: number, rng: R
   const all = [...kept, ...fresh];
   const next = all.map((w) => (now >= w.until ? nextStep(w, now, rng) : w));
   return next.every((w, i) => w === all[i]) && all.length === walkers.length ? walkers : next;
+}
+
+/** Where a pet stands at `now` (0 to 1): partway along its walk, or where it is. */
+export function positionAt(w: Walker, now: number): number {
+  if (w.action !== 'walk') return w.x;
+  const total = walkMs(w.from, w.x, w.pace);
+  const done = Math.min(1, Math.max(0, 1 - (w.until - now) / total));
+  return w.from + (w.x - w.from) * done;
+}
+
+/** What the pets play for a reaction from the store (1.80): the celebration, an event's own reaction, 😨 for a bad one, else 👀. */
+export function reactionDef(r: { kind: 'celebrate' } | { kind: 'event'; eventId: string }): PetReactionDef {
+  if (r.kind === 'celebrate') return PET_CELEBRATION;
+  const own = PET_EVENT_REACTIONS[r.eventId];
+  if (own) return own;
+  return EVENTS_BY_ID[r.eventId]?.negative ? PET_NEGATIVE_REACTION : PET_GENERIC_REACTION;
+}
+
+/**
+ * Every pet stops where it is and plays the reaction until `until` (1.80),
+ * whatever it was doing (a nap included), then walks on.
+ */
+export function applyReaction(walkers: Walker[], react: PetReactionDef, now: number, until: number): Walker[] {
+  return walkers.map((w) => {
+    const x = positionAt(w, now);
+    return { ...w, from: x, x, action: 'rest', until, react };
+  });
+}
+
+/** Clears reactions that are over (used while the pets stand still, when no step runs). */
+export function endReactions(walkers: Walker[], now: number): Walker[] {
+  return walkers.some((w) => w.react && now >= w.until) ? walkers.map((w) => (w.react && now >= w.until ? { ...w, react: undefined } : w)) : walkers;
 }

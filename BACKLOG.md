@@ -76,7 +76,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 0. 1.78 Landscape Architect: own all 36 decorations (owner request; small; Done)
 0. 1.79 Walking pets at different speeds (owner request; small; Done) → CHECKPOINT 26 (5 items since checkpoint 25: 1.69, 1.70, 1.71, 1.78, 1.79)
-0. 1.80 Pets celebrate your milestones and react to random events (owner request)
+0. 1.80 Pets celebrate your milestones and react to random events (owner request; Done)
 0. 1.81 Active pets on screen interact with each other (owner request)
 
 **After playtest 22 (owner, 2026-10-05):** these come first, in this order (approximate priority, set by Claude at the owner's request), then the rest of the playtest 21 list below.
@@ -1255,7 +1255,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** `PET_PACES` (stroll 0.5×, walk 1×, trot 2×, weights 0.2 / 0.5 / 0.3) and `PET_BASE_PACE` (Solar Tortoise 0.6×, Wind-up Robot Dog 1.3×, hamster 1.15×) in `src/data/pets.ts`; `pickPace` and a `pace` on each walk in `src/utils/petWalk.ts`; `PetWalkers` times the walk and the bob (0.5 s ÷ pace) by it. A seeded run of 4,000 walks averages within 20% of the old speed. Reduce motion unchanged. Tests in `src/components/PetWalkers.test.tsx`.
 
-### 1.80 — Pets celebrate your milestones and react to random events — CODE — Not started
+### 1.80 — Pets celebrate your milestones and react to random events — CODE — Done
 **Goal:** owner request, playtest 25: the walking pets should celebrate when something good happens (player level up, research completed, achievement unlocked, and similar) and react when a random event happens.
 **Details:**
 - **Celebrate:** when a live celebration or achievement fires (research complete, level up, pet stage-up from 1.58, achievement unlocked, contract completed), every walking pet stops and plays a short celebration (a jump with sparkles or confetti and a 🎉 bubble) for a few seconds, then carries on.
@@ -1263,6 +1263,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reactions come from the store (celebrations, the event log or a small transient "pet reaction" queue), not from timers; at most one reaction plays at a time, and a burst of events plays one.
 - Reduce motion: the pets stay still; only the bubble shows. The "Pets walk on screen" setting off: nothing.
 **Acceptance:** tests: a level up, a research completion and an achievement each make the walking pets celebrate; a random event plays its reaction (and the generic one for an unmapped event); reactions do not pile up; Reduce motion shows only the bubble; the build and all tests pass.
+
+**Notes:** a transient `petReaction` in the store (never saved), set by `reactPets` in `src/store/slices/petSlice.ts`, which ignores new ones while one still plays (`PET_REACTION_MS` = 4 s), so a burst plays the first. Set by: a new live celebration (research, level up, pet stage-up) and a live achievement (`src/store/index.ts`), a contract completed in live play (`tickContracts(now, rng, live)`), and random and map events rolled while you watch (not on catch-up). Reactions in `src/data/pets.ts`: `PET_CELEBRATION` (🎉, a jump with ✨🎊 confetti), `PET_EVENT_REACTIONS` by event id (😮 sightings, ☀️ sunny spell, 🌧️ hiding for overcast or calm air, 💰 deliveries and grants, and more), 😨 for any other negative event, else 👀. `applyReaction`, `reactionDef`, `positionAt` and `endReactions` in `src/utils/petWalk.ts`: every pet stops where it is (mid-walk or asleep), plays the pose, then walks on. Reduce motion: only the bubble. Tests in `src/components/PetReactions.test.tsx`.
 
 ### 1.83 — Machine animations: every machine visibly animated, the quarry calmer, the metal mine redone — CODE — Done
 **Goal:** owner feedback, playtest 26, on 1.71: the amount of movement is generally fine, but some machines do not look animated (for example the Coal Power Plant), some look too busy (the Stone Quarry), and the Metal Mine looks a bit odd. The owner's favorites set the style: the Nuclear Fission Plant (steam) and the Fusion Reactor (pulsing glow), the Wind Turbine (turning blades), the Gas Well (nodding pump jack) and the Natural Gas Plant (smoke from the flare).
