@@ -1,5 +1,5 @@
 import type { ResourceAmounts } from '../types/resource';
-import { ROOM_ENERGY_FACTOR, scaleMaterials } from './balance';
+import { LATE_ROOM_ENERGY_FACTOR, LATE_ROOM_TIER, ROOM_ENERGY_FACTOR, scaleMaterials } from './balance';
 
 export interface RoomTier {
   tier: number;
@@ -39,9 +39,12 @@ const ROOM_TIER_DEFS: RoomTier[] = [
   { tier: 10, capacity: 240, energy: 80_000_000, resources: { metal: 50_000, stone: 25_000, uranium: 100, deuterium: 30 }, playerLevel: 70 },
 ];
 
-/** The expansions, slightly harder (playtest 19.3): energy x ROOM_ENERGY_FACTOR, metal and stone x MATERIAL_COST_FACTOR. */
+/**
+ * The expansions, slightly harder (playtest 19.3): energy x ROOM_ENERGY_FACTOR, metal and stone
+ * x MATERIAL_COST_FACTOR; from LATE_ROOM_TIER on, energy also x LATE_ROOM_ENERGY_FACTOR (1.87).
+ */
 export const ROOM_TIERS: RoomTier[] = ROOM_TIER_DEFS.map((t) => ({
   ...t,
-  energy: Math.round(t.energy * ROOM_ENERGY_FACTOR),
+  energy: Math.round(t.energy * ROOM_ENERGY_FACTOR * (t.tier >= LATE_ROOM_TIER ? LATE_ROOM_ENERGY_FACTOR : 1)),
   resources: scaleMaterials(t.resources),
 }));

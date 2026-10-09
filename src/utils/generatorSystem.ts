@@ -182,7 +182,7 @@ export interface UpgradeCost {
 /** Cost to raise a generator from `level` to `level + 1` (discount applies): see UPGRADES. */
 export function getUpgradeCost(type: GeneratorType, level: number, bonuses: Bonuses = NO_BONUSES): UpgradeCost {
   const stats = getGeneratorStats(type, bonuses);
-  const f = UPGRADES.costGrowth ** Math.max(1, level);
+  const f = UPGRADES.costGrowth ** Math.max(1, level) * UPGRADES.steepGrowth ** Math.max(0, level - UPGRADES.steepFromLevel + 1);
   const rf = UPGRADES.resourceGrowth ** Math.max(1, level);
   const resources: ResourceAmounts = {};
   for (const [id, n] of Object.entries(stats.buildCost)) resources[id as keyof ResourceAmounts] = Math.ceil((n ?? 0) * rf);

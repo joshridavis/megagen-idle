@@ -3,6 +3,7 @@ import { createInitialState } from '../data/initialState';
 import { RESEARCH } from '../data/research';
 import { ROOM_TIERS } from '../data/rooms';
 import { getCompletion } from '../utils/completion';
+import { PACING_TARGETS } from '../data/pacingTargets';
 import { runBalanceSim } from './balanceSim';
 
 describe('balance simulator (0.35)', () => {
@@ -20,6 +21,13 @@ describe('balance simulator (0.35)', () => {
     expect(r.completion).toBe(1);
     expect(r.gaps).toEqual([]);
     expect(r.milestones.find((m) => m.id === 'firstGenerator')!.hours).toBeLessThan(2 / 60);
+    // every pacing target holds, the early ones and the slower middle and late game (1.87)
+    for (const target of PACING_TARGETS) {
+      const m = r.milestones.find((x) => x.id === target.id);
+      expect(m, target.id).toBeDefined();
+      expect(m!.hours, target.id).toBeGreaterThanOrEqual(target.hours[0]);
+      expect(m!.hours, target.id).toBeLessThanOrEqual(target.hours[1]);
+    }
     // map layouts (1.05) made a run take several seconds: allow it, within the budget above.
     // The runner timeout sits above that budget so the check above decides, even when the
     // full suite runs in parallel. 1.86's scarcer fuel made the run longer (327 h, about 50 s

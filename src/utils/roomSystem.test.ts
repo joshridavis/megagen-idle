@@ -33,7 +33,7 @@ describe('room expansion', () => {
   });
 
   it('tiers go in order and stop at the last', () => {
-    let s = rich({ energy: 1e9, lifetimeEnergy: energyForLevel(99), resources: { metal: 1e6, stone: 1e6, coal: 1e5, naturalGas: 1e4, oil: 0, uranium: 1e4, deuterium: 1e4 } });
+    let s = rich({ energy: 1e12, lifetimeEnergy: energyForLevel(99), resources: { metal: 1e6, stone: 1e6, coal: 1e5, naturalGas: 1e4, oil: 0, uranium: 1e4, deuterium: 1e4 } });
     for (const t of ROOM_TIERS) s = expandRoom(s, t.tier);
     expect(s.roomCapacity).toBe(13 + ROOM_TIERS.reduce((sum, t) => sum + t.capacity, 0));
     expect(getNextRoomTier(s.expansionLevel)).toBeNull();

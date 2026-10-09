@@ -1,6 +1,6 @@
 import { GeneratorType } from '../types/generator';
 import type { ResearchDef } from '../types/research';
-import { RESEARCH_TIME_FACTOR, scaleMaterials } from './balance';
+import { MID_RESEARCH_COST_FACTOR, MID_RESEARCH_LEVEL, MID_RESEARCH_TIME_FACTOR, RESEARCH_TIME_FACTOR, scaleMaterials } from './balance';
 
 /** Generators available before any research (playtest 2: Solar from the start). */
 export const STARTING_GENERATORS: GeneratorType[] = [GeneratorType.SOLAR];
@@ -493,12 +493,16 @@ const RESEARCH_DEFS: ResearchDef[] = [
 
 /**
  * The research list, with durations scaled by RESEARCH_TIME_FACTOR (to whole minutes) and
- * metal and stone costs by MATERIAL_COST_FACTOR (playtest 19.3).
+ * metal and stone costs by MATERIAL_COST_FACTOR (playtest 19.3); middle and late research
+ * (MID_RESEARCH_LEVEL and up) costs and takes more (1.87).
  */
-export const RESEARCH: ResearchDef[] = RESEARCH_DEFS.map((r) => ({
-  ...r,
-  duration: Math.round((r.duration * RESEARCH_TIME_FACTOR) / 60) * 60, // whole minutes
-  cost: { ...r.cost, resources: r.cost.resources && scaleMaterials(r.cost.resources) },
-}));
+export const RESEARCH: ResearchDef[] = RESEARCH_DEFS.map((r) => {
+  const mid = r.requiredLevel >= MID_RESEARCH_LEVEL;
+  return {
+    ...r,
+    duration: Math.round((r.duration * RESEARCH_TIME_FACTOR * (mid ? MID_RESEARCH_TIME_FACTOR : 1)) / 60) * 60, // whole minutes
+    cost: { ...r.cost, energy: r.cost.energy * (mid ? MID_RESEARCH_COST_FACTOR : 1), resources: r.cost.resources && scaleMaterials(r.cost.resources) },
+  };
+});
 
 export const RESEARCH_BY_ID: Record<string, ResearchDef> = Object.fromEntries(RESEARCH.map((r) => [r.id, r]));

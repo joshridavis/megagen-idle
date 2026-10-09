@@ -44,7 +44,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 0. 1.86 Fix: Deuterium Extractors, Oil Rigs and Gas Wells make far more fuel than the machines they feed burn (owner report; Done) → CHECKPOINT 27 (5 items since checkpoint 26: 1.82, 1.83, 1.84, 1.85, 1.86)
 0. 1.89 Accent colors follow the title tier colors, lowest to highest (owner report; small; Done)
-0. 1.87 Harder pacing: slower middle and late game, new pacing targets (owner feedback)
+0. 1.87 Harder pacing: slower middle and late game, new pacing targets (owner feedback; Done)
 0. 1.88 Three more room expansions for the late game (owner feedback; follows 1.87)
 0. 1.90 Research details: the research level needed shows under the requirements, red when missing (owner request; small)
 0. 1.91 Sightings show their rarity after they are found (owner request; small)
@@ -1319,7 +1319,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** `ACCENTS` in `src/data/achievements.ts` is now one per tier, colored from `TITLE_TIERS`: Slate (Common, free, the new default), Lime (Uncommon, 5), Sky (Rare, 15), Rose (Epic, 25), Gold (Legendary, 36). The unlock counts are kept; Gold is still the last. Buttons read "Slate · Common" and so on, in the tier color; the top bar number and ring use the same color (inline style). Save version 23: old ids map by color (amber → gold, emerald → lime, sky, rose), violet and any locked or unknown accent fall back to the highest unlocked (`resolveAccent` in `src/utils/achievements.ts`). The tier colors already pass the 4.5:1 test on the top bar. Tests in `src/utils/cosmetics.test.ts`.
 
-### 1.87 — Harder pacing: slower middle and late game, new pacing targets — CODE — Not started
+### 1.87 — Harder pacing: slower middle and late game, new pacing targets — CODE — Done
 **Goal:** owner feedback, playtest 26: the game is still too easy. In at most 2 weeks, with about 6 to 8 hours of active play, the owner reached player level 73, bought every room expansion and reached 79.7% completion (all producers, 9 of 10 generator types at max level, 31 of 39 research, 13 of 14 pets, 8 of 13 contract perks, 34 of 36 decorations). Make the game a bit more challenging, mainly from the middle game on, without making the start slower.
 **Details:**
 - **New pacing targets** in `src/data/pacingTargets.ts`, measured in simulated hours (which include time away, up to the offline cap). Proposed, the owner can change them: last room expansion at least 250 h; 75% completion at least 300 h (was 93 h); 100% completion between 600 and 900 h (was at least 200 h, simulated 293 h), so roughly 4 to 6 weeks of normal play with the game closed most of the time. The early targets (first generator to first Natural Gas Plant) stay as they are.
@@ -1328,6 +1328,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Existing saves keep everything already bought, built and researched; nothing is taken away. Completion entries already done stay done.
 - Run `npm run simulate`; iterate until every target holds and there are no stalls (more than 8 h with no milestone; consider raising `STALL_HOURS` to 12 if the slower late game makes 8 h too strict, and say so). Record the before and after times of key milestones in `BALANCE_REPORT.md`, and give the new estimated hours to 100% in the PR.
 **Acceptance:** the simulator meets every new target with no stalls; the first hours (first generator to first Natural Gas Plant) stay within their ranges; tests cover the new targets and that an existing save loads unchanged; the build and all tests pass.
+
+**Notes:** knobs in `src/data/balance.ts`: research at research level 9 and up costs 6x the energy and takes 5x as long (`MID_RESEARCH_*`); room expansions 8 to 10 cost 10x the energy (`LATE_ROOM_*`; tier 6 and 7 were left alone because the first Natural Gas Plant needs them); upgrades from level 5 grow by an extra 1.5x per level (`UPGRADES.steepFromLevel`, `steepGrowth`). Player levels for research did not exist and were not added; the level gates of rooms 9 and 10 (50, 70) now hold with room to spare. The simulator runs up to 1000 h with 5-minute steps after the first 30 h (about 30 s), and player level-ups count against stalls (visible in the event log, +0.1% energy each); `STALL_HOURS` stays 8. Result: 100% at 825.9 h (was 327.3 h), 75% at 306.1 h, last room at 326.5 h, first Natural Gas Plant 17.1 h; no stalls (`BALANCE_REPORT.md`). Saves keep everything; nothing in the save shape changed. Tests in `src/data/pacing.test.ts` and `src/sim/balanceSim.test.ts` (every target must hold strictly).
 
 ### 1.88 — Three more room expansions for the late game — CODE — Not started
 **Goal:** owner feedback, playtest 26: every room expansion was bought within two weeks, so room stops being a goal long before the end. Add more expansions for the late game, so the Micro-Supernova and the last upgrades compete for room.

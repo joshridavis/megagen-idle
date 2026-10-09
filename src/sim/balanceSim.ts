@@ -12,6 +12,7 @@ import { NO_MODS } from '../utils/effectMods';
 import { hasSpotFor, layoutSite, terrainOfCell, withPlacementMods } from '../utils/siteMap';
 import { zoneFor } from '../utils/mapTerrain';
 import { getCompletion } from '../utils/completion';
+import { getPlayerLevel } from '../utils/playerLevel';
 import {
   buildGenerator,
   generatorScrapRefund,
@@ -48,6 +49,9 @@ export interface SimOptions {
   hours: number;
   /** Seconds per decision step. */
   stepSeconds: number;
+  /** Seconds per decision step after `lateFromHours` (1.87: the longer game needs a faster run). */
+  lateStepSeconds: number;
+  lateFromHours: number;
   /** The player clicks this many times per second during the first `clickMinutes`. */
   clicksPerSecond: number;
   clickMinutes: number;
@@ -57,7 +61,7 @@ export interface SimOptions {
   seed: number;
 }
 
-export const DEFAULT_SIM: SimOptions = { hours: 400, stepSeconds: 60, clicksPerSecond: 2, clickMinutes: 10, stopAtCompletion: true, seed: 1 };
+export const DEFAULT_SIM: SimOptions = { hours: 1000, stepSeconds: 60, lateStepSeconds: 300, lateFromHours: 30, clicksPerSecond: 2, clickMinutes: 10, stopAtCompletion: true, seed: 1 };
 
 export interface Milestone {
   id: string;
@@ -433,8 +437,10 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
     seen.add(id);
     milestones.push({ id, label, hours: (t - T0) / 3_600_000 });
   };
-  const totalSteps = Math.ceil((o.hours * 3600) / o.stepSeconds);
-  for (let step = 0; step < totalSteps; step++) {
+  const end = T0 + o.hours * 3_600_000;
+  let lastSample = -Infinity;
+  while (t < end) {
+    const stepSeconds = (t - T0) / 3_600_000 >= o.lateFromHours ? o.lateStepSeconds : o.stepSeconds;
     // decisions, several per step
     for (let k = 0; k < 6; k++) {
       const before = s;
@@ -462,6 +468,8 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
       if (pet && pet.stage >= 2) hit(`petYoung:${def.id}`, `${def.name} young`);
       if (pet && pet.stage >= 3) hit(`petAdult:${def.id}`, `${def.name} fully grown`);
     }
+    // a player level-up is visible progress (event log, energy bonus): it counts against stalls (1.87)
+    for (let n = 2; n <= getPlayerLevel(s.lifetimeEnergy).level; n++) hit(`plevel:${n}`, `Player level ${n}`);
     for (let n = 2; n <= petSlots(s); n++) hit(`petSlot:${n}`, `Active pet slot ${n}`);
     for (const id of PRODUCER_IDS) if ((s.producers[id] ?? 0) > 0) hit(`producer:${id}`, `Has ${/^[AEIOU]/.test(PRODUCERS[id].name) ? 'an' : 'a'} ${PRODUCERS[id].name}`);
     for (let i = 1; i <= s.expansionLevel; i++) hit(`room:${i}`, `Room expansion ${i} of ${ROOM_TIERS.length}`);
@@ -471,18 +479,19 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = 8): S
     });
     const c = getCompletion(s).ratio;
     for (const q of [25, 50, 75, 100]) if (c * 100 >= q) hit(`completion:${q}`, `${q}% completion`);
-    if (step % Math.round(3600 / o.stepSeconds) === 0) {
+    if (t - lastSample >= 3_600_000) {
+      lastSample = t;
       samples.push({ hours: (t - T0) / 3_600_000, energyPerSecond: s.energyPerSecond, completion: c, room: `${s.roomUsed}/${s.roomCapacity}`, lifetimeEnergy: s.lifetimeEnergy });
     }
     if (o.stopAtCompletion && c >= 1) break;
     // time passes; the player clicks early on
     const clicking = (t - T0) / 60_000 < o.clickMinutes;
     if (clicking) {
-      const gained = o.clicksPerSecond * o.stepSeconds * getClickValue(s.completedResearch, s.energyPerSecond, petClickBonus(s));
+      const gained = o.clicksPerSecond * stepSeconds * getClickValue(s.completedResearch, s.energyPerSecond, petClickBonus(s));
       s = { ...s, energy: s.energy + gained, lifetimeEnergy: s.lifetimeEnergy + gained };
     }
-    t += o.stepSeconds * 1000;
-    s = { ...advanceTime(s, o.stepSeconds, t).state, lastSavedTimestamp: t };
+    t += stepSeconds * 1000;
+    s = { ...advanceTime(s, stepSeconds, t).state, lastSavedTimestamp: t };
     s = updateContracts(s, t, rng).state;
     // pets: condition finds and growth; event pets join at their expected time (no random events in the simulator)
     const petsBefore = s.pets;

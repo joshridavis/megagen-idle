@@ -12,6 +12,22 @@ export const RESEARCH_TIME_FACTOR = 1.25;
 /** Room expansions should be slightly harder: their energy cost is multiplied by this (materials also get MATERIAL_COST_FACTOR). */
 export const ROOM_ENERGY_FACTOR = 1.2;
 
+/**
+ * Harder middle and late game (1.87, owner playtest 26: level 73, every room
+ * expansion and 80% completion in under two weeks). The first hours (first
+ * generator to first Natural Gas Plant) are untouched.
+ */
+/** Research needing at least this research level is middle or late game. */
+export const MID_RESEARCH_LEVEL = 9;
+/** Middle and late research: energy cost multiplied by this. */
+export const MID_RESEARCH_COST_FACTOR = 6;
+/** Middle and late research: duration multiplied by this (on top of RESEARCH_TIME_FACTOR). */
+export const MID_RESEARCH_TIME_FACTOR = 5;
+/** Room expansions from this tier on are middle or late game. */
+export const LATE_ROOM_TIER = 8;
+/** Those expansions: energy cost multiplied by this (on top of ROOM_ENERGY_FACTOR). */
+export const LATE_ROOM_ENERGY_FACTOR = 10;
+
 /** A cost with its metal and stone multiplied by MATERIAL_COST_FACTOR (rounded); other resources unchanged. */
 export function scaleMaterials(cost: ResourceAmounts): ResourceAmounts {
   const out: ResourceAmounts = { ...cost };
