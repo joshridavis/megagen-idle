@@ -110,7 +110,8 @@ export function getClickBreakdown(completedResearch: string[], energyPerSecond =
   }
   const share = getBonuses(completedResearch).clickRateShare;
   if (share <= 0) return power;
-  const raw = breakdownFromResearch(1, completedResearch, 'clickRateShare').total - 1;
+  // summed directly: 1 + 0.01 - 1 is not exactly 0.01, which read as capped (1.93)
+  const raw = breakdownFromResearch(1, completedResearch, 'clickRateShare').modifiers.reduce((sum, m) => sum + (m.percent ?? 0), 0);
   const capped = share < raw ? ' (capped)' : '';
   const modifiers = [
     ...power.modifiers,

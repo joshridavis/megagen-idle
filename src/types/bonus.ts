@@ -5,7 +5,7 @@ export interface Bonuses {
   researchSpeed: number;
   globalEnergy: number;
   clickPower: number;
-  /** Each click also adds this many seconds of current energy/s (0.25 = a quarter second). */
+  /** Each click also adds this many seconds of current energy/s (0.01 = 1% of a second, 1.93). */
   clickRateShare: number;
   /** All producers produce more (0.1 = +10%). */
   resourceProduction: number;

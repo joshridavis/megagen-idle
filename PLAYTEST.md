@@ -1,4 +1,30 @@
-# Playtest 28 (v0.28.0): harder middle and late game, three more room expansions, accents by tier, research level in the requirements, sighting rarity
+# Playtest 28.1 (v0.28.1, hotfix): click research adds 1% of energy/s, not 25%
+
+The version at the bottom of the screen should read **v0.28.1**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 761.3 hours** (simulated, unchanged: the simulated player clicks only in its first 10 minutes).
+
+## What changed
+
+- **Click research (1.93):** Kinetic Capture and Grid Tap now add **1% of your energy per second** to each click, each (was 25% each). With both, a click adds at most 2%. At your 5,670 energy/s: 9 per click now, about 66 with Kinetic Capture, about 122 with both (it would have been about 2,844).
+- The click breakdown (hover the click value) no longer says "(capped)" when nothing is capped.
+
+## Things to try
+
+1. Research tab: open Kinetic Capture and Grid Tap; both should say 1%.
+2. Once you have them, hover the click value: the breakdown should show "1% of your energy/s" (or 2% with both) and match what a click gives.
+3. Does clicking now feel like a small bonus that is still worth it while you watch the game?
+
+---
+
+# Previous: Playtest 28 (v0.28.0): harder middle and late game, three more room expansions, accents by tier, research level in the requirements, sighting rarity
 
 The version at the bottom of the screen should read **v0.28.0**.
 

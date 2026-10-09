@@ -24,6 +24,10 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
+**On hold (owner, 2026-10-09, after playtest 28):** do not develop new backlog items until the owner says so. Hotfixes for what the owner reports are still made (1.93 was, as v0.28.1).
+
+0. 1.93 Fix: Kinetic Capture and Grid Tap make a click worth far more than idling (owner report, playtest 28; Done) → HOTFIX v0.28.1
+
 **Hold lifted (owner, 2026-10-09, after playtest 27):** the owner asked to continue from the order of work. The run goes on with 1.89, 1.87, 1.88, 1.90 and 1.91 toward checkpoint 28.
 
 ~~On hold (owner, 2026-10-09, after playtest 27): do not develop new backlog items until the owner says so.~~
@@ -1364,6 +1368,17 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** `src/components/CompletionPanel.tsx`: every sighting row shows its rarity after the name (found: "Aurora Rare ×3"; unfound: "??? Rare"), colored by `rarityColor` in `src/data/events.ts`, which takes the title tier of the same name. Names wrap on a phone. Tests in `src/components/SightingRarity.test.tsx` (text, color and 4.5:1 contrast on the row).
 
+### 1.93 — Fix: Kinetic Capture and Grid Tap make a click worth far more than idling — CODE — Done
+**Goal:** owner report, playtest 28: the last click research, Kinetic Capture and Grid Tap, each add "+25% of your energy/s to each click". At 5,670 energy/s a click goes from 9 to about 1,426 energy, then about 2,844 with both. Clicking dozens of times a minute makes a jump far beyond idling. The upgrade should make more sense.
+**Details:**
+- Cause: `getClickValue` in `src/utils/bonuses.ts` adds `clickRateShare × energy/s` to each click. `BONUS_CAPS.clickRateShare` (0.5, "at most half a second of production per click, so idling stays the main income") limits one click but not the click rate: at 5 clicks/s the share is 2.5x the plants' output.
+- Owner decision (playtest 28, hotfix now): each research gives +1% of energy/s per click (`clickRateShare` 0.01; Claude had proposed 2%); the cap is the sum, 0.02. At 5,670/s: 9 → about 66 per click, about 122 with both.
+- Update the research descriptions ("a quarter second of output"), the click breakdown text and the guide where they state the share. Saves keep the research; only the effect changes.
+- Run `npm run simulate`: the simulator stops clicking after 10 minutes, so pacing should not change; record it in `BALANCE_REPORT.md`.
+**Acceptance:** tests: with both research at 5,670/s a click gives at most 2% of energy/s plus the click power; one click per second never adds more than the cap's share to income; the texts match the numbers; the build and all tests pass.
+
+**Notes:** `src/data/research.ts`: Kinetic Capture and Grid Tap give `clickRateShare` 0.01 each; `BONUS_CAPS.clickRateShare` is 0.02 (was 0.5). Descriptions say 1%; the rewards box and the click breakdown take the number from the data ("+1% of your energy/s added to each click"). Also fixed: the click breakdown said "(capped)" for a 1% share, because 1 + 0.01 − 1 is not exactly 0.01 in floating point; it now sums the shares. At 5,670/s a click is 9 → 65.7 → 122.4. Simulator unchanged (it clicks only in the first 10 minutes): 100% at 761.3 h. Tests in `src/utils/clickResearch.test.ts`.
+
 ### 1.92 — Fix: the thought bubble's small bubbles point away from the pet — CODE — Done
 **Goal:** owner report, playtest 27 (screenshot of a Wind-up Robot Dog facing left): the new small dots between the pet and the bubble make sense, but there are still "small bubbles" going off to the side, which looks bad. Fix now (hotfix).
 **Details:**
@@ -1997,3 +2012,6 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 27 (answers) | 1.82, 1.83, 1.84, 1.85, 1.86 | 2026-10-09 | Machine animations look better now; the quarry crane, mine lamp and coal smoke are fine. Fuel is better now; the Coal Mine stays as it is. The animation switch's place and On/Off on a phone are good. The thought bubble does not make sense: the new dots between pet and bubble do, but small bubbles still go off to the side; fix now. Do not develop new backlog items until the owner says so. | 1.92 (hotfix v0.27.1) |
 | 27.1 (v0.27.1, hotfix) | 1.92 | 2026-10-09 | The owner asked to continue from the order of work (hold lifted). | |
 | 28 (v0.28.0) | 1.89, 1.87, 1.88, 1.90, 1.91 | 2026-10-09 | 100% completion simulated at 761.3 h (was 327.3 h); 75% at 306.9 h (was 97.8 h); last room expansion (13) at 496.4 h. Waiting for feedback. | |
+| 28 (answers) | 1.89, 1.87, 1.88, 1.90, 1.91 | 2026-10-09 | 5x longer middle-game research feels right for now; expansions 11 to 13 are the right size and price for now; the accent names are good; the research level row is in the right place. New report: Kinetic Capture and Grid Tap add +25% of energy/s per click each (at 5,670/s a click goes from 9 to about 2,844), far too much when clicking fast. Do not develop new backlog items until the owner says so. | 1.93 |
+| 28 (answers, more) | | 2026-10-09 | Fix the click research now as a hotfix; 1% per research makes more sense. | 1.93 (hotfix v0.28.1) |
+| 28.1 (v0.28.1, hotfix) | 1.93 | 2026-10-09 | Waiting for feedback. | |
