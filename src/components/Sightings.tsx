@@ -12,7 +12,13 @@ const SPRITE: Partial<Record<string, SpriteId>> = {
   meteor_shower: 'sighting_meteor',
   whale: 'sighting_whale',
   ufo: 'sighting_ufo',
+  drone: 'sighting_drone',
+  hot_air_balloon: 'sighting_hot_air_balloon',
+  comet: 'sighting_comet',
 };
+
+/** Width of a sighting sprite on screen (default w-24). */
+const SIZE: Partial<Record<string, string>> = { whale: 'w-36', cat: 'w-16', balloon: 'w-10', hot_air_balloon: 'w-16', drone: 'w-16', comet: 'w-28' };
 
 /**
  * The sighting flock: [left %, top %, wing-beat delay, bob delay] per gull, in
@@ -98,7 +104,7 @@ export default function Sightings() {
         </div>
       ) : ['fly-right', 'fly-left', 'rise', 'walk', 'beam', 'swim'].includes(def.animation) && (
         <div
-          className={`sighting-${def.animation} absolute ${def.id === 'whale' ? 'w-36' : def.id === 'cat' ? 'w-16' : def.id === 'balloon' ? 'w-10' : 'w-24'}`}
+          className={`sighting-${def.animation} absolute ${SIZE[def.id] ?? 'w-24'}`}
           style={style}
         >
           {/* the whale sprite faces left but swims right (playtest 19): mirror it */}

@@ -228,6 +228,14 @@ export const PET_EVENT_REACTIONS: Record<string, PetReactionDef> = {
   map_star: { emoji: '⭐', pose: 'happy' },
   birds: { emoji: '🐦', pose: 'look' },
   map_flock: { emoji: '🐦', pose: 'look' },
+  // 1.55
+  hot_air_balloon: lookUp,
+  comet: lookUp,
+  heat_wave: { emoji: '😎', pose: 'happy' },
+  grid_surge: { emoji: '🤩', pose: 'cheer' },
+  spring_tide: { emoji: '🌊', pose: 'happy' },
+  map_maintenance: { emoji: '🛠️', pose: 'cheer' },
+  map_gas_flare: { emoji: '🔥', pose: 'scared' },
 };
 
 /** Hours to grow after feeding: to young, to adult. */

@@ -104,6 +104,9 @@ import sightingCat from './sprites/events/cat.png';
 import sightingUfo from './sprites/events/ufo.png';
 import sightingWhale from './sprites/events/whale.png';
 import sightingMeteor from './sprites/events/meteor.png';
+import sightingHotAirBalloon from './sprites/events/hot_air_balloon.png';
+import sightingComet from './sprites/events/comet.png';
+import sightingDrone from './sprites/events/drone.png';
 import petHamster1 from './sprites/pets/hamster_1.png';
 import petHamster2 from './sprites/pets/hamster_2.png';
 import petHamster3 from './sprites/pets/hamster_3.png';
@@ -262,6 +265,9 @@ export const sprites = {
   sighting_ufo: sightingUfo,
   sighting_whale: sightingWhale,
   sighting_meteor: sightingMeteor,
+  sighting_hot_air_balloon: sightingHotAirBalloon,
+  sighting_comet: sightingComet,
+  sighting_drone: sightingDrone,
   pet_hamster_1: petHamster1,
   pet_hamster_2: petHamster2,
   pet_hamster_3: petHamster3,

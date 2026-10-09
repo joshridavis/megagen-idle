@@ -719,6 +719,49 @@ function meteor() {
   return c;
 }
 
+// 1.55: more sightings. All face right (they travel left to right, or are mirrored).
+
+function hotAirBalloon() {
+  const c = new Canvas(24, 32);
+  c.circle(12, 10, 9, C.red); // envelope
+  c.rect(9, 1, 2, 19, C.yellow); // stripes
+  c.rect(14, 1, 2, 19, C.yellow);
+  c.rect(6, 4, 2, 3, C.orange); // shine
+  c.polygon([[5, 16], [19, 16], [14, 22], [10, 22]], C.red);
+  c.line(10, 22, 10, 25, C.brown3); // ropes
+  c.line(14, 22, 14, 25, C.brown3);
+  c.rect(9, 25, 7, 5, C.brown2); // basket
+  c.rect(9, 25, 7, 1, C.brown4);
+  c.outline(C.ink);
+  return c;
+}
+
+function comet() {
+  const c = new Canvas(32, 16);
+  c.polygon([[0, 6], [24, 6], [24, 10], [0, 10]], C.sky, 90); // long tail
+  c.polygon([[6, 7], [24, 6], [24, 10], [6, 9]], C.cyan, 160);
+  c.line(10, 8, 24, 8, C.white);
+  c.circle(26, 8, 4, C.cyan); // head
+  c.circle(26, 8, 2.5, C.white);
+  return c;
+}
+
+function drone() {
+  const c = new Canvas(24, 16);
+  c.rect(1, 3, 8, 1, C.grey3); // rotors
+  c.rect(15, 3, 8, 1, C.grey3);
+  c.rect(4, 4, 2, 2, C.grey5);
+  c.rect(18, 4, 2, 2, C.grey5);
+  c.rect(4, 6, 16, 4, C.grey2); // body
+  c.rect(6, 6, 12, 1, C.white);
+  c.rect(17, 7, 2, 2, C.red); // light
+  c.line(12, 10, 12, 11, C.grey5); // line to the parcel
+  c.rect(9, 11, 7, 4, C.brown3); // parcel
+  c.rect(12, 11, 1, 4, C.sand);
+  c.outline(C.ink);
+  return c;
+}
+
 // ---------- map events (1.12; dedicated designs, playtest 19) ----------
 // Everything that moves faces right: it travels left to right.
 
@@ -1440,6 +1483,9 @@ const DRAW = {
   sighting_ufo: ufo,
   sighting_whale: whale,
   sighting_meteor: meteor,
+  sighting_hot_air_balloon: hotAirBalloon,
+  sighting_comet: comet,
+  sighting_drone: drone,
   capacity_empty: () => capacity(C.grey6, null, C.grey4),
   capacity_filled: () => capacity(C.green, C.lime, C.forest),
   capacity_critical: () => capacity(C.red, C.orange, C.darkRed),
