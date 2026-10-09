@@ -38,6 +38,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.89 Accent colors follow the title tier colors, lowest to highest (owner report; small)
 0. 1.87 Harder pacing: slower middle and late game, new pacing targets (owner feedback)
 0. 1.88 Three more room expansions for the late game (owner feedback; follows 1.87)
+0. 1.90 Research details: the research level needed shows under the requirements, red when missing (owner request; small)
 
 **Hold lifted (owner, 2026-10-07):** the owner asked to continue from the order of work. The hold set after playtest 25 (2026-10-06) is over; the run went on with 1.69, 1.70, 1.71, 1.78 and 1.79 toward checkpoint 26. The 1.82 fix below (written on `main` while this run was underway) was not part of it and is the next item after checkpoint 26.
 
@@ -1317,6 +1318,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Run `npm run simulate`; record the new times in `BALANCE_REPORT.md`.
 **Acceptance:** tests: 13 tiers in order with rising cost and level; a save with 10 expansions loads and can buy the 11th once the level is met; Sprawling Complex stays unlocked for a save that had it; the map shows the new room on a 375 px phone with no sideways scroll; the simulator reaches 100% with no stalls; the build and all tests pass.
 
+### 1.90 — Research details: the research level needed shows under the requirements, red when missing — CODE — Not started
+**Goal:** owner request, playtest 26 (2026-10-09): in the research details window (`src/components/ResearchPanel.tsx`) the research level needed is gray text under the title ("Needs research level 4 (yours: 32). Completing it raises your level by 1."), apart from the other requirements. Show it in the requirements list with the research prerequisites, red when the player's level is too low and green when it is met, the same way prerequisites and "Needs built" are colored now.
+**Details:**
+- Add a "Research level" row to the `<dl>` next to "Requires" (for example "Research level: 4 (yours: 32)"), colored `text-emerald-400` when met and `text-red-400` when not. Show it for every research, including those with no prerequisites. A research that is done or running shows it without red.
+- Under the title, keep only "Completing it raises your level by 1." (or move it to the rewards box, which already says "Research level +1"; avoid saying it twice).
+- Check other requirement rows the window may need the same way (for example a player level, if any research has one) and keep them all in the same list, with the same colors.
+- The tree card text ("Needs level 5 · 7K") is unchanged.
+**Acceptance:** tests: the window shows the research level row in red when the level is too low and in green when it is met; the row shows for a research with no prerequisites; the level is no longer shown under the title; the build and all tests pass.
+
 ### 1.82 — Fix: thought bubbles beside the pet's head, not straight above it — CODE — Not started
 **Goal:** owner report, playtest 25.3 (screenshot): a walking pet's thought bubble (💭 while sitting, ❗ while jumping, 💤 while sleeping) sits straight above the pet, which looks unnatural. It should float up and to the side the pet faces: to the right when it faces right, to the left when it faces left, like a comic thought bubble.
 **Details:**
@@ -1932,3 +1942,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 26 (v0.26.0) | 1.69, 1.70, 1.71, 1.78, 1.79 | 2026-10-07 | 100% completion simulated at 293.3 h (unchanged: no balance changes). The hold after playtest 25 was lifted (owner asked to continue). Waiting for feedback. | |
 | 26 (answers) | 1.69, 1.70, 1.71, 1.78, 1.79 | 2026-10-07 | Machine animations generally fine, but some do not look animated (coal plant), some are too busy (stone quarry), and the metal mine looks odd; the best are the nuclear and fusion plants, the wind turbine, the gas well and the natural gas plant. Wants a button on the map to turn the machine animations on and off, separate from Settings. New frames read clearly. Pet speeds better now. Landscape Architect should count toward 100%. Do not develop the next backlog item until the owner says so. | 1.83, 1.84, 1.85 |
 | 26 (more notes) | 1.69, 1.70, 1.71, 1.78, 1.79 | 2026-10-09 | Deuterium Extractor makes too much: one extractor with 4 Fusion Reactors still gives +13.7 deuterium per hour; same for Oil Rig and Gas Well. Still too easy overall: in at most 2 weeks (about 6 to 8 hours active; the play-time stat shows 3 h 13 min, counted only since the account was made) the owner reached player level 73, every room expansion and 79.7% completion. Accent colors must follow the title tiers: the first accent (Amber) has the highest tier's color. | 1.86, 1.87, 1.88, 1.89 |
+| 26 (more notes) | | 2026-10-09 | In the research details window, the research level needed should show under the requirements, red when missing (today it is gray text under the title). | 1.90 |
