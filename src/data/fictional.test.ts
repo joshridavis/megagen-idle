@@ -25,7 +25,7 @@ describe('fictional generators (0.34)', () => {
   });
 
   it('two more room tiers make space for them', () => {
-    expect(ROOM_TIERS).toHaveLength(10);
+    expect(ROOM_TIERS.length).toBeGreaterThanOrEqual(10);
     expect(ROOM_TIERS[9].capacity).toBeGreaterThan(GENERATORS[GeneratorType.SUPERNOVA].roomCost * 5);
   });
 

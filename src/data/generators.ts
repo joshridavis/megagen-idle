@@ -11,10 +11,12 @@ export const GENERATOR_ENERGY_COST_SECONDS = 1800;
  * Generator upgrades (0.32): each level adds `outputPerLevel` of the base
  * output (level 1 = base). Upgrading from level L costs the build energy
  * x costGrowth^L and the build resources x resourceGrowth^L (resources grow
- * slower so upgrades are mainly an energy sink). Upgrades never take more room.
+ * slower so upgrades are mainly an energy sink). From `steepFromLevel` on the
+ * energy cost also grows by `steepGrowth` per level (1.87: harder late game).
+ * Upgrades never take more room.
  * Tuned with the balance simulator (BALANCE_REPORT.md).
  */
-export const UPGRADES = { maxLevel: 10, outputPerLevel: 0.25, costGrowth: 1.6, resourceGrowth: 1.3 };
+export const UPGRADES = { maxLevel: 10, outputPerLevel: 0.25, costGrowth: 1.6, resourceGrowth: 1.3, steepFromLevel: 5, steepGrowth: 1.4 };
 /** Share of everything spent on a machine (build and upgrades) given back when it is scrapped (1.24, playtest 18). */
 export const SCRAP_REFUND_SHARE = 0.1;
 

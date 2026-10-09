@@ -150,16 +150,23 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 
 /**
  * Accent colors for the top bar (1.01), unlocked by the number of achievements.
- * `text` colors the energy number and level; `ring` outlines the top bar.
+ * One per title tier, in tier order and in the tier's own color (1.89), so an
+ * accent and a title of the same tier look exactly alike. `color` colors the
+ * energy number and the top bar ring.
  */
+const tierColor = (id: TitleTierId) => TITLE_TIERS.find((t) => t.id === id)!.color;
 export const ACCENTS = [
-  { id: 'amber', name: 'Amber', need: 0, text: 'text-yellow-300', ring: 'ring-yellow-400/60' },
-  { id: 'emerald', name: 'Emerald', need: 5, text: 'text-emerald-300', ring: 'ring-emerald-400/60' },
-  { id: 'sky', name: 'Sky', need: 15, text: 'text-sky-300', ring: 'ring-sky-400/60' },
-  { id: 'violet', name: 'Violet', need: 25, text: 'text-violet-300', ring: 'ring-violet-400/60' },
-  { id: 'rose', name: 'Rose', need: 36, text: 'text-rose-300', ring: 'ring-rose-400/70' },
-] as const;
+  { id: 'slate', name: 'Slate', tier: 'common', need: 0, color: tierColor('common') },
+  { id: 'lime', name: 'Lime', tier: 'uncommon', need: 5, color: tierColor('uncommon') },
+  { id: 'sky', name: 'Sky', tier: 'rare', need: 15, color: tierColor('rare') },
+  { id: 'rose', name: 'Rose', tier: 'epic', need: 25, color: tierColor('epic') },
+  { id: 'gold', name: 'Gold', tier: 'legendary', need: 36, color: tierColor('legendary') },
+] as const satisfies readonly { id: string; name: string; tier: TitleTierId; need: number; color: string }[];
 export type AccentId = (typeof ACCENTS)[number]['id'];
+/** The accent of a new save: the Common one (1.89). */
+export const DEFAULT_ACCENT: AccentId = 'slate';
+/** Accent ids from before 1.89 that map to a new id of the same color (violet has none). */
+export const OLD_ACCENT_IDS: Record<string, AccentId> = { amber: 'gold', emerald: 'lime', sky: 'sky', rose: 'rose' };
 
 export const ACHIEVEMENTS_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((x) => [x.id, x]));
 

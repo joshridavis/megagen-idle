@@ -62,6 +62,7 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
   const block = getResearchBlock(state, id);
   const running = state.currentResearch?.id === id;
   const done = state.completedResearch.includes(id);
+  const levelMet = state.researchLevel >= def.requiredLevel;
   const now = state.lastSavedTimestamp;
   const remaining = running ? state.currentResearch!.startTime / 1000 + state.currentResearch!.duration - now / 1000 : 0;
 
@@ -81,9 +82,6 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
             <h3 id="research-panel-title" className="text-lg font-semibold">
               {def.name}
             </h3>
-            <div className="text-xs text-slate-400">
-              Needs research level {def.requiredLevel} (yours: {state.researchLevel}). Completing it raises your level by 1.
-            </div>
           </div>
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Close" className="min-h-11 min-w-11 rounded hover:bg-slate-700">
             ✕
@@ -102,6 +100,15 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
           </dd>
           <dt className="text-slate-400">Time</dt>
           <dd>{formatDuration(getResearchDuration(def, bonuses, petResearchSpeed(state)))}</dd>
+          {/* 1.90: the research level is a requirement like the others; "Research level +1" is in the rewards */}
+          <dt className="text-slate-400">Research level</dt>
+          <dd
+            className={levelMet ? 'text-emerald-400' : done || running ? '' : 'text-red-400'}
+            data-testid="research-level-req"
+            data-met={levelMet}
+          >
+            {def.requiredLevel} (yours: {state.researchLevel})
+          </dd>
           {def.prerequisites.length > 0 && (
             <>
               <dt className="text-slate-400">Requires</dt>

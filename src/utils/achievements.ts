@@ -1,4 +1,4 @@
-import { ACCENTS, ACHIEVEMENTS, type AchievementDef, type AchievementMetric } from '../data/achievements';
+import { ACCENTS, ACHIEVEMENTS, OLD_ACCENT_IDS, type AccentId, type AchievementDef, type AchievementMetric } from '../data/achievements';
 import { EVENTS_BY_ID } from '../data/events';
 import { GENERATORS, GENERATOR_TYPES, UPGRADES } from '../data/generators';
 import { PETS } from '../data/pets';
@@ -85,4 +85,16 @@ export function canUseTitle(s: Pick<GameState, 'achievements'>, id: string | nul
 export function canUseAccent(s: Pick<GameState, 'achievements'>, id: string): boolean {
   const accent = ACCENTS.find((x) => x.id === id);
   return !!accent && unlockedCount(s) >= accent.need;
+}
+
+/**
+ * A valid accent for a save (1.89): an old id maps to the new one of the same
+ * color; an id that no longer exists, or is not unlocked, falls back to the
+ * highest accent the save has unlocked.
+ */
+export function resolveAccent(s: Pick<GameState, 'achievements'>, id: string | undefined): AccentId {
+  const mapped = id === undefined ? undefined : (OLD_ACCENT_IDS[id] ?? id);
+  if (mapped !== undefined && canUseAccent(s, mapped)) return mapped as AccentId;
+  const open = ACCENTS.filter((x) => canUseAccent(s, x.id));
+  return open[open.length - 1].id;
 }

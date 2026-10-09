@@ -404,3 +404,30 @@ test('working machines animate on the map at 1280px', async ({ page }) => {
   await page.getByTestId('site-map').scrollIntoViewIfNeeded();
   await page.screenshot({ path: 'test-results/machines-animated-1280.png' });
 });
+
+// 1.88: with all 13 room expansions the map is much taller, still with no sideways scroll on a 375px phone.
+test('the map with every room expansion fits a 375px phone', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto('./');
+  await expect(page.getByLabel('Energy total')).toBeVisible();
+  const { ROOM_TIERS } = await import('../src/data/rooms');
+  const { SAVE_VERSION } = await import('../src/store/migrations');
+  const { TUTORIAL_DONE } = await import('../src/data/tutorial');
+  const capacity = 13 + ROOM_TIERS.reduce((sum, t) => sum + t.capacity, 0);
+  const save = {
+    game: 'megagen-idle',
+    version: SAVE_VERSION,
+    exportedAt: new Date().toISOString(),
+    state: { energy: 1e9, lastSavedTimestamp: Date.now(), roomCapacity: capacity, expansionLevel: ROOM_TIERS.length, researchLevel: 1, completedResearch: [], activeGenerators: [], settings: { tutorial: { step: TUTORIAL_DONE, replay: false } } },
+  };
+  await page.locator('#tab-settings').click();
+  await page.getByLabel('Import save file').setInputFiles({ name: 'save.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(save)) });
+  await page.getByRole('button', { name: 'Load this save' }).click();
+  await page.locator('#tab-map').click();
+  const map = page.getByTestId('site-map');
+  await expect(map).toBeVisible();
+  // the map scrolls inside its own frame, as before; the page never scrolls sideways
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  await page.screenshot({ path: 'test-results/map-13-expansions-375.png', fullPage: true });
+});

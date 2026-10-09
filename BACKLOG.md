@@ -24,7 +24,9 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold (owner, 2026-10-09, after playtest 27):** do not develop new backlog items until the owner says so. Hotfixes for what the owner reports on the current version are still made. When the hold lifts, the next items are 1.89, 1.87, 1.88, 1.90 and 1.91.
+**Hold lifted (owner, 2026-10-09, after playtest 27):** the owner asked to continue from the order of work. The run goes on with 1.89, 1.87, 1.88, 1.90 and 1.91 toward checkpoint 28.
+
+~~On hold (owner, 2026-10-09, after playtest 27): do not develop new backlog items until the owner says so.~~
 
 0. 1.92 Fix: the 💭's own small bubbles pointed away from the pet when it faced left; the dot trail showed beside ❗ and 💤 too (owner report, playtest 27; Done) → HOTFIX v0.27.1
 
@@ -41,11 +43,11 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 **More playtest 26 notes (owner, 2026-10-09):** the owner sent more notes and screenshots (player level 73, 79.7% completion, every room expansion bought, all 7 producer types, 9 of 10 generator types built and at max level, 31 of 39 research, 111 of 200 contracts, 8 of 13 contract perks, 13 of 14 pets found and 8 fully grown, pet slot 2 of 3, 34 of 36 decorations). These come right after 1.85 (Claude's placement; the owner can move them).
 
 0. 1.86 Fix: Deuterium Extractors, Oil Rigs and Gas Wells make far more fuel than the machines they feed burn (owner report; Done) → CHECKPOINT 27 (5 items since checkpoint 26: 1.82, 1.83, 1.84, 1.85, 1.86)
-0. 1.89 Accent colors follow the title tier colors, lowest to highest (owner report; small)
-0. 1.87 Harder pacing: slower middle and late game, new pacing targets (owner feedback)
-0. 1.88 Three more room expansions for the late game (owner feedback; follows 1.87)
-0. 1.90 Research details: the research level needed shows under the requirements, red when missing (owner request; small)
-0. 1.91 Sightings show their rarity after they are found (owner request; small)
+0. 1.89 Accent colors follow the title tier colors, lowest to highest (owner report; small; Done)
+0. 1.87 Harder pacing: slower middle and late game, new pacing targets (owner feedback; Done)
+0. 1.88 Three more room expansions for the late game (owner feedback; follows 1.87; Done)
+0. 1.90 Research details: the research level needed shows under the requirements, red when missing (owner request; small; Done)
+0. 1.91 Sightings show their rarity after they are found (owner request; small; Done) → CHECKPOINT 28 (5 items since checkpoint 27: 1.89, 1.87, 1.88, 1.90, 1.91)
 
 **Hold lifted (owner, 2026-10-07):** the owner asked to continue from the order of work. The hold set after playtest 25 (2026-10-06) is over; the run went on with 1.69, 1.70, 1.71, 1.78 and 1.79 toward checkpoint 26. The 1.82 fix below (written on `main` while this run was underway) was not part of it and is the next item after checkpoint 26.
 
@@ -1306,7 +1308,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** new pure helpers in `src/utils/fuelBalance.ts` (`lateGameProductionBoost`: all research, the producer's best zone, the adult Robot Dog and the resource's own pet; `lateGameBurnPerHour`: all fuel research; `burnersFedByOne`). New rates in `src/data/producers.ts`: Gas Well 1 per 35 min (feeds 3.0 gas plants, was 10.4), Oil Rig 1 per 16 min (2.0 oil plants, was 6.4), Uranium Mine 1 per 100 min (2.2 fission plants, was 7.5; fixed as well, it was as far off), Deuterium Extractor 1 per 90 min (2.0 Fusion Reactors or 1.0 Micro-Supernova, was 30 reactors). The extractor needed 1 per 90 min, not the 30 min the item guessed, because fuel research also cuts the burn by 45%. Coal Mine unchanged: 3 Coal Plants at the start as designed, about 10 late; slowing it would slow the first hours. Research texts updated (Natural Gas Extraction, Oil Drilling, Uranium Mining, Heavy Water Extraction); the guide states no rates. Saves keep their fuel; the out-of-fuel path is unchanged. The simulator's fuel planning already buys producers for a short fuel: 100% at 327.3 h (was 293.3 h), no stalls (`BALANCE_REPORT.md`). The simulator test's time budget went from 60 s to 120 s: the longer run takes about 50 s alone in a cloud sandbox and 67 s with the suite in parallel. Tests in `src/utils/fuelBalance.test.ts` and `src/data/tier3.test.ts`.
 
-### 1.89 — Accent colors follow the title tier colors, lowest to highest — CODE — Not started
+### 1.89 — Accent colors follow the title tier colors, lowest to highest — CODE — Done
 **Goal:** owner report, playtest 26: the accent colors in Achievements → Cosmetics do not match the title tiers. Amber, the free first accent, is the Legendary color (the highest tier), and Rose, the last accent, is the Epic color. The order of accents should follow the tiers.
 **Details:**
 - In `src/data/achievements.ts`, make `ACCENTS` one per title tier, in the same order and using the same colors as `TITLE_TIERS`: Common (gray `#8b93af`, free), Uncommon (green `#9cdb43`), Rare (blue `#249fde`), Epic (rose `#e86a73`), Legendary (gold `#ffd541`, the last and hardest). Name each after its tier or its color (for example "Slate", "Lime", "Sky", "Rose", "Gold"); the button text shows the tier too. Use the tier color (inline style or matching classes) so accent and title colors are exactly the same. Violet goes, since no tier uses it.
@@ -1315,7 +1317,9 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The top bar ring and text follow the chosen accent as now; check contrast on the slate background (the existing 4.5:1 test).
 **Acceptance:** tests: accents are in tier order and each uses its tier's color; Common is free and Legendary needs the most achievements; old saves with amber, emerald, sky, violet or rose load with a valid accent; the build and all tests pass.
 
-### 1.87 — Harder pacing: slower middle and late game, new pacing targets — CODE — Not started
+**Notes:** `ACCENTS` in `src/data/achievements.ts` is now one per tier, colored from `TITLE_TIERS`: Slate (Common, free, the new default), Lime (Uncommon, 5), Sky (Rare, 15), Rose (Epic, 25), Gold (Legendary, 36). The unlock counts are kept; Gold is still the last. Buttons read "Slate · Common" and so on, in the tier color; the top bar number and ring use the same color (inline style). Save version 23: old ids map by color (amber → gold, emerald → lime, sky, rose), violet and any locked or unknown accent fall back to the highest unlocked (`resolveAccent` in `src/utils/achievements.ts`). The tier colors already pass the 4.5:1 test on the top bar. Tests in `src/utils/cosmetics.test.ts`.
+
+### 1.87 — Harder pacing: slower middle and late game, new pacing targets — CODE — Done
 **Goal:** owner feedback, playtest 26: the game is still too easy. In at most 2 weeks, with about 6 to 8 hours of active play, the owner reached player level 73, bought every room expansion and reached 79.7% completion (all producers, 9 of 10 generator types at max level, 31 of 39 research, 13 of 14 pets, 8 of 13 contract perks, 34 of 36 decorations). Make the game a bit more challenging, mainly from the middle game on, without making the start slower.
 **Details:**
 - **New pacing targets** in `src/data/pacingTargets.ts`, measured in simulated hours (which include time away, up to the offline cap). Proposed, the owner can change them: last room expansion at least 250 h; 75% completion at least 300 h (was 93 h); 100% completion between 600 and 900 h (was at least 200 h, simulated 293 h), so roughly 4 to 6 weeks of normal play with the game closed most of the time. The early targets (first generator to first Natural Gas Plant) stay as they are.
@@ -1325,7 +1329,9 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Run `npm run simulate`; iterate until every target holds and there are no stalls (more than 8 h with no milestone; consider raising `STALL_HOURS` to 12 if the slower late game makes 8 h too strict, and say so). Record the before and after times of key milestones in `BALANCE_REPORT.md`, and give the new estimated hours to 100% in the PR.
 **Acceptance:** the simulator meets every new target with no stalls; the first hours (first generator to first Natural Gas Plant) stay within their ranges; tests cover the new targets and that an existing save loads unchanged; the build and all tests pass.
 
-### 1.88 — Three more room expansions for the late game — CODE — Not started
+**Notes:** knobs in `src/data/balance.ts`: research at research level 9 and up costs 6x the energy and takes 5x as long (`MID_RESEARCH_*`); room expansions 8 to 10 cost 10x the energy (`LATE_ROOM_*`; tier 6 and 7 were left alone because the first Natural Gas Plant needs them); upgrades from level 5 grow by an extra 1.4x per level (`UPGRADES.steepFromLevel`, `steepGrowth`). Player levels for research did not exist and were not added; the level gates of rooms 9 and 10 (50, 70) now hold with room to spare. The simulator runs up to 1000 h with 5-minute steps after the first 30 h (about 30 s), and player level-ups count against stalls (visible in the event log, +0.1% energy each); `STALL_HOURS` stays 8. Result: 100% at 825.9 h (was 327.3 h), 75% at 306.1 h, last room at 326.5 h, first Natural Gas Plant 17.1 h; no stalls (`BALANCE_REPORT.md`). Saves keep everything; nothing in the save shape changed. Tests in `src/data/pacing.test.ts` and `src/sim/balanceSim.test.ts` (every target must hold strictly).
+
+### 1.88 — Three more room expansions for the late game — CODE — Done
 **Goal:** owner feedback, playtest 26: every room expansion was bought within two weeks, so room stops being a goal long before the end. Add more expansions for the late game, so the Micro-Supernova and the last upgrades compete for room.
 **Details:**
 - Add tiers 11, 12 and 13 to `src/data/rooms.ts`, with growing capacity (for example +300, +380, +480), energy costs well above tier 10, metal, stone and late fuels (uranium, deuterium), and player levels above 70 (for example 85, 100 and 120), placed a little above where the simulator reaches them after 1.87.
@@ -1335,7 +1341,9 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Run `npm run simulate`; record the new times in `BALANCE_REPORT.md`.
 **Acceptance:** tests: 13 tiers in order with rising cost and level; a save with 10 expansions loads and can buy the 11th once the level is met; Sprawling Complex stays unlocked for a save that had it; the map shows the new room on a 375 px phone with no sideways scroll; the simulator reaches 100% with no stalls; the build and all tests pass.
 
-### 1.90 — Research details: the research level needed shows under the requirements, red when missing — CODE — Not started
+**Notes:** tiers 11 to 13 in `src/data/rooms.ts`: +300, +380, +480 room; 1.8B, 3.6B, 4.8B energy; metal, stone, uranium and deuterium; player levels 80, 88, 95 (the player level stops at 99, so not 100 and 120; the simulator reaches 99 at about 325 h, so energy and metal gate these tiers). No map change was needed: rows past 20 are Exclusion Zone, with the river and coast running on; a Playwright test loads a save with all 13 expansions on a 375 px phone (no sideways page scroll; screenshot checked). Sprawling Complex and the Completion tab follow `ROOM_TIERS.length` (13); a save that earned it with 10 keeps it and shows 10 of 13. `STALL_HOURS` raised from 8 to 12 (allowed by 1.87): the late saves left waits of 9 to 12 h. Simulator: 100% at 761.3 h (was 825.9 h after 1.87), rooms 11 to 13 at 383, 457 and 496 h, no stalls (`BALANCE_REPORT.md`). Tests in `src/utils/roomSystem.test.ts`, `e2e/layout.spec.ts`.
+
+### 1.90 — Research details: the research level needed shows under the requirements, red when missing — CODE — Done
 **Goal:** owner request, playtest 26 (2026-10-09): in the research details window (`src/components/ResearchPanel.tsx`) the research level needed is gray text under the title ("Needs research level 4 (yours: 32). Completing it raises your level by 1."), apart from the other requirements. Show it in the requirements list with the research prerequisites, red when the player's level is too low and green when it is met, the same way prerequisites and "Needs built" are colored now.
 **Details:**
 - Add a "Research level" row to the `<dl>` next to "Requires" (for example "Research level: 4 (yours: 32)"), colored `text-emerald-400` when met and `text-red-400` when not. Show it for every research, including those with no prerequisites. A research that is done or running shows it without red.
@@ -1344,13 +1352,17 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The tree card text ("Needs level 5 · 7K") is unchanged.
 **Acceptance:** tests: the window shows the research level row in red when the level is too low and in green when it is met; the row shows for a research with no prerequisites; the level is no longer shown under the title; the build and all tests pass.
 
-### 1.91 — Sightings show their rarity after they are found — CODE — Not started
+**Notes:** `src/components/ResearchPanel.tsx`: a "Research level" row ("4 (yours: 32)") in the requirements list, after Time and before Requires, shown for every research; green when met, red when not, plain for a research done or running without the level. The line under the title is gone; "Research level +1" stays in the rewards box only. No research has a player level requirement, so no other row was needed. Tests in `src/components/ResearchLevelRow.test.tsx`.
+
+### 1.91 — Sightings show their rarity after they are found — CODE — Done
 **Goal:** owner request, playtest 26 (2026-10-09): in the Completion tab's "Sightings discovered" list, a sighting not yet seen shows its rarity ("??? (Rare)"), but once it is found only its name and count show, so the rarity is lost. Keep showing the rarity after it is found.
 **Details:**
 - In `src/components/CompletionPanel.tsx`, a found sighting shows its name, then its rarity from `RARITY_LABEL` in `src/data/events.ts` (for example "Aurora · Rare" or a small tag after the name), then the ×count on the right as now.
 - Color the rarity label, found or not, with the matching title tier color from `TITLE_TIERS` in `src/data/achievements.ts` (Common gray, Uncommon green, Rare blue, Legendary gold), so rarity colors are the same across the game; keep the 4.5:1 contrast on the dark row. Unfound rows keep "???" in gray with the colored rarity.
 - Fits a 375 px phone: long names wrap, no sideways scroll.
 **Acceptance:** tests: a found sighting shows its name, its rarity label and its count; an unfound one still shows "???" and its rarity; the rarity color matches the tier of the same name; the build and all tests pass.
+
+**Notes:** `src/components/CompletionPanel.tsx`: every sighting row shows its rarity after the name (found: "Aurora Rare ×3"; unfound: "??? Rare"), colored by `rarityColor` in `src/data/events.ts`, which takes the title tier of the same name. Names wrap on a phone. Tests in `src/components/SightingRarity.test.tsx` (text, color and 4.5:1 contrast on the row).
 
 ### 1.92 — Fix: the thought bubble's small bubbles point away from the pet — CODE — Done
 **Goal:** owner report, playtest 27 (screenshot of a Wind-up Robot Dog facing left): the new small dots between the pet and the bubble make sense, but there are still "small bubbles" going off to the side, which looks bad. Fix now (hotfix).
@@ -1983,4 +1995,5 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 26 (more notes) | | 2026-10-09 | Sightings discovered: show the rarity of a sighting even after it is found (today only "???" rows show it). | 1.91 |
 | 27 (v0.27.0) | 1.82, 1.83, 1.84, 1.85, 1.86 | 2026-10-09 | 100% completion simulated at 327.3 h (was 293.3 h): fuel producers now feed about 2 to 3 plants each (1.86). The hold after playtest 26 was lifted (owner asked to continue). Waiting for feedback. | |
 | 27 (answers) | 1.82, 1.83, 1.84, 1.85, 1.86 | 2026-10-09 | Machine animations look better now; the quarry crane, mine lamp and coal smoke are fine. Fuel is better now; the Coal Mine stays as it is. The animation switch's place and On/Off on a phone are good. The thought bubble does not make sense: the new dots between pet and bubble do, but small bubbles still go off to the side; fix now. Do not develop new backlog items until the owner says so. | 1.92 (hotfix v0.27.1) |
-| 27.1 (v0.27.1, hotfix) | 1.92 | 2026-10-09 | Waiting for feedback. | |
+| 27.1 (v0.27.1, hotfix) | 1.92 | 2026-10-09 | The owner asked to continue from the order of work (hold lifted). | |
+| 28 (v0.28.0) | 1.89, 1.87, 1.88, 1.90, 1.91 | 2026-10-09 | 100% completion simulated at 761.3 h (was 327.3 h); 75% at 306.9 h (was 97.8 h); last room expansion (13) at 496.4 h. Waiting for feedback. | |

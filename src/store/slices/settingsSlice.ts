@@ -2,6 +2,7 @@ import type { GeneratorSort, NumberNotation, SettingsState } from '../../types/s
 import type { SliceCreator } from '../types';
 import { DEFAULT_NOTIFY, type NotifySettings } from '../../data/notifyRules';
 import { canUseAccent, canUseTitle } from '../../utils/achievements';
+import { DEFAULT_ACCENT } from '../../data/achievements';
 
 export interface SettingsActions {
   setNotation: (notation: NumberNotation) => void;
@@ -35,7 +36,7 @@ export const createSettingsSlice =
         (s) => {
           const ok = (c: typeof choice) => (c.title === undefined || canUseTitle(s, c.title)) && (c.accent === undefined || canUseAccent(s, c.accent));
           if (!ok(choice)) return {};
-          return { settings: { ...s.settings, cosmetics: { ...(s.settings.cosmetics ?? { title: null, accent: 'amber' }), ...choice } } };
+          return { settings: { ...s.settings, cosmetics: { ...(s.settings.cosmetics ?? { title: null, accent: DEFAULT_ACCENT }), ...choice } } };
         },
         undefined,
         'settings/cosmetics',
