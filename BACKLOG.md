@@ -79,7 +79,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.78 Landscape Architect: own all 36 decorations (owner request; small; Done)
 0. 1.79 Walking pets at different speeds (owner request; small; Done) → CHECKPOINT 26 (5 items since checkpoint 25: 1.69, 1.70, 1.71, 1.78, 1.79)
 0. 1.80 Pets celebrate your milestones and react to random events (owner request; Done)
-0. 1.81 Active pets on screen interact with each other (owner request)
+0. 1.81 Active pets on screen interact with each other (owner request; Done)
 
 **After playtest 22 (owner, 2026-10-05):** these come first, in this order (approximate priority, set by Claude at the owner's request), then the rest of the playtest 21 list below.
 
@@ -1408,7 +1408,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** `bubblePlace` in `src/components/PetWalkers.tsx` returns the side and the style: the bubble's near edge at 75% of the pet box on the facing side (`left: 75%` facing right, `right: 75%` facing left), with the 1.76 heights. Given the layer width (the window width), it flips inward when the bubble (`BUBBLE_WIDTH_PX` = 22) would leave the screen. A CSS thought trail (two small dots, `.pet-bubble::before`) sits between the head and the bubble on its side. Tests in `src/components/PetWalkers.test.tsx` cover every bubble action and stage, both facings, and the edges at 375 and 1280 px. Screenshots of the baby and adult cat, both facings, taken in Chromium at 3× zoom.
 
-### 1.81 — Active pets on screen interact with each other — CODE — Not started
+### 1.81 — Active pets on screen interact with each other — CODE — Done
 **Goal:** owner request, playtest 25: when more than one pet is active and walking on screen (pet slots, 1.59), they should sometimes interact with each other.
 **Details:**
 - Now and then (tunable chance in `src/data/pets.ts`), two walking pets meet: one walks toward the other, they stop facing each other and do a short shared action, then go their own ways. For example:
@@ -1421,6 +1421,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Clicking either pet during an interaction still plays its reaction.
 - Reduce motion: no interactions (pets stand still). With one active pet nothing changes.
 **Acceptance:** tests: with two or three active pets an interaction happens at its rate and never with one pet; the two pets meet, face each other and end free again; a busy pet is not picked; Reduce motion turns it off; the build and all tests pass.
+
+**Notes:** `PET_MEET` in `src/data/pets.ts`: a 5% chance per walker step (1 s) when at least two pets rest; greet ❤️ (weight 3), play with one ⚽ (2), nap side by side (1, 40-90 s) and share one 🍎 (2). `startMeeting`, `isFree` and the meeting phases (approach, together) in `stepWalkers` (`src/utils/petWalk.ts`): the visitor walks to a pet's width beside the host (on the other side near an edge) while the host waits facing it; then both face each other and share the pose, then go their own ways. One meeting at a time; only resting pets that are not reacting are picked; a reaction (1.80) ends a meeting; a pet whose partner leaves walks on. A seeded 10-hour run: about 8 meetings an hour with two pets and 18 with three, against about 150 and 220 solo actions. Reduce motion: none (no steps run). Tests in `src/components/PetMeet.test.tsx`.
 
 ### 1.75 — Fix: a hovered generator card covers the research chip and the walking pets — CODE — Done
 **Goal:** owner reports, playtest 25: hovering a generator card near the bottom of the screen draws the card over the research chip docked at the bottom, and over the walking pets.

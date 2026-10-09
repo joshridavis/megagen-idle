@@ -7,11 +7,14 @@ import {
   PET_CELEBRATION,
   PET_EVENT_REACTIONS,
   PET_GENERIC_REACTION,
+  PET_MEET,
+  PET_MEET_KINDS,
   PET_NEGATIVE_REACTION,
   PET_PACES,
   PET_WALK,
   type PetAction,
   type PetId,
+  type PetMeetKind,
   type PetReactionDef,
 } from '../data/pets';
 import type { Rng } from './rng';
@@ -37,6 +40,8 @@ export interface Walker {
   pace?: number;
   /** A celebration or event reaction playing until `until` (1.80); the pet stands still meanwhile. */
   react?: PetReactionDef;
+  /** Meeting another pet (1.81): walking over (or waiting), then sharing an action together. */
+  meet?: { with: PetId; kind: PetMeetKind; phase: 'approach' | 'together'; host: boolean };
 }
 
 /** Spread pets evenly across the screen, resting a moment before they set off. */
@@ -88,8 +93,8 @@ function act(w: Walker, action: PetAction, now: number, rng: Rng): Walker {
  * may rest before walking on; after resting it walks.
  */
 export function nextStep(w: Walker, now: number, rng: Rng): Walker {
-  // a finished reaction: carry on walking (1.80)
-  if (w.react) w = { ...w, react: undefined, action: 'rest' };
+  // a finished reaction or meeting: carry on walking, each its own way (1.80, 1.81)
+  if (w.react || w.meet) w = { ...w, react: undefined, meet: undefined, action: 'rest' };
   if (w.action === 'walk' && rng() < PET_WALK.actionChance) return act(w, pickAction(rng), now, rng);
   if (w.action !== 'walk' && w.action !== 'rest' && rng() < PET_WALK.restAfterAction) return act(w, 'rest', now, rng);
   // a new target at least a little way off, kept off the very edges
@@ -99,16 +104,83 @@ export function nextStep(w: Walker, now: number, rng: Rng): Walker {
   return { ...w, from: w.x, x: to, left: to < w.x, action: 'walk', until: now + walkMs(w.x, to, pace), pace };
 }
 
+/** A pet free to meet another: resting, not reacting or already meeting (1.81). */
+export const isFree = (w: Walker): boolean => w.action === 'rest' && !w.react && !w.meet;
+
+function pickMeetKind(rng: Rng): PetMeetKind {
+  const total = PET_MEET_KINDS.reduce((n, k) => n + PET_MEET.weights[k], 0);
+  let r = rng() * total;
+  for (const k of PET_MEET_KINDS) {
+    r -= PET_MEET.weights[k];
+    if (r < 0) return k;
+  }
+  return 'greet';
+}
+
+/**
+ * Two pets meet (1.81): the visitor walks to a spot `gap` beside the host, on
+ * its own side when there is room, while the host waits facing it.
+ */
+export function startMeeting(host: Walker, visitor: Walker, now: number, rng: Rng, gap = PET_MEET.gap): [Walker, Walker] {
+  const kind = pickMeetKind(rng);
+  const fromRight = visitor.x >= host.x;
+  let to = host.x + (fromRight ? gap : -gap);
+  if (to > 0.95 || to < 0.05) to = host.x + (fromRight ? -gap : gap);
+  to = Math.min(0.95, Math.max(0.05, to));
+  const pace = pickPace(visitor.id, rng);
+  const until = now + walkMs(visitor.x, to, pace);
+  return [
+    { ...host, from: host.x, action: 'rest', left: to < host.x, until, meet: { with: visitor.id, kind, phase: 'approach', host: true } },
+    { ...visitor, from: visitor.x, x: to, left: to < visitor.x, action: 'walk', until, pace, meet: { with: host.id, kind, phase: 'approach', host: false } },
+  ];
+}
+
+/** The visitor has arrived: both face each other and share the action for its PET_MEET.ms duration. */
+function together(a: Walker, b: Walker, now: number, rng: Rng): [Walker, Walker] {
+  const kind = a.meet!.kind;
+  const [min, max] = PET_MEET.ms[kind];
+  const until = now + min + rng() * (max - min);
+  const action = PET_MEET.action[kind];
+  const face = (w: Walker, o: Walker): Walker => ({ ...w, from: w.x, action, until, left: o.x < w.x, meet: { ...w.meet!, phase: 'together' } });
+  return [face(a, b), face(b, a)];
+}
+
+/** Options for stepWalkers: the gap between two meeting pets, as a share of the walking width. */
+export interface StepOptions {
+  gap?: number;
+}
+
 /**
  * Advances every walker whose walk or action is over; keeps the list in step
- * with the active pets (new ones join, rested ones leave).
+ * with the active pets (new ones join, rested ones leave). Now and then two
+ * resting pets meet (1.81); only one meeting at a time.
  */
-export function stepWalkers(walkers: Walker[], ids: PetId[], now: number, rng: Rng): Walker[] {
+export function stepWalkers(walkers: Walker[], ids: PetId[], now: number, rng: Rng, opts: StepOptions = {}): Walker[] {
   const kept = walkers.filter((w) => ids.includes(w.id));
   const fresh = startWalkers(ids, now).filter((w) => !kept.some((k) => k.id === w.id));
-  const all = [...kept, ...fresh];
-  const next = all.map((w) => (now >= w.until ? nextStep(w, now, rng) : w));
-  return next.every((w, i) => w === all[i]) && all.length === walkers.length ? walkers : next;
+  // a pet whose partner left the screen goes its own way
+  const all = [...kept, ...fresh].map((w) => (w.meet && !kept.some((k) => k.id === w.meet!.with) ? { ...w, meet: undefined, action: 'rest' as const, from: positionAt(w, now), x: positionAt(w, now), until: now } : w));
+  const next = [...all];
+  const done = new Set<number>();
+  for (let i = 0; i < next.length; i++) {
+    const w = next[i];
+    if (done.has(i) || now < w.until) continue;
+    if (w.meet?.phase === 'approach') {
+      const j = next.findIndex((o) => o.id === w.meet!.with);
+      [next[i], next[j]] = together(w, next[j], now, rng);
+      done.add(i).add(j);
+      continue;
+    }
+    next[i] = nextStep(w, now, rng);
+  }
+  const free = next.map((w, i) => (isFree(w) ? i : -1)).filter((i) => i >= 0);
+  if (free.length >= 2 && !next.some((w) => w.meet) && rng() < PET_MEET.chancePerTick) {
+    const h = free[Math.floor(rng() * free.length)];
+    const others = free.filter((i) => i !== h);
+    const v = others[Math.floor(rng() * others.length)];
+    [next[h], next[v]] = startMeeting(next[h], next[v], now, rng, opts.gap);
+  }
+  return next.every((w, i) => w === all[i]) && all.length === walkers.length && all.every((w, i) => w === walkers[i]) ? walkers : next;
 }
 
 /** Where a pet stands at `now` (0 to 1): partway along its walk, or where it is. */
@@ -134,7 +206,7 @@ export function reactionDef(r: { kind: 'celebrate' } | { kind: 'event'; eventId:
 export function applyReaction(walkers: Walker[], react: PetReactionDef, now: number, until: number): Walker[] {
   return walkers.map((w) => {
     const x = positionAt(w, now);
-    return { ...w, from: x, x, action: 'rest', until, react };
+    return { ...w, from: x, x, action: 'rest', until, react, meet: undefined };
   });
 }
 

@@ -158,6 +158,28 @@ export const PET_SLEEP_SQUASH = 0.8;
 export const PET_GROUND_ACTIONS: PetAction[] = ['eat', 'play'];
 
 /**
+ * Pets meeting each other (1.81, owner request playtest 25): now and then two
+ * idle walking pets meet. One walks over to the other, they face each other
+ * and share an action, then go their own ways. Rarer than solo actions.
+ */
+export const PET_MEET_KINDS = ['greet', 'play', 'nap', 'share'] as const;
+export type PetMeetKind = (typeof PET_MEET_KINDS)[number];
+export const PET_MEET = {
+  /** Chance per walker step (PET_WALK.tickMs) that two resting pets meet, when at least two rest. */
+  chancePerTick: 0.05,
+  /** How far apart the two stand, as a share of the walking width (the component passes one from the screen width). */
+  gap: 0.05,
+  /** How often each shared action is picked, relative to the others. */
+  weights: { greet: 3, play: 2, nap: 1, share: 2 } as Record<PetMeetKind, number>,
+  /** How long each shared action lasts (ms): shortest and longest. A nap side by side is long, like a solo nap. */
+  ms: { greet: [3_000, 5_000], play: [5_000, 9_000], nap: [40_000, 90_000], share: [4_000, 8_000] } as Record<PetMeetKind, [number, number]>,
+  /** The pose both pets take during each shared action. */
+  action: { greet: 'rest', play: 'play', nap: 'sleep', share: 'eat' } as Record<PetMeetKind, PetAction>,
+  /** The greeting bubble between them. */
+  greetBubble: '❤️',
+};
+
+/**
  * Pet reactions (1.80, owner request playtest 25): the walking pets stop and
  * celebrate your milestones, and react to random events. One plays at a time
  * for PET_REACTION_MS; a burst of events plays only the first.

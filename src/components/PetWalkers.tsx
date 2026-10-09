@@ -3,6 +3,7 @@ import { sprites, type SpriteId } from '../assets';
 import {
   PET_ACTION_BUBBLES,
   PET_CONFETTI,
+  PET_MEET,
   PET_GROUND_ACTIONS,
   PET_PARTICLES,
   PET_REACTION_MS,
@@ -63,6 +64,9 @@ export function mirrorBubble(action: Walker['action'], side: 'left' | 'right'): 
   return action === 'sit' && side === 'left';
 }
 
+/** Two meeting pets stand a pet's width apart, whatever the screen width (1.81). */
+const meetGap = () => Math.min(0.3, (PET_WALK.size + 2) / Math.max(1, window.innerWidth - PET_WALK.size));
+
 /** The walking layer's width: it spans the window. */
 function useLayerWidth(): number {
   const [width, setWidth] = useState(() => window.innerWidth);
@@ -86,6 +90,10 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
   const size = PET_WALK.size;
   const walking = !still && w.action === 'walk';
   const react = w.react;
+  // meeting another pet (1.81): only the visitor shows the greeting, only the host the shared ball or apple
+  const together = !still && !react && !playing && w.meet?.phase === 'together';
+  const greeting = together && w.meet!.kind === 'greet' && !w.meet!.host ? bubblePlace(w, stage, layerPx) : null;
+  const sharedProp = together && !w.meet!.host && w.action !== 'walk' && PET_GROUND_ACTIONS.includes(w.action);
   const pose = still ? '' : playing ? 'pet-react' : react ? `pet-reaction-${react.pose}` : walking ? 'pet-walking' : `pet-act-${w.action}`;
   return (
     <button
@@ -97,6 +105,7 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
       data-action={still ? 'still' : w.action}
       data-playing={playing}
       data-reaction={react?.pose}
+      data-meet={w.meet ? `${w.meet.kind}-${w.meet.phase}` : undefined}
       className="pointer-events-auto absolute bottom-0 left-0 rounded"
       style={{
         width: size,
@@ -122,7 +131,19 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
           );
         })()
       )}
-      {!still && !react && !walking && !playing && w.action !== 'walk' && PET_ACTION_BUBBLES[w.action] && (
+      {greeting && (
+        // two pets greet each other (1.81): a heart between them, from the visitor
+        <span
+          aria-hidden="true"
+          data-testid={`pet-bubble-${w.id}`}
+          data-side={greeting.side}
+          className="pet-bubble pointer-events-none absolute text-sm leading-none"
+          style={greeting.style}
+        >
+          {PET_MEET.greetBubble}
+        </span>
+      )}
+      {!still && !react && !walking && !playing && !sharedProp && w.action !== 'walk' && PET_ACTION_BUBBLES[w.action] && (
         PET_GROUND_ACTIONS.includes(w.action) ? (
           // food and toys lie on the ground in front of the pet's mouth (the sprites face right), not above it
           <span
@@ -211,9 +232,9 @@ export default function PetWalkers() {
       setWalkers(startWalkers(ids, Date.now()));
       return;
     }
-    setWalkers((w) => stepWalkers(w, ids, Date.now(), Math.random));
+    setWalkers((w) => stepWalkers(w, ids, Date.now(), Math.random, { gap: meetGap() }));
     const t = setInterval(() => {
-      if (!platform.isBackground()) setWalkers((w) => stepWalkers(w, ids, Date.now(), Math.random));
+      if (!platform.isBackground()) setWalkers((w) => stepWalkers(w, ids, Date.now(), Math.random, { gap: meetGap() }));
     }, PET_WALK.tickMs);
     return () => clearInterval(t);
   }, [on, still, key]);
