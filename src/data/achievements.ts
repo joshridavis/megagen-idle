@@ -139,7 +139,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   a('decor_10', 'Site Beautifier', 'Buy 10 decorations.', 'Decorations', 'decorations', 10),
   a('decor_kinds', 'Collector', 'Buy every kind of decoration.', 'Decorations', 'decorKinds', DECORATIONS.length),
   // Every copy of every kind (1.78; was 30). The id stays decor_30 so saves that earned it keep it.
-  a('decor_30', 'Landscape Architect', `Own all ${DECORATIONS.length * DECORATION_LIMIT} decorations.`, 'Decorations', 'decorations', DECORATIONS.length * DECORATION_LIMIT, true),
+  // It counts toward 100% now that it needs every copy (1.85; was a bonus).
+  a('decor_30', 'Landscape Architect', `Own all ${DECORATIONS.length * DECORATION_LIMIT} decorations.`, 'Decorations', 'decorations', DECORATIONS.length * DECORATION_LIMIT),
   a('sight_1', 'What Was That?', 'Spot your first sighting.', 'Discovery', 'sightings', 1, true),
   a('sight_5', 'Sky Watcher', 'Spot 5 different sightings.', 'Discovery', 'sightings', 5, true),
   a('events_10', 'Weathered', 'Experience 10 events that change the game.', 'Discovery', 'effectEvents', 10, true),

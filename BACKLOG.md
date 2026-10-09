@@ -30,7 +30,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 0. 1.83 Machine animations: every machine visibly animated, the quarry calmer, the metal mine redone (owner feedback, playtest 26; Done)
 0. 1.84 A map button to turn machine animations on and off (owner request, playtest 26; small; Done)
-0. 1.85 Landscape Architect counts toward 100% (owner decision, playtest 26; small)
+0. 1.85 Landscape Architect counts toward 100% (owner decision, playtest 26; small; Done)
 
 **More playtest 26 notes (owner, 2026-10-09):** the owner sent more notes and screenshots (player level 73, 79.7% completion, every room expansion bought, all 7 producer types, 9 of 10 generator types built and at max level, 31 of 39 research, 111 of 200 contracts, 8 of 13 contract perks, 13 of 14 pets found and 8 fully grown, pet slot 2 of 3, 34 of 36 decorations). These come right after 1.85 (Claude's placement; the owner can move them). The hold above still applies.
 
@@ -1276,7 +1276,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** a third floating map button, "🎞️ Animations: On/Off" ("🎞️ On/Off" on phones, labeled "Machine animations" for screen readers), a toggle with `aria-pressed`, dimmed when off. Saved as `settings.mapAnimations` (optional, `?? true`, so old saves are on); not shown in Settings. Reduce motion (in-game or system) still keeps machines still, and the button's tooltip says so. Map events and sightings are not affected. Tests in `src/components/MachineAnimation.test.tsx` and a 375 px Playwright check in `e2e/layout.spec.ts` (all three buttons on screen, no sideways scroll, Enter toggles it).
 
-### 1.85 — Landscape Architect counts toward 100% — CODE — Not started
+### 1.85 — Landscape Architect counts toward 100% — CODE — Done
 **Goal:** owner decision, playtest 26: now that Landscape Architect (1.78) needs every decoration copy, it is no longer a bonus achievement: it counts toward 100% completion.
 **Details:**
 - In `src/data/achievements.ts`, `decor_30` is no longer `bonus`. Its Epic title and tier stay. Update the test in `src/utils/achievements.test.ts` that lists which achievements may be bonus.
@@ -1284,6 +1284,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Run `npm run simulate`: report whether the 100% time changes (it should not, since all copies are already required) and update `BALANCE_REPORT.md`.
 - Note (playtest 26 screenshots, 2026-10-09): the owner's save shows Landscape Architect unlocked on 10/7/2026 with 34 of 36 decorations (Founder statue 4 of 6): it was earned under the old rule (30 decorations, before 1.78). Earned achievements are kept, so that save counts it toward 100% without all 36. Keep it that way unless the owner asks otherwise; the Decorations part of the Completion tab still needs all 6 of each.
 **Acceptance:** tests: `decor_30` is not a bonus achievement; completion counts it (100% is not reached without it); a save that earned it keeps it; the build and all tests pass; the simulator still reaches 100% with no stalls.
+
+**Notes:** `decor_30` is no longer `bonus` (its Epic title stays). Bonus achievements are now only luck or play style (clicks, sightings, effect events, returns). Tests in `src/utils/achievements.test.ts` and `src/utils/decorations.test.tsx`: it is in the Achievements part of the Completion tab, not done one copy short, and done for a save that earned it under the old 30-decoration rule. Simulator: 100% at 293.3 h, unchanged, no stalls (`BALANCE_REPORT.md`).
 
 ### 1.86 — Fix: Deuterium Extractors, Oil Rigs and Gas Wells make far more fuel than the machines they feed burn — CODE — Not started
 **Goal:** owner report, playtest 26: with one Deuterium Extractor and 4 Fusion Reactors running, deuterium still rises by 13.7 per hour. Oil (+16.8/h) and natural gas (+9.1/h) pile up the same way. Fuel should be a real limit: more burners need more producers, and those take room.
