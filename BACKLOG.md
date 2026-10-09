@@ -46,7 +46,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.89 Accent colors follow the title tier colors, lowest to highest (owner report; small; Done)
 0. 1.87 Harder pacing: slower middle and late game, new pacing targets (owner feedback; Done)
 0. 1.88 Three more room expansions for the late game (owner feedback; follows 1.87; Done)
-0. 1.90 Research details: the research level needed shows under the requirements, red when missing (owner request; small)
+0. 1.90 Research details: the research level needed shows under the requirements, red when missing (owner request; small; Done)
 0. 1.91 Sightings show their rarity after they are found (owner request; small)
 
 **Hold lifted (owner, 2026-10-07):** the owner asked to continue from the order of work. The hold set after playtest 25 (2026-10-06) is over; the run went on with 1.69, 1.70, 1.71, 1.78 and 1.79 toward checkpoint 26. The 1.82 fix below (written on `main` while this run was underway) was not part of it and is the next item after checkpoint 26.
@@ -1343,7 +1343,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** tiers 11 to 13 in `src/data/rooms.ts`: +300, +380, +480 room; 1.8B, 3.6B, 4.8B energy; metal, stone, uranium and deuterium; player levels 80, 88, 95 (the player level stops at 99, so not 100 and 120; the simulator reaches 99 at about 325 h, so energy and metal gate these tiers). No map change was needed: rows past 20 are Exclusion Zone, with the river and coast running on; a Playwright test loads a save with all 13 expansions on a 375 px phone (no sideways page scroll; screenshot checked). Sprawling Complex and the Completion tab follow `ROOM_TIERS.length` (13); a save that earned it with 10 keeps it and shows 10 of 13. `STALL_HOURS` raised from 8 to 12 (allowed by 1.87): the late saves left waits of 9 to 12 h. Simulator: 100% at 761.3 h (was 825.9 h after 1.87), rooms 11 to 13 at 383, 457 and 496 h, no stalls (`BALANCE_REPORT.md`). Tests in `src/utils/roomSystem.test.ts`, `e2e/layout.spec.ts`.
 
-### 1.90 — Research details: the research level needed shows under the requirements, red when missing — CODE — Not started
+### 1.90 — Research details: the research level needed shows under the requirements, red when missing — CODE — Done
 **Goal:** owner request, playtest 26 (2026-10-09): in the research details window (`src/components/ResearchPanel.tsx`) the research level needed is gray text under the title ("Needs research level 4 (yours: 32). Completing it raises your level by 1."), apart from the other requirements. Show it in the requirements list with the research prerequisites, red when the player's level is too low and green when it is met, the same way prerequisites and "Needs built" are colored now.
 **Details:**
 - Add a "Research level" row to the `<dl>` next to "Requires" (for example "Research level: 4 (yours: 32)"), colored `text-emerald-400` when met and `text-red-400` when not. Show it for every research, including those with no prerequisites. A research that is done or running shows it without red.
@@ -1351,6 +1351,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Check other requirement rows the window may need the same way (for example a player level, if any research has one) and keep them all in the same list, with the same colors.
 - The tree card text ("Needs level 5 · 7K") is unchanged.
 **Acceptance:** tests: the window shows the research level row in red when the level is too low and in green when it is met; the row shows for a research with no prerequisites; the level is no longer shown under the title; the build and all tests pass.
+
+**Notes:** `src/components/ResearchPanel.tsx`: a "Research level" row ("4 (yours: 32)") in the requirements list, after Time and before Requires, shown for every research; green when met, red when not, plain for a research done or running without the level. The line under the title is gone; "Research level +1" stays in the rewards box only. No research has a player level requirement, so no other row was needed. Tests in `src/components/ResearchLevelRow.test.tsx`.
 
 ### 1.91 — Sightings show their rarity after they are found — CODE — Not started
 **Goal:** owner request, playtest 26 (2026-10-09): in the Completion tab's "Sightings discovered" list, a sighting not yet seen shows its rarity ("??? (Rare)"), but once it is found only its name and count show, so the rarity is lost. Keep showing the rarity after it is found.
