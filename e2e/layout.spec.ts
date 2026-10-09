@@ -376,7 +376,7 @@ test('working machines animate on the map at 1280px', async ({ page }) => {
   await expect(page.locator('[data-anim="on"]').first()).toBeVisible();
   expect(await page.locator('.frame-b').count()).toBeGreaterThan(0);
   for (const fx of ['glint', 'smoke', 'steam', 'glow', 'bubbles']) expect(await page.locator(`[data-fx="${fx}"]`).count(), fx).toBeGreaterThan(0);
-  expect(await page.locator('.machine-shake').count()).toBeGreaterThan(0);
+  expect(await page.locator('[data-frame2="producer_quarry_2"]').count()).toBeGreaterThan(0);
   await expect(page.locator('[data-testid="map-solar-2"] [data-testid="machine-sprite"]')).toHaveAttribute('data-anim', 'still');
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);

@@ -150,6 +150,8 @@ import petAxolotl3 from './sprites/pets/axolotl_3.png';
 import windTurbine2 from './sprites/generators/wind_turbine_2.png';
 import hydroDam2 from './sprites/generators/hydro_dam_2.png';
 import tidalStation2 from './sprites/generators/tidal_station_2.png';
+import coalPlant2 from './sprites/generators/coal_plant_2.png';
+import producerQuarry2 from './sprites/producers/quarry_2.png';
 import producerMine2 from './sprites/producers/mine_2.png';
 import producerCoalMine2 from './sprites/producers/coal_mine_2.png';
 import producerGasWell2 from './sprites/producers/gas_well_2.png';
@@ -305,6 +307,8 @@ export const sprites = {
   wind_turbine_2: windTurbine2,
   hydro_dam_2: hydroDam2,
   tidal_station_2: tidalStation2,
+  coal_plant_2: coalPlant2,
+  producer_quarry_2: producerQuarry2,
   producer_mine_2: producerMine2,
   producer_coal_mine_2: producerCoalMine2,
   producer_gas_well_2: producerGasWell2,

@@ -3,7 +3,7 @@ import { GeneratorType } from '../types/generator';
 import type { ProducerId } from '../types/resource';
 
 /** A CSS effect drawn on top of a working machine's sprite (1.71). */
-export type MachineEffect = 'glint' | 'smoke' | 'steam' | 'glow' | 'shake' | 'bubbles';
+export type MachineEffect = 'glint' | 'smoke' | 'steam' | 'glow' | 'bubbles';
 
 /**
  * How a working machine moves on the map (1.71): a second sprite frame that swaps
@@ -18,23 +18,30 @@ export interface MachineAnimation {
   at?: { x: number; y: number };
   /** One cycle, in seconds. */
   period: number;
+  /** Smoke puff color and radius in sprite pixels (1.83: dark smoke shows against the light smoke drawn in a sprite). */
+  puff?: { color: string; r: number };
 }
 
+/** Puff colors (AAP-64). Light smoke for gas flares and steam; dark smoke for coal and oil, so it shows over painted smoke. */
+export const PUFF_LIGHT = '#b3b9d1';
+export const PUFF_DARK = '#4a5462';
+
 export const GENERATOR_ANIMATIONS: Record<GeneratorType, MachineAnimation> = {
-  [GeneratorType.SOLAR]: { effect: 'glint', period: 4 },
+  [GeneratorType.SOLAR]: { effect: 'glint', period: 3 },
   [GeneratorType.WIND]: { frame2: 'wind_turbine_2', period: 0.5 },
-  [GeneratorType.COAL]: { effect: 'smoke', at: { x: 77, y: 14 }, period: 2.4 },
+  [GeneratorType.COAL]: { frame2: 'coal_plant_2', effect: 'smoke', at: { x: 77, y: 14 }, period: 2.4, puff: { color: PUFF_DARK, r: 4 } },
   [GeneratorType.HYDRO]: { frame2: 'hydro_dam_2', period: 0.8 },
   [GeneratorType.TIDAL]: { frame2: 'tidal_station_2', period: 1 },
   [GeneratorType.GAS]: { effect: 'smoke', at: { x: 86, y: 4 }, period: 2 },
-  [GeneratorType.OIL]: { effect: 'smoke', at: { x: 27, y: 12 }, period: 2.6 },
+  [GeneratorType.OIL]: { effect: 'smoke', at: { x: 27, y: 12 }, period: 2.6, puff: { color: PUFF_DARK, r: 3.5 } },
   [GeneratorType.NUCLEAR]: { effect: 'steam', at: { x: 34, y: 14 }, period: 3.2 },
   [GeneratorType.FUSION]: { effect: 'glow', at: { x: 50, y: 47 }, period: 1.6 },
   [GeneratorType.SUPERNOVA]: { effect: 'glow', at: { x: 50, y: 50 }, period: 1.2 },
 };
 
 export const PRODUCER_ANIMATIONS: Record<ProducerId, MachineAnimation> = {
-  quarry: { effect: 'shake', period: 0.3 },
+  // a calm crane lift, not a shake (1.83)
+  quarry: { frame2: 'producer_quarry_2', period: 1.2 },
   mine: { frame2: 'producer_mine_2', period: 1.2 },
   coalMine: { frame2: 'producer_coal_mine_2', period: 0.5 },
   gasWell: { frame2: 'producer_gas_well_2', period: 1.2 },
