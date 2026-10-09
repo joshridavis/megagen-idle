@@ -1,4 +1,36 @@
-# Playtest 27 (v0.27.0): thought bubbles beside the head, clearer machine animations, a map animation switch, Landscape Architect in 100%, and scarcer fuel
+# Playtest 27.1 (v0.27.1, hotfix): the thought bubble's trail points at the pet
+
+The version at the bottom of the screen should read **v0.27.1**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 327.3 hours** (simulated, unchanged: this fix changes no balance).
+
+## What changed
+
+- **Thought bubble trail (1.92):** the 💭 emoji has its own small bubbles built in, always toward its lower left. When a pet faced left, the bubble sat on its left and those small bubbles pointed away from the pet. The 💭 is now mirrored on that side, so its small bubbles always lead from the cloud down to the pet's head, joined by the small dots. The dots now show only with the 💭: the ❗ and 💤 have none.
+
+## Things to try
+
+1. Watch a pet that sits and thinks (💭) while facing left, and one facing right: the small bubbles should lead from the cloud to its head both ways.
+2. Watch a jumping (❗) and a sleeping (💤) pet: no small dots beside them, and the 💤 reads normally.
+
+## Backlog (not built yet, on hold until you say)
+
+- 1.89: accent colors follow the title tier colors.
+- 1.87: harder pacing, a slower middle and late game.
+- 1.88: three more room expansions for the late game.
+- 1.90: the research level needed shows in the requirements, red when missing.
+- 1.91: sightings keep showing their rarity after they are found.
+
+---
+
+# Previous: Playtest 27 (v0.27.0): thought bubbles beside the head, clearer machine animations, a map animation switch, Landscape Architect in 100%, and scarcer fuel
 
 The version at the bottom of the screen should read **v0.27.0**.
 

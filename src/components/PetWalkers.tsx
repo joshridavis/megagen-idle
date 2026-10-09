@@ -40,6 +40,17 @@ export function bubblePlace(
   return { side, style: side === 'right' ? { bottom, left: at } : { bottom, right: at } };
 }
 
+/**
+ * The 💭 glyph draws its own small trail bubbles toward its lower left (every
+ * emoji font). On the left of the pet that trail would point away from the
+ * head (owner report, playtest 27), so the glyph is mirrored there and its
+ * trail points back at the pet. Other bubbles (❗, 💤) have no trail and are
+ * never mirrored, so 💤 never reads backward.
+ */
+export function mirrorBubble(action: Walker['action'], side: 'left' | 'right'): boolean {
+  return action === 'sit' && side === 'left';
+}
+
 /** The walking layer's width: it spans the window. */
 function useLayerWidth(): number {
   const [width, setWidth] = useState(() => window.innerWidth);
@@ -98,10 +109,13 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
                 aria-hidden="true"
                 data-testid={`pet-bubble-${w.id}`}
                 data-side={place.side}
+                data-trail={w.action === 'sit' || undefined}
                 className="pet-bubble pointer-events-none absolute text-sm leading-none"
                 style={place.style}
               >
-                {PET_ACTION_BUBBLES[w.action]}
+                <span className="inline-block" style={mirrorBubble(w.action, place.side) ? { transform: 'scaleX(-1)' } : undefined}>
+                  {PET_ACTION_BUBBLES[w.action]}
+                </span>
               </span>
             );
           })()

@@ -6,7 +6,7 @@ import { PET_REACT_MS, PET_STAGE_HEIGHT, PET_WALK } from '../data/pets';
 import { useStore } from '../store';
 import { seededRng } from '../utils/rng';
 import { nextStep, pickPace, startWalkers, stepWalkers, walkMs, type Walker } from '../utils/petWalk';
-import PetWalkers, { BUBBLE_WIDTH_PX, bubblePlace } from './PetWalkers';
+import PetWalkers, { BUBBLE_WIDTH_PX, bubblePlace, mirrorBubble } from './PetWalkers';
 import SettingsPanel from './SettingsPanel';
 
 afterEach(() => {
@@ -210,6 +210,11 @@ describe('pets walk on screen (1.60)', () => {
     }
     expect(bubblePlace({ action: 'sit', left: false, x: 1 }, 3, 375).side).toBe('left');
     expect(bubblePlace({ action: 'sit', left: true, x: 0 }, 3, 375).side).toBe('right');
+    // the 💭 glyph's own trail points to its lower left: mirrored on the pet's left so it points at the head,
+    // never mirrored on the right; ❗ and 💤 are never mirrored (owner report, playtest 27)
+    expect(mirrorBubble('sit', 'left')).toBe(true);
+    expect(mirrorBubble('sit', 'right')).toBe(false);
+    for (const action of ['jump', 'sleep'] as const) for (const side of ['left', 'right'] as const) expect(mirrorBubble(action, side)).toBe(false);
     // the same heights as the sprite script draws
     const { readFileSync } = await import('node:fs');
     const script = readFileSync('scripts/generate-generic-assets.mjs', 'utf8');
@@ -217,6 +222,9 @@ describe('pets walk on screen (1.60)', () => {
     // the bob animation does not repeat the centering shift
     const css = readFileSync('src/index.css', 'utf8');
     expect(css).toMatch(/@keyframes pet-bubble \{ 0%, 100% \{ transform: translateY\(0\); \}/);
+    // the dot trail is drawn only for a thought (💭), never beside ❗ or 💤
+    expect(css).toContain('.pet-bubble[data-trail]::before {');
+    expect(css).not.toMatch(/\.pet-bubble(\[data-side='(left|right)'\])?::before/);
   });
 });
 

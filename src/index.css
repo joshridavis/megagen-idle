@@ -387,8 +387,8 @@ body {
 /* Only a bob: the bubble is placed by its own left/right, so the bob never shifts it sideways (playtest 25, 1.82). */
 @keyframes pet-bubble { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 .pet-bubble { animation: pet-bubble 1.6s ease-in-out infinite; }
-/* A thought trail (1.82): two small dots between the head and the bubble, on the side it floats to. */
-.pet-bubble::before {
+/* A thought trail (1.82): two small dots between the head and the 💭 only (not ❗ or 💤, playtest 27), on the side it floats to. */
+.pet-bubble[data-trail]::before {
   content: '';
   position: absolute;
   bottom: -2px;
@@ -397,8 +397,8 @@ body {
   border-radius: 9999px;
   background: rgb(255 255 255 / 0.75);
 }
-.pet-bubble[data-side='right']::before { left: -3px; box-shadow: -3px 3px 0 -0.5px rgb(255 255 255 / 0.6); }
-.pet-bubble[data-side='left']::before { right: -3px; box-shadow: 3px 3px 0 -0.5px rgb(255 255 255 / 0.6); }
+.pet-bubble[data-trail][data-side='right']::before { left: -3px; box-shadow: -3px 3px 0 -0.5px rgb(255 255 255 / 0.6); }
+.pet-bubble[data-trail][data-side='left']::before { right: -3px; box-shadow: 3px 3px 0 -0.5px rgb(255 255 255 / 0.6); }
 
 /* A growing pet (1.58): a slow pulse and small sparkles on its card. */
 @keyframes pet-grow-pulse {

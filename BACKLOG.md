@@ -24,6 +24,10 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
+**On hold (owner, 2026-10-09, after playtest 27):** do not develop new backlog items until the owner says so. Hotfixes for what the owner reports on the current version are still made. When the hold lifts, the next items are 1.89, 1.87, 1.88, 1.90 and 1.91.
+
+0. 1.92 Fix: the 💭's own small bubbles pointed away from the pet when it faced left; the dot trail showed beside ❗ and 💤 too (owner report, playtest 27; Done) → HOTFIX v0.27.1
+
 **Hold lifted (owner, 2026-10-09):** the owner asked to continue from the order of work. The hold set after playtest 26 (2026-10-07) is over; the run went on with 1.82, 1.83, 1.84, 1.85 and 1.86 toward checkpoint 27 (v0.27.0). The next items are 1.89, 1.87, 1.88, 1.90 and 1.91.
 
 ~~On hold (owner, 2026-10-07, after playtest 26): do not develop the next backlog item until the owner says so.~~
@@ -1348,6 +1352,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Fits a 375 px phone: long names wrap, no sideways scroll.
 **Acceptance:** tests: a found sighting shows its name, its rarity label and its count; an unfound one still shows "???" and its rarity; the rarity color matches the tier of the same name; the build and all tests pass.
 
+### 1.92 — Fix: the thought bubble's small bubbles point away from the pet — CODE — Done
+**Goal:** owner report, playtest 27 (screenshot of a Wind-up Robot Dog facing left): the new small dots between the pet and the bubble make sense, but there are still "small bubbles" going off to the side, which looks bad. Fix now (hotfix).
+**Details:**
+- Cause: the 💭 emoji draws its own trail of small bubbles toward its lower left, in every emoji font. Since 1.82 the bubble sits on the side the pet faces; facing left, the bubble is left of the head and the glyph's own trail points further left, away from the pet.
+- Mirror the 💭 glyph when it sits left of the pet, so its trail points back at the head and joins the CSS dots. Never mirror ❗ or 💤 (💤 would read backward).
+- The CSS dot trail is a thought trail: draw it only for 💭, not beside ❗ or 💤.
+**Acceptance:** tests: the 💭 is mirrored on the left and not on the right; ❗ and 💤 are never mirrored; the dot trail CSS applies only to 💭; zoomed browser screenshots of a baby and an adult pet facing each way; the build and all tests pass.
+
+**Notes:** `mirrorBubble` in `src/components/PetWalkers.tsx` (an inner span with `scaleX(-1)`, so the bob animation on the bubble is unchanged); `data-trail` on the 💭 bubble only, and `.pet-bubble[data-trail]::before` in `src/index.css`. Tests in `src/components/PetWalkers.test.tsx`. Screenshots of the baby and adult Robot Dog, both facings, all three bubbles, taken in Chromium at 4× zoom.
+
 ### 1.82 — Fix: thought bubbles beside the pet's head, not straight above it — CODE — Done
 **Goal:** owner report, playtest 25.3 (screenshot): a walking pet's thought bubble (💭 while sitting, ❗ while jumping, 💤 while sleeping) sits straight above the pet, which looks unnatural. It should float up and to the side the pet faces: to the right when it faces right, to the left when it faces left, like a comic thought bubble.
 **Details:**
@@ -1968,3 +1982,5 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 26 (more notes) | | 2026-10-09 | In the research details window, the research level needed should show under the requirements, red when missing (today it is gray text under the title). | 1.90 |
 | 26 (more notes) | | 2026-10-09 | Sightings discovered: show the rarity of a sighting even after it is found (today only "???" rows show it). | 1.91 |
 | 27 (v0.27.0) | 1.82, 1.83, 1.84, 1.85, 1.86 | 2026-10-09 | 100% completion simulated at 327.3 h (was 293.3 h): fuel producers now feed about 2 to 3 plants each (1.86). The hold after playtest 26 was lifted (owner asked to continue). Waiting for feedback. | |
+| 27 (answers) | 1.82, 1.83, 1.84, 1.85, 1.86 | 2026-10-09 | Machine animations look better now; the quarry crane, mine lamp and coal smoke are fine. Fuel is better now; the Coal Mine stays as it is. The animation switch's place and On/Off on a phone are good. The thought bubble does not make sense: the new dots between pet and bubble do, but small bubbles still go off to the side; fix now. Do not develop new backlog items until the owner says so. | 1.92 (hotfix v0.27.1) |
+| 27.1 (v0.27.1, hotfix) | 1.92 | 2026-10-09 | Waiting for feedback. | |
