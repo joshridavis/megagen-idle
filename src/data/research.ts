@@ -12,8 +12,11 @@ export const BONUS_CAPS = {
   researchSpeed: 4,
   producerDiscount: 0.75,
   fuelEfficiency: 0.75,
-  /** At most half a second of production per click, so idling stays the main income. */
-  clickRateShare: 0.5,
+  /**
+   * At most 2% of a second of production per click (1.93, playtest 28: was half a second, so
+   * fast clicking beat idling by far). Idling stays the main income.
+   */
+  clickRateShare: 0.02,
 };
 
 /**
@@ -329,26 +332,26 @@ const RESEARCH_DEFS: ResearchDef[] = [
   {
     id: 'kinetic_capture',
     name: 'Kinetic Capture',
-    description: 'Each click also releases a quarter second of your plants\' output.',
+    description: 'Each click also adds 1% of your plants\' energy per second.',
     category: 'efficiency',
     requiredLevel: 13,
     cost: { energy: 60000, resources: { metal: 300 } },
     duration: 255 * 60,
     prerequisites: ['geared_crank'],
     unlocks: {},
-    effects: [{ type: 'clickRateShare', value: 0.25 }],
+    effects: [{ type: 'clickRateShare', value: 0.01 }],
   },
   {
     id: 'grid_tap',
     name: 'Grid Tap',
-    description: 'Clicks tap straight into the grid: another quarter second of output each.',
+    description: 'Clicks tap straight into the grid: another 1% of your energy per second each.',
     category: 'advanced',
     requiredLevel: 21,
     cost: { energy: 250000, resources: { metal: 800 } },
     duration: 330 * 60,
     prerequisites: ['kinetic_capture'],
     unlocks: {},
-    effects: [{ type: 'clickRateShare', value: 0.25 }],
+    effects: [{ type: 'clickRateShare', value: 0.01 }],
   },
   // ---- Tier 3 (0.33): oil and nuclear, plus boosts that support them. First guesses, tuned by the simulator. ----
   {
