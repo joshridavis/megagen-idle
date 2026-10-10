@@ -1,8 +1,8 @@
-name: Deploy to GitHub Pages (temporary)
+name: Deploy to GitHub Pages
 
-# Temporary (owner, after playtest 32): keeps https://joshridavis.github.io/megagen-idle/
-# up to date until the site runs on Cloudflare Pages (docs/PUBLIC_RELEASE.md, 9c).
-# Delete this file when Cloudflare is live, then unpublish GitHub Pages.
+# Owner, playtest 32: https://joshridavis.github.io/megagen-idle/ gets every fix and new
+# feature, alongside Cloudflare Pages, until the owner says to stop. Then delete this file
+# and unpublish GitHub Pages (docs/PUBLIC_RELEASE.md, 9c, step 7).
 
 on:
   push:

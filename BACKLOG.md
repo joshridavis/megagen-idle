@@ -29,7 +29,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 2.07 Fix: the top bar overflows its box on small phones (owner report, playtest 32)
 0. 2.08 Fix: invented developer details on the website; use "MiracleBadger" or nothing (owner report, playtest 32; small)
 0. 2.09 Fix: link previews show "Image failed to load" (owner report, playtest 32; small)
-0. 2.04 Editions (demo, full, mobile), the Full Game panel and the entitlement layer (playbook R-01; reworks 1.95), then 1.98 and 1.97 as listed below
+0. 2.04 Editions (demo, full, mobile), the Full Game panel and the entitlement layer (playbook R-01; reworks 1.95), then 1.98 and 1.97 as listed below. Before building it, ask the owner which edition the github.io site plays (it is public, and the owner playtests there).
 
 **Hold lifted (owner, 2026-10-10, after playtest 31):** the owner asked to continue from the order of work. The run goes on with 2.06, 2.01, 2.02, 2.03 and 2.05 toward checkpoint 32.
 
@@ -40,7 +40,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31; Done)
 0. 2.03 Shadows a little lighter (owner request, playtest 31; Done)
 0. 2.05 The website on Cloudflare Pages: landing, play, press, privacy, terms, support (playbook W-05; reworks 1.94; Done) → CHECKPOINT 32 (5 items: 2.06, 2.01, 2.02, 2.03, 2.05)
-**GitHub Pages kept for now (owner, 2026-10-10, after merging playtest 32):** the merged v0.32.0 did not reach the github.io address, because 2.05 removed the deploy. The deploy workflow is back as a temporary measure (`SITE_BASE=/megagen-idle/`, the site links take the base) until Cloudflare Pages is live; then it is deleted (`docs/PUBLIC_RELEASE.md` 9c, step 7).
+**GitHub Pages kept alongside Cloudflare (owner, 2026-10-10, playtest 32):** every fix and new development must also reach and work on https://joshridavis.github.io/megagen-idle/ until the owner says to stop; each item's acceptance includes a check of the `SITE_BASE=/megagen-idle/` build. Before that: the merged v0.32.0 did not reach the github.io address, because 2.05 removed the deploy. The deploy workflow is back as a temporary measure (`SITE_BASE=/megagen-idle/`, the site links take the base) alongside Cloudflare Pages.
 
 0. 2.04 Editions (demo, full, mobile), the Full Game panel and the entitlement layer (playbook R-01; reworks 1.95)
 0. 1.98 The Steam desktop build: flavours, steamworks.js, achievements, Supporter DLC, Steam Cloud saves (playbook S-08; builds on 1.96)
@@ -1468,7 +1468,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reproduced at 320 px with a late-game save (68.6M energy, room "482/878 (396 free)", level 87): the level column (`ml-3 w-16 shrink-0` in `src/components/PlayerLevelBadge.tsx`) ends 6 px past the screen edge and the page scrolls sideways. With accounts on, the round cloud button (`src/components/CloudButton.tsx`, 44 px, `shrink-0`) and an equipped title make it worse even on wider phones, as in the owner's screenshot. The layout tests only use a new save (short numbers, no title, no cloud button), so they never caught it.
 - Make the bar fit from 320 px with the longest real values: let the energy, room and level columns shrink (`min-w-0`, truncation with the full text in the tooltip), keep the level bar and title inside the level column, and below about 400 px move the cloud button out of the row (for example to the top corner of the page, or under the box) instead of beside it. Nothing may cover the "Generate energy" button.
 - Check the boost chip ("Volunteer crew · 14m 1s") and the research chip at the bottom at the same widths.
-**Acceptance:** a Playwright test with a seeded late-game save (big numbers, an equipped title, the cloud button shown) at 320, 360 and 412 px: no sideways scroll, and every part of the top bar inside its box; screenshots before and after; the build and all tests pass.
+**Acceptance:** a Playwright test with a seeded late-game save (big numbers, an equipped title, the cloud button shown) at 320, 360 and 412 px: no sideways scroll, and every part of the top bar inside its box; screenshots before and after; the fix also checked in the `SITE_BASE=/megagen-idle/` build (the github.io site); the build and all tests pass.
 
 ### 2.08 — Fix: invented developer details on the website — CODE — Not started
 **Goal:** owner report, playtest 32: the press kit says "Developer and publisher: Joshri Games, a solo developer in Israel". The owner does not want the country named, and does not want to be called "Joshri Games". Where a developer name is needed, use **MiracleBadger**; where it is not, leave it out.
@@ -1477,13 +1477,13 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - `src/site/pages.ts` JSON-LD: `author` and `publisher` become `{ "@type": "Person", "name": "MiracleBadger" }`, or are left out.
 - Search the whole repository (site, game credits, store texts, docs, Electron `package.json`/`electron-builder.yml` author and copyright fields, `codemagic.yaml`) for "Joshri", "Israel" and other invented personal details, and replace or remove them. `docs/RELEASE_DECISIONS.md` is already updated (owner answer, playtest 32).
 - A test: no file outside `BACKLOG.md` says "Joshri Games" or names the owner's country.
-**Acceptance:** the press page, the press kit text and the JSON-LD show "MiracleBadger" or no developer at all; the test passes; the build and all tests pass.
+**Acceptance:** the press page, the press kit text and the JSON-LD show "MiracleBadger" or no developer at all, at megagenidle.com and on the github.io site; the test passes; the build and all tests pass.
 
 ### 2.09 — Fix: link previews show "Image failed to load" — CODE — Not started
 **Goal:** owner report, playtest 32 (Discord screenshot): pasting https://joshridavis.github.io/megagen-idle/ shows the title and description but "Image failed to load".
 **Details:**
 - Cause: every page's `og:image`, `twitter:image`, `og:url` and canonical address point at https://megagenidle.com/ (`SITE_URL` in `src/site/links.ts`), and that domain is not live yet, so the picture cannot be fetched. The picture itself is built (`og-image.png` at the site root).
-- Make the absolute site address a build setting: `SITE_URL` from the environment (default `https://megagenidle.com/`), used by `buildSitePage`, the sitemap and robots. The temporary GitHub Pages workflow sets `SITE_URL=https://joshridavis.github.io/megagen-idle/`. Cloudflare needs nothing (the default is right).
+- Make the absolute site address a build setting: `SITE_URL` from the environment (default `https://megagenidle.com/`), used by `buildSitePage`, the sitemap and robots. The GitHub Pages workflow sets `SITE_URL=https://joshridavis.github.io/megagen-idle/`, so previews of the github.io site use its own picture; Cloudflare needs nothing (the default is right). Both sites must show the picture.
 - After deploying, check with a preview tool (for example opengraph.xyz) or by pasting the address into Discord again; Discord caches previews, so add `?v=2` to the address when testing again.
 **Acceptance:** a test that a build with `SITE_URL` set puts that address in `og:image`, `og:url`, the canonical link and the sitemap; the build and all tests pass; the owner sees the picture in Discord.
 

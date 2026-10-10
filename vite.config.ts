@@ -34,8 +34,8 @@ const bootLoader = {
 // the build also writes the sharing picture, sitemap.xml, robots.txt and the
 // press kit. `npm run build:web` builds it into dist-web/ for Cloudflare.
 const root = fileURLToPath(new URL('.', import.meta.url));
-// Temporary (owner, after playtest 32): until Cloudflare Pages is set up, the site also
-// deploys to GitHub Pages at /megagen-idle/ (.github/workflows/deploy.yml sets SITE_BASE).
+// The site also deploys to GitHub Pages at /megagen-idle/ alongside Cloudflare, until the
+// owner says to stop (playtest 32; .github/workflows/deploy.yml sets SITE_BASE).
 const BASE = process.env.SITE_BASE || '/';
 // PLAY_EDITION picks the edition of the game at /play/ (2.04 reads VITE_EDITION).
 if (process.env.PLAY_EDITION && !process.env.VITE_EDITION) process.env.VITE_EDITION = process.env.PLAY_EDITION;
