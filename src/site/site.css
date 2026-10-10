@@ -1,18 +1,85 @@
 @import 'tailwindcss' source(none);
 @source '../../index.html';
+@source '../../404.html';
+@source '../../press/index.html';
+@source '../../privacy/index.html';
+@source '../../terms/index.html';
+@source '../../support/index.html';
 @source './';
 
-/* The landing page (1.94) uses the game's dark background and AAP-64 accents. */
-:root { color-scheme: dark; }
-body { margin: 0; background: #0f172b; color: #e2e8f0; font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
-img.pixel { image-rendering: pixelated; }
-a { color: #7dd3fc; }
-.play-now {
-  display: inline-block; padding: 0.9rem 2.4rem; border-radius: 0.75rem;
-  background: #ffc825; color: #141013; font-weight: 800; font-size: 1.35rem; text-decoration: none;
-  box-shadow: 0 4px 0 #b62b2b;
+/* The website (1.94, 2.05): the game's dark background and AAP-64 accents, from 360 px wide. */
+:root {
+  color-scheme: dark;
+  --bg: #0f172b;
+  --panel: #1e293b;
+  --line: #334155;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --gold: #ffc825; /* AAP-64 */
+  --gold-hi: #ffeb57;
+  --red: #b62b2b;
+  --sky: #7dd3fc;
 }
-.play-now:hover { background: #ffd541; }
-.play-now:focus-visible, a:focus-visible { outline: 3px solid #ffc825; outline-offset: 3px; }
-.store-link, .store-soon { display: inline-block; padding: 0.4rem 0.9rem; border-radius: 0.5rem; background: #1e293b; }
-.store-soon { color: #94a3b8; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; overflow-wrap: anywhere; }
+img { max-width: 100%; height: auto; }
+img.pixel { image-rendering: pixelated; }
+a { color: var(--sky); }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+h1, h2, h3 { line-height: 1.25; }
+
+.site-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; max-width: 72rem; margin: 0 auto; padding: 0.75rem 1rem; }
+.brand { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text); font-weight: 800; text-decoration: none; }
+.site-header nav { display: flex; gap: 1rem; }
+.site-header nav a { color: var(--text); text-decoration: none; font-weight: 600; }
+.site-header nav a:hover { color: var(--gold); }
+
+.site-main { max-width: 72rem; margin: 0 auto; padding: 0 1rem 3rem; }
+.site-main.prose { max-width: 46rem; }
+.prose h1 { font-size: 1.8rem; }
+.prose h2 { font-size: 1.25rem; margin-top: 2rem; }
+.prose .shot { display: block; margin: 1rem 0; border: 1px solid var(--line); border-radius: 0.5rem; }
+
+.hero { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding-top: 1rem; text-align: center; }
+.hero h1 { margin: 0; font-size: clamp(2rem, 7vw, 3.5rem); color: var(--gold); text-shadow: 0 3px 0 var(--red); }
+.app-icon { width: 96px; border-radius: 22%; }
+.tagline { margin: 0; max-width: 40rem; font-size: 1.2rem; }
+.pitch { margin: 0; max-width: 44rem; color: #cbd5e1; }
+.launch { margin: 0; font-weight: 700; color: var(--gold); }
+.key-scene { width: 100%; border-radius: 0.75rem; }
+.buttons, .stores { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin: 0; padding: 0; list-style: none; }
+.stores:empty { display: none; }
+
+.btn { display: inline-block; padding: 0.7rem 1.4rem; border-radius: 0.75rem; font-weight: 800; text-decoration: none; text-align: center; }
+.btn-play { background: var(--gold); color: #141013; font-size: 1.2rem; box-shadow: 0 4px 0 var(--red); }
+.btn-play:hover { background: var(--gold-hi); }
+.btn-steam, .btn-discord, .btn-store { background: var(--panel); color: var(--text); border: 2px solid var(--line); }
+.btn-steam:hover, .btn-discord:hover, .btn-store:hover { border-color: var(--gold); }
+
+.section { margin-top: 3.5rem; }
+.section h2 { text-align: center; font-size: 1.6rem; color: var(--gold); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.card { padding: 1rem; border: 1px solid var(--line); border-radius: 0.75rem; background: var(--panel); }
+.card img { width: 64px; height: 64px; object-fit: contain; }
+.card h3 { margin: 0.5rem 0 0.25rem; font-size: 1.1rem; }
+.card p { margin: 0; color: #cbd5e1; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.gallery img { display: block; width: 100%; border: 1px solid var(--line); border-radius: 0.5rem; }
+.fair ul { max-width: 40rem; margin: 0 auto; padding-left: 1.25rem; list-style: disc; }
+.prose ul { list-style: disc; padding-left: 1.5rem; }
+.prose ol { list-style: decimal; padding-left: 1.5rem; }
+.prose li { margin: 0.3rem 0; }
+.fair li { margin: 0.4rem 0; }
+.faq { max-width: 46rem; margin: 0 auto 0.5rem; padding: 0.75rem 1rem; border: 1px solid var(--line); border-radius: 0.5rem; background: var(--panel); }
+.faq summary { cursor: pointer; font-weight: 700; }
+.faq p { margin: 0.5rem 0 0; color: #cbd5e1; }
+
+.trailer { position: relative; display: block; width: 100%; max-width: 48rem; aspect-ratio: 16 / 9; margin: 0 auto; padding: 0; border: 0; border-radius: 0.75rem; background: #000; cursor: pointer; overflow: hidden; }
+.trailer img { width: 100%; height: 100%; object-fit: cover; }
+.trailer-play { position: absolute; inset: 0; display: grid; place-items: center; font-size: 4rem; color: var(--gold); text-shadow: 0 3px 0 var(--red); }
+
+.site-footer { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 2rem 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; text-align: center; }
+.site-footer p { margin: 0; }
+.socials, .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1rem; margin: 0; padding: 0; list-style: none; }
+.social { display: inline-block; padding: 0.25rem 0.75rem; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; }
+.fine { font-size: 0.8rem; }

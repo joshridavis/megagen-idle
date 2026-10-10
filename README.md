@@ -2,7 +2,7 @@
 
 An idle/incremental game about generating energy. You start with almost nothing and clumsy, inefficient methods, then reinvest energy into resources, research, room and better machines: from solar panels up to nuclear fission and a few fictional methods. Machines keep producing while the game is closed.
 
-**Play it:** https://joshridavis.github.io/megagen-idle/play/ (the landing page with **Play now** is at https://joshridavis.github.io/megagen-idle/; both move to megagenidle.com when the owner switches the domain, `docs/PUBLIC_RELEASE.md` section 9c; live once the repo's Pages source is set to "GitHub Actions"; see `GETTING_STARTED.md`, step 5). Until then the deploy workflow skips publishing with a warning instead of failing; after enabling Pages, re-run it from Actions → Deploy to GitHub Pages → Run workflow, or push to `main`.
+**Play it:** https://megagenidle.com/play/ (the website, with the landing page at https://megagenidle.com/, is hosted on Cloudflare Pages once the owner has set it up, `docs/PUBLIC_RELEASE.md` section 9c). Playtests use the Cloudflare preview link of each pull request, where /play/ is the full edition.
 
 ## Run locally
 
@@ -14,16 +14,18 @@ An idle/incremental game about generating energy. You start with almost nothing 
 
 | Command | What it does |
 |---|---|
-| `npm run build` | Type-checks and builds the static site into `dist/`: the landing page (`index.html`) at the root and the game (`play/index.html`) at `/play/`, served under `/megagen-idle/`. With the custom domain the deploy sets `SITE_BASE=/` and `SITE_URL=https://megagenidle.com/` (see `docs/PUBLIC_RELEASE.md`, section 9c). |
-| `npm run preview` | Serves the built `dist/` locally, at `http://localhost:4173/megagen-idle/` (game: `.../megagen-idle/play/`). |
+| `npm run build` | Type-checks and builds the website into `dist/`: the landing page at `/`, the game (`play/index.html`) at `/play/`, and `/press/`, `/privacy/`, `/terms/`, `/support/` and `404.html`. |
+| `npm run build:web` | The same build into `dist-web/` for Cloudflare Pages, then checks every site page (under 200 KB before images, title, description and sharing tags). `PLAY_EDITION` picks the game's edition. |
+| `npm run preview` | Serves the built `dist/` locally at `http://localhost:4173/` (game: `/play/`). Add `-- --outDir dist-web` to serve the web build. |
 | `npm test` | Runs the Vitest unit tests once. |
 | `npm run test:coverage` | Runs the unit tests with a coverage report (HTML in `coverage/`); fails if the game rules in `src/utils/` drop below 80% lines, statements, functions or branches. CI runs this. |
-| `npm run test:e2e` | Builds the game and runs the Playwright browser smoke test against it. First run `npx playwright install chromium` (or set `PW_CHROMIUM_PATH` to an existing Chromium). |
+| `npm run test:e2e` | Builds the website (`build:web`) and runs the Playwright browser tests against it: the game and every site page. First run `npx playwright install chromium` (or set `PW_CHROMIUM_PATH` to an existing Chromium). |
 | `npm run simulate` | Runs the balance simulator (a greedy idle player) and writes `BALANCE_REPORT.md`: milestone times, pacing targets from `src/data/pacingTargets.ts`, stalls and hours to 100% completion. |
+| `npm run screens:site` | Captures the website's screenshots with Playwright (six game scenes at 1920×1080 and the Settings save panel) into `public/screens/`. Set `PW_CHROMIUM_PATH` if Playwright's own Chromium is not installed. |
 | `npm run check:assets` | Checks every sprite in the manifest exists as a PNG of the right size, and lists which are still generic stand-ins. |
 | `npm run notices` | Rewrites `THIRD_PARTY_NOTICES.md` with the license of every package shipped in the game. Run after changing dependencies. |
 | `npm run generate:assets` | Draws any missing generic stand-in sprites. Add `-- --force` to redraw the generic ones; files not listed in `src/assets/generic-assets.json` (real art) are never touched. |
-| `npm run brand` | Draws the store and brand images from the existing sprites: `src/assets/brand/` (logo, 1024 px app icon, key scene) and the Steam capsules in `docs/steam/capsules/`. Overwrites them; run it after changing `scripts/generate-brand.mjs` (a test checks the committed images match). |
+| `npm run brand` | Draws the store and brand images from the existing sprites: `src/assets/brand/` (logo, 1024 px app icon, key scene, the 1200×630 sharing picture and the favicons) and the Steam capsules in `docs/steam/capsules/`. Overwrites them; run it after changing `scripts/generate-brand.mjs` (a test checks the committed images match). |
 
 ## Project layout
 
@@ -72,10 +74,10 @@ The game saves automatically in your browser (IndexedDB). In the **Settings** ta
 
 Optional. With no settings, the game has no accounts, as before. To turn them on, set two public values from the Supabase project (setup in `docs/PUBLIC_RELEASE.md`, section 9):
 
-- **The published site:** add the repository variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Settings → Secrets and variables → Actions → Variables). The deploy workflow passes them to the build.
+- **The published site:** add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as environment variables of the Cloudflare Pages project (`docs/PUBLIC_RELEASE.md`, section 9c). They are not secrets.
 - **Locally:** put the same two lines in a `.env.local` file in the repository root (`VITE_SUPABASE_URL=...`), then run `npm run dev`. `.env.local` is ignored by git.
 
-Settings then shows "Account and cloud saves". Optional `VITE_AUTH_PROVIDERS` (for example `google,discord`) adds "Continue with …" buttons once those providers are set up in Supabase (`docs/PUBLIC_RELEASE.md`, section 9b). Variables are read at build time, so run the deploy workflow again after changing them.
+Settings then shows "Account and cloud saves". Optional `VITE_AUTH_PROVIDERS` (for example `google,discord`) adds "Continue with …" buttons once those providers are set up in Supabase (`docs/PUBLIC_RELEASE.md`, section 9b). Variables are read at build time, so redeploy the site in Cloudflare after changing them.
 
 ## More
 

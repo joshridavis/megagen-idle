@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { authProviders, MIN_PASSWORD, OAUTH_NAMES, USERNAME_PATTERN, type OAuthProvider } from '../store/cloud';
 import LoadCloudConfirm from './LoadCloudConfirm';
+// the privacy page on the website (2.05): the same address from the web, desktop and phone apps
+import { PRIVACY_URL } from '../site/links';
 import { CLOUD_BUTTON, CLOUD_PRIMARY, CLOUD_SECONDARY } from './cloudStyles';
 import { deleteAccount, loadFromCloud, resetPassword, saveToCloud, signIn, signInWithProvider, signOut, signUp, useAccount } from '../store/account';
 
 const input = 'mt-1 w-full rounded border border-slate-600 bg-slate-900 px-3 py-2 text-slate-100 focus-visible:outline-2 focus-visible:outline-sky-400';
 const button = CLOUD_BUTTON;
-export const PRIVACY_URL = `${import.meta.env.BASE_URL}privacy.html`;
 
 const when = (at: number | null) => (at === null ? 'not yet' : new Date(at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }));
 

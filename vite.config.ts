@@ -2,10 +2,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pkg from './package.json';
 import { BOOT_TIMEOUT_MS } from './src/data/boot';
+import { buildSitePage, OG_IMAGE, robotsTxt, SCREENSHOTS, SITE_PAGES, sitemapXml } from './src/site/pages';
+// @ts-expect-error plain .mjs module without types
+import { zip } from './scripts/lib/zip.mjs';
 
 // The loading screen in index.html (1.49) shows before any download finishes,
 // so its logo is inlined (the current logo_wordmark sprite) and its timeout is
@@ -24,37 +28,52 @@ const bootLoader = {
   },
 };
 
-// GitHub Pages serves the site from /<repo-name>/ (git remote:
-// github.com/joshridavis/megagen-idle). `build` and `preview` use it;
-// dev and tests use the root. Once the custom domain megagenidle.com is on
-// (1.94, docs/PUBLIC_RELEASE.md), the deploy workflow sets SITE_BASE=/ and
-// SITE_URL=https://megagenidle.com/ from the repository's Actions variables.
-const PAGES_BASE = process.env.SITE_BASE || '/megagen-idle/';
-const SITE_URL = process.env.SITE_URL || 'https://joshridavis.github.io/megagen-idle/';
-const SITE_DESCRIPTION =
-  'MegaGen Idle: an idle game about generating energy. Build solar panels, dams and reactors, research better machines, and keep earning while you are away. Free in your browser.';
+// The website (2.05): Cloudflare Pages serves it from the domain root, so
+// every page and the game use base "/". Site pages are plain HTML whose
+// <!-- site:... --> markers are filled from src/site/links.ts and content.ts;
+// the build also writes the sharing picture, sitemap.xml, robots.txt and the
+// press kit. `npm run build:web` builds it into dist-web/ for Cloudflare.
+const root = fileURLToPath(new URL('.', import.meta.url));
+// PLAY_EDITION picks the edition of the game at /play/ (2.04 reads VITE_EDITION).
+if (process.env.PLAY_EDITION && !process.env.VITE_EDITION) process.env.VITE_EDITION = process.env.PLAY_EDITION;
 
-// The landing page (1.94): sharing tags, the version, and the key scene at a
-// fixed name (og-image.png) so link previews can point at it.
-const landingPage = {
-  name: 'megagen-landing',
-  transformIndexHtml: (html: string) =>
-    html.replaceAll('%SITE_URL%', SITE_URL).replaceAll('%SITE_DESCRIPTION%', SITE_DESCRIPTION).replaceAll('%APP_VERSION%', pkg.version),
-  generateBundle(this: { emitFile: (f: { type: 'asset'; fileName: string; source: Buffer }) => void }) {
-    this.emitFile({ type: 'asset', fileName: 'og-image.png', source: readFileSync(new URL('./src/assets/brand/key_scene.png', import.meta.url)) });
+const sitePages = {
+  name: 'megagen-site-pages',
+  transformIndexHtml: {
+    order: 'pre' as const,
+    handler: (html: string, ctx: { path: string }) => {
+      const page = SITE_PAGES.find((p) => `/${p.file}` === ctx.path || p.path === ctx.path);
+      return page ? buildSitePage(html, page.path, { root, version: pkg.version }) : html;
+    },
+  },
+  generateBundle(this: { emitFile: (f: { type: 'asset'; fileName: string; source: string | Uint8Array }) => void }) {
+    const file = (rel: string) => readFileSync(new URL(rel, import.meta.url));
+    this.emitFile({ type: 'asset', fileName: OG_IMAGE.name, source: file(`./${OG_IMAGE.file}`) });
+    this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemapXml() });
+    this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robotsTxt() });
+    const shots = SCREENSHOTS.filter((s) => existsSync(new URL(`./public/screens/${s.file}`, import.meta.url)));
+    this.emitFile({
+      type: 'asset',
+      fileName: 'press-kit.zip',
+      source: zip([
+        { name: 'MegaGen Idle - logo.png', data: file('./src/assets/brand/logo.png') },
+        { name: 'MegaGen Idle - app icon.png', data: file('./src/assets/brand/app_icon_1024.png') },
+        { name: 'MegaGen Idle - key art.png', data: file('./src/assets/brand/key_scene.png') },
+        ...shots.map((s, i) => ({ name: `MegaGen Idle - screenshot ${i + 1}.jpg`, data: file(`./public/screens/${s.file}`) })),
+      ]),
+    });
   },
 };
 
-export default defineConfig(({ command, isPreview }) => ({
-  base: command === 'build' || isPreview ? PAGES_BASE : '/',
-  plugins: [bootLoader, landingPage, react(), tailwindcss()],
+export default defineConfig({
+  base: '/',
+  plugins: [bootLoader, sitePages, react(), tailwindcss()],
   build: {
-    // two pages: the landing page at the site root, the game at /play/ (1.94).
-    // The game's entry keeps the name "index", as before.
+    // the site pages, and the game at /play/ (1.94). The game's entry keeps the name "index", as before.
     rollupOptions: {
       input: {
-        site: fileURLToPath(new URL('./index.html', import.meta.url)),
-        index: fileURLToPath(new URL('./play/index.html', import.meta.url)),
+        ...Object.fromEntries(SITE_PAGES.map((p) => [p.file === 'index.html' ? 'site' : p.file.replace(/(\/index)?\.html$/, ''), resolve(root, p.file)])),
+        index: resolve(root, 'play/index.html'),
       },
     },
   },
@@ -75,4 +94,4 @@ export default defineConfig(({ command, isPreview }) => ({
       thresholds: { lines: 80, statements: 80, functions: 80, branches: 80 },
     },
   },
-}));
+});

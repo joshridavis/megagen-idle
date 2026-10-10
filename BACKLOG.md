@@ -32,7 +32,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 2.01 Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures (owner report, playtest 31; Done)
 0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31; Done)
 0. 2.03 Shadows a little lighter (owner request, playtest 31; Done)
-0. 2.05 The website on Cloudflare Pages: landing, play, press, privacy, terms, support (playbook W-05; reworks 1.94) → CHECKPOINT 32 (5 items: 2.06, 2.01, 2.02, 2.03, 2.05)
+0. 2.05 The website on Cloudflare Pages: landing, play, press, privacy, terms, support (playbook W-05; reworks 1.94; Done) → CHECKPOINT 32 (5 items: 2.06, 2.01, 2.02, 2.03, 2.05)
 0. 2.04 Editions (demo, full, mobile), the Full Game panel and the entitlement layer (playbook R-01; reworks 1.95)
 0. 1.98 The Steam desktop build: flavours, steamworks.js, achievements, Supporter DLC, Steam Cloud saves (playbook S-08; builds on 1.96)
 0. 1.97 Mobile apps with Capacitor and RevenueCat, built by Codemagic (playbook A-03)
@@ -1502,7 +1502,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The 1.95 Supporter title and accent stay until the Supporter Pack themes item replaces them; the dev-only test store stays for development.
 **Acceptance:** a test builds the demo bundle and fails if any full-only id (research past the boundary, generators, Grid Contracts, energy pets) appears in it; tests for the entitlement layer per edition, the panel (once per session, the buttons per edition), and demo-save carry-over; `npm run simulate` unchanged for the full edition; the build and all tests pass.
 
-### 2.05 — The website on Cloudflare Pages: landing, play, press, privacy, terms, support — CODE — Not started
+### 2.05 — The website on Cloudflare Pages: landing, play, press, privacy, terms, support — CODE — Done
+**Done note:** site pages are plain HTML whose `<!-- site:... -->` markers are filled at build time by `src/site/pages.ts` from `src/site/links.ts` (all external links; `src/data/stores.ts` merged in) and `src/site/content.ts` (features, Fair by design, FAQ); `src/site/main.ts` is the only script (launch line, click-to-load trailer). One Vite build with base `/` holds the site and the game, so the game at `/play/` shares the site's `/assets/` folder instead of a separate `/play/` base. `PLAY_EDITION` is passed on as `VITE_EDITION` for 2.04 to read. `npm run build:web` checks each page with `scripts/check-site.mjs` (largest: the landing page at about 27 KB before images). Screenshots by `npm run screens:site`; the press kit zip is written at build time by `scripts/lib/zip.mjs`. Privacy, terms and press show `src/site/fallback/*.md` until the owner adds `docs/legal/*.md` and `docs/press.md`. Social links are text buttons (no brand logos drawn). `public/privacy.html` now forwards to `/privacy/`, and the game's privacy link points at https://megagenidle.com/privacy/. The achievement `energy_2b` is now "Mega Generator". Owner steps: `docs/PUBLIC_RELEASE.md` section 9c.
 **Goal:** launch work, playbook step W-05, reworking 1.94 to the owner's release decisions (`docs/RELEASE_DECISIONS.md`, "Website" and "IDs and services"): the site moves from GitHub Pages to Cloudflare Pages, and gets every page the launch needs.
 **Details:**
 - `npm run build:web` outputs `dist-web/`: `/` (landing), `/play/` (the game built with base `/play/`, edition from `PLAY_EDITION`, default `demo` once 2.04 exists), `/press/`, `/privacy/`, `/terms/`, `/support/` and a 404 page. Plain Vite multi-page HTML with Tailwind (no React on site pages), the game's dark pixel-art look and AAP-64 colors, from 360 px wide, under 200 KB per page before images.

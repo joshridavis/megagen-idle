@@ -6,7 +6,8 @@
 // square. The only text is the game's name (Steam allows nothing else).
 //
 // Output (always overwritten; deterministic, no randomness or timestamps):
-//   src/assets/brand/logo.png, app_icon_1024.png, key_scene.png
+//   src/assets/brand/logo.png, app_icon_1024.png, key_scene.png, og_1200x630.png,
+//   favicon_64.png, apple_touch_icon_256.png
 //   docs/steam/capsules/*.png (store and library capsules)
 // --out-root=<dir> writes under another folder (used by tests).
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -325,7 +326,14 @@ function appIcon() {
   const pb = bbox(PLANT);
   blit(c, PLANT, Math.round(64 - pb.x0 - pb.w / 2), 101 - pb.y1, 1);
   blit(c, ENERGY_ICON, 64 - 32 - 4, 8, 2);
-  return upscale(c, 8);
+  return c;
+}
+
+/** Every k-th pixel: the 128 px icon art at a smaller whole fraction (favicons, 2.05). */
+function downsample(src, k) {
+  const out = new Canvas(src.width / k, src.height / k);
+  for (let y = 0; y < out.height; y++) for (let x = 0; x < out.width; x++) out.setRGBA(x, y, src.getRGBA(x * k, y * k));
+  return out;
 }
 
 function write(rel, canvas) {
@@ -350,7 +358,12 @@ const hero = capsule(3840, 1240, 2, { area: { x: 745, y: 215, w: 430, h: 190, ro
 const keyScene = capsule(1920, 1080, 3, { area: { x: 0, y: 0, w: 640, h: 330, hill: 40 } });
 
 write('src/assets/brand/logo.png', logo);
-write('src/assets/brand/app_icon_1024.png', appIcon());
+const icon = appIcon();
+write('src/assets/brand/app_icon_1024.png', upscale(icon, 8));
+// the website (2.05): favicons, and the 1200x630 picture for link previews
+write('src/assets/brand/favicon_64.png', downsample(icon, 2));
+write('src/assets/brand/apple_touch_icon_256.png', upscale(icon, 2));
+write('src/assets/brand/og_1200x630.png', capsule(1200, 630, 2, { logoK: 5, logoY: 40, area: { x: 0, y: 0, w: 600, h: 315, hill: 30 } }));
 write('src/assets/brand/key_scene.png', keyScene);
 const caps = 'docs/steam/capsules';
 write(`${caps}/header_capsule_920x430.png`, header);
