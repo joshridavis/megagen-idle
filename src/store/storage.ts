@@ -1,5 +1,6 @@
 import localforage from 'localforage';
 import { createJSONStorage, type StateStorage } from 'zustand/middleware';
+import { platform } from '../platform';
 import { DAMAGED_SUFFIX, checkStoredSave, reportDamagedSave, type DamagedSave } from './saveGuard';
 
 localforage.config({ name: 'megagen-idle', storeName: 'saves' });
@@ -120,8 +121,9 @@ function browserLocalStorage(): SyncKV | null {
   }
 }
 
+// The desktop app keeps the save in files (1.96); the web uses IndexedDB.
 export const gameStorage = createJSONStorage(() =>
-  createSafeStorage(localforage, browserLocalStorage(), undefined, { check: checkStoredSave, onDamaged: reportDamagedSave }),
+  createSafeStorage(platform.saveKV ?? localforage, browserLocalStorage(), undefined, { check: checkStoredSave, onDamaged: reportDamagedSave }),
 );
 
 /** The save set aside by crash recovery (0.46), if one is kept on this device. */

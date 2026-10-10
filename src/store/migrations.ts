@@ -8,7 +8,7 @@ import { TUTORIAL_DONE } from '../data/tutorial';
 import { resolveAccent } from '../utils/achievements';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 23;
+export const SAVE_VERSION = 24;
 
 type AnySave = Record<string, unknown>;
 
@@ -82,6 +82,8 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
     const accent = resolveAccent({ achievements }, settings.cosmetics.accent);
     return { ...save, settings: { ...settings, cosmetics: { ...settings.cosmetics, accent } } };
   },
+  // 1.95: purchases. Nothing is owned yet; the store's own record is checked on start.
+  23: (save) => ({ ...save, entitlements: { fullGame: false, supporter: false } }),
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */
@@ -98,6 +100,7 @@ export function migrateSave(persisted: unknown, fromVersion: number): GameState 
   merged.settings = { ...defaults.settings, ...(save.settings as object | undefined) };
   merged.producers = { ...defaults.producers, ...(save.producers as object | undefined) };
   merged.stats = { ...defaults.stats, ...(save.stats as object | undefined) };
+  merged.entitlements = { ...defaults.entitlements, ...(save.entitlements as object | undefined) };
   return merged;
 }
 
@@ -130,5 +133,6 @@ export function pickSaved(s: GameState): GameState {
     pets: s.pets,
     achievements: s.achievements,
     stats: s.stats,
+    entitlements: s.entitlements,
   };
 }

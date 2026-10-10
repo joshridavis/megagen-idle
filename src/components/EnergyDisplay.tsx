@@ -1,6 +1,7 @@
 import { useMemo, type CSSProperties } from 'react';
 import { sprites } from '../assets';
-import { ACCENTS, DEFAULT_ACCENT } from '../data/achievements';
+import { DEFAULT_ACCENT } from '../data/achievements';
+import { accentInfo } from '../utils/achievements';
 import { useStore } from '../store';
 import { getAvailableRoom, getTotalEnergyRate, selectEnergy } from '../store/selectors';
 import { getEnergyBreakdown } from '../utils/breakdown';
@@ -16,7 +17,7 @@ export default function EnergyDisplay() {
   const free = useStore(getAvailableRoom);
   const fmt = useNumberFormat();
   const accentId = useStore((s) => s.settings.cosmetics?.accent ?? DEFAULT_ACCENT);
-  const accent = ACCENTS.find((x) => x.id === accentId) ?? ACCENTS[0];
+  const accent = accentInfo(accentId);
   const generators = useStore((s) => s.activeGenerators);
   const completed = useStore((s) => s.completedResearch);
   const lifetime = useStore((s) => s.lifetimeEnergy);

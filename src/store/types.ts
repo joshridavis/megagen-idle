@@ -14,6 +14,7 @@ import type { GeneratorActions } from './slices/generatorSlice';
 import type { ResearchActions } from './slices/researchSlice';
 import type { RoomActions } from './slices/roomSlice';
 import type { SettingsActions } from './slices/settingsSlice';
+import type { PurchaseActions, PurchaseTransient } from './slices/purchaseSlice';
 
 export interface CoreActions {
   resetGame: () => void;
@@ -80,6 +81,8 @@ export type GameStore = GameState &
   EventActions &
   ContractActions &
   PetActions &
+  PurchaseTransient &
+  PurchaseActions &
   CoreActions;
 
 /** Slice creator typed for the combined store with devtools + persist. */

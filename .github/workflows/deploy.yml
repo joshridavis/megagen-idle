@@ -26,6 +26,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
       - run: npm test
       # Accounts and cloud saves (0.68): public project settings from the
       # repository's Actions variables. Empty until the owner adds them, and the
@@ -36,6 +38,10 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
           # "Continue with …" buttons to show, e.g. google,discord (1.22)
           VITE_AUTH_PROVIDERS: ${{ vars.VITE_AUTH_PROVIDERS }}
+          # Custom domain (1.94): empty until the owner switches to megagenidle.com,
+          # then SITE_BASE=/ and SITE_URL=https://megagenidle.com/ (docs/PUBLIC_RELEASE.md)
+          SITE_BASE: ${{ vars.SITE_BASE }}
+          SITE_URL: ${{ vars.SITE_URL }}
       # On a fresh repo Pages is still off, and configure-pages would fail.
       # Only a 404 means "not enabled": skip the deploy with a warning so the
       # run stays green. Any other API error falls through and fails loudly

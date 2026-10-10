@@ -13,6 +13,7 @@ import { createLogSlice, saveLog } from './slices/logSlice';
 import { createEventSlice } from './slices/eventSlice';
 import { createContractSlice } from './slices/contractSlice';
 import { createPetSlice } from './slices/petSlice';
+import { createPurchaseSlice } from './slices/purchaseSlice';
 import { deriveEvents } from '../utils/eventLog';
 import { unlockAchievements } from '../utils/achievements';
 import { deriveRates } from '../utils/simulation';
@@ -41,6 +42,7 @@ export const useStore = create<GameStore>()(
           ...createEventSlice(init)(...a),
           ...createContractSlice(init)(...a),
           ...createPetSlice(init)(...a),
+          ...createPurchaseSlice(init)(...a),
           welcomeBack: null,
           achievements: init.achievements,
           stats: init.stats,
@@ -48,13 +50,15 @@ export const useStore = create<GameStore>()(
             set(
               (s) => {
                 saveLog([]);
-                return { ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], activeSighting: null, mapEvent: null, petReaction: null, eventEpoch: s.eventEpoch + 1 };
+                // purchases belong to the player, not the game: a reset keeps them (1.95)
+                return { ...createInitialState(), entitlements: s.entitlements, celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], activeSighting: null, mapEvent: null, petReaction: null, eventEpoch: s.eventEpoch + 1 };
               },
               undefined,
               'core/reset',
             ),
           loadSave: (state) =>
-            set((s) => ({ ...pickSaved(state), celebrations: [], welcomeBack: null, toasts: [], activeSighting: null, mapEvent: null, petReaction: null, eventEpoch: s.eventEpoch + 1 }), undefined, 'core/loadSave'),
+            // with a store present its own record of purchases wins over the loaded save's (1.95)
+            set((s) => ({ ...pickSaved(state), entitlements: s.storeActive ? s.entitlements : (state.entitlements ?? s.entitlements), celebrations: [], welcomeBack: null, toasts: [], activeSighting: null, mapEvent: null, petReaction: null, eventEpoch: s.eventEpoch + 1 }), undefined, 'core/loadSave'),
           dismissWelcomeBack: () => set({ welcomeBack: null }, undefined, 'core/dismissWelcomeBack'),
         };
       },

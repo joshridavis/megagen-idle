@@ -60,6 +60,8 @@ export interface SimOptions {
   stopAtCompletion: boolean;
   /** Seed for contract offers (the run stays deterministic). */
   seed: number;
+  /** Changes to the starting save, for example purchases (1.95: tests compare runs with and without them). */
+  start?: Partial<GameState>;
 }
 
 export const DEFAULT_SIM: SimOptions = { hours: 1000, stepSeconds: 60, lateStepSeconds: 300, lateFromHours: 30, clicksPerSecond: 2, clickMinutes: 10, stopAtCompletion: true, seed: 1 };
@@ -427,7 +429,7 @@ function chaseGeneratorCount(s: GameState, unlocked: ReturnType<typeof getUnlock
 /** Runs the deterministic greedy player and records milestones. */
 export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = STALL_HOURS): SimResult {
   const o = { ...DEFAULT_SIM, ...opts };
-  let s = createInitialState(T0);
+  let s: GameState = { ...createInitialState(T0), ...o.start };
   let t = T0;
   const rng = seededRng(o.seed);
   const milestones: Milestone[] = [];

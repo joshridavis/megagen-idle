@@ -9,6 +9,7 @@ import ProgressBar from './ProgressBar';
 import ResearchNode, { NODE_H, NODE_W } from './ResearchNode';
 import ResearchPanel from './ResearchPanel';
 import { getNodeStatus } from './researchStatus';
+import { FullGamePanel } from './Purchases';
 
 const GAP_X = 56;
 const GAP_Y = 20;
@@ -71,6 +72,7 @@ export default function ResearchTree({ openRequest = null, onRequestHandled }: {
 
   return (
     <section aria-label="Research" className="w-full">
+      <FullGamePanel />
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="panel-title">Research</h2>
         <span className="text-right text-sm">

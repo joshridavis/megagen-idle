@@ -1,7 +1,7 @@
 {
   "name": "megagen-idle",
   "private": true,
-  "version": "0.30.0",
+  "version": "0.31.0",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -17,7 +17,11 @@
     "notices": "node scripts/third-party-notices.mjs",
     "test:e2e": "playwright test",
     "simulate": "tsx scripts/simulate.ts",
-    "brand": "node scripts/generate-brand.mjs"
+    "brand": "node scripts/generate-brand.mjs",
+    "desktop:compile": "tsc -p electron/tsconfig.json && node scripts/desktop-compile.mjs",
+    "desktop:web": "vite build --base=/ --outDir dist-desktop --emptyOutDir",
+    "desktop:dev": "npm run desktop:web && npm run desktop:compile && electron .",
+    "desktop:build": "npm run desktop:web && npm run desktop:compile && electron-builder --win --publish never"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
@@ -36,12 +40,16 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/coverage-v8": "^5.0.3",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
     "jsdom": "^29.1.1",
     "pngjs": "^7.0.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.2",
-    "vitest": "^5.0.3"
-  }
+    "vitest": "^5.0.3",
+    "yaml": "^2.9.1"
+  },
+  "main": "dist-electron/main.js"
 }

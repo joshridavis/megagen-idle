@@ -175,6 +175,21 @@ export interface AchievementsState {
   stats: PlayStats;
 }
 
+/** What the player bought (1.95). Saved with the game, and re-checked with the store on start. */
+export interface Entitlements {
+  fullGame: boolean;
+  supporter: boolean;
+}
+
+export interface PurchasesState {
+  entitlements: Entitlements;
+  /**
+   * Whether a real or test store is present (not saved). Without one (the web
+   * build today) the whole game is open, so the free boundary never applies.
+   */
+  storeActive?: boolean;
+}
+
 export type GameState = EnergyState &
   ResourceState &
   GeneratorState &
@@ -184,4 +199,5 @@ export type GameState = EnergyState &
   EventsState &
   ContractsState &
   PetsState &
-  AchievementsState;
+  AchievementsState &
+  PurchasesState;

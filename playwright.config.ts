@@ -11,7 +11,8 @@ export default defineConfig({
   retries: 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
-    baseURL: `http://localhost:${PORT}/megagen-idle/`,
+    // the game lives at /play/ since the landing page took the site root (1.94)
+    baseURL: `http://localhost:${PORT}/megagen-idle/play/`,
     ...devices['Desktop Chrome'],
     launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
   },

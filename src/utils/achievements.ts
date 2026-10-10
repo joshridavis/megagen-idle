@@ -1,8 +1,9 @@
-import { ACCENTS, ACHIEVEMENTS, OLD_ACCENT_IDS, type AccentId, type AchievementDef, type AchievementMetric } from '../data/achievements';
+import { ACCENTS, ACHIEVEMENTS, OLD_ACCENT_IDS, TITLE_TIERS, type AccentId, type AchievementDef, type AchievementMetric } from '../data/achievements';
 import { EVENTS_BY_ID } from '../data/events';
 import { GENERATORS, GENERATOR_TYPES, UPGRADES } from '../data/generators';
 import { PETS } from '../data/pets';
 import { PRODUCER_IDS } from '../data/producers';
+import { SUPPORTER_ACCENT, SUPPORTER_TITLE } from '../data/purchases';
 import type { GameState } from '../types/state';
 import { kindsBought, totalBought } from './decorations';
 import { getPlayerLevel } from './playerLevel';
@@ -77,14 +78,20 @@ export function unlockAchievements<T extends S & Pick<GameState, 'achievements'>
 /** Number of achievements unlocked. */
 export const unlockedCount = (s: Pick<GameState, 'achievements'>) => ACHIEVEMENTS.filter((d) => s.achievements?.[d.id] !== undefined).length;
 
-/** A title can be shown once its achievement is unlocked (null means no title). */
-export function canUseTitle(s: Pick<GameState, 'achievements'>, id: string | null): boolean {
+type Cos = Pick<GameState, 'achievements'> & Partial<Pick<GameState, 'entitlements'>>;
+/** An accent id, including the Supporter Pack's (1.95). */
+export type AnyAccentId = AccentId | typeof SUPPORTER_ACCENT.id;
+
+/** A title can be shown once its achievement is unlocked (null means no title); the Supporter title with the Supporter Pack (1.95). */
+export function canUseTitle(s: Cos, id: string | null): boolean {
   if (id === null) return true;
+  if (id === SUPPORTER_TITLE.id) return !!s.entitlements?.supporter;
   return !!ACHIEVEMENTS.find((d) => d.id === id && d.title) && s.achievements?.[id] !== undefined;
 }
 
-/** An accent color can be used once enough achievements are unlocked. */
-export function canUseAccent(s: Pick<GameState, 'achievements'>, id: string): boolean {
+/** An accent color can be used once enough achievements are unlocked; the Supporter accent with the Supporter Pack (1.95). */
+export function canUseAccent(s: Cos, id: string): boolean {
+  if (id === SUPPORTER_ACCENT.id) return !!s.entitlements?.supporter;
   const accent = ACCENTS.find((x) => x.id === id);
   return !!accent && unlockedCount(s) >= accent.need;
 }
@@ -94,9 +101,24 @@ export function canUseAccent(s: Pick<GameState, 'achievements'>, id: string): bo
  * color; an id that no longer exists, or is not unlocked, falls back to the
  * highest accent the save has unlocked.
  */
-export function resolveAccent(s: Pick<GameState, 'achievements'>, id: string | undefined): AccentId {
+export function resolveAccent(s: Cos, id: string | undefined): AnyAccentId {
   const mapped = id === undefined ? undefined : (OLD_ACCENT_IDS[id] ?? id);
-  if (mapped !== undefined && canUseAccent(s, mapped)) return mapped as AccentId;
+  if (mapped !== undefined && canUseAccent(s, mapped)) return mapped as AnyAccentId;
   const open = ACCENTS.filter((x) => canUseAccent(s, x.id));
   return open[open.length - 1].id;
+}
+
+/** Name and color of an accent id, the Supporter one included (unknown ids show as the first accent). */
+export function accentInfo(id: string | undefined): { id: string; name: string; color: string } {
+  if (id === SUPPORTER_ACCENT.id) return SUPPORTER_ACCENT;
+  return ACCENTS.find((x) => x.id === id) ?? ACCENTS[0];
+}
+
+/** Name, color and tier name of a title id, the Supporter one included; null for no title or an unknown id. */
+export function titleInfo(id: string | null | undefined): { name: string; color: string; tierId: string; tierName: string } | null {
+  if (!id) return null;
+  if (id === SUPPORTER_TITLE.id) return { name: SUPPORTER_TITLE.name, color: SUPPORTER_TITLE.color, tierId: 'supporter', tierName: 'Supporter' };
+  const a = ACHIEVEMENTS.find((d) => d.id === id && d.title);
+  const tier = TITLE_TIERS.find((t) => t.id === a?.tier);
+  return a && tier ? { name: a.name, color: tier.color, tierId: tier.id, tierName: tier.name } : null;
 }

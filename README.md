@@ -2,20 +2,20 @@
 
 An idle/incremental game about generating energy. You start with almost nothing and clumsy, inefficient methods, then reinvest energy into resources, research, room and better machines: from solar panels up to nuclear fission and a few fictional methods. Machines keep producing while the game is closed.
 
-**Play it:** https://joshridavis.github.io/megagen-idle/ (live once the repo's Pages source is set to "GitHub Actions"; see `GETTING_STARTED.md`, step 5). Until then the deploy workflow skips publishing with a warning instead of failing; after enabling Pages, re-run it from Actions → Deploy to GitHub Pages → Run workflow, or push to `main`.
+**Play it:** https://joshridavis.github.io/megagen-idle/play/ (the landing page with **Play now** is at https://joshridavis.github.io/megagen-idle/; both move to megagenidle.com when the owner switches the domain, `docs/PUBLIC_RELEASE.md` section 9c; live once the repo's Pages source is set to "GitHub Actions"; see `GETTING_STARTED.md`, step 5). Until then the deploy workflow skips publishing with a warning instead of failing; after enabling Pages, re-run it from Actions → Deploy to GitHub Pages → Run workflow, or push to `main`.
 
 ## Run locally
 
 1. Install **Node.js 20 or newer** (nodejs.org).
 2. In the repo folder run `npm install`, then `npm run dev`.
-3. Open the `http://localhost:5173` address it prints.
+3. Open the `http://localhost:5173` address it prints: the landing page. The game itself is at `http://localhost:5173/play/`.
 
 ## Other commands
 
 | Command | What it does |
 |---|---|
-| `npm run build` | Type-checks and builds the static site into `dist/` (served under `/megagen-idle/`). |
-| `npm run preview` | Serves the built `dist/` locally, at `http://localhost:4173/megagen-idle/`. |
+| `npm run build` | Type-checks and builds the static site into `dist/`: the landing page (`index.html`) at the root and the game (`play/index.html`) at `/play/`, served under `/megagen-idle/`. With the custom domain the deploy sets `SITE_BASE=/` and `SITE_URL=https://megagenidle.com/` (see `docs/PUBLIC_RELEASE.md`, section 9c). |
+| `npm run preview` | Serves the built `dist/` locally, at `http://localhost:4173/megagen-idle/` (game: `.../megagen-idle/play/`). |
 | `npm test` | Runs the Vitest unit tests once. |
 | `npm run test:coverage` | Runs the unit tests with a coverage report (HTML in `coverage/`); fails if the game rules in `src/utils/` drop below 80% lines, statements, functions or branches. CI runs this. |
 | `npm run test:e2e` | Builds the game and runs the Playwright browser smoke test against it. First run `npx playwright install chromium` (or set `PW_CHROMIUM_PATH` to an existing Chromium). |
@@ -47,6 +47,22 @@ Every sprite is a generated placeholder. To use real art, save your PNG at the s
 ## Versions
 
 The game shows its release version (from `package.json`) at the bottom of the screen. The minor version goes up with each playtest release (`0.5.0`, `0.6.0`, ...).
+
+## Desktop app (Windows, for Steam)
+
+The same game in an Electron window (`electron/`), loaded from local files so it works offline, with the save in a file in the user data folder (`%APPDATA%\MegaGen Idle\saves` on Windows) instead of browser storage.
+
+| Command | What it does |
+|---|---|
+| `npm run desktop:dev` | Builds the game for the desktop and opens it in Electron (needs a desktop session; not in the cloud sandbox). |
+| `npm run desktop:build` | Builds the Windows installer and the plain folder for Steam's depot into `release/` with electron-builder. |
+| `npm run desktop:web` / `npm run desktop:compile` | The two halves: the game build in `dist-desktop/`, and `electron/*.ts` compiled to `dist-electron/`. |
+
+The **Desktop build (Windows)** workflow (`.github/workflows/desktop.yml`) runs `desktop:build` on `windows-latest` for every `v*` tag and on manual runs (Actions → Desktop build (Windows) → Run workflow), and uploads the installer and the Steam folder as artifacts. Code signing is optional: add the repository secrets `WIN_CSC_LINK` (the `.pfx` certificate as base64) and `WIN_CSC_KEY_PASSWORD`, and the next build is signed.
+
+## Purchases
+
+The business model: a free part, a one-time **Full Game** unlock and a cosmetic **Supporter Pack**; never pay-to-win, no ads, no premium currency. Where the free part ends is one constant, `FREE_MAX_RESEARCH_LEVEL` in `src/data/purchases.ts`. The web build has no store, so the whole game is open there. To try purchases locally, run `npm run dev`, open Settings and tick **Developer: test store** (development builds only; purchases are free and stay in that browser).
 
 ## Saves
 

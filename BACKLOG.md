@@ -24,10 +24,12 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold (owner, 2026-10-10, after playtest 30): do not develop new backlog items until the owner says so.** When the hold lifts, 1.99 and 2.00 come first (Claude's placement; the owner can move them), then the launch items 1.94 to 1.98.
+**Hold lifted (owner, 2026-10-10):** the owner asked to continue from the order of work. The run goes on with 1.99 and 2.00, then the launch items 1.94 to 1.98 toward checkpoint 31.
 
-0. 1.99 Fix: the sprite shadows from 1.48 cannot be seen on the map (owner report, playtest 30)
-0. 2.00 Shadows for the flying sightings and the pets (owner request, playtest 30)
+~~On hold (owner, 2026-10-10, after playtest 30): do not develop new backlog items until the owner says so.~~
+
+0. 1.99 Fix: the sprite shadows from 1.48 cannot be seen on the map (owner report, playtest 30; Done)
+0. 2.00 Shadows for the flying sightings and the pets (owner request, playtest 30; Done)
 
 **Hold lifted (owner, 2026-10-09, after hotfix 28.1):** the owner confirmed the run continues from the order of work: 1.80, 1.81, 1.55, 1.54 and 1.51 toward checkpoint 29.
 
@@ -124,12 +126,12 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 **Launch work (Claude's placement after checkpoint 30, CLAUDE.md "Writing new backlog items": launch work first until March 11, 2027; the owner can move them):**
 
-0. 1.94 megagenidle.com: landing page and custom domain
-0. 1.95 Full Game unlock and Supporter Pack: purchases framework (needs an owner decision on where the free part ends; a proposal is in the item)
-0. 1.96 Desktop app with Electron, packaged for Windows in GitHub Actions
+0. 1.94 megagenidle.com: landing page and custom domain (Done in code; the DNS and Pages domain switch is the owner's step)
+0. 1.95 Full Game unlock and Supporter Pack: purchases framework (Done; the free boundary is the proposal until the owner decides)
+0. 1.96 Desktop app with Electron, packaged for Windows in GitHub Actions (Done) → CHECKPOINT 31 (5 items since checkpoint 30: 1.99, 2.00, 1.94, 1.95, 1.96)
 0. 1.97 Mobile apps with Capacitor for Android and iOS, built by Codemagic
-0. 1.98 Steam: achievements, the Full Game purchase and an upload workflow → CHECKPOINT 31
-0. (then 0.44, 0.45, 0.47 and the rest of the order below)
+0. 1.98 Steam: achievements, the Full Game purchase and an upload workflow
+0. 1.97 and 1.98 come next, then 0.44, 0.45, 0.47 and the rest of the order below
 
 **Launch priority (owner decision, 2026-10-03):** these come first, in this order. Items already `Done` are skipped, so the first open item is 0.41.
 
@@ -1409,7 +1411,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** `src/components/CompletionPanel.tsx`: every sighting row shows its rarity after the name (found: "Aurora Rare ×3"; unfound: "??? Rare"), colored by `rarityColor` in `src/data/events.ts`, which takes the title tier of the same name. Names wrap on a phone. Tests in `src/components/SightingRarity.test.tsx` (text, color and 4.5:1 contrast on the row).
 
-### 1.99 — Fix: the sprite shadows from 1.48 cannot be seen on the map — CODE — Not started
+### 1.99 — Fix: the sprite shadows from 1.48 cannot be seen on the map — CODE — Done
 **Goal:** owner report, playtest 30: "I don't see any shadows." The 1.48 shadows are a 35% ink silhouette offset 2 px (1 px on 16 px sprites). The map draws machines smaller than their sprites (a 64 px sprite in a block about 48 px wide) on dark tiles, so the shadow is under 2 screen pixels of faint dark on dark and disappears.
 **Details:**
 - Make the shadows clearly visible at map size on every terrain, including the darkest (coal field, oil field, exclusion): a larger offset (about 4 px on 48 and 64 px sprites, 2 px on 16 px ones), a stronger alpha (about 50 to 60%), and a ground shadow under each machine's base (a flat dark ellipse) so machines that fill their whole picture (Hydro Dam, Tidal Station) also show one.
@@ -1417,7 +1419,13 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Check by screenshot of the real map (a big base on several terrains), not only the sprite sheet, before and after at map size.
 **Acceptance:** a Playwright screenshot of the map with machines on the darkest and lightest terrain in the PR; a unit test that a shadowed sprite has shadow pixels at the new offset and alpha; `npm run check:assets`, the build and all tests pass.
 
-### 2.00 — Shadows for the flying sightings and the pets — CODE — Not started
+**Notes:**
+- **Why they vanished:** most machine sprites fill 95 to 100% of their canvas (Hydro Dam, Tidal Station, Nuclear, Oil all reach the edges), so a shadow drawn inside the sprite was clipped to almost nothing, and what was left was 35% ink.
+- **Sprite shadow:** `withShadow` in `scripts/generate-generic-assets.mjs` now uses `GROUND_SHADOW_ALPHA` 150 (59% ink) at `groundShadowOffset` 4 px on 48 px and larger sprites, 3 px on 32 px, 2 px on 16 px; things in the air (birds, map star) `AIR_SHADOW_ALPHA` 110, one pixel further. All generic sprites regenerated with `--force`, store images with `npm run brand`.
+- **Ground shadow (deviation: drawn by the map, not baked into the sprite):** a flat ink ellipse at 60% opacity under every machine's base, a little right of center, in `src/components/MachineSprite.tsx`. It is an SVG in the sprite's own pixels that may spill past the picture, which a sprite cannot do, so full-canvas machines show one too. It also works unchanged for real art the owner adds later. Never animated.
+- **Screenshots** (dev map with every type built, before and after, and a 3× zoom on the dark rock and blue tiles): `docs/screenshots/shadows-1.99-before.png`, `shadows-1.99-after.png`, `shadows-1.99-zoom.png`. Tests in `src/assets/shadows.test.ts` and `src/components/GroundShadow.test.tsx`.
+
+### 2.00 — Shadows for the flying sightings and the pets — CODE — Done
 **Goal:** owner request, playtest 30: flying sightings (UFO, balloon and the others) and the pets should have shadows too.
 **Details:**
 - Sightings that fly (spaceship, UFO, balloon, hot-air balloon, paper plane, birds, comet, meteor, drone, whale in the sky): a soft shadow, either in the sprite (generator script) or as a CSS shadow layer under the moving sprite, whichever reads better at screen size; it follows the sprite as it moves. The walking cat has a ground shadow like the pets.
@@ -1425,7 +1433,13 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Visible on the game's dark background, same strength as 1.99. Reduce motion changes nothing here.
 **Acceptance:** screenshots in the PR; tests that the sightings and walking pets render their shadow (and the jumping pet's shadow stays on the ground); the build and all tests pass.
 
-### 1.94 — megagenidle.com: landing page and custom domain — CODE — Not started
+**Notes:**
+- **Sightings in the air** (spaceship, UFO, balloon, hot-air balloon, paper plane, comet, drone, whale, every falling meteor): a CSS drop shadow (`.air-shadow` in `src/index.css`, black at 70%, 6 px right and 10 px down) on the moving element, so it follows the sprite's own outline as it flies, turns or shrinks. The gulls keep the shadow drawn into their sprite (1.48, stronger since 1.99) so they do not get two. The walking cat has a ground shadow like the pets.
+- **Pets:** a flat black ellipse at 65% (`.ground-shadow`) under every pet in the Pets tab and under each walking pet. It is a direct child of the pet, outside the part that jumps and turns, so it stays on the ground; while the pet is up (jump, the click hop, celebrate, happy, cheer) it shrinks and fades in step (`petShadowPose` in `src/components/PetWalkers.tsx`). Walking pets stand on the screen edge, so their shadow sits inside it. With Reduce motion the shadows still show and only their shrink stops.
+- **Limit:** a shadow is darker than what it falls on, so over the plain page background (already near black) it is faint; over panels, cards, the logo and the map it reads clearly. Black instead of the palette's ink was used for that reason.
+- **Screenshots:** `docs/screenshots/shadows-2.00-pets-tab.png`, `shadows-2.00-balloon.png`, `shadows-2.00-walking-pets.png`. Tests in `src/components/AirShadows.test.tsx`.
+
+### 1.94 — megagenidle.com: landing page and custom domain — CODE — Done
 **Goal:** launch work (March 11, 2027): the public website megagenidle.com, with a landing page and the game.
 **Details:**
 - A landing page at the site root (a second Vite page, `site/index.html`, sharing the AAP-64 theme): the logo (1.50), the key scene (`src/assets/brand/key_scene.png`), a short pitch, a **Play now** button that opens the game, "Coming March 11, 2027 to Steam, Google Play and the App Store" with store links read from one data file (`src/data/stores.ts`, empty until the owner has the pages), and links to the privacy page and credits.
@@ -1434,7 +1448,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Owner step:** point the domain's DNS at GitHub Pages and set the custom domain in the repository's Pages settings (steps in `docs/PUBLIC_RELEASE.md`).
 **Acceptance:** Playwright: the landing page loads, "Play now" reaches the game, the game still loads and saves at its new path; the build and all tests pass.
 
-### 1.95 — Full Game unlock and Supporter Pack: purchases framework — CODE — Not started
+**Notes:**
+- **Pages (deviation in file names):** the landing page is the root `index.html` and the game moved to `play/index.html`, two inputs in `vite.config.ts`, so the landing page is served at the site root without a post-build move (a `site/index.html` would have been served at `/site/`). The landing script and styles are in `src/site/` (`landing.ts`, `main.ts`, `site.css`, which uses Tailwind and the game's dark background and AAP-64 accents). Pictures come from the `sprites` object and the brand key scene, not hard-coded paths.
+- **Content:** the logo, a short pitch, **Play now** (to `play/`), "No ads, no premium currency, never pay-to-win" (no "free to play" claim until 1.95 settles the free part), the key scene, "Coming March 11, 2027 to Steam, Google Play and the App Store" (it says "Out now on …" from launch day), the store links from `src/data/stores.ts` (each shows "coming soon" while its `url` is empty), credits from `src/data/credits.ts`, the privacy page and the version.
+- **Base:** stays `/megagen-idle/` by default so the github.io preview keeps working; the deploy workflow reads the repository variables `SITE_BASE` and `SITE_URL` (empty now; `/` and `https://megagenidle.com/` after the switch). `public/CNAME` holds `megagenidle.com`.
+- **Sharing:** description, Open Graph and Twitter tags; the key scene is emitted as `og-image.png` at a fixed name so `og:image` can be an absolute URL. The logo icon is the favicon.
+- **Saves:** the game's save is per web address (origin), so moving it to `/play/` keeps every save. The Supabase Site URL and Redirect URLs need `/play/` added (section 9 of `docs/PUBLIC_RELEASE.md` updated).
+- **Owner step:** DNS records, the Pages custom domain, Enforce HTTPS, the two variables and a re-run of the deploy: `docs/PUBLIC_RELEASE.md` section 9c. README and GETTING_STARTED updated (game at `/play/`).
+- **Tests:** `e2e/site.spec.ts` (landing loads, Play now reaches the game, it saves and reloads at `/play/`, 375 px phone without sideways scroll, `og-image.png` is served); `src/site/landing.test.ts`. The other Playwright tests now run against `/play/` and all pass.
+
+### 1.95 — Full Game unlock and Supporter Pack: purchases framework — CODE — Done
 **Goal:** launch work: the business model in `CLAUDE.md`: a free part, a one-time "Full Game" unlock and a cosmetic "Supporter Pack". Never pay-to-win, no ads, no premium currency.
 **Details:**
 - A `purchases` part of the platform layer (`src/platform/`): `products()`, `buy(id)`, `restore()`, `owned()`. The web version uses a test implementation behind a dev-only switch; stores plug in their own later (Steam in 1.98, Google Play and the App Store in 1.97).
@@ -1444,7 +1467,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Tests: entitlements persist and migrate, the free boundary blocks only what it should, the Supporter Pack changes no game number (compare a simulated run with and without it).
 **Acceptance:** the framework, the free boundary and the Supporter Pack cosmetics work in the web build with the test store; `npm run simulate` is unchanged for a Full Game player; the build and all tests pass.
 
-### 1.96 — Desktop app with Electron, packaged for Windows in GitHub Actions — CODE — Not started
+**Notes:**
+- **Platform:** `src/platform/purchases.ts`: a `PurchaseStore` with `products()`, `buy(id)`, `restore()` and `owned()`, on `platform.purchases`. Two implementations: `noStore` (the web build: nothing to buy) and `createTestStore` (development only, behind Settings → "Developer: test store", which sets a `localStorage` switch and reloads; purchases are free and stay in that browser). Steam (1.98) and the mobile stores (1.97) add their own.
+- **Free boundary (owner decision still open):** one constant, `FREE_MAX_RESEARCH_LEVEL = 9` in `src/data/purchases.ts`: every research that needs research level 9 or lower is free (up to and including the Natural Gas Plant and the Oil Rig); research that needs more returns the new block `fullGame` (`getResearchBlock`). Only research is gated, as every later machine comes from research. Nothing built or researched stops working; offline gains go on.
+- **Only with a store:** the boundary applies only when a store is present (`storeActive`, not saved). The web build has none, so the playtest site stays fully open as before; the test store in development, and later the store builds, turn it on.
+- **Entitlements:** `entitlements: { fullGame, supporter }` saved with the game (save version 24; older saves own nothing). On start (`initPurchases`, called from `src/main.tsx` after the save loads) the store's `restore()` replaces the saved value, so a copied or edited save unlocks nothing; if the store cannot be reached, the saved value is kept until the next start. A reset keeps purchases; loading a save keeps the store's record.
+- **The panel:** at the boundary, a calm note above the research tree ("You have reached the end of the free part", buy and restore; `src/components/Purchases.tsx`), never a pop-up. Settings → Purchases lists both products with buy and restore where a store exists. The research details say "Part of the Full Game".
+- **Supporter Pack (cosmetic only):** the Supporter title and accent (AAP-64 mint `#a6fcdb`, 4.5:1 on the top bar) in the Achievements tab, and a thank-you line in Settings → Credits. A test runs the balance simulator for 40 hours with and without the pack (title and accent chosen) and gets the same result; a Full Game player with a store matches the web run, and `npm run simulate` is unchanged.
+- **Owner questions:** where the free part ends (the constant), the prices (set in each store), and whether the web version stays fully free after launch or sells the Full Game too (a web payment provider would be a new item). Screenshot: `docs/screenshots/full-game-panel-1.95.png`.
+
+### 1.96 — Desktop app with Electron, packaged for Windows in GitHub Actions — CODE — Done
 **Goal:** launch work: a Windows desktop build for Steam.
 **Details:**
 - `electron/main.ts` and a preload script that loads the Vite build from local files (works offline), one window with a sensible minimum size, no menu bar, links opening in the system browser.
@@ -1452,6 +1484,13 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - npm scripts `desktop:dev` and `desktop:build` (electron-builder, Windows NSIS and a portable folder for Steam's depot); `README.md` updated.
 - A GitHub Actions workflow on `windows-latest` builds the app on tags and on manual runs and uploads it as an artifact. Code signing is optional: it reads `WIN_CSC_LINK` and `WIN_CSC_KEY_PASSWORD` from GitHub secrets when the owner adds them.
 **Acceptance:** the workflow file validates; unit tests for the desktop platform layer with a fake Electron bridge; the web build is unchanged; the build and all tests pass.
+
+**Notes:**
+- **Electron (`electron/`):** `main.ts` serves the game build from `dist-desktop/` over a private `app://megagen/` scheme (offline, absolute paths work, and the save origin never changes), one window (1280×860, at least 800×600), no menu bar, a single instance, links to the system browser (only `http(s)` and `mailto`). `preload.ts` exposes `window.megagenDesktop` (sandboxed, context isolation, no Node in the page). Pure helpers in `files.ts` (allowed save keys, file names, which file an address serves) are unit-tested.
+- **`src/platform/desktop.ts`:** background on minimize and foreground on restore (so offline gains and the welcome-back summary work as on the web), `openExternal` through the bridge, notifications as on the web, no store yet (Steam in 1.98), and `saveKV`: the save in files in the user data folder (`saves/<key>.json`, written to a temp file then renamed), with a one-time copy of the browser save when no file exists yet. `src/platform/index.ts` picks it when the bridge is present; `src/store/storage.ts` uses `platform.saveKV` when set, so the web build is unchanged.
+- **Scripts:** `desktop:web` (the game built with base `/` into `dist-desktop/`), `desktop:compile` (tsc to CommonJS in `dist-electron/`), `desktop:dev` and `desktop:build` (electron-builder: NSIS installer and the unpacked folder for Steam's depot, `electron-builder.yml`; no npm packages are shipped, the app is 1.2 MB plus Electron). README updated.
+- **Workflow:** `.github/workflows/desktop.yml` on `windows-latest`, on `v*` tags and manual runs; tests, builds, uploads both artifacts. Signing reads `WIN_CSC_LINK` and `WIN_CSC_KEY_PASSWORD` (**owner step**, optional). CI and the Pages deploy skip the Electron download (`ELECTRON_SKIP_BINARY_DOWNLOAD`).
+- **Checked here:** a Linux package built with the same config ran under a virtual display with Playwright's Electron driver: the game loaded at `app://megagen/play/`, the bridge was present, the save was written to files and came back after a restart (`docs/screenshots/desktop-1.96.png`). Tests: `src/platform/desktop.test.ts` (fake bridge), `electron/files.test.ts`, `src/data/workflows.test.ts` (every workflow parses; the desktop one's triggers, runner and secrets). Electron added to the in-game credits.
 
 ### 1.97 — Mobile apps with Capacitor for Android and iOS, built by Codemagic — CODE — Not started
 **Goal:** launch work: Google Play and App Store builds made in the cloud.
@@ -2138,3 +2177,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 29 (answers) | 1.80, 1.81, 1.55, 1.54, 1.51 | 2026-10-10 | The owner asked to continue from the order of work: 1.50, 1.49, 1.48, 0.42 and 0.18 toward checkpoint 30. | |
 | 30 (v0.30.0) | 1.50, 1.49, 1.48, 0.42, 0.18 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; last room expansion (13) at 496.9 h. Owner feedback during the run: center "Idle" under "MegaGen" in the logo (done). Waiting for feedback. | |
 | 30 (answers) | 1.50, 1.49, 1.48, 0.42, 0.18 | 2026-10-10 | Logo clear and the right size on computer and phone; keep its size. Loading screen text and bar are good. The game is smooth and the Map tab is fast. Shadows: the owner sees none (1.48 is merged but too faint at map size); wants them on the flying sightings and the pets too. Do not develop new backlog items until the owner says so. | 1.99, 2.00 |
+| 31 (v0.31.0) | 1.99, 2.00, 1.94, 1.95, 1.96 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; last room expansion (13) at 496.9 h. The proposed free part ends later than its estimate: the first research past research level 9 (Oil Refining) is done at 58.4 h. Owner decisions asked: where the free part ends, prices, whether the website sells the Full Game, desktop platforms. Waiting for feedback. | |

@@ -349,6 +349,24 @@ body {
   }
 }
 
+/* Shadows for flying sightings and pets (2.00), the same strength as the map's (1.99).
+   Things in the air: a drop shadow that follows the sprite. Things on the ground: a flat
+   ink ellipse under the feet that stays on the ground and shrinks while the pet is up. */
+.air-shadow { filter: drop-shadow(6px 10px 1px rgba(0, 0, 0, 0.7)); }
+.ground-shadow {
+  position: absolute; left: 14%; right: 6%; bottom: -4%; height: 16%;
+  border-radius: 50%; background: rgba(0, 0, 0, 0.65); pointer-events: none;
+}
+@keyframes pet-shadow-hop { 0%, 30%, 60%, 100% { transform: scale(1); opacity: 1; } 15% { transform: scale(0.75); opacity: 0.7; } 45% { transform: scale(0.85); opacity: 0.8; } }
+.pet-shadow-hop { animation: pet-shadow-hop 2.5s ease-in-out; }
+@keyframes pet-shadow-jump { 0%, 60%, 100% { transform: scale(1); opacity: 1; } 25% { transform: scale(0.7); opacity: 0.65; } }
+.pet-shadow-jump { animation: pet-shadow-jump 1.2s ease-out infinite; }
+@keyframes pet-shadow-celebrate { 0%, 50%, 100% { transform: scale(1); opacity: 1; } 20% { transform: scale(0.7); opacity: 0.65; } 35% { transform: scale(0.85); opacity: 0.8; } }
+.pet-shadow-celebrate { animation: pet-shadow-celebrate 0.9s ease-out infinite; }
+@keyframes pet-shadow-happy { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.85); opacity: 0.8; } }
+.pet-shadow-happy { animation: pet-shadow-happy 0.7s ease-in-out infinite; }
+.pet-shadow-cheer { animation: pet-shadow-happy 0.45s ease-in-out infinite; }
+
 /* Pet reaction when clicked (0.99). */
 @keyframes pet-hop {
   0%, 100% { transform: translateY(0) rotate(0); }
@@ -443,6 +461,7 @@ body {
 @keyframes pet-scared { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
 .pet-reaction-scared { animation: pet-scared 0.25s linear infinite; }
 @media (prefers-reduced-motion: reduce) {
+  .pet-shadow-hop, .pet-shadow-jump, .pet-shadow-celebrate, .pet-shadow-happy, .pet-shadow-cheer,
   .pet-react, .pet-particle, .pet-growing, .pet-grow-old, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball, .pet-reaction-celebrate, .pet-reaction-look, .pet-reaction-happy, .pet-reaction-cheer, .pet-reaction-hide, .pet-reaction-scared { animation: none; }
   .pet-sparkle, .pet-grow-flash, .pet-grow-old { display: none; }
 }
@@ -510,7 +529,7 @@ html[data-reduce-motion] :is(.click-pop, .click-pop-down, .spark) {
   opacity: 0;
 }
 html[data-reduce-motion]
-  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .pet-growing, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball, .pet-reaction-celebrate, .pet-reaction-look, .pet-reaction-happy, .pet-reaction-cheer, .pet-reaction-hide, .pet-reaction-scared, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
+  :is(.pet-shadow-hop, .pet-shadow-jump, .pet-shadow-celebrate, .pet-shadow-happy, .pet-shadow-cheer, .appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .pet-growing, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball, .pet-reaction-celebrate, .pet-reaction-look, .pet-reaction-happy, .pet-reaction-cheer, .pet-reaction-hide, .pet-reaction-scared, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
   animation: none;
 }
 html[data-reduce-motion] :is(.pet-sparkle, .pet-grow-flash, .pet-grow-old) {

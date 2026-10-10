@@ -1,4 +1,5 @@
 import { sprites } from '../assets';
+import { selectPurchaseStore } from './purchases';
 import type { NotifyPermission, Platform } from './types';
 
 const hasNotifications = () => typeof window !== 'undefined' && 'Notification' in window;
@@ -38,4 +39,6 @@ export const webPlatform: Platform = {
       // some browsers (Android Chrome) only allow notifications from a service worker
     }
   },
+  // no store on the web yet; a test store in development when switched on (1.95)
+  purchases: selectPurchaseStore(),
 };

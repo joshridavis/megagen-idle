@@ -1,4 +1,54 @@
-# Playtest 30 (v0.30.0): a pixel logo, a loading screen, shadows on the sprites, a faster map, and more tests
+# Playtest 31 (v0.31.0): shadows you can see, a website, purchases (test store), and a desktop app
+
+The version at the bottom of the screen should read **v0.31.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/ (the new landing page) and click **Play now**, or go straight to the game at https://joshridavis.github.io/megagen-idle/play/. Your save carries over: it is the same web address.
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173 (landing page) or http://localhost:5173/play/ (the game).
+
+## Estimated play time
+
+- **100% completion: about 761.4 hours** (simulated with `npm run simulate`; unchanged, since nothing in this version changes balance), so roughly 4 to 5 weeks with the game closed most of the time.
+- Key times: first Natural Gas Plant 17.1 h, 25% at 11.4 h, 50% at 78.8 h, first Nuclear Fission Plant 143.1 h, 75% at 301.9 h, first Fusion Reactor 335.4 h, first Micro-Supernova 440.4 h, last room expansion (13) at 496.9 h, 100% at 761.4 h.
+- **Free part, as proposed (see Questions):** the first research past it (Oil Refining) is done at **58.4 h** in the simulation, not about 17 h as the proposal guessed before the slower pacing of 1.87.
+
+## What's new
+
+- **Shadows you can see (1.99):** the shadows from 1.48 were drawn inside each sprite's own picture, and most machines fill their picture, so almost nothing was left. Now every machine on the map has a dark ground shadow under its base that can reach past its picture (so the Hydro Dam and Tidal Station have one too), and the sprite shadows are stronger (59% instead of 35%) and further away (4 px instead of 2 px). Before and after: `docs/screenshots/shadows-1.99-before.png`, `shadows-1.99-after.png` and a close-up, `shadows-1.99-zoom.png`.
+- **Shadows on sightings and pets (2.00):** the UFO, spaceship, balloons, paper plane, comet, drone, whale and the falling meteors cast a shadow that follows them as they fly. The walking cat and every pet (in the Pets tab and walking at the bottom of the screen) have a shadow on the ground. It stays on the ground when a pet jumps or hops and shrinks a little while the pet is in the air. Screenshots: `docs/screenshots/shadows-2.00-*.png`.
+- **The website (1.94):** the site root is now a landing page: the logo, a short pitch, a big **Play now** button, the key scene, "Coming March 11, 2027 to Steam, Google Play and the App Store" (each store shows "coming soon" until you have its page), credits and the privacy page. The game moved to `/play/`. Link previews (for example on Discord) show the key scene. Everything is ready for megagenidle.com; the steps for you are in `docs/PUBLIC_RELEASE.md`, section 9c.
+- **Purchases (1.95), switched off on the website:** the code for the one-time **Full Game** and the cosmetic **Supporter Pack** is in. The website has no store, so for you nothing changes: the whole game stays open. In a development build there is a test store (Settings → "Developer: test store"); with it on, the end of the free part shows a calm note above the research tree (screenshot: `docs/screenshots/full-game-panel-1.95.png`), and the Supporter Pack adds the Supporter title and a mint accent color, and a thank-you in Settings → Credits. It changes no number in the game (a test checks this with the simulator).
+- **A desktop app (1.96):** the same game in its own window for Windows (and Steam later), built in the cloud by a new workflow (Actions → Desktop build (Windows) → Run workflow). It works offline and keeps the save in a file. I ran it here (Linux build of the same app): `docs/screenshots/desktop-1.96.png`.
+
+## Things to try
+
+1. Map tab with a big base: can you see a shadow under every machine now? Look on dark tiles (coal field, oil field, the Exclusion Zone) and on light ones (sand, ground).
+2. Wait for a UFO, balloon or comet sighting: does its shadow look right?
+3. Watch the walking pets: a shadow under each, staying on the ground when one jumps. Click one to make it hop.
+4. Pets tab: each pet has a shadow under it.
+5. Open the site root (https://joshridavis.github.io/megagen-idle/): read the landing page on a computer and a phone, then click **Play now**. Your save should be there.
+6. Paste the site link into a chat app that shows previews (Discord, WhatsApp): you should see the key scene.
+7. Optional, desktop: Actions → Desktop build (Windows) → Run workflow. When it is green, download the "megagen-idle-windows-installer" artifact, install it on Windows (it is unsigned, so Windows will warn) and play a bit. Close it and open it again: the game should continue.
+
+## Known issues
+
+- A shadow is darker than what it falls on, so over the plain dark page (outside the panels) a sighting's shadow is faint; over panels, the logo and the map it reads clearly.
+- The desktop app is unsigned until you add a code-signing certificate, so Windows SmartScreen warns when installing it.
+- The desktop app does not yet talk to Steam (achievements, purchases): that is item 1.98.
+
+## Questions
+
+1. Shadows: can you see them now? Too strong, too weak, or right?
+2. Landing page: is the pitch right? Anything to add (a trailer, screenshots, a mailing list)?
+3. **The free part (decision needed for 1.95):** the proposal is "all research up to research level 9" (up to the Natural Gas Plant and the Oil Rig). In the simulation the first research past it comes at about 58 hours of play. Is that the right place, or should the free part end earlier (for example at research level 6, around the Natural Gas Plant at 17 hours)?
+4. **Prices:** what should the Full Game and the Supporter Pack cost? They are set in each store, not in the game.
+5. **The website after launch:** should megagenidle.com stay fully free (as now), or sell the Full Game too? Selling on the web needs a payment provider and would be a new item.
+6. Do you want the desktop app on macOS and Linux for Steam too, or Windows only at launch?
+
+---
+
+# Previous: Playtest 30 (v0.30.0): a pixel logo, a loading screen, shadows on the sprites, a faster map, and more tests
 
 The version at the bottom of the screen should read **v0.30.0**.
 

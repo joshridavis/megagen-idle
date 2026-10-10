@@ -1,0 +1,42 @@
+name: Desktop build (Windows)
+
+# The Windows desktop app for Steam (1.96), built in the cloud on tags (v1.2.3)
+# and on manual runs. The result is uploaded as artifacts: the installer, and the
+# plain folder that Steam's depot uploads.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      # Code signing is optional. When the owner adds the WIN_CSC_LINK (the .pfx
+      # certificate, base64) and WIN_CSC_KEY_PASSWORD secrets, electron-builder
+      # signs the app; without them it builds unsigned.
+      - run: npm run desktop:build
+        env:
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: megagen-idle-windows-installer
+          path: release/*.exe
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: megagen-idle-windows-steam-depot
+          path: release/win-unpacked
+          if-no-files-found: error

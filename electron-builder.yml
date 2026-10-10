@@ -1,0 +1,31 @@
+# Desktop packaging (1.96): Windows, for Steam. Built in the cloud by
+# .github/workflows/desktop.yml; never needs a local machine.
+appId: com.megagenidle.game
+productName: MegaGen Idle
+copyright: Copyright © 2026 MegaGen Idle
+directories:
+  output: release
+  buildResources: electron
+files:
+  - dist-electron/**
+  - dist-desktop/**
+  - package.json
+  - "!**/*.map"
+  # the game is a static build: none of its npm packages are needed at run time
+  - "!node_modules/**"
+asar: true
+win:
+  icon: src/assets/brand/app_icon_1024.png
+  target:
+    # an installer for players outside Steam, and the plain folder Steam's depot uploads
+    - target: nsis
+      arch: [x64]
+    - target: dir
+      arch: [x64]
+  # signing is optional: electron-builder reads CSC_LINK and CSC_KEY_PASSWORD
+  # (set from the WIN_CSC_LINK and WIN_CSC_KEY_PASSWORD secrets in the workflow)
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  artifactName: MegaGen-Idle-Setup-${version}.${ext}

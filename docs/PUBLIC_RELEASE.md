@@ -112,8 +112,8 @@ About 15 minutes. Nothing here needs a credit card.
 2. When the project is ready, open **SQL Editor → New query**, paste all of `docs/supabase-schema.sql`, and click **Run**. It should say "Success. No rows returned".
 3. Open **Authentication → Sign In / Providers → Email** and make sure **Confirm email** is on.
 4. Open **Authentication → URL Configuration**:
-   - **Site URL:** `https://joshridavis.github.io/megagen-idle/`
-   - **Redirect URLs:** add the same address. Add `http://localhost:5173` too, for testing locally.
+   - **Site URL:** `https://joshridavis.github.io/megagen-idle/play/` (the game moved to `/play/` when the landing page took the site root, 1.94)
+   - **Redirect URLs:** add the same address. Add `http://localhost:5173/play/` too, for testing locally. After the switch to megagenidle.com (section 9c), add `https://megagenidle.com/play/` and make it the Site URL.
 5. Open **Project Settings → API** (or **Data API**) and copy the **Project URL**, which looks like `https://abcd1234.supabase.co` with nothing after `.co` (not the RESTful endpoint ending in `/rest/v1/`; the game now trims that anyway), and the **publishable** key (`sb_publishable_…`; older projects show an **anon public** key instead, which works the same). Do not copy the secret or `service_role` key.
 6. In GitHub, open the repository **Settings → Secrets and variables → Actions → Variables** tab, and click **New repository variable** twice:
    - `VITE_SUPABASE_URL` = the Project URL
@@ -155,6 +155,23 @@ You will need your Supabase **callback URL**. It is shown on each provider's pag
 2. Variables are read when the site is built, so rebuild it: **Actions → Deploy to GitHub Pages → Run workflow** (on `main`). The same applies whenever you change any of these variables.
 
 Players who sign in with Google or Discord choose a username the first time. Their email comes from the provider, and the cloud saves work the same.
+
+## 9c. The website megagenidle.com (owner, about 20 minutes plus DNS wait)
+
+The site is built for it already (1.94): a landing page at the root with **Play now**, the game at `/play/`, the privacy page at `/privacy.html`, and `public/CNAME` holding `megagenidle.com`. Until you switch, it all runs at `https://joshridavis.github.io/megagen-idle/` (game: `.../megagen-idle/play/`).
+
+1. At the company where you bought the domain, open its DNS settings and add:
+   - four **A** records for `megagenidle.com` (host `@`): `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`;
+   - optionally four **AAAA** records (host `@`): `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`;
+   - a **CNAME** record for `www` pointing to `joshridavis.github.io`.
+   (GitHub's current list: docs.github.com, "Managing a custom domain for your GitHub Pages site".)
+2. Optional but recommended: verify the domain for your GitHub account (**GitHub → Settings → Pages → Add a domain**), so nobody else can take it over.
+3. In the repository, **Settings → Pages → Custom domain**: type `megagenidle.com` and **Save**. When the DNS check passes (minutes to a day), tick **Enforce HTTPS**.
+4. **Settings → Secrets and variables → Actions → Variables**: add `SITE_BASE` = `/` and `SITE_URL` = `https://megagenidle.com/`. These are not secrets.
+5. Re-run **Actions → Deploy to GitHub Pages → Run workflow** on `main`. The site now builds for the domain root. The old github.io address forwards to the domain.
+6. In Supabase (if accounts are on), update the Site URL and Redirect URLs as in section 9, step 4.
+
+**Saves:** a browser keeps its save per web address. A player who played on the github.io address starts fresh on megagenidle.com unless they use cloud saves (Settings → Account) or export and import their save (Settings → Save). Moving the game from `/megagen-idle/` to `/megagen-idle/play/` keeps saves, as it is the same address.
 
 ## 10. Costs
 

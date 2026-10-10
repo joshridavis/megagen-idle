@@ -13,6 +13,9 @@ import { platform } from '../platform';
 import { cloudEnabled } from '../store/cloud';
 import AccountPanel from './AccountPanel';
 import NotificationSettings from './NotificationSettings';
+import { SUPPORTER_COLOR } from '../data/purchases';
+import { isSupporter } from '../utils/purchases';
+import { PurchasesSettings, TestStoreSwitch } from './Purchases';
 
 function CreditList({ items }: { items: Credit[] }) {
   return (
@@ -46,6 +49,7 @@ const NOTATIONS: { id: NumberNotation; label: string; example: string }[] = [
 
 /** Settings tab: number notation, save export/import, reset, and offline notes. No audio settings. */
 export default function SettingsPanel() {
+  const supporter = useStore((s) => isSupporter(s));
   const loadSave = useStore((s) => s.loadSave);
   const fmt = useNumberFormat();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -233,15 +237,23 @@ export default function SettingsPanel() {
         Generators, producers and research keep going while the game is closed, for up to{' '}
         <strong>{formatHours(MAX_OFFLINE_SECONDS)}</strong>. Research that finishes later still completes.
       </div>
+      <PurchasesSettings />
       <details className="panel text-sm text-slate-300" data-testid="credits">
         <summary className="cursor-pointer panel-title">Credits</summary>
         <p className="mt-2">MegaGen Idle. All sprites are drawn by the game's own script, using the AAP-64 palette.</p>
+        {supporter && (
+          // the Supporter Pack's thank-you (1.95)
+          <p className="mt-2 font-semibold" style={{ color: SUPPORTER_COLOR }} data-testid="supporter-thanks">
+            And thank you, Supporter, for helping MegaGen Idle grow.
+          </p>
+        )}
         <h3 className="mt-3 font-semibold text-slate-200">Art</h3>
         <CreditList items={ART_CREDITS} />
         <h3 className="mt-3 font-semibold text-slate-200">Open-source software</h3>
         <CreditList items={LIBRARY_CREDITS} />
         <p className="mt-2 text-xs text-slate-400">Full license texts: THIRD_PARTY_NOTICES.md in the game's repository.</p>
       </details>
+      <TestStoreSwitch />
       <div className="rounded-lg border border-red-900 bg-slate-800 p-4">
         <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-red-300">Reset</h2>
         <p className="mb-3 text-sm text-slate-300">Start over from the beginning. This deletes your progress in this browser.</p>

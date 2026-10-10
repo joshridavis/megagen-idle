@@ -83,7 +83,7 @@ npm install
 npm run dev
 ```
 
-4. Open the `http://localhost:5173` address it prints.
+4. Open the `http://localhost:5173` address it prints (the landing page; click **Play now**, or go straight to `http://localhost:5173/play/`).
 
 Press Ctrl+C in the terminal to stop. Run `git pull` to get the latest merged changes.
 

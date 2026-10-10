@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import pkg from './package.json';
 import { BOOT_TIMEOUT_MS } from './src/data/boot';
 
@@ -25,12 +26,38 @@ const bootLoader = {
 
 // GitHub Pages serves the site from /<repo-name>/ (git remote:
 // github.com/joshridavis/megagen-idle). `build` and `preview` use it;
-// dev and tests use the root.
-const PAGES_BASE = '/megagen-idle/';
+// dev and tests use the root. Once the custom domain megagenidle.com is on
+// (1.94, docs/PUBLIC_RELEASE.md), the deploy workflow sets SITE_BASE=/ and
+// SITE_URL=https://megagenidle.com/ from the repository's Actions variables.
+const PAGES_BASE = process.env.SITE_BASE || '/megagen-idle/';
+const SITE_URL = process.env.SITE_URL || 'https://joshridavis.github.io/megagen-idle/';
+const SITE_DESCRIPTION =
+  'MegaGen Idle: an idle game about generating energy. Build solar panels, dams and reactors, research better machines, and keep earning while you are away. Free in your browser.';
+
+// The landing page (1.94): sharing tags, the version, and the key scene at a
+// fixed name (og-image.png) so link previews can point at it.
+const landingPage = {
+  name: 'megagen-landing',
+  transformIndexHtml: (html: string) =>
+    html.replaceAll('%SITE_URL%', SITE_URL).replaceAll('%SITE_DESCRIPTION%', SITE_DESCRIPTION).replaceAll('%APP_VERSION%', pkg.version),
+  generateBundle(this: { emitFile: (f: { type: 'asset'; fileName: string; source: Buffer }) => void }) {
+    this.emitFile({ type: 'asset', fileName: 'og-image.png', source: readFileSync(new URL('./src/assets/brand/key_scene.png', import.meta.url)) });
+  },
+};
 
 export default defineConfig(({ command, isPreview }) => ({
   base: command === 'build' || isPreview ? PAGES_BASE : '/',
-  plugins: [bootLoader, react(), tailwindcss()],
+  plugins: [bootLoader, landingPage, react(), tailwindcss()],
+  build: {
+    // two pages: the landing page at the site root, the game at /play/ (1.94).
+    // The game's entry keeps the name "index", as before.
+    rollupOptions: {
+      input: {
+        site: fileURLToPath(new URL('./index.html', import.meta.url)),
+        index: fileURLToPath(new URL('./play/index.html', import.meta.url)),
+      },
+    },
+  },
   // Release version shown in the footer. Bump `version` in package.json in each playtest PR.
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
@@ -38,7 +65,7 @@ export default defineConfig(({ command, isPreview }) => ({
   },
   test: {
     environment: 'jsdom',
-    include: ['src/**/*.test.{ts,tsx}'],
+    include: ['src/**/*.test.{ts,tsx}', 'electron/**/*.test.ts'],
     // `npm run test:coverage` (0.18): the game rules in src/utils/ stay at 80% or more.
     coverage: {
       provider: 'v8',

@@ -6,6 +6,7 @@ import type { ResearchCost, ResearchDef } from '../types/research';
 import type { GameState } from '../types/state';
 import { getBonuses } from './bonuses';
 import { petResearchSpeed } from './pets';
+import { needsFullGame } from './purchases';
 import { canAfford, consumeResource } from './resourceSystem';
 
 /** Cost after the research cost reduction bonus (rounded up). */
@@ -23,7 +24,7 @@ export function getResearchDuration(def: ResearchDef, bonuses: Bonuses, petSpeed
   return def.duration / (1 + bonuses.researchSpeed + petSpeed);
 }
 
-export type ResearchBlock = 'unknown' | 'done' | 'busy' | 'prerequisites' | 'building' | 'level' | 'cost';
+export type ResearchBlock = 'unknown' | 'done' | 'busy' | 'prerequisites' | 'building' | 'fullGame' | 'level' | 'cost';
 
 /** Why research cannot start now, or null if it can. */
 export function getResearchBlock(state: GameState, id: string): ResearchBlock | null {
@@ -33,6 +34,8 @@ export function getResearchBlock(state: GameState, id: string): ResearchBlock | 
   if (state.currentResearch) return 'busy';
   if (!def.prerequisites.every((p) => state.completedResearch.includes(p))) return 'prerequisites';
   if (!(def.requiresBuilt ?? []).every((t) => state.activeGenerators.some((g) => g.type === t))) return 'building';
+  // past the free part (1.95): only with a store present and the Full Game not owned
+  if (needsFullGame(state, def)) return 'fullGame';
   if (state.researchLevel < def.requiredLevel) return 'level';
   const cost = getResearchCost(def, getBonuses(state.completedResearch));
   if (state.energy < cost.energy || !canAfford(state.resources, cost.resources ?? {})) return 'cost';
