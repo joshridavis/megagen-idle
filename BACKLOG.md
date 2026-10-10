@@ -29,7 +29,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 ~~On hold (owner, 2026-10-10, after playtest 31): do not develop new backlog items until the owner says so.~~ Work in this order (Claude's placement after playtest 31, following the dates in `docs/RELEASE_DECISIONS.md`; the owner can move them):
 
 0. 2.06 Fix: "Player level up" is unchecked when notifications are first turned on (owner report, playtest 31; small; Done)
-0. 2.01 Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures (owner report, playtest 31)
+0. 2.01 Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures (owner report, playtest 31; Done)
 0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31)
 0. 2.03 Shadows a little lighter (owner request, playtest 31)
 0. 2.05 The website on Cloudflare Pages: landing, play, press, privacy, terms, support (playbook W-05; reworks 1.94) → CHECKPOINT 32 (5 items: 2.06, 2.01, 2.02, 2.03, 2.05)
@@ -1462,7 +1462,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Level-ups still count toward `MAX_PER_HOUR` and are merged into one summary with the others, so turning this on cannot flood the player.
 **Acceptance:** tests: a new save has every type checked; turning notifications on shows all five checked; an old save with notifications off migrates to level on, and one with them on keeps its level choice; the build and all tests pass.
 
-### 2.01 — Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures — CODE — Not started
+### 2.01 — Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures — CODE — Done
+**Done note:** the four machines stand on a foundation or on pilings; the dam's second frame turns a turbine wheel in the powerhouse instead of moving the spillway water. No other machine sprite had drawn water (the remaining blue is icons, the pond decoration and the water tiles themselves). On the map the dams sit on river tiles and the tidal stations on the coast, and they read well without an extra water edge, so none was added.
 **Goal:** owner report, playtest 31 (screenshots of the key scene and the map): some machine pictures have water drawn in, which looks silly where they are not on water: on the generator cards, in the key scene on the landing page and in the store images, and on dry map tiles (the Oil Rig stands on the oil field). Water must show only where the machine really stands on water on the map. Fix it everywhere.
 **Details:**
 - In `scripts/generate-generic-assets.mjs`, draw these without water: `hydroDam` (the reservoir and the river, both frames), `tidalStation` (the sea, both frames), `oilRig` (the sea, both frames) and `deuteriumExtractor` (the shore and the sea). Keep the structure and its animation (the second frame moves the turbine or the pump, not water); the base sits on its own small foundation or pilings. Check for other sprites with drawn water (`C.blue` or `C.sky` bands, `waves(...)`) and fix them the same way, except tiles and map details that are water themselves (sea, river, lake, coast, waves).

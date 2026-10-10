@@ -131,24 +131,25 @@ function coalPlant(frame = 0) {
 }
 
 function hydroDam(frame = 0) {
+  // No water drawn in (2.01): the river and the reservoir come from the map tiles under the dam.
   const c = new Canvas(80, 64);
-  const shift = frame * 4;
-  c.rect(0, 14, 30, 26, C.blue); // reservoir
-  waves(c, 18, 30, C.sky, 8, shift);
-  waves(c, 26, 30, C.sky, 8, shift);
+  c.rect(12, 56, 56, 5, C.grey5); // foundation
   // concrete wall, trapezoid, lit from the left
   c.polygon([[26, 10], [52, 10], [62, 58], [18, 58]], C.grey2);
   c.polygon([[46, 10], [52, 10], [62, 58], [54, 58]], C.grey4);
   c.rect(24, 8, 30, 3, C.grey1); // crest road
   for (let i = 0; i < 3; i++) c.rect(29 + i * 7, 14, 4, 4, C.grey5); // gates
-  // spillway water
-  c.rect(30, 40, 16, 18, C.sky);
-  for (let y = 41 + frame; y < 58; y += 3) c.line(31, y, 45, y, C.mint);
-  c.rect(0, 56, 80, 8, C.blue); // river
-  waves(c, 58, 80, C.sky, 8, shift);
-  c.rect(62, 50, 14, 8, C.grey3); // powerhouse
-  c.rect(64, 52, 3, 3, C.amber);
-  c.rect(70, 52, 3, 3, C.amber);
+  // sluice gate in the wall, closed
+  c.rect(30, 40, 16, 16, C.grey4);
+  for (let x = 33; x < 46; x += 4) c.line(x, 41, x, 55, C.grey5);
+  c.rect(60, 58, 18, 3, C.grey5); // powerhouse pad
+  c.rect(62, 44, 14, 14, C.grey3); // powerhouse
+  c.rect(62, 44, 14, 2, C.grey1);
+  // turbine wheel in the powerhouse window: the second frame turns it
+  c.circle(69, 52, 4, C.grey5);
+  for (const [x, y] of turn([[69, 48], [73, 52], [69, 56], [65, 52]], 69, 52, frame * 45)) c.line(69, 52, x, y, C.yellow);
+  c.rect(64, 46, 2, 2, C.amber);
+  c.rect(72, 46, 2, 2, C.amber);
   c.outline(C.ink);
   return c;
 }
@@ -173,20 +174,20 @@ function gasPlant() {
 }
 
 function tidalStation(frame = 0) {
+  // No sea drawn in (2.01): the station stands on pilings; the sea comes from the map tiles.
   const c = new Canvas(64, 48);
-  c.rect(0, 30, 64, 18, C.blue); // sea
-  waves(c, 32, 64, C.sky, 8, frame * 4);
-  waves(c, 38, 64, C.sky, 12, frame * 6);
+  c.rect(8, 40, 8, 3, C.grey5); // piling feet
+  c.rect(48, 40, 8, 3, C.grey5);
   c.rect(10, 18, 4, 22, C.grey4); // legs
   c.rect(50, 18, 4, 22, C.grey4);
   isoBlock(c, 6, 14, 48, 6, 4, C.grey1, C.grey2, C.grey4); // deck
   isoBlock(c, 20, 4, 18, 10, 4, C.cream, C.steel, C.teal); // control room
   c.rect(24, 7, 3, 3, C.amber);
   c.rect(31, 7, 3, 3, C.amber);
-  // underwater turbine
-  c.rect(31, 20, 2, 18, C.grey5);
-  c.circle(32, 40, 2, C.yellow);
-  for (const [x, y] of turn([[26, 44], [38, 44], [32, 35]], 32, 40, frame * 60)) c.line(32, 40, x, y, C.grey1);
+  // turbine under the deck: the second frame turns it
+  c.rect(31, 20, 2, 16, C.grey5);
+  c.circle(32, 38, 2, C.yellow);
+  for (const [x, y] of turn([[26, 42], [38, 42], [32, 33]], 32, 38, frame * 60)) c.line(32, 38, x, y, C.grey1);
   c.outline(C.ink);
   return c;
 }
@@ -471,9 +472,10 @@ function capacity(fill, light, border) {
 }
 
 function oilRig(frame = 0) {
+  // No sea drawn in (2.01): the rig often stands on the dry oil field; its legs end on pilings.
   const c = new Canvas(48, 48);
-  c.rect(0, 38, 48, 10, C.blue); // sea
-  waves(c, 40, 48, C.sky, 8, frame * 4);
+  c.rect(8, 41, 7, 3, C.grey5); // piling feet
+  c.rect(32, 41, 7, 3, C.grey5);
   c.rect(10, 26, 3, 16, C.grey4); // legs
   c.rect(34, 26, 3, 16, C.grey4);
   isoBlock(c, 6, 22, 34, 5, 3, C.grey1, C.grey2, C.grey4); // deck
@@ -511,14 +513,15 @@ function uraniumMine(frame = 0) {
 }
 
 function deuteriumExtractor() {
+  // No shore or sea drawn in (2.01): it sits on its own concrete slab with an intake pipe.
   const c = new Canvas(48, 48);
-  c.rect(0, 40, 48, 8, C.sand); // shore
-  c.rect(0, 34, 48, 6, C.blue); // sea water in
+  c.rect(2, 40, 44, 4, C.grey5); // slab
   c.rect(6, 18, 14, 22, C.grey3); // tank
   c.rect(6, 18, 14, 3, C.grey1);
   c.rect(24, 24, 18, 16, C.grey2); // hall
   c.rect(24, 24, 18, 3, C.grey1);
   c.rect(20, 28, 4, 3, C.grey4); // pipe
+  c.rect(0, 36, 6, 3, C.grey4); // intake pipe
   c.rect(30, 31, 6, 9, C.grey5); // door
   c.circle(13, 12, 3, C.sky); // droplet sign
   c.outline(C.ink);
