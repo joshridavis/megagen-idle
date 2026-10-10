@@ -29,7 +29,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 ~~On hold (owner, 2026-10-10, after playtest 30): do not develop new backlog items until the owner says so.~~
 
 0. 1.99 Fix: the sprite shadows from 1.48 cannot be seen on the map (owner report, playtest 30; Done)
-0. 2.00 Shadows for the flying sightings and the pets (owner request, playtest 30)
+0. 2.00 Shadows for the flying sightings and the pets (owner request, playtest 30; Done)
 
 **Hold lifted (owner, 2026-10-09, after hotfix 28.1):** the owner confirmed the run continues from the order of work: 1.80, 1.81, 1.55, 1.54 and 1.51 toward checkpoint 29.
 
@@ -1425,13 +1425,19 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Ground shadow (deviation: drawn by the map, not baked into the sprite):** a flat ink ellipse at 60% opacity under every machine's base, a little right of center, in `src/components/MachineSprite.tsx`. It is an SVG in the sprite's own pixels that may spill past the picture, which a sprite cannot do, so full-canvas machines show one too. It also works unchanged for real art the owner adds later. Never animated.
 - **Screenshots** (dev map with every type built, before and after, and a 3× zoom on the dark rock and blue tiles): `docs/screenshots/shadows-1.99-before.png`, `shadows-1.99-after.png`, `shadows-1.99-zoom.png`. Tests in `src/assets/shadows.test.ts` and `src/components/GroundShadow.test.tsx`.
 
-### 2.00 — Shadows for the flying sightings and the pets — CODE — Not started
+### 2.00 — Shadows for the flying sightings and the pets — CODE — Done
 **Goal:** owner request, playtest 30: flying sightings (UFO, balloon and the others) and the pets should have shadows too.
 **Details:**
 - Sightings that fly (spaceship, UFO, balloon, hot-air balloon, paper plane, birds, comet, meteor, drone, whale in the sky): a soft shadow, either in the sprite (generator script) or as a CSS shadow layer under the moving sprite, whichever reads better at screen size; it follows the sprite as it moves. The walking cat has a ground shadow like the pets.
 - Pets: a ground shadow under every pet sprite, in the Pets tab and under the walking pets (it stays on the ground when a pet jumps, and shrinks a little in the air).
 - Visible on the game's dark background, same strength as 1.99. Reduce motion changes nothing here.
 **Acceptance:** screenshots in the PR; tests that the sightings and walking pets render their shadow (and the jumping pet's shadow stays on the ground); the build and all tests pass.
+
+**Notes:**
+- **Sightings in the air** (spaceship, UFO, balloon, hot-air balloon, paper plane, comet, drone, whale, every falling meteor): a CSS drop shadow (`.air-shadow` in `src/index.css`, black at 70%, 6 px right and 10 px down) on the moving element, so it follows the sprite's own outline as it flies, turns or shrinks. The gulls keep the shadow drawn into their sprite (1.48, stronger since 1.99) so they do not get two. The walking cat has a ground shadow like the pets.
+- **Pets:** a flat black ellipse at 65% (`.ground-shadow`) under every pet in the Pets tab and under each walking pet. It is a direct child of the pet, outside the part that jumps and turns, so it stays on the ground; while the pet is up (jump, the click hop, celebrate, happy, cheer) it shrinks and fades in step (`petShadowPose` in `src/components/PetWalkers.tsx`). Walking pets stand on the screen edge, so their shadow sits inside it. With Reduce motion the shadows still show and only their shrink stops.
+- **Limit:** a shadow is darker than what it falls on, so over the plain page background (already near black) it is faint; over panels, cards, the logo and the map it reads clearly. Black instead of the palette's ink was used for that reason.
+- **Screenshots:** `docs/screenshots/shadows-2.00-pets-tab.png`, `shadows-2.00-balloon.png`, `shadows-2.00-walking-pets.png`. Tests in `src/components/AirShadows.test.tsx`.
 
 ### 1.94 — megagenidle.com: landing page and custom domain — CODE — Not started
 **Goal:** launch work (March 11, 2027): the public website megagenidle.com, with a landing page and the game.

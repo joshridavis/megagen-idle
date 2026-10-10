@@ -85,7 +85,8 @@ export default function Sightings() {
         Array.from({ length: Math.round(duration / 1200) }, (_, i) => (
           <div
             key={i}
-            className="sighting-fall absolute w-8"
+            className="sighting-fall air-shadow absolute w-8"
+            data-shadow="air"
             style={{ left: `${2 + ((i * 37) % 55)}%`, animationDelay: `${i * 1200}ms` }}
           >
             {img}
@@ -93,7 +94,8 @@ export default function Sightings() {
         ))}
       {def.id === 'birds' ? (
         // a V of flapping gulls (owner request: the old flock was a static sprite)
-        <div className={`sighting-${def.animation} absolute h-24 w-40`} style={style} data-sprite="map_bird">
+        // the gull sprites carry their own air shadow (1.48, stronger since 1.99)
+        <div className={`sighting-${def.animation} absolute h-24 w-40`} style={style} data-sprite="map_bird" data-shadow="sprite">
           {FLOCK.map(([x, y, flap, bob], i) => (
             <span key={i} className="sighting-bob absolute h-6 w-6 sm:h-8 sm:w-8" style={{ left: `${x}%`, top: `${y}%`, animationDelay: bob }}>
               <span className="block h-full w-full -scale-x-100">
@@ -104,9 +106,12 @@ export default function Sightings() {
         </div>
       ) : ['fly-right', 'fly-left', 'rise', 'walk', 'beam', 'swim'].includes(def.animation) && (
         <div
-          className={`sighting-${def.animation} absolute ${SIZE[def.id] ?? 'w-24'}`}
+          className={`sighting-${def.animation} absolute ${SIZE[def.id] ?? 'w-24'} ${def.animation === 'walk' ? '' : 'air-shadow'}`}
           style={style}
+          data-shadow={def.animation === 'walk' ? 'ground' : 'air'}
         >
+          {/* 2.00: in the air a drop shadow follows the sprite; the walking cat has one on the ground, like the pets */}
+          {def.animation === 'walk' && <span className="ground-shadow" data-testid="ground-shadow" />}
           {/* the whale sprite faces left but swims right (playtest 19): mirror it */}
           {def.animation === 'swim' ? <div className="-scale-x-100">{img}</div> : img}
         </div>

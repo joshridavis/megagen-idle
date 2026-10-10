@@ -54,12 +54,14 @@ function PetPicture({ id, stage, name, growing = false }: { id: PetId; stage: nu
       data-playing={playing}
       data-growing={growing && !reduceMotion}
     >
+      {/* 2.00: a ground shadow that stays down when the pet hops */}
+      <span className={`ground-shadow ${playing ? 'pet-shadow-hop' : ''}`} data-testid="pet-shadow" />
       <img
         src={sprites[sprite(id, stage)]}
         alt=""
         width={64}
         height={64}
-        className={`pixelated ${playing ? 'pet-react' : growing && !reduceMotion ? 'pet-growing' : ''}`}
+        className={`pixelated relative block ${playing ? 'pet-react' : growing && !reduceMotion ? 'pet-growing' : ''}`}
       />
       {growing &&
         !reduceMotion &&

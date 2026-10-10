@@ -65,6 +65,18 @@ export function mirrorBubble(action: Walker['action'], side: 'left' | 'right'): 
 }
 
 /** Two meeting pets stand a pet's width apart, whatever the screen width (1.81). */
+/** The ground shadow's own animation for a pet pose (2.00): it shrinks while the pet is up in the air. */
+export function petShadowPose(pose: string): string {
+  const air: Record<string, string> = {
+    'pet-react': 'pet-shadow-hop',
+    'pet-act-jump': 'pet-shadow-jump',
+    'pet-reaction-celebrate': 'pet-shadow-celebrate',
+    'pet-reaction-happy': 'pet-shadow-happy',
+    'pet-reaction-cheer': 'pet-shadow-cheer',
+  };
+  return air[pose] ?? '';
+}
+
 const meetGap = () => Math.min(0.3, (PET_WALK.size + 2) / Math.max(1, window.innerWidth - PET_WALK.size));
 
 /** The walking layer's width: it spans the window. */
@@ -96,6 +108,7 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
   const greeting = together && w.meet!.kind === 'greet' && !w.meet!.host ? bubblePlace(w, stage, layerPx) : null;
   const sharedProp = together && !w.meet!.host && w.action !== 'walk' && PET_GROUND_ACTIONS.includes(w.action);
   const pose = still ? '' : playing ? 'pet-react' : react ? `pet-reaction-${react.pose}` : walking ? 'pet-walking' : `pet-act-${w.action}`;
+  const shadowPose = petShadowPose(pose);
   return (
     <button
       type="button"
@@ -178,7 +191,9 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
           })()
         )
       )}
-      <span className="block h-full w-full" style={{ transform: w.left ? 'scaleX(-1)' : undefined }}>
+      {/* 2.00: on the ground under the pet (it stands on the screen edge, so the whole shadow stays on screen); shrinks while the pet is up */}
+      <span className={`ground-shadow ${shadowPose}`} style={{ bottom: 0 }} data-testid="pet-shadow" />
+      <span className="relative block h-full w-full" style={{ transform: w.left ? 'scaleX(-1)' : undefined }}>
         <img src={sprites[`pet_${w.id}_${stage}` as SpriteId]} alt="" width={size} height={size} className={`pixelated block ${pose}`}
           // the walking bob follows the pace: quicker steps when trotting (1.79)
           style={walking && !playing ? { animationDuration: `${0.5 / (w.pace ?? 1)}s` } : undefined}
