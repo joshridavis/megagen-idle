@@ -24,6 +24,13 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
+**On hold (owner, 2026-10-10, after playtest 32): do not develop new backlog items until the owner says so.** When the hold lifts, work in this order:
+
+0. 2.07 Fix: the top bar overflows its box on small phones (owner report, playtest 32)
+0. 2.08 Fix: invented developer details on the website; use "MiracleBadger" or nothing (owner report, playtest 32; small)
+0. 2.09 Fix: link previews show "Image failed to load" (owner report, playtest 32; small)
+0. 2.04 Editions (demo, full, mobile), the Full Game panel and the entitlement layer (playbook R-01; reworks 1.95), then 1.98 and 1.97 as listed below
+
 **Hold lifted (owner, 2026-10-10, after playtest 31):** the owner asked to continue from the order of work. The run goes on with 2.06, 2.01, 2.02, 2.03 and 2.05 toward checkpoint 32.
 
 ~~On hold (owner, 2026-10-10, after playtest 31): do not develop new backlog items until the owner says so.~~ Work in this order (Claude's placement after playtest 31, following the dates in `docs/RELEASE_DECISIONS.md`; the owner can move them):
@@ -1455,6 +1462,31 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Limit:** a shadow is darker than what it falls on, so over the plain page background (already near black) it is faint; over panels, cards, the logo and the map it reads clearly. Black instead of the palette's ink was used for that reason.
 - **Screenshots:** `docs/screenshots/shadows-2.00-pets-tab.png`, `shadows-2.00-balloon.png`, `shadows-2.00-walking-pets.png`. Tests in `src/components/AirShadows.test.tsx`.
 
+### 2.07 — Fix: the top bar overflows its box on small phones — CODE — Not started
+**Goal:** owner report, playtest 32 (screenshot of a late-game save on a phone): the stat box at the top (energy, room, player level) does not fit. The level column with its experience bar and the equipped title ("Landscap…") runs past the box's border, and the cloud-save button sits half outside it, over the page edge.
+**Details:**
+- Reproduced at 320 px with a late-game save (68.6M energy, room "482/878 (396 free)", level 87): the level column (`ml-3 w-16 shrink-0` in `src/components/PlayerLevelBadge.tsx`) ends 6 px past the screen edge and the page scrolls sideways. With accounts on, the round cloud button (`src/components/CloudButton.tsx`, 44 px, `shrink-0`) and an equipped title make it worse even on wider phones, as in the owner's screenshot. The layout tests only use a new save (short numbers, no title, no cloud button), so they never caught it.
+- Make the bar fit from 320 px with the longest real values: let the energy, room and level columns shrink (`min-w-0`, truncation with the full text in the tooltip), keep the level bar and title inside the level column, and below about 400 px move the cloud button out of the row (for example to the top corner of the page, or under the box) instead of beside it. Nothing may cover the "Generate energy" button.
+- Check the boost chip ("Volunteer crew · 14m 1s") and the research chip at the bottom at the same widths.
+**Acceptance:** a Playwright test with a seeded late-game save (big numbers, an equipped title, the cloud button shown) at 320, 360 and 412 px: no sideways scroll, and every part of the top bar inside its box; screenshots before and after; the build and all tests pass.
+
+### 2.08 — Fix: invented developer details on the website — CODE — Not started
+**Goal:** owner report, playtest 32: the press kit says "Developer and publisher: Joshri Games, a solo developer in Israel". The owner does not want the country named, and does not want to be called "Joshri Games". Where a developer name is needed, use **MiracleBadger**; where it is not, leave it out.
+**Details:**
+- `src/site/fallback/press.md`: the fact sheet line becomes "Developer: MiracleBadger" (no country, no "publisher" unless needed).
+- `src/site/pages.ts` JSON-LD: `author` and `publisher` become `{ "@type": "Person", "name": "MiracleBadger" }`, or are left out.
+- Search the whole repository (site, game credits, store texts, docs, Electron `package.json`/`electron-builder.yml` author and copyright fields, `codemagic.yaml`) for "Joshri", "Israel" and other invented personal details, and replace or remove them. `docs/RELEASE_DECISIONS.md` is already updated (owner answer, playtest 32).
+- A test: no file outside `BACKLOG.md` says "Joshri Games" or names the owner's country.
+**Acceptance:** the press page, the press kit text and the JSON-LD show "MiracleBadger" or no developer at all; the test passes; the build and all tests pass.
+
+### 2.09 — Fix: link previews show "Image failed to load" — CODE — Not started
+**Goal:** owner report, playtest 32 (Discord screenshot): pasting https://joshridavis.github.io/megagen-idle/ shows the title and description but "Image failed to load".
+**Details:**
+- Cause: every page's `og:image`, `twitter:image`, `og:url` and canonical address point at https://megagenidle.com/ (`SITE_URL` in `src/site/links.ts`), and that domain is not live yet, so the picture cannot be fetched. The picture itself is built (`og-image.png` at the site root).
+- Make the absolute site address a build setting: `SITE_URL` from the environment (default `https://megagenidle.com/`), used by `buildSitePage`, the sitemap and robots. The temporary GitHub Pages workflow sets `SITE_URL=https://joshridavis.github.io/megagen-idle/`. Cloudflare needs nothing (the default is right).
+- After deploying, check with a preview tool (for example opengraph.xyz) or by pasting the address into Discord again; Discord caches previews, so add `?v=2` to the address when testing again.
+**Acceptance:** a test that a build with `SITE_URL` set puts that address in `og:image`, `og:url`, the canonical link and the sitemap; the build and all tests pass; the owner sees the picture in Discord.
+
 ### 2.06 — Fix: "Player level up" is unchecked when notifications are first turned on — CODE — Done
 **Goal:** owner report, playtest 31 (screenshot of Settings → Notifications): when notifications are turned on for the first time, every type is checked except "Player level up", which stays unchecked until it is checked by hand. All types should start checked.
 **Details:**
@@ -2268,3 +2300,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 31 (v0.31.0) | 1.99, 2.00, 1.94, 1.95, 1.96 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; last room expansion (13) at 496.9 h. The proposed free part ends later than its estimate: the first research past research level 9 (Oil Refining) is done at 58.4 h. Owner decisions asked: where the free part ends, prices, whether the website sells the Full Game, desktop platforms. Waiting for feedback. | |
 | 31 (answers) | 1.99, 2.00, 1.94, 1.95, 1.96 | 2026-10-10 | Machine pictures with water drawn in look silly off the water, everywhere (key scene, cards, map). Map shadows look better, but a flying thing's shadow (the map birds) sits too close: it should fall far below. Pet shadows good. Shadows a little lighter. Landing pitch fine. Free part at research level 9: fine for now. Prices, platforms and release: the owner's Launch & Growth Playbook, recorded in `docs/RELEASE_DECISIONS.md` (Steam $6.99 with a free demo and a $2.99 Supporter DLC; mobile free to start, Full Game $4.99, Supporter Pack $2.99; the web is the free part with a Ko-fi tip; Windows first, macOS and Linux later; Cloudflare hosting; editions demo, full and mobile). 1.97 and 1.98 rewritten to it. Do not develop new backlog items until the owner says so. Later the same day: "Player level up" starts unchecked when notifications are first turned on (bug). | 2.06, 2.01, 2.02, 2.03, 2.04, 2.05 |
 | 32 (v0.32.0) | 2.06, 2.01, 2.02, 2.03, 2.05 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; free part ends at 58.4 h (Oil Refining). GitHub Pages retired; the owner sets up Cloudflare Pages (`docs/PUBLIC_RELEASE.md` 9c) to play the preview link. Questions asked: flying-shadow distance, shadow darkness, the dam and tidal station on foundations, the landing texts, the achievement name "Mega Generator". Waiting for feedback. | |
+| 32 (answers) | 2.06, 2.01, 2.02, 2.03, 2.05 | 2026-10-10 | Flying shadows, shadow darkness, the landing texts: fine as they are for now. The dam and tidal station on foundations: yes. "Mega Generator": yes. Bugs: on a small phone the top bar (tiles, player level and experience) runs out of its box; the press kit invents developer details (not "Joshri Games", no country; use "MiracleBadger" if a name is needed); pasting the site into Discord shows "Image failed to load". GitHub Pages kept for now (temporary deploy, PR 60). Do not develop new backlog items until the owner says so. | 2.07, 2.08, 2.09 |
