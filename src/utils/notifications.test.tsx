@@ -26,10 +26,11 @@ describe('choosing notifications (1.07)', () => {
     expect(selectNotifications([research('Hydropower')], undefined, [], 0).notice).toBeNull();
   });
 
-  it('respects the per-type switches; defaults: research on, level off', () => {
+  it('respects the per-type switches; every type starts on (2.06)', () => {
+    expect(Object.values(DEFAULT_NOTIFY.types).every(Boolean)).toBe(true);
     expect(notifyTypeOf(level)).toBe('level');
-    expect(selectNotifications([level], on, [], 0).notice).toBeNull();
-    expect(selectNotifications([level], { ...on, types: { ...on.types, level: true } }, [], 0).notice?.body).toBe('Player level 5 reached');
+    expect(selectNotifications([level], on, [], 0).notice?.body).toBe('Player level 5 reached');
+    expect(selectNotifications([level], { ...on, types: { ...on.types, level: false } }, [], 0).notice).toBeNull();
     const r = selectNotifications([research('Hydropower')], on, [], 0);
     expect(r.notice).toEqual({ title: 'MegaGen Idle: Research complete', body: 'Research complete: Hydropower' });
     // entries that never notify (unlocks, sightings, achievements)
@@ -38,7 +39,7 @@ describe('choosing notifications (1.07)', () => {
 
   it('collapses several at once into one summary', () => {
     const r = selectNotifications([research('Hydropower'), research('Tides'), level, research('Oil')], on, [], 5);
-    expect(r.notice).toEqual({ title: 'MegaGen Idle: 3 things happened', body: 'Research complete: Hydropower, and 2 more' });
+    expect(r.notice).toEqual({ title: 'MegaGen Idle: 4 things happened', body: 'Research complete: Hydropower, and 3 more' });
     expect(r.history).toEqual([5]);
   });
 
@@ -98,8 +99,18 @@ describe('sending (1.07)', () => {
     ask.mockResolvedValue(true);
     fireEvent.click(screen.getByTestId('notify-enabled'));
     await waitFor(() => expect(useStore.getState().settings.notifications.enabled).toBe(true));
+    // 2.06: all five types show checked the first time notifications are on
+    for (const t of ['research', 'level', 'contract', 'pet', 'fuel']) expect((screen.getByTestId(`notify-${t}`) as HTMLInputElement).checked).toBe(true);
     fireEvent.click(screen.getByTestId('notify-level'));
-    expect(useStore.getState().settings.notifications.types.level).toBe(true);
+    expect(useStore.getState().settings.notifications.types.level).toBe(false);
+  });
+
+  it('a new save has every type checked; old saves migrate only if notifications were never on (2.06)', () => {
+    expect(createInitialState(0).settings.notifications.types).toEqual({ research: true, level: true, contract: true, pet: true, fuel: true });
+    const old = (enabled: boolean, level: boolean) => ({ ...createInitialState(0), settings: { ...createInitialState(0).settings, notifications: { enabled, types: { ...DEFAULT_NOTIFY.types, level } } } });
+    expect(migrateSave(old(false, false), 24).settings.notifications.types.level).toBe(true);
+    expect(migrateSave(old(true, false), 24).settings.notifications.types.level).toBe(false);
+    expect(migrateSave(old(true, true), 24).settings.notifications.types.level).toBe(true);
   });
 });
 

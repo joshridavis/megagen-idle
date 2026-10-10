@@ -24,9 +24,11 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold (owner, 2026-10-10, after playtest 31): do not develop new backlog items until the owner says so.** When the hold lifts, work in this order (Claude's placement after playtest 31, following the dates in `docs/RELEASE_DECISIONS.md`; the owner can move them):
+**Hold lifted (owner, 2026-10-10, after playtest 31):** the owner asked to continue from the order of work. The run goes on with 2.06, 2.01, 2.02, 2.03 and 2.05 toward checkpoint 32.
 
-0. 2.06 Fix: "Player level up" is unchecked when notifications are first turned on (owner report, playtest 31; small)
+~~On hold (owner, 2026-10-10, after playtest 31): do not develop new backlog items until the owner says so.~~ Work in this order (Claude's placement after playtest 31, following the dates in `docs/RELEASE_DECISIONS.md`; the owner can move them):
+
+0. 2.06 Fix: "Player level up" is unchecked when notifications are first turned on (owner report, playtest 31; small; Done)
 0. 2.01 Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures (owner report, playtest 31)
 0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31)
 0. 2.03 Shadows a little lighter (owner request, playtest 31)
@@ -1451,7 +1453,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Limit:** a shadow is darker than what it falls on, so over the plain page background (already near black) it is faint; over panels, cards, the logo and the map it reads clearly. Black instead of the palette's ink was used for that reason.
 - **Screenshots:** `docs/screenshots/shadows-2.00-pets-tab.png`, `shadows-2.00-balloon.png`, `shadows-2.00-walking-pets.png`. Tests in `src/components/AirShadows.test.tsx`.
 
-### 2.06 — Fix: "Player level up" is unchecked when notifications are first turned on — CODE — Not started
+### 2.06 — Fix: "Player level up" is unchecked when notifications are first turned on — CODE — Done
 **Goal:** owner report, playtest 31 (screenshot of Settings → Notifications): when notifications are turned on for the first time, every type is checked except "Player level up", which stays unchecked until it is checked by hand. All types should start checked.
 **Details:**
 - Cause: not a display bug. Item 1.07 set "player level up" off by default (`DEFAULT_NOTIFY.types.level: false` in `src/data/notifyRules.ts`), so a new save starts with it unchecked. The owner wants it on, like the others.

@@ -25,5 +25,5 @@ export const NOTIFY_LABELS: Record<NotifyType, string> = {
 
 export const DEFAULT_NOTIFY: NotifySettings = {
   enabled: false,
-  types: { research: true, level: false, contract: true, pet: true, fuel: true },
+  types: { research: true, level: true, contract: true, pet: true, fuel: true },
 };
