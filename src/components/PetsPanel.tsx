@@ -33,6 +33,7 @@ function bonusText(def: PetDef, value: number): string {
 function PetPicture({ id, stage, name, growing = false }: { id: PetId; stage: number; name: string; growing?: boolean }) {
   const reduceMotion = useStore((s) => s.settings.reduceMotion);
   const [playing, setPlaying] = useState(false);
+  const petPet = useStore((s) => s.petPet);
   useEffect(() => {
     if (!playing) return;
     const t = setTimeout(() => setPlaying(false), PET_REACT_MS);
@@ -41,7 +42,11 @@ function PetPicture({ id, stage, name, growing = false }: { id: PetId; stage: nu
   return (
     <button
       type="button"
-      onClick={() => !playing && !reduceMotion && setPlaying(true)}
+      onClick={() => {
+        // every click counts as petting (1.51, rate-capped in the store)
+        petPet();
+        if (!playing && !reduceMotion) setPlaying(true);
+      }}
       aria-label={`Pet ${name}`}
       title={`Pet ${name}`}
       className="relative shrink-0 rounded"

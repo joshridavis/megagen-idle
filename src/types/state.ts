@@ -154,6 +154,8 @@ export interface PetsState {
 /** Lifetime counters (achievements 0.65, statistics 0.39). */
 export interface PlayStats {
   clicks: number;
+  /** Times a pet was petted (1.51), at most PET_CLICK_CAP.count per PET_CLICK_CAP.ms. Old saves: 0. */
+  petClicks: number;
   /** Welcome-back summaries shown (times returned after being away). */
   returns: number;
   /** Seconds of live play: time with the game open and running (0.39). */

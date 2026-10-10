@@ -28,9 +28,10 @@ export function tick(now = Date.now(), maxSeconds = MAX_OFFLINE_SECONDS, catchUp
   // Random events (0.84): sightings only while the game is on screen.
   const visible = !platform.isBackground();
   useStore.getState().rollRandomEvents(delta, { foreground: visible && !catchUp, catchUp }, Math.random, now);
-  useStore.getState().tickContracts(now);
-  // a pet's stage-up is celebrated only during live play (1.58), like research
-  useStore.getState().tickPets(now, !catchUp && delta <= LIVE_TICK_MAX_SECONDS);
+  // a contract completed and a pet's stage-up are celebrated only during live play (1.58, 1.80), like research
+  const live = !catchUp && delta <= LIVE_TICK_MAX_SECONDS;
+  useStore.getState().tickContracts(now, Math.random, live);
+  useStore.getState().tickPets(now, live);
   return delta;
 }
 

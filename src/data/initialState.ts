@@ -33,5 +33,5 @@ export const createInitialState = (now = Date.now()): GameState => ({
   contracts: { open: [], nextOfferAt: 0, done: 0, points: 0, perks: {}, seq: 0 },
   pets: { owned: {}, active: null, extra: [], slots: 1 },
   achievements: {},
-  stats: { clicks: 0, returns: 0, playSeconds: 0, clickEnergy: 0, startedAt: now, lastOffline: null },
+  stats: { clicks: 0, petClicks: 0, returns: 0, playSeconds: 0, clickEnergy: 0, startedAt: now, lastOffline: null },
 });

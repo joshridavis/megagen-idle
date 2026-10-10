@@ -48,13 +48,13 @@ export const useStore = create<GameStore>()(
             set(
               (s) => {
                 saveLog([]);
-                return { ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], activeSighting: null, mapEvent: null, eventEpoch: s.eventEpoch + 1 };
+                return { ...createInitialState(), celebrations: [], welcomeBack: null, awaySnapshot: null, eventLog: [], toasts: [], activeSighting: null, mapEvent: null, petReaction: null, eventEpoch: s.eventEpoch + 1 };
               },
               undefined,
               'core/reset',
             ),
           loadSave: (state) =>
-            set((s) => ({ ...pickSaved(state), celebrations: [], welcomeBack: null, toasts: [], activeSighting: null, mapEvent: null, eventEpoch: s.eventEpoch + 1 }), undefined, 'core/loadSave'),
+            set((s) => ({ ...pickSaved(state), celebrations: [], welcomeBack: null, toasts: [], activeSighting: null, mapEvent: null, petReaction: null, eventEpoch: s.eventEpoch + 1 }), undefined, 'core/loadSave'),
           dismissWelcomeBack: () => set({ welcomeBack: null }, undefined, 'core/dismissWelcomeBack'),
         };
       },
@@ -92,9 +92,12 @@ useStore.subscribe((next, prev) => {
     useStore.setState({ achievements: earned.state.achievements }, undefined, 'achievements/unlock');
     if (next.eventEpoch === prev.eventEpoch) {
       next.logEvents(earned.unlocked.map((d) => ({ kind: 'achievement' as const, icon: ENTRY_ICONS.achievement, text: `Achievement unlocked: ${d.name}!`, toast: true })));
+      next.reactPets({ kind: 'celebrate' });
     }
   }
   if (next.eventEpoch !== prev.eventEpoch) return;
+  // the walking pets celebrate a live research completion, level up or pet stage-up (1.80)
+  if (next.celebrations !== prev.celebrations && next.celebrations.some((c) => !prev.celebrations.includes(c))) next.reactPets({ kind: 'celebrate' });
   const entries = deriveEvents(prev, next);
   if (entries.length) next.logEvents(entries);
 });

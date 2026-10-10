@@ -75,6 +75,14 @@ import decorWindsock from './sprites/map/decor_windsock.png';
 import decorStatue from './sprites/map/decor_statue.png';
 import decorFlag from './sprites/map/decor_flag.png';
 import decorLamp from './sprites/map/decor_lamp.png';
+import decorFlowerbed from './sprites/map/decor_flowerbed.png';
+import decorBench from './sprites/map/decor_bench.png';
+import decorHedge from './sprites/map/decor_hedge.png';
+import decorRockGarden from './sprites/map/decor_rock_garden.png';
+import decorPicnic from './sprites/map/decor_picnic.png';
+import decorFountain from './sprites/map/decor_fountain.png';
+import decorWeatherStation from './sprites/map/decor_weather_station.png';
+import decorPlaque from './sprites/map/decor_plaque.png';
 import tileCoalfield from './sprites/map/coalfield.png';
 import tileOutcrop from './sprites/map/outcrop.png';
 import tileOilfield from './sprites/map/oilfield.png';
@@ -104,6 +112,9 @@ import sightingCat from './sprites/events/cat.png';
 import sightingUfo from './sprites/events/ufo.png';
 import sightingWhale from './sprites/events/whale.png';
 import sightingMeteor from './sprites/events/meteor.png';
+import sightingHotAirBalloon from './sprites/events/hot_air_balloon.png';
+import sightingComet from './sprites/events/comet.png';
+import sightingDrone from './sprites/events/drone.png';
 import petHamster1 from './sprites/pets/hamster_1.png';
 import petHamster2 from './sprites/pets/hamster_2.png';
 import petHamster3 from './sprites/pets/hamster_3.png';
@@ -233,6 +244,14 @@ export const sprites = {
   decor_statue: decorStatue,
   decor_flag: decorFlag,
   decor_lamp: decorLamp,
+  decor_flowerbed: decorFlowerbed,
+  decor_bench: decorBench,
+  decor_hedge: decorHedge,
+  decor_rock_garden: decorRockGarden,
+  decor_picnic: decorPicnic,
+  decor_fountain: decorFountain,
+  decor_weather_station: decorWeatherStation,
+  decor_plaque: decorPlaque,
   tile_coalfield: tileCoalfield,
   tile_outcrop: tileOutcrop,
   tile_oilfield: tileOilfield,
@@ -262,6 +281,9 @@ export const sprites = {
   sighting_ufo: sightingUfo,
   sighting_whale: sightingWhale,
   sighting_meteor: sightingMeteor,
+  sighting_hot_air_balloon: sightingHotAirBalloon,
+  sighting_comet: sightingComet,
+  sighting_drone: sightingDrone,
   pet_hamster_1: petHamster1,
   pet_hamster_2: petHamster2,
   pet_hamster_3: petHamster3,

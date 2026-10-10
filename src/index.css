@@ -430,8 +430,20 @@ body {
 .pet-grow-old { animation: pet-grow-old 1.6s ease-in-out forwards; }
 .pet-grow-flash { opacity: 0; animation: pet-grow-flash 1.6s ease-out forwards; }
 .pet-grow-new { animation: pet-grow-new 1.6s ease-out forwards; }
+/* Pets celebrate milestones and react to random events (1.80). */
+@keyframes pet-celebrate { 0%, 50%, 100% { transform: translateY(0) rotate(0); } 20% { transform: translateY(-16px) rotate(-10deg); } 35% { transform: translateY(-8px) rotate(10deg); } }
+.pet-reaction-celebrate { animation: pet-celebrate 0.9s ease-out infinite; }
+@keyframes pet-look { 0%, 100% { transform: translateY(0) rotate(0); } 30%, 80% { transform: translateY(-2px) rotate(-10deg); } }
+.pet-reaction-look { animation: pet-look 2s ease-in-out infinite; }
+@keyframes pet-happy { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.pet-reaction-happy { animation: pet-happy 0.7s ease-in-out infinite; }
+.pet-reaction-cheer { animation: pet-happy 0.45s ease-in-out infinite; }
+@keyframes pet-hide { 0%, 100% { transform: translateY(5px) scaleY(0.82); } 50% { transform: translateY(4px) scaleY(0.86); } }
+.pet-reaction-hide { animation: pet-hide 1.4s ease-in-out infinite; filter: brightness(0.85); }
+@keyframes pet-scared { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+.pet-reaction-scared { animation: pet-scared 0.25s linear infinite; }
 @media (prefers-reduced-motion: reduce) {
-  .pet-react, .pet-particle, .pet-growing, .pet-grow-old, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball { animation: none; }
+  .pet-react, .pet-particle, .pet-growing, .pet-grow-old, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball, .pet-reaction-celebrate, .pet-reaction-look, .pet-reaction-happy, .pet-reaction-cheer, .pet-reaction-hide, .pet-reaction-scared { animation: none; }
   .pet-sparkle, .pet-grow-flash, .pet-grow-old { display: none; }
 }
 
@@ -498,7 +510,7 @@ html[data-reduce-motion] :is(.click-pop, .click-pop-down, .spark) {
   opacity: 0;
 }
 html[data-reduce-motion]
-  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .pet-growing, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
+  :is(.appear, .mini-click, .unlock-glow, .title-shine, .celebrate, .research-running-icon, .level-up, .pet-react, .pet-particle, .pet-growing, .pet-grow-new, .pet-walking, .pet-act-eat, .pet-act-play, .pet-act-sleep, .pet-act-jump, .pet-bubble, .pet-food, .pet-ball, .pet-reaction-celebrate, .pet-reaction-look, .pet-reaction-happy, .pet-reaction-cheer, .pet-reaction-hide, .pet-reaction-scared, .map-flock, .map-bolt, .map-truck, .map-flood, .map-fire, .map-star, .frame-a, .map-bounce, .sighting-bob, .animate-pulse, .animate-ping, .animate-bounce, .animate-spin) {
   animation: none;
 }
 html[data-reduce-motion] :is(.pet-sparkle, .pet-grow-flash, .pet-grow-old) {

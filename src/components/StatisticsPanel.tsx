@@ -34,6 +34,7 @@ export default function StatisticsPanel() {
             ['Play time', formatDuration(st.playSeconds)],
             ['Clicks', fmt.num(st.clicks)],
             ['Energy from clicks', fmt.num(st.clickEnergy)],
+            ['Pets petted', fmt.num(st.petClicks)],
             ['Times back after a break', fmt.num(st.returns)],
             ['Playing since', st.startedAt ? when(st.startedAt) : 'before statistics began'],
             [

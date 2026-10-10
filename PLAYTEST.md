@@ -1,4 +1,54 @@
-# Playtest 28.1 (v0.28.1, hotfix): click research adds 1% of energy/s, not 25%
+# Playtest 29 (v0.29.0): pets celebrate, react and meet; 11 more random events; 8 more decorations; petting achievements
+
+The version at the bottom of the screen should read **v0.29.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 761.4 hours** (simulated with `npm run simulate`; was 761.3 h), so roughly 4 to 5 weeks with the game closed most of the time.
+- Key times: 25% at 11.4 h, 50% at 78.8 h, first Nuclear Fission Plant 143.1 h, 75% at 301.9 h, first Fusion Reactor 335.4 h, first Micro-Supernova 440.4 h, last room expansion (13) at 496.9 h, 100% at 761.4 h.
+- The eight new decorations are part of 100% (all 6 copies of each, 84 in all). The simulator buys the last Memorial plaque at about 654 h.
+
+## What's new
+
+- **Pets celebrate and react (1.80):** when research finishes, you level up, a pet grows, an achievement unlocks or a contract completes, every walking pet stops and jumps with a 🎉 and confetti for 4 seconds. Random events get a reaction: 😮 for sightings like the spaceship or a comet, ☀️ for a sunny spell, 🌧️ (hiding) for overcast or calm air, 💰 for deliveries and grants, 😨 for other bad events, 👀 for the rest. One reaction plays at a time; a burst plays the first. With Reduce motion the pets stay still and only the bubble shows.
+- **Pets meet each other (1.81):** with two or three active pets, two resting pets sometimes meet (about 8 times an hour with two pets, more with three). One walks over, they face each other and greet (❤️), play with one ⚽, nap side by side, or share one 🍎. Then they go their own ways. Nothing changes with one pet or with Reduce motion.
+- **11 more random events (1.55):** sightings Delivery drone, Hot-air balloon and Comet. Good events Heat wave (+30% solar), Grid surge (+20% all generators) and Spring tide (+40% tidal). Bad events Warm cooling water (−20% fission), Drought (−25% hydro) and Equipment recall (−15% producers). On the Map tab, the Maintenance crew truck (+15% producers for 5 minutes) and the Gas flare (a fire at a gas plant: put it out within 30 s for a reward).
+- **8 more decorations (1.54):** Flower bed, Bench, Hedge, Rock garden, Picnic table, Fountain, Weather station and Memorial plaque, from 2K energy (level 8) to 20M (100 contracts). They count toward 100% and Landscape Architect (now all 84).
+- **Petting achievements (1.51):** Gentle Hand (10), Best Friend (100) and Pet Whisperer (1,000, an Uncommon title). They are bonus achievements, outside 100%. Every click on a pet counts, up to 3 a second. The Stats tab shows "Pets petted".
+
+## Things to try
+
+1. With a pet walking on screen, finish a research or claim a contract and watch the pets celebrate.
+2. With two or three active pets, leave the game open for a while and watch for a meeting: a greeting heart, a shared ball or apple, or a nap side by side.
+3. Turn on Reduce motion in Settings and trigger a celebration: only the 🎉 bubble should show.
+4. Map tab → 🎨 Decorations: find the eight new kinds, buy a Flower bed and place it.
+5. Pet a pet quickly many times, then check Stats → "Pets petted" and the Pets achievements.
+6. Completion → Sightings discovered: the three new sightings are listed with their rarity.
+7. With a gas plant built, keep the Map tab open for a while and try to catch a Gas flare.
+8. Check Completion → Decorations: your existing save now shows 14 kinds.
+
+## Known issues
+
+- An existing save that had all 36 decorations drops back below 100% until the new kinds are bought. Landscape Architect stays earned if you already had it.
+- The balance simulator's stall threshold is now 13 h (your choice): the late game has a wait of up to 12.7 h with no new milestone during the long last research (Fast-Time Dimension).
+- Several new events have no walking-pet reaction of their own (the drone, the recall) and use the generic 👀 or 😨.
+
+## Questions
+
+1. Reactions: do 4 seconds feel right, and are the reactions easy to read (😮, ☀️, 🌧️, 💰, 😨)?
+2. Meetings: about 8 an hour with two pets. Too rare, too often, or right?
+3. Decorations: are the prices right, from 2K to 20M per first copy? Should the late ones cost more?
+4. Events: any of the new effects too strong or too weak (Spring tide +40%, Drought −25%)?
+5. Is 3 counted pets a second a fair cap for the petting achievements?
+
+---
+
+# Previous: Playtest 28.1 (v0.28.1, hotfix): click research adds 1% of energy/s, not 25%
 
 The version at the bottom of the screen should read **v0.28.1**.
 

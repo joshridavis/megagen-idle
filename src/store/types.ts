@@ -44,6 +44,9 @@ export type Celebration =
   | { kind: 'level'; level: number; at: number }
   | { kind: 'pet'; id: PetId; stage: number; at: number };
 
+/** What the walking pets react to (1.80): a milestone to celebrate, or a random event by id. */
+export type PetReaction = ({ kind: 'celebrate' } | { kind: 'event'; eventId: string }) & { at: number };
+
 /** Transient UI events: never saved. */
 export interface TransientState {
   /** Live research completions, player level-ups and pet stage-ups waiting to be celebrated (oldest first). */
@@ -61,6 +64,8 @@ export interface TransientState {
   activeSighting: { id: string; at: number } | null;
   /** The map event playing on the Map tab (1.12). */
   mapEvent: MapEventState | null;
+  /** The reaction the walking pets play now (1.80); one at a time. */
+  petReaction: PetReaction | null;
 }
 
 export type GameStore = GameState &

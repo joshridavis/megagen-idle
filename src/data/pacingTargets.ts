@@ -25,4 +25,5 @@ export const PACING_TARGETS: PacingTarget[] = [
 ];
 
 /** A stretch longer than this (hours) with no new milestone counts as a stall. */
-export const STALL_HOURS = 12;
+// 13 h (owner, 2026-10-10, item 1.54): the late game sits close to 12 h during the long last research
+export const STALL_HOURS = 13;

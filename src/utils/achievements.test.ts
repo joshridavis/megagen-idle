@@ -67,7 +67,7 @@ describe('achievements (0.65)', () => {
     const part = getCompletion(s0()).parts.find((p) => p.label === 'Achievements')!;
     expect(part.total).toBe(ACHIEVEMENTS.filter((a) => !a.bonus).length);
     // luck or play style only; Landscape Architect counts toward 100% (1.85)
-    expect(ACHIEVEMENTS.filter((a) => a.bonus).every((a) => ['clicks', 'sightings', 'effectEvents', 'returns'].includes(a.metric))).toBe(true);
+    expect(ACHIEVEMENTS.filter((a) => a.bonus).every((a) => ['clicks', 'petClicks', 'sightings', 'effectEvents', 'returns'].includes(a.metric))).toBe(true);
     expect(ACHIEVEMENTS_BY_ID.decor_30.bonus).toBeUndefined();
     expect(part.items.some((i) => i.id === 'ach-decor_30')).toBe(true);
   });
@@ -83,7 +83,7 @@ describe('achievements (0.65)', () => {
     delete v14.stats;
     const m = migrateSave(v14, 14);
     expect(m.achievements).toEqual({});
-    expect(m.stats).toEqual({ clicks: 0, returns: 0, playSeconds: 0, clickEnergy: 0, startedAt: null, lastOffline: null });
+    expect(m.stats).toEqual({ clicks: 0, petClicks: 0, returns: 0, playSeconds: 0, clickEnergy: 0, startedAt: null, lastOffline: null });
   });
 
   it('a loaded save unlocks what it has reached without notices', () => {

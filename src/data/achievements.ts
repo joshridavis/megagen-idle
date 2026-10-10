@@ -28,7 +28,8 @@ export type AchievementMetric =
   | 'effectEvents'
   | 'returns'
   | 'decorations'
-  | 'decorKinds';
+  | 'decorKinds'
+  | 'petClicks';
 
 export interface AchievementDef {
   id: string;
@@ -79,7 +80,8 @@ const TITLES: Record<string, TitleTierId> = {
   contracts_200: 'epic', // 128 h
   energy_2b: 'epic', // 132 h
   adult_all: 'epic', // 176 h
-  decor_30: 'epic', // play style: every decoration copy bought (36 today), prices rising each copy (1.78)
+  pet_1k: 'uncommon', // play style: pet your pets 1,000 times (1.51)
+  decor_30: 'epic', // play style: every decoration copy bought (84 since 1.54), prices rising each copy (1.78)
   types_all: 'legendary', // 228 h
   research_all: 'legendary', // 243 h
   maxed_all: 'legendary', // 265 h (100%)
@@ -135,6 +137,10 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   a('pets_all', 'Full House', 'Find every pet.', 'Pets', 'petsFound', PETS.length),
   a('adult_1', 'All Grown Up', 'Raise a pet to adult.', 'Pets', 'petsAdult', 1),
   a('adult_all', 'Proud Keeper', 'Raise every pet to adult.', 'Pets', 'petsAdult', PETS.length),
+  // 1.51 (owner request, playtest 21): petting your pets; play style, so bonus (outside 100%)
+  a('pet_10', 'Gentle Hand', 'Pet your pets 10 times.', 'Pets', 'petClicks', 10, true),
+  a('pet_100', 'Best Friend', 'Pet your pets 100 times.', 'Pets', 'petClicks', 100, true),
+  a('pet_1k', 'Pet Whisperer', 'Pet your pets 1,000 times.', 'Pets', 'petClicks', 1000, true),
   a('decor_1', 'Green Thumb', 'Buy your first decoration.', 'Decorations', 'decorations', 1),
   a('decor_10', 'Site Beautifier', 'Buy 10 decorations.', 'Decorations', 'decorations', 10),
   a('decor_kinds', 'Collector', 'Buy every kind of decoration.', 'Decorations', 'decorKinds', DECORATIONS.length),

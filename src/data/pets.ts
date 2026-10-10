@@ -65,6 +65,11 @@ export interface PetDef {
 export const PET_STAGES = ['Baby', 'Young', 'Adult'] as const;
 /** How long a pet's reaction plays when clicked (0.99, ms). */
 export const PET_REACT_MS = 2500;
+/**
+ * Petting counts toward the petting achievements (1.51) at most `count` times
+ * per `ms`, so rapid clicking counts but an auto-clicker gains nothing special.
+ */
+export const PET_CLICK_CAP = { count: 3, ms: 1000 };
 /** Particles a pet shows when clicked. */
 export const PET_PARTICLES: Record<PetId, string> = {
   hamster: '❤',
@@ -156,6 +161,87 @@ export const PET_STAGE_HEIGHT: [number, number, number] = [0.55, 0.78, 1];
 export const PET_SLEEP_SQUASH = 0.8;
 /** Actions whose emoji is a thing on the ground in front of the pet's mouth, not a thought bubble (owner, playtest 25). */
 export const PET_GROUND_ACTIONS: PetAction[] = ['eat', 'play'];
+
+/**
+ * Pets meeting each other (1.81, owner request playtest 25): now and then two
+ * idle walking pets meet. One walks over to the other, they face each other
+ * and share an action, then go their own ways. Rarer than solo actions.
+ */
+export const PET_MEET_KINDS = ['greet', 'play', 'nap', 'share'] as const;
+export type PetMeetKind = (typeof PET_MEET_KINDS)[number];
+export const PET_MEET = {
+  /** Chance per walker step (PET_WALK.tickMs) that two resting pets meet, when at least two rest. */
+  chancePerTick: 0.05,
+  /** How far apart the two stand, as a share of the walking width (the component passes one from the screen width). */
+  gap: 0.05,
+  /** How often each shared action is picked, relative to the others. */
+  weights: { greet: 3, play: 2, nap: 1, share: 2 } as Record<PetMeetKind, number>,
+  /** How long each shared action lasts (ms): shortest and longest. A nap side by side is long, like a solo nap. */
+  ms: { greet: [3_000, 5_000], play: [5_000, 9_000], nap: [40_000, 90_000], share: [4_000, 8_000] } as Record<PetMeetKind, [number, number]>,
+  /** The pose both pets take during each shared action. */
+  action: { greet: 'rest', play: 'play', nap: 'sleep', share: 'eat' } as Record<PetMeetKind, PetAction>,
+  /** The greeting bubble between them. */
+  greetBubble: '❤️',
+};
+
+/**
+ * Pet reactions (1.80, owner request playtest 25): the walking pets stop and
+ * celebrate your milestones, and react to random events. One plays at a time
+ * for PET_REACTION_MS; a burst of events plays only the first.
+ */
+export type PetReactionPose = 'celebrate' | 'look' | 'happy' | 'hide' | 'scared' | 'cheer';
+export interface PetReactionDef {
+  /** The bubble over the pet. */
+  emoji: string;
+  /** The pose it plays (CSS class `pet-reaction-{pose}` in index.css). */
+  pose: PetReactionPose;
+}
+export const PET_REACTION_MS = 4_000;
+/** Research complete, level up, a pet grown, an achievement or a contract complete. */
+export const PET_CELEBRATION: PetReactionDef = { emoji: '🎉', pose: 'celebrate' };
+/** Sparkles thrown up by a celebrating pet. */
+export const PET_CONFETTI = ['✨', '🎊', '✨'];
+/** A random event with no reaction of its own. */
+export const PET_GENERIC_REACTION: PetReactionDef = { emoji: '👀', pose: 'look' };
+/** A negative random event with no reaction of its own. */
+export const PET_NEGATIVE_REACTION: PetReactionDef = { emoji: '😨', pose: 'scared' };
+const lookUp: PetReactionDef = { emoji: '😮', pose: 'look' };
+const hide: PetReactionDef = { emoji: '🌧️', pose: 'hide' };
+const money: PetReactionDef = { emoji: '💰', pose: 'cheer' };
+/** Random events with their own reaction, by event id (src/data/events.ts). */
+export const PET_EVENT_REACTIONS: Record<string, PetReactionDef> = {
+  spaceship: lookUp,
+  meteor_shower: lookUp,
+  aurora: lookUp,
+  ufo: lookUp,
+  shooting_star: lookUp,
+  whale: lookUp,
+  rainbow: { emoji: '🌈', pose: 'happy' },
+  sunny_spell: { emoji: '☀️', pose: 'happy' },
+  strong_winds: { emoji: '🌬️', pose: 'happy' },
+  overcast: hide,
+  calm_air: hide,
+  map_lightning: { emoji: '⚡', pose: 'hide' },
+  map_flood: hide,
+  map_fire: { emoji: '🔥', pose: 'scared' },
+  grant: money,
+  map_delivery: money,
+  rich_seam: money,
+  coal_find: money,
+  contract_boost: money,
+  eureka: { emoji: '💡', pose: 'happy' },
+  map_star: { emoji: '⭐', pose: 'happy' },
+  birds: { emoji: '🐦', pose: 'look' },
+  map_flock: { emoji: '🐦', pose: 'look' },
+  // 1.55
+  hot_air_balloon: lookUp,
+  comet: lookUp,
+  heat_wave: { emoji: '😎', pose: 'happy' },
+  grid_surge: { emoji: '🤩', pose: 'cheer' },
+  spring_tide: { emoji: '🌊', pose: 'happy' },
+  map_maintenance: { emoji: '🛠️', pose: 'cheer' },
+  map_gas_flare: { emoji: '🔥', pose: 'scared' },
+};
 
 /** Hours to grow after feeding: to young, to adult. */
 export const GROW_HOURS: [number, number] = [2, 8];

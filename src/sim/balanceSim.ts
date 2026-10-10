@@ -42,8 +42,8 @@ import { eventRatePerHour } from '../utils/randomEvents';
 import { deriveRates } from '../utils/simulation';
 import { unlockAchievements } from '../utils/achievements';
 import { ACHIEVEMENTS } from '../data/achievements';
-import { DECORATIONS } from '../data/decorations';
-import { buyBlock, buyDecoration, decorationPrice } from '../utils/decorations';
+import { DECORATION_LIMIT, DECORATIONS } from '../data/decorations';
+import { boughtCount, buyBlock, buyDecoration, decorationPrice } from '../utils/decorations';
 
 export interface SimOptions {
   /** Simulated hours to run at most. */
@@ -472,6 +472,13 @@ export function runBalanceSim(opts: Partial<SimOptions> = {}, stallHours = STALL
     // a player level-up is visible progress (event log, energy bonus): it counts against stalls (1.87)
     for (let n = 2; n <= getPlayerLevel(s.lifetimeEnergy).level; n++) hit(`plevel:${n}`, `Player level ${n}`);
     for (let n = 2; n <= petSlots(s); n++) hit(`petSlot:${n}`, `Active pet slot ${n}`);
+    // decorations (1.54): each copy bought shows in the Completion tab (n/6 bought), like every 5 contracts;
+    // all 6 of a kind is a completion entry done
+    for (const d of DECORATIONS) {
+      const n = boughtCount(s, d.id);
+      for (let i = 1; i <= Math.min(n, DECORATION_LIMIT); i++) hit(`decorCopy:${d.id}:${i}`, `${d.name} ${i} of ${DECORATION_LIMIT} bought`);
+      if (n >= DECORATION_LIMIT) hit(`decor:${d.id}`, `Every ${d.name} bought`);
+    }
     for (const id of PRODUCER_IDS) if ((s.producers[id] ?? 0) > 0) hit(`producer:${id}`, `Has ${/^[AEIOU]/.test(PRODUCERS[id].name) ? 'an' : 'a'} ${PRODUCERS[id].name}`);
     for (let i = 1; i <= s.expansionLevel; i++) hit(`room:${i}`, `Room expansion ${i} of ${ROOM_TIERS.length}`);
     s.completedResearch.forEach((id, i) => {

@@ -12,6 +12,7 @@ import SettingsPanel from './SettingsPanel';
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 const adult = { stage: 3, growUntil: null, foundAt: 0 };
@@ -21,6 +22,8 @@ const withPets = (settings: Partial<ReturnType<typeof createInitialState>['setti
     pets: { active: 'cat', extra: ['eel'], slots: 2, owned: { cat: adult, eel: adult, hamster: adult } },
     settings: { ...createInitialState(0).settings, ...settings },
   });
+  // owning pets unlocks achievements, which the pets would celebrate (1.80): start calm
+  useStore.setState({ petReaction: null });
 };
 
 describe('walker logic (1.60)', () => {
@@ -98,6 +101,8 @@ describe('pets walk on screen (1.60)', () => {
 
   it('walks on a timer, and a click plays the pet reaction', async () => {
     vi.useFakeTimers();
+    // a fixed roll: no meeting (1.81) keeps a pet waiting
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
     withPets();
     render(<PetWalkers />);
     await act(async () => {

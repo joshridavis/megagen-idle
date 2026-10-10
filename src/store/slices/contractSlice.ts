@@ -9,8 +9,8 @@ import type { LogInput } from '../../utils/eventLog';
 import type { SliceCreator } from '../types';
 
 export interface ContractActions {
-  /** Expires, completes and offers contracts up to `now` (called by the idle engine). */
-  tickContracts: (now?: number, rng?: Rng) => void;
+  /** Expires, completes and offers contracts up to `now` (called by the idle engine); in live play the pets celebrate a completed one (1.80). */
+  tickContracts: (now?: number, rng?: Rng, live?: boolean) => void;
   deliverContract: (id: string) => boolean;
   claimContract: (id: string, choice: RewardChoice, now?: number) => void;
   buyPerk: (id: PerkId) => boolean;
@@ -30,12 +30,13 @@ export const createContractSlice =
   (initial: ContractsState): SliceCreator<ContractsState & ContractActions> =>
   (set, get) => ({
     ...initial,
-    tickContracts: (now = Date.now(), rng = Math.random) => {
+    tickContracts: (now = Date.now(), rng = Math.random, live = false) => {
       const s = get();
       const r = updateContracts(pickSaved(s), now, rng);
       if (r.state.contracts === s.contracts) return;
       set({ contracts: r.state.contracts }, undefined, 'contracts/tick');
       s.logEvents(contractLogEntries(r), now);
+      if (live && r.completed.length) s.reactPets({ kind: 'celebrate' }, now);
     },
     deliverContract: (id) => {
       const before = pickSaved(get());
