@@ -110,7 +110,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.47 Decorations in a panel that opens over the map → CHECKPOINT 22
 0. 1.51 Achievements for petting your pets (Done) → CHECKPOINT 29 (5 items since checkpoint 28: 1.80, 1.81, 1.55, 1.54, 1.51)
 0. 1.52 Store images from the current art (owner request; Done)
-0. 1.49 A designed loading screen for the website
+0. 1.49 A designed loading screen for the website (Done)
 0. 1.50 A dedicated MegaGen Idle logo (done before 1.49, so the loading screen can show it; Done)
 0. 1.48 Sprite quality pass: shadows, proportions, better map designs
 0. (then 0.42 Performance pass and the rest of the order below)
@@ -1141,7 +1141,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Sizes and file names stay the same, so no code changes; `npm run check:assets` passes. Before and after screenshots in the PR.
 **Acceptance:** regenerated sprites pass the asset check; a screenshot comparison in the PR; the build and all tests pass.
 
-### 1.49 — A designed loading screen for the website — CODE — Not started
+### 1.49 — A designed loading screen for the website — CODE — Done
 **Goal:** owner request after playtest 21: the page shows nothing designed while the game loads.
 **Details:**
 - A loading screen drawn in `index.html` itself (inline CSS, no extra download), so it shows before the JavaScript runs: the game logo (1.50, or the energy icon until then), a pulsing energy bar and "Charging up…", on the game's dark background.
@@ -1149,6 +1149,11 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reduce motion (the `prefers-reduced-motion` media query, since settings are not loaded yet): no pulse.
 - If loading fails (script error), the screen shows "Could not load the game. Reload the page." after a timeout instead of spinning forever.
 **Acceptance:** Playwright: the loader is visible before the app mounts and gone after; a test that the failure message appears when the app does not start; the build and all tests pass.
+**Notes:**
+- **In `index.html`:** the 1.50 wordmark (inlined as a data URL at build time by a small Vite plugin in `vite.config.ts`, so a replaced logo shows there too), an amber-to-yellow bar that charges and drains, and "Charging up…" on the game's dark background. Under `prefers-reduced-motion` the bar is still and nothing fades.
+- **Going away:** `src/main.tsx` waits for the save to load and two frames to paint, then `hideBootLoader` (`src/utils/bootLoader.ts`) fades it out over 300 ms, or removes it at once if the page was ready in under 300 ms or the in-game Reduce motion setting is on.
+- **Failure:** an inline script shows "Could not load the game. Reload the page." (with a reload link) as soon as the game's script fails to download, or after 20 s if the game has not started. Timings are in `src/data/boot.ts`.
+- **Tests:** unit tests for the fade rules; Playwright (`e2e/loader.spec.ts`) holds the game script back to see the loader before the app mounts and gone after, and blocks it to see the failure message.
 
 ### 1.50 — A dedicated MegaGen Idle logo — CODE — Done
 **Goal:** owner request after playtest 21: replace the plain "MegaGen Idle" text with a dedicated logo.
