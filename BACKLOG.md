@@ -115,7 +115,16 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.48 Sprite quality pass: shadows, proportions, better map designs (Done)
 0. 0.42 Performance pass (Done)
 0. 0.18 Test coverage pass (Done) → CHECKPOINT 30 (5 items since checkpoint 29: 1.50, 1.49, 1.48, 0.42, 0.18)
-0. (then the rest of the order below)
+0. (then the launch items below)
+
+**Launch work (Claude's placement after checkpoint 30, CLAUDE.md "Writing new backlog items": launch work first until March 11, 2027; the owner can move them):**
+
+0. 1.94 megagenidle.com: landing page and custom domain
+0. 1.95 Full Game unlock and Supporter Pack: purchases framework (needs an owner decision on where the free part ends; a proposal is in the item)
+0. 1.96 Desktop app with Electron, packaged for Windows in GitHub Actions
+0. 1.97 Mobile apps with Capacitor for Android and iOS, built by Codemagic
+0. 1.98 Steam: achievements, the Full Game purchase and an upload workflow → CHECKPOINT 31
+0. (then 0.44, 0.45, 0.47 and the rest of the order below)
 
 **Launch priority (owner decision, 2026-10-03):** these come first, in this order. Items already `Done` are skipped, so the first open item is 0.41.
 
@@ -1395,6 +1404,52 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** `src/components/CompletionPanel.tsx`: every sighting row shows its rarity after the name (found: "Aurora Rare ×3"; unfound: "??? Rare"), colored by `rarityColor` in `src/data/events.ts`, which takes the title tier of the same name. Names wrap on a phone. Tests in `src/components/SightingRarity.test.tsx` (text, color and 4.5:1 contrast on the row).
 
+### 1.94 — megagenidle.com: landing page and custom domain — CODE — Not started
+**Goal:** launch work (March 11, 2027): the public website megagenidle.com, with a landing page and the game.
+**Details:**
+- A landing page at the site root (a second Vite page, `site/index.html`, sharing the AAP-64 theme): the logo (1.50), the key scene (`src/assets/brand/key_scene.png`), a short pitch, a **Play now** button that opens the game, "Coming March 11, 2027 to Steam, Google Play and the App Store" with store links read from one data file (`src/data/stores.ts`, empty until the owner has the pages), and links to the privacy page and credits.
+- The game moves to `/play/`. The Vite `base` becomes `/` for the custom domain; a `public/CNAME` file holds `megagenidle.com`. The GitHub Pages preview URL keeps working until the owner switches the domain (document both in `README.md`).
+- Meta tags for sharing (title, description, Open Graph image from the key scene) and the logo icon as favicon.
+- **Owner step:** point the domain's DNS at GitHub Pages and set the custom domain in the repository's Pages settings (steps in `docs/PUBLIC_RELEASE.md`).
+**Acceptance:** Playwright: the landing page loads, "Play now" reaches the game, the game still loads and saves at its new path; the build and all tests pass.
+
+### 1.95 — Full Game unlock and Supporter Pack: purchases framework — CODE — Not started
+**Goal:** launch work: the business model in `CLAUDE.md`: a free part, a one-time "Full Game" unlock and a cosmetic "Supporter Pack". Never pay-to-win, no ads, no premium currency.
+**Details:**
+- A `purchases` part of the platform layer (`src/platform/`): `products()`, `buy(id)`, `restore()`, `owned()`. The web version uses a test implementation behind a dev-only switch; stores plug in their own later (Steam in 1.98, Google Play and the App Store in 1.97).
+- Entitlements saved with the game (migration: none owned) and re-checked with `restore()` on start.
+- **Where the free part ends is an owner decision.** Until the owner decides, the boundary is one named constant in `src/data/purchases.ts` (proposal: everything up to and including the first Natural Gas Plant and research level 9, about 17 hours of play). Past it, a calm panel explains the Full Game and offers to buy or restore; nothing already built stops working, and offline gains continue.
+- The Supporter Pack is cosmetic only: an exclusive accent and title (1.01), and a thank-you line in Settings → Credits. It never changes any number in the game.
+- Tests: entitlements persist and migrate, the free boundary blocks only what it should, the Supporter Pack changes no game number (compare a simulated run with and without it).
+**Acceptance:** the framework, the free boundary and the Supporter Pack cosmetics work in the web build with the test store; `npm run simulate` is unchanged for a Full Game player; the build and all tests pass.
+
+### 1.96 — Desktop app with Electron, packaged for Windows in GitHub Actions — CODE — Not started
+**Goal:** launch work: a Windows desktop build for Steam.
+**Details:**
+- `electron/main.ts` and a preload script that loads the Vite build from local files (works offline), one window with a sensible minimum size, no menu bar, links opening in the system browser.
+- `src/platform/desktop.ts`: background and foreground from window minimize and restore (so offline gains and the welcome-back summary work as on the web), `openExternal`, and the save in a file in the user data folder rather than browser storage (with a one-time import of the browser save if present).
+- npm scripts `desktop:dev` and `desktop:build` (electron-builder, Windows NSIS and a portable folder for Steam's depot); `README.md` updated.
+- A GitHub Actions workflow on `windows-latest` builds the app on tags and on manual runs and uploads it as an artifact. Code signing is optional: it reads `WIN_CSC_LINK` and `WIN_CSC_KEY_PASSWORD` from GitHub secrets when the owner adds them.
+**Acceptance:** the workflow file validates; unit tests for the desktop platform layer with a fake Electron bridge; the web build is unchanged; the build and all tests pass.
+
+### 1.97 — Mobile apps with Capacitor for Android and iOS, built by Codemagic — CODE — Not started
+**Goal:** launch work: Google Play and App Store builds made in the cloud.
+**Details:**
+- Capacitor config (`capacitor.config.ts`, app id `com.megagenidle.app`), the generated `android/` and `ios/` projects committed, app icons and splash from the brand images (1.52) via a script, and safe-area padding checked.
+- `src/platform/mobile.ts`: pause and resume from the App plugin, native storage (Preferences or Filesystem) for the save, `openExternal` through the Browser plugin.
+- `codemagic.yaml`: an Android workflow building a signed AAB and an iOS workflow building a signed IPA, publishing to the Play internal track and TestFlight when the owner's credentials exist. Secrets the owner adds in Codemagic: the Android keystore (and its passwords), the Google Play service account JSON, and an App Store Connect API key.
+- Nothing needs Xcode or Android Studio on a local machine.
+**Acceptance:** `npx cap sync` runs in CI; unit tests for the mobile platform layer with fakes; `codemagic.yaml` passes a schema check; the build and all tests pass.
+
+### 1.98 — Steam: achievements, the Full Game purchase and an upload workflow — CODE — Not started
+**Goal:** launch work: connect the desktop app (1.96) to Steam.
+**Details:**
+- `steamworks.js` in the Electron main process only, behind the platform layer: our achievements (`src/data/achievements.ts`, stable ids) unlock the matching Steam achievements; rich presence shows the energy rate.
+- The Full Game on Steam is the paid base game or a DLC (owner decision, see 1.95); the Supporter Pack is a DLC. Ownership is read from Steam at start.
+- A GitHub Actions workflow uploads the Windows build to Steam with steamcmd on manual runs. Secrets the owner adds: `STEAM_USERNAME`, `STEAM_CONFIG_VDF`, and the app and depot ids as repository variables.
+- `docs/steam/` gets the achievements list for Steamworks (names, descriptions, generated 64 px icons) and the upload steps.
+**Acceptance:** unit tests with a fake Steam bridge (achievement mapping, ownership); the workflow file validates; the build and all tests pass.
+
 ### 1.93 — Fix: Kinetic Capture and Grid Tap make a click worth far more than idling — CODE — Done
 **Goal:** owner report, playtest 28: the last click research, Kinetic Capture and Grid Tap, each add "+25% of your energy/s to each click". At 5,670 energy/s a click goes from 9 to about 1,426 energy, then about 2,844 with both. Clicking dozens of times a minute makes a jump far beyond idling. The upgrade should make more sense.
 **Details:**
@@ -2060,3 +2115,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 28.1 (v0.28.1, hotfix) | 1.93 | 2026-10-09 | The owner asked to continue from the order of work (hold lifted). | |
 | 29 (v0.29.0) | 1.80, 1.81, 1.55, 1.54, 1.51 | 2026-10-10 | 100% completion simulated at 761.4 h (was 761.3 h); 75% at 301.9 h; last room expansion (13) at 496.9 h. Owner decision during the run: the simulator's stall threshold is 13 h (was 12). Waiting for feedback. | |
 | 29 (answers) | 1.80, 1.81, 1.55, 1.54, 1.51 | 2026-10-10 | The owner asked to continue from the order of work: 1.50, 1.49, 1.48, 0.42 and 0.18 toward checkpoint 30. | |
+| 30 (v0.30.0) | 1.50, 1.49, 1.48, 0.42, 0.18 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; last room expansion (13) at 496.9 h. Owner feedback during the run: center "Idle" under "MegaGen" in the logo (done). Waiting for feedback. | |
