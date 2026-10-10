@@ -1,4 +1,49 @@
-# Playtest 29 (v0.29.0): pets celebrate, react and meet; 11 more random events; 8 more decorations; petting achievements
+# Playtest 30 (v0.30.0): a pixel logo, a loading screen, shadows on the sprites, a faster map, and more tests
+
+The version at the bottom of the screen should read **v0.30.0**.
+
+## How to play
+
+- **In a browser:** merge the pull request. Once the deploy run in the Actions tab is green, open https://joshridavis.github.io/megagen-idle/
+- **Locally:** `npm install`, then `npm run dev`, then open http://localhost:5173
+
+## Estimated play time
+
+- **100% completion: about 761.4 hours** (simulated with `npm run simulate`; unchanged, since nothing in this version changes balance), so roughly 4 to 5 weeks with the game closed most of the time.
+- Key times: 25% at 11.4 h, 50% at 78.8 h, first Nuclear Fission Plant 143.1 h, 75% at 301.9 h, first Fusion Reactor 335.4 h, first Micro-Supernova 440.4 h, last room expansion (13) at 496.9 h, 100% at 761.4 h.
+
+## What's new
+
+- **A pixel logo (1.50):** the "MegaGen Idle" text at the top is now a pixel wordmark in the store logo's style: "MegaGen" in bold electric yellow with "Idle ⚡" centered below it. It is drawn by the sprite script, so real art can replace it later at the same size (192×48). The browser tab icon is now the logo's bolt on a dark blue square (32×32). As you asked during the run, "Idle" is centered under "MegaGen" (it first sat under "Gen").
+- **A loading screen (1.49):** while the game loads you see the logo, a charging energy bar and "Charging up…" on the game's dark background, instead of a blank page. It fades out once your save has loaded. On a fast load it just disappears, with no flash. If the game cannot start (for example a failed download), it says "Could not load the game. Reload the page." instead of loading forever.
+- **Sprite pass (1.48):** generators, producers and standing map details and decorations now cast a soft shadow down and to the right (light from the top left). The map birds and the shooting star cast a fainter shadow further away, as they fly. The Uranium Mine's hill is taller, to match the other producers. Rocks, boulders and bushes are shaded, and the wave detail on the sea is now rolling crests with white foam. The store images were updated to match. Before and after: `docs/screenshots/sprite-pass-1.48.png`.
+- **Faster with a big base (0.42):** with 200 generators, each game tick drew the whole map again. The Map tab now redraws only what changed (about 8 times faster in tests), and so does the "Your generators" list (about 3 to 4 times faster). Nothing looks or works differently.
+- **More tests (0.18):** the game rules are now 99% covered by tests, and CI fails if that drops below 80%. Nothing changes in the game.
+
+## Things to try
+
+1. Look at the logo at the top, on a computer and on a phone. Is it clear and the right size?
+2. Look at the browser tab: the new bolt icon.
+3. Reload the page a few times. On a slow connection (or with the browser's network throttling) you should see the loading screen with the charging bar, then the game fades in.
+4. Map tab: look at your machines, the rocks, bushes and the sea waves. Do the shadows help the map read better, or are they too faint or too strong?
+5. With a big base, switch between the Map and Generators tabs and scroll. Does the game feel smoother than before?
+6. Turn on Reduce motion and reload: the loading bar should stay still and the screen should not fade.
+
+## Known issues
+
+- The shadows are drawn inside each sprite's own picture, so a machine that fills its whole picture (the Hydro Dam, the Tidal Station) shows little shadow.
+- Some smaller panels (Research, Contracts, Pets, Stats) still redraw on every tick. They are fast enough now; they can get the same treatment if a big save feels slow there.
+
+## Questions
+
+1. Logo: do you like it in the header? Should it be bigger or smaller?
+2. Loading screen: is "Charging up…" the right text, and is the charging bar a good fit?
+3. Shadows: is the strength right? Would you like them on the flying sightings too (the UFO, the balloon)?
+4. With your current save, does the Map tab feel faster?
+
+---
+
+# Previous: Playtest 29 (v0.29.0): pets celebrate, react and meet; 11 more random events; 8 more decorations; petting achievements
 
 The version at the bottom of the screen should read **v0.29.0**.
 

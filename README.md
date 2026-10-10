@@ -17,6 +17,7 @@ An idle/incremental game about generating energy. You start with almost nothing 
 | `npm run build` | Type-checks and builds the static site into `dist/` (served under `/megagen-idle/`). |
 | `npm run preview` | Serves the built `dist/` locally, at `http://localhost:4173/megagen-idle/`. |
 | `npm test` | Runs the Vitest unit tests once. |
+| `npm run test:coverage` | Runs the unit tests with a coverage report (HTML in `coverage/`); fails if the game rules in `src/utils/` drop below 80% lines, statements, functions or branches. CI runs this. |
 | `npm run test:e2e` | Builds the game and runs the Playwright browser smoke test against it. First run `npx playwright install chromium` (or set `PW_CHROMIUM_PATH` to an existing Chromium). |
 | `npm run simulate` | Runs the balance simulator (a greedy idle player) and writes `BALANCE_REPORT.md`: milestone times, pacing targets from `src/data/pacingTargets.ts`, stalls and hours to 100% completion. |
 | `npm run check:assets` | Checks every sprite in the manifest exists as a PNG of the right size, and lists which are still generic stand-ins. |

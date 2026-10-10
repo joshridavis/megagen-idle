@@ -13,6 +13,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Canvas } from './lib/canvas.mjs';
 import { C, nearestPaletteRgb } from './lib/palette.mjs';
+import { drawWordmark, LINE_1, LINE_2, layoutLine } from './lib/logo.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 // --assets-dir=<dir> targets another folder (used by tests).
@@ -490,8 +491,9 @@ function oilRig(frame = 0) {
 
 function uraniumMine(frame = 0) {
   const c = new Canvas(48, 48);
-  c.polygon([[0, 40], [10, 22], [24, 16], [38, 22], [48, 40]], C.brown3); // hill
-  c.polygon([[0, 40], [10, 22], [16, 20], [8, 40]], C.brown2);
+  c.polygon([[0, 40], [9, 16], [24, 7], [39, 16], [48, 40]], C.brown3); // hill, as tall as the other producers (1.48)
+  c.polygon([[0, 40], [9, 16], [16, 11], [8, 40]], C.brown2); // lit left slope
+  c.polygon([[39, 16], [48, 40], [42, 40], [35, 20]], C.brown4); // shaded right slope
   c.polygon([[18, 40], [20, 30], [28, 30], [30, 40]], C.ink); // tunnel
   c.rect(18, 28, 12, 2, C.brown5);
   c.rect(0, 40, 48, 8, C.mud);
@@ -858,12 +860,15 @@ function mapStar() {
 }
 
 function mapWave() {
+  // two rolling crests (1.48): a blue body, a mint face and a white curling top with spray
   const c = new Canvas(16, 16);
-  for (const y of [4, 10]) {
-    c.line(1, y + 1, 4, y - 1, C.white);
-    c.line(4, y - 1, 7, y + 1, C.white);
-    c.line(8, y + 1, 11, y - 1, C.mint);
-    c.line(11, y - 1, 14, y + 1, C.mint);
+  for (const [x0, y] of [[1, 5], [4, 11]]) {
+    c.line(x0, y + 1, x0 + 10, y + 1, C.sky);
+    c.line(x0 + 2, y, x0 + 7, y, C.mint);
+    c.line(x0 + 4, y - 1, x0 + 8, y - 1, C.white);
+    c.set(x0 + 9, y, C.white); // the curl
+    c.set(x0 + 3, y - 2, C.white); // spray
+    c.set(x0 + 6, y - 3, C.mint);
   }
   return c;
 }
@@ -1090,7 +1095,9 @@ function seaTile() {
 function decoRock() {
   const c = new Canvas(16, 16);
   c.polygon([[4, 13], [6, 8], [10, 7], [12, 13]], C.grey4);
-  c.rect(7, 8, 2, 1, C.grey2);
+  c.polygon([[9, 8], [10, 7], [12, 13], [9, 13]], C.grey5); // shaded right face (1.48)
+  c.rect(6, 8, 3, 1, C.grey2);
+  c.set(6, 9, C.grey3);
   return c;
 }
 function decoTuft() {
@@ -1113,8 +1120,12 @@ const deco = (draw) => () => {
   return c;
 };
 const decoBush = deco((c) => {
-  c.circle(8, 10, 4, C.darkGreen);
-  c.circle(6, 9, 2, C.green);
+  // lit from the top left (1.48): dark underside, mid body, light crown
+  c.circle(8, 10, 4, C.forest);
+  c.circle(8, 9.5, 3.5, C.darkGreen);
+  c.circle(7, 9, 2.5, C.green);
+  c.set(6, 7, C.lime);
+  c.set(5, 8, C.lime);
   c.set(10, 8, C.lime);
 });
 const decoStump = deco((c) => {
@@ -1145,9 +1156,13 @@ const decoDryGrass = deco((c) => {
   for (const x of [4, 6, 8, 10, 12]) c.line(x, 13, x + (x % 4 ? 1 : -1), 9, C.brown1);
 });
 const decoBoulder = deco((c) => {
-  c.circle(8, 10, 4, C.grey4);
-  c.rect(5, 8, 3, 1, C.grey2);
-  c.rect(4, 13, 9, 1, C.grey5);
+  // rounded and lit from the top left (1.48), with a crack
+  c.circle(8, 10, 4, C.grey5);
+  c.circle(7.5, 9.5, 3.5, C.grey4);
+  c.circle(7, 9, 2, C.grey3);
+  c.rect(5, 7, 3, 1, C.grey2);
+  c.set(5, 8, C.grey2);
+  c.line(10, 9, 9, 12, C.grey6);
 });
 const decoBentGrass = deco((c) => {
   for (const x of [4, 7, 10]) c.line(x, 13, x + 3, 8, C.mint);
@@ -1599,7 +1614,92 @@ const DRAW = {
   research_lock: lock,
   research_check: check,
   research_panel_bg: panelBg,
+  logo_wordmark: logoWordmark,
+  logo_icon: logoIcon,
 };
+
+// ---------- logo (1.50) ----------
+
+/**
+ * Header wordmark, 192×48: "MegaGen" in the store logo's font (3 px per font
+ * pixel), with a smaller "Idle" and bolt (2 px) centered below it, clear of the
+ * "g" descender. Same colors, outline and shadow as the store logo.
+ */
+function logoWordmark() {
+  const W = 192, H = 48;
+  const line1 = layoutLine(LINE_1);
+  const line2 = layoutLine(LINE_2);
+  const w1 = line1.width * 3, w2 = line2.width * 2;
+  const x1 = Math.floor((W - 3 - w1) / 2);
+  const y2 = 9 * 3 + 3; // below the "g" descender, centered like the store logo
+  return drawWordmark(W, H, [
+    { names: LINE_1, unit: 3, x: x1, y: 0, shadeRows: 9 },
+    { names: LINE_2, unit: 2, x: x1 + Math.floor((w1 - w2) / 2), y: y2, shadeRows: 7 },
+  ]);
+}
+
+/** App and tab icon, 32×32: the logo's bolt on a dark blue rounded square. */
+function logoIcon() {
+  const n = 32;
+  const c = new Canvas(n, n);
+  const r = 7;
+  const inside = (x, y, inset) => {
+    const lo = inset, hi = n - 1 - inset, rr = r - inset;
+    const qx = Math.min(Math.max(x, lo + rr), hi - rr);
+    const qy = Math.min(Math.max(y, lo + rr), hi - rr);
+    return x >= lo && x <= hi && y >= lo && y <= hi && (x - qx) ** 2 + (y - qy) ** 2 <= rr * rr;
+  };
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      if (!inside(x, y, 0)) continue;
+      if (!inside(x, y, 1)) c.set(x, y, '122020');
+      else if (!inside(x, y, 2)) c.set(x, y, C.blue);
+      else c.set(x, y, y > 24 ? '242234' : C.navy);
+    }
+  }
+  // The bolt: 7×9 font pixels at 3 px with outline and shadow is 24×30; centered.
+  const bolt = drawWordmark(24, 30, [{ names: ['bolt'], unit: 3, x: 0, y: 3, shadeRows: 9 }]);
+  for (let y = 0; y < bolt.height; y++) {
+    for (let x = 0; x < bolt.width; x++) {
+      const px = bolt.getRGBA(x, y);
+      if (px[3] > 0) c.setRGBA(x + 4, y + 1, px);
+    }
+  }
+  return c;
+}
+
+// ---------- shadows (1.48) ----------
+
+/**
+ * A soft drop shadow, lit from the top left: the sprite's silhouette offset by
+ * (d, d) in partly transparent ink, under the sprite, only where it is empty.
+ */
+export function withShadow(src, d, alpha) {
+  const c = new Canvas(src.width, src.height);
+  for (let y = 0; y < src.height; y++) {
+    for (let x = 0; x < src.width; x++) {
+      const tx = x + d, ty = y + d;
+      if (src.alphaAt(x, y) < 255 || tx >= src.width || ty >= src.height) continue;
+      if (src.alphaAt(tx, ty) === 0) c.set(tx, ty, C.ink, alpha);
+    }
+  }
+  for (let y = 0; y < src.height; y++) {
+    for (let x = 0; x < src.width; x++) if (src.alphaAt(x, y) > 0) c.setRGBA(x, y, src.getRGBA(x, y));
+  }
+  return c;
+}
+
+/** Things that stand on the ground cast a shadow; flat ones (grass, lilies, shells) and tiles do not. */
+const GROUND_SHADOW = /^(producer_|deco_(rock|bush|stump|mushroom|log|cactus|boulder|boat|buoy|warning|pylon|driftwood)$|decor_(?!pond))/;
+/** Things in the air cast theirs further away. */
+const AIR_SHADOW = /^map_(bird_\d|star)$/;
+
+function shadowFor(id, c) {
+  const generator = manifest[id]?.file.startsWith('generators/');
+  if (AIR_SHADOW.test(id)) return withShadow(c, 3, 70);
+  if (generator || GROUND_SHADOW.test(id)) return withShadow(c, c.width >= 32 ? 2 : 1, 90);
+  return c;
+}
 
 /** Draws one manifest sprite by ID. Inactive variants derive from the active one. */
 export function drawSprite(id) {
@@ -1611,7 +1711,7 @@ export function drawSprite(id) {
   }
   const fn = DRAW[id];
   if (!fn) throw new Error(`No generic drawing for sprite "${id}"`);
-  return fn();
+  return shadowFor(id, fn());
 }
 
 function run() {

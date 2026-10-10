@@ -102,3 +102,14 @@ describe('sending (1.07)', () => {
     expect(useStore.getState().settings.notifications.types.level).toBe(true);
   });
 });
+
+describe('which switch a log entry falls under (0.18)', () => {
+  it('maps each notifying icon to its type and everything else to none', () => {
+    expect(notifyTypeOf({ icon: ENTRY_ICONS.researchComplete, kind: 'research' })).toBe('research');
+    expect(notifyTypeOf({ icon: ENTRY_ICONS.playerLevel, kind: 'level' })).toBe('level');
+    expect(notifyTypeOf({ icon: ENTRY_ICONS.contractComplete, kind: 'event' })).toBe('contract');
+    expect(notifyTypeOf({ icon: ENTRY_ICONS.petGrown, kind: 'event' })).toBe('pet');
+    expect(notifyTypeOf({ icon: ENTRY_ICONS.fuel, kind: 'fuel' })).toBe('fuel');
+    expect(notifyTypeOf({ icon: ENTRY_ICONS.sighting, kind: 'event' })).toBeNull();
+  });
+});

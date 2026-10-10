@@ -18,6 +18,13 @@ describe('App smoke test', () => {
     expect(screen.getByAltText('Energy')).toBeTruthy();
   });
 
+  it('shows the pixel logo as the page heading (1.50)', () => {
+    render(<App />);
+    const logo = screen.getByRole('heading', { level: 1 }).querySelector('img');
+    expect(logo?.getAttribute('alt')).toBe('MegaGen Idle');
+    expect(logo?.getAttribute('src')).toContain('logo_wordmark');
+  });
+
   it('starts from the documented initial state', () => {
     const s = createInitialState(0);
     expect(s.energy).toBe(900); // exactly the first Solar Panel's cost

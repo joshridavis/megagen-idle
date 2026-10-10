@@ -54,3 +54,18 @@ describe('upgradable first (1.03, playtest 14)', () => {
     expect(sortGenerators(list, 'upgradable', NO_BONUSES, can).every((x) => can(x))).toBe(true);
   });
 });
+
+describe('sorting edge cases (0.18)', () => {
+  it('"Your order" returns the same list, untouched', () => {
+    expect(sortGenerators(list, 'custom', NO_BONUSES)).toBe(list);
+  });
+
+  it('"upgradable" without an affordability check puts maxed generators last', () => {
+    const maxed = g(5, GeneratorType.SOLAR, 99);
+    expect(ids(sortGenerators([maxed, ...list], 'upgradable', NO_BONUSES)).at(-1)).toBe('gen-5');
+  });
+
+  it('an empty list stays empty', () => {
+    expect(sortGenerators([], 'output-desc', NO_BONUSES)).toEqual([]);
+  });
+});
