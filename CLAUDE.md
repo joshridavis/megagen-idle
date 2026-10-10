@@ -21,6 +21,9 @@ Business model:
 - A free part of the game, plus a one-time **"Full Game"** unlock and a cosmetic **"Supporter Pack"**.
 - Never pay-to-win: nothing bought speeds up progress or gives a gameplay advantage. The Supporter Pack is cosmetic only.
 - No ads and no premium currency.
+- Prices (owner decision, playtest 31): Steam full game $6.99 with a free demo app, Supporter Pack DLC $2.99; Google Play and App Store free to start, Full Game $4.99, Supporter Pack $2.99; the web is the free part only, with an optional Ko-fi tip. Expansions later at $3.99.
+
+**Release decisions:** `docs/RELEASE_DECISIONS.md` holds every fixed launch decision from the owner's Launch & Growth Playbook: prices, platforms, editions (demo, full, mobile), names, product and app IDs, Steam and mobile build details, website hosting, store texts and dates. Follow it and do not ask the owner about anything it settles. Never shorten the game's name to "MegaGen" in any text (trademark). The owner's personal and account details from the playbook never go into the repository.
 
 ## Tech stack
 
@@ -29,9 +32,9 @@ Business model:
 - Tests: Vitest (unit); Playwright for browser smoke tests, with a jsdom fallback if its browsers cannot be installed in the cloud
 - Art: pixel art, palette AAP-64. All sprites are generic stand-ins made by a script, and they ship at launch as they are
 - Audio: out of scope for now (no sound effects or music)
-- Web deploy: static Vite build to GitHub Pages through GitHub Actions
-- Desktop: Electron, packaged for Steam (Windows)
-- Mobile: Capacitor, for Android (Google Play) and iOS (App Store)
+- Web deploy: static Vite build, on GitHub Pages through GitHub Actions today; moving to Cloudflare Pages (`npm run build:web`, `dist-web/`) with the website item, after which the repository becomes private (`docs/RELEASE_DECISIONS.md`)
+- Desktop: Electron with steamworks.js, packaged for Steam (Windows first; macOS and Linux later)
+- Mobile: Capacitor, for Android (Google Play) and iOS (App Store); purchases through RevenueCat
 - Store builds run in the cloud: GitHub Actions workflows and `codemagic.yaml`
 
 ## Cloud session rules (important)
@@ -83,7 +86,7 @@ If an item cannot be finished, mark it `Partial`, explain why in the PR, and go 
 `PLAYTEST_EVERY` is set at the top of `BACKLOG.md` (default 5). After that many completed items since the last checkpoint:
 
 1. Check that the game is **playable**: `npm run build` and `npm test` pass, the app loads, and the features finished since the last checkpoint can be reached from the UI. If not, keep working and check again after each next item.
-2. If playable, write or update `PLAYTEST.md` in the repo root with: how to play it (the GitHub Pages URL once item 0.22 is merged and Pages is enabled; otherwise `npm install` then `npm run dev`), what is new since the last playtest, 5 to 10 concrete things to try, known issues, and specific questions about feel and pacing. Always run `npm run simulate` first and state the **estimated hours to 100% completion** (and the key milestone times) in `PLAYTEST.md` and in the message to the owner (owner request, playtest 10).
+2. If playable, write or update `PLAYTEST.md` in the repo root with: how to play it (the game's web address: today the GitHub Pages URL, after the move to Cloudflare the pull request's Cloudflare preview link, where /play/ is the full edition; otherwise `npm install` then `npm run dev`), what is new since the last playtest, 5 to 10 concrete things to try, known issues, and specific questions about feel and pacing. Always run `npm run simulate` first and state the **estimated hours to 100% completion** (and the key milestone times) in `PLAYTEST.md` and in the message to the owner (owner request, playtest 10).
 3. Add a row to the Playtest log in `BACKLOG.md`.
 4. Bump the minor version in `package.json` (`0.5.0` → `0.6.0`; patch for a hotfix). The game footer shows it; mention it in `PLAYTEST.md`, the Playtest log and the PR.
 5. **Stop and tell the owner it is ready to test.** This is the only planned pause.
