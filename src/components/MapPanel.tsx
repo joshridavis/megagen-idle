@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import { sprites, type SpriteId } from '../assets';
 import { GENERATORS } from '../data/generators';
 import { EXCLUSION_START_ROW, LOCKED_PREVIEW_ROWS, MIN_MAP_ROWS, SEA_COLUMNS, ZONES, type Detail, type Terrain, type Zone } from '../data/map';
@@ -23,7 +23,7 @@ import MachineTip from './MachineTip';
 import { machineTip } from '../utils/mapTips';
 import MapLegend, { ZONE_SPRITE } from './MapLegend';
 import MapDecorations, { type DecorTool } from './MapDecorations';
-import { DECORATIONS_BY_ID } from '../data/decorations';
+import { DECORATIONS_BY_ID, type DecorationId } from '../data/decorations';
 import { machineTiles, placeBlock } from '../utils/decorations';
 import MachineSprite from './MachineSprite';
 import { animationOffset, isMachineWorking, machineAnimation } from '../utils/machineAnimation';
@@ -285,6 +285,33 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     }
   };
 
+  // Stable handlers (0.42): the memoized tiles and machines below take these, so a game
+  // tick (new energy, same map) does not re-render the whole grid. They call the latest
+  // closures through a ref.
+  const latest = useRef({ clickTile, pick, startDrag, moveDrag, endDrag, onMachineKey });
+  latest.current = { clickTile, pick, startDrag, moveDrag, endDrag, onMachineKey };
+  const handlers = useMemo<MapHandlers>(
+    () => ({
+      clickTile: (c) => latest.current.clickTile(c),
+      pick: (p) => latest.current.pick(p),
+      startDrag: (p, e) => latest.current.startDrag(p, e),
+      moveDrag: (e) => latest.current.moveDrag(e),
+      endDrag: (e) => latest.current.endDrag(e),
+      onMachineKey: (p, e) => latest.current.onMachineKey(p, e),
+      cancelDrag: () => {
+        drag.current = null;
+      },
+      hoverCell: setHoverCell,
+      hover: setHover,
+      starTip: setStarTip,
+      machineEl: (key, el) => {
+        if (el) machineEls.current.set(key, el);
+        else machineEls.current.delete(key);
+      },
+    }),
+    [],
+  );
+
   // zones with land inside the site, for the legend (1.39)
   const onSite = useMemo(() => {
     const out = new Set<Zone>();
@@ -351,56 +378,19 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
           ref={gridRef}
           onMouseLeave={() => !drag.current && setHoverCell(null)}
         >
-          {Array.from({ length: rows * viewColumns }, (_, i) => {
-            const x = i % viewColumns;
-            const y = Math.floor(i / viewColumns);
-            if (x >= map.columns) {
-              const sd = detailAt(x, y);
-              return (
-                <div key={i} className="relative aspect-square w-full" data-terrain="sea">
-                  <img src={sprites.tile_sea} alt="" className="pixelated absolute inset-0 h-full w-full" />
-                  {sd && <img src={sprites[detailSprite(sd)]} alt="" className="pixelated absolute inset-0 h-full w-full" data-detail={sd} />}
-                </div>
-              );
-            }
-            const c = y * map.columns + x;
-            const t = terrainAt(x, y);
-            const d = detailAt(x, y);
-            const locked = c >= map.capacity;
-            // a decoration under a machine is hidden; it shows again if the machine moves (1.13)
-            const decorAt = !locked && !covered.has(c) ? state.mapDecorations[c] : undefined;
-            const target = sel && targets.has(c);
-            const best = target && sel!.kind === 'generator' && zoneBonusFor(sel!.type, cellsAt(c, sel!.size, map.columns) ?? [], map.columns) > 0;
-            return (
-              <div
-                key={i}
-                className="relative aspect-square w-full"
-                data-terrain={t}
-                data-locked={locked || undefined}
-                onMouseEnter={() => setHoverCell(c)}
-                onClick={() => clickTile(c)}
-              >
-                <img src={sprites[TERRAIN_SPRITE[t]]} alt="" className="pixelated absolute inset-0 h-full w-full" />
-                {d && <img src={sprites[detailSprite(d)]} alt="" className="pixelated absolute inset-0 h-full w-full" data-detail={d} />}
-                {decorAt && (
-                  <img
-                    src={sprites[DECORATIONS_BY_ID[decorAt].sprite]}
-                    alt={DECORATIONS_BY_ID[decorAt].name}
-                    title={DECORATIONS_BY_ID[decorAt].name}
-                    className="pixelated absolute inset-0 h-full w-full"
-                    data-testid={`decor-${c}`}
-                  />
-                )}
-                {t === 'exclusion' && !locked && !reduceMotion && (
-                  // a soft shield glow (1.23); off with reduced motion
-                  <div aria-hidden="true" className="pointer-events-none absolute inset-0 animate-pulse bg-fuchsia-400/10 motion-reduce:animate-none" />
-                )}
-                {locked && <div className="absolute inset-0 bg-slate-950/55" />}
-                {legendZone === t && <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-amber-200/35" data-testid="legend-highlight" />}
-                {target && <div className={`absolute inset-0 ${best ? 'bg-emerald-300/45' : 'bg-emerald-200/15'}`} data-testid={best ? 'best-spot' : undefined} />}
-              </div>
-            );
-          })}
+          <MapTiles
+            rows={rows}
+            viewColumns={viewColumns}
+            columns={map.columns}
+            capacity={map.capacity}
+            decorations={state.mapDecorations}
+            covered={covered}
+            reduceMotion={reduceMotion}
+            legendZone={legendZone}
+            sel={sel}
+            targets={targets}
+            h={handlers}
+          />
           {map.capacity > 0 && (
             // fence line around the site
             <div
@@ -409,72 +399,22 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
               style={pct(0, 0, map.columns, siteRows)}
             />
           )}
-          {map.placed.map((p) => {
-            const lit = hover === p.key || selected === p.key;
-            return (
-              <div key={p.key} onMouseEnter={() => setHover(p.key)} onMouseLeave={() => setHover((k) => (k === p.key ? null : k))}>
-                {/* one tile at a time: a machine never covers tiles that are not its own (playtest 15 bug) */}
-                {p.cells.map((c) => (
-                  <div
-                    key={c}
-                    aria-hidden="true"
-                    onClick={() => (sel && sel.key !== p.key ? clickTile(c) : pick(p))}
-                    className={`absolute cursor-pointer border ${
-                      selected === p.key
-                        ? 'z-10 border-sky-300 bg-sky-300/30'
-                        : lit
-                          ? 'z-10 border-yellow-300/80 bg-yellow-300/25'
-                          : p.misplaced
-                            ? 'border-red-400/80 bg-red-900/30'
-                            : 'border-slate-900/40 bg-slate-900/30'
-                    }`}
-                    style={pct(c % map.columns, Math.floor(c / map.columns), 1, 1)}
-                  />
-                ))}
-                <button
-                  type="button"
-                  ref={(el) => {
-                    if (el) machineEls.current.set(p.key, el);
-                    else machineEls.current.delete(p.key);
-                  }}
-                  onFocus={() => setHover(p.key)}
-                  onBlur={() => setHover((k) => (k === p.key ? null : k))}
-                  onClick={() => pick(p)}
-                  onKeyDown={(e) => onMachineKey(p, e)}
-                  onPointerDown={(e) => startDrag(p, e)}
-                  onPointerMove={moveDrag}
-                  onPointerUp={endDrag}
-                  onPointerCancel={() => {
-                    drag.current = null;
-                  }}
-                  draggable={false}
-                  style={{ ...pct(p.core.x, p.core.y, p.core.w, p.core.h), touchAction: 'none' }}
-                  aria-label={info(p)}
-                  aria-pressed={selected === p.key}
-                  data-testid={`map-${p.key}`}
-                  className="tap-exempt group absolute z-10 flex cursor-grab items-center justify-center hover:z-30 focus-visible:z-30 active:cursor-grabbing"
-                >
-                  <MachineSprite
-                    sprite={spriteOf(p)}
-                    anim={machineAnimation(p)}
-                    animate={machinesMove && isMachineWorking(p, state.activeGenerators)}
-                    offset={animationOffset(p.key, machineAnimation(p).period)}
-                  />
-                  {p.zoneBonus > 0 && (
-                    <FloatingTip
-                      className="absolute right-0 top-0 text-[10px] leading-none"
-                      testId={`star-${p.key}`}
-                      focusable={false}
-                      onOpenChange={setStarTip}
-                      text={zoneTipText(p.type, p.zoneBonus)}
-                    >
-                      ⭐
-                    </FloatingTip>
-                  )}
-                </button>
-              </div>
-            );
-          })}
+          {map.placed.map((p) => (
+            <MapMachine
+              key={p.key}
+              p={p}
+              label={info(p)}
+              sprite={spriteOf(p)}
+              animate={machinesMove && isMachineWorking(p, state.activeGenerators)}
+              lit={hover === p.key || selected === p.key}
+              selected={selected === p.key}
+              moving={sel !== null && sel.key !== p.key}
+              columns={map.columns}
+              viewColumns={viewColumns}
+              rows={rows}
+              h={handlers}
+            />
+          ))}
           <MapEventLayer viewColumns={viewColumns} rows={rows} pct={pct} />
           {tipPlaced && <MachineTip anchor={machineEls.current.get(tipPlaced.key) ?? null} tip={machineTip(state, tipPlaced, fmt)} />}
           {ghost &&
@@ -553,3 +493,194 @@ export default function MapPanel({ onSelect }: { onSelect: (generatorId: string)
     </section>
   );
 }
+
+/** Map handlers that never change identity (0.42), so memoized tiles and machines skip game ticks. */
+interface MapHandlers {
+  clickTile: (c: number) => void;
+  pick: (p: Placed) => void;
+  startDrag: (p: Placed, e: ReactPointerEvent) => void;
+  moveDrag: (e: ReactPointerEvent) => void;
+  endDrag: (e: ReactPointerEvent) => void;
+  onMachineKey: (p: Placed, e: ReactKeyboardEvent) => void;
+  cancelDrag: () => void;
+  hoverCell: (c: number | null) => void;
+  hover: (update: (k: string | null) => string | null) => void;
+  starTip: (open: boolean) => void;
+  machineEl: (key: string, el: HTMLElement | null) => void;
+}
+
+/** Position of a block of tiles, as percentages of the map. */
+const cellBox = (x: number, y: number, w: number, h: number, viewColumns: number, rows: number): CSSProperties => ({
+  left: `${(x / viewColumns) * 100}%`,
+  top: `${(y / rows) * 100}%`,
+  width: `${(w / viewColumns) * 100}%`,
+  height: `${(h / rows) * 100}%`,
+});
+
+/**
+ * The ground: terrain, details, decorations and move targets. Memoized (0.42):
+ * with a few thousand tiles it was most of the map's cost on every game tick.
+ */
+const MapTiles = memo(function MapTiles({
+  rows,
+  viewColumns,
+  columns,
+  capacity,
+  decorations,
+  covered,
+  reduceMotion,
+  legendZone,
+  sel,
+  targets,
+  h,
+}: {
+  rows: number;
+  viewColumns: number;
+  columns: number;
+  capacity: number;
+  decorations: Record<number, DecorationId>;
+  covered: Set<number>;
+  reduceMotion: boolean;
+  legendZone: Zone | null;
+  sel: Placed | null;
+  targets: Set<number>;
+  h: MapHandlers;
+}) {
+  return (
+    <>
+      {Array.from({ length: rows * viewColumns }, (_, i) => {
+        const x = i % viewColumns;
+        const y = Math.floor(i / viewColumns);
+        if (x >= columns) {
+          const sd = detailAt(x, y);
+          return (
+            <div key={i} className="relative aspect-square w-full" data-terrain="sea">
+              <img src={sprites.tile_sea} alt="" className="pixelated absolute inset-0 h-full w-full" />
+              {sd && <img src={sprites[detailSprite(sd)]} alt="" className="pixelated absolute inset-0 h-full w-full" data-detail={sd} />}
+            </div>
+          );
+        }
+        const c = y * columns + x;
+        const t = terrainAt(x, y);
+        const d = detailAt(x, y);
+        const locked = c >= capacity;
+        // a decoration under a machine is hidden; it shows again if the machine moves (1.13)
+        const decorAt = !locked && !covered.has(c) ? decorations[c] : undefined;
+        const target = sel && targets.has(c);
+        const best = target && sel!.kind === 'generator' && zoneBonusFor(sel!.type, cellsAt(c, sel!.size, columns) ?? [], columns) > 0;
+        return (
+          <div
+            key={i}
+            className="relative aspect-square w-full"
+            data-terrain={t}
+            data-locked={locked || undefined}
+            onMouseEnter={() => h.hoverCell(c)}
+            onClick={() => h.clickTile(c)}
+          >
+            <img src={sprites[TERRAIN_SPRITE[t]]} alt="" className="pixelated absolute inset-0 h-full w-full" />
+            {d && <img src={sprites[detailSprite(d)]} alt="" className="pixelated absolute inset-0 h-full w-full" data-detail={d} />}
+            {decorAt && (
+              <img
+                src={sprites[DECORATIONS_BY_ID[decorAt].sprite]}
+                alt={DECORATIONS_BY_ID[decorAt].name}
+                title={DECORATIONS_BY_ID[decorAt].name}
+                className="pixelated absolute inset-0 h-full w-full"
+                data-testid={`decor-${c}`}
+              />
+            )}
+            {t === 'exclusion' && !locked && !reduceMotion && (
+              // a soft shield glow (1.23); off with reduced motion
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 animate-pulse bg-fuchsia-400/10 motion-reduce:animate-none" />
+            )}
+            {locked && <div className="absolute inset-0 bg-slate-950/55" />}
+            {legendZone === t && <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-amber-200/35" data-testid="legend-highlight" />}
+            {target && <div className={`absolute inset-0 ${best ? 'bg-emerald-300/45' : 'bg-emerald-200/15'}`} data-testid={best ? 'best-spot' : undefined} />}
+          </div>
+        );
+      })}
+    </>
+  );
+});
+
+/** One machine on the map: its tiles' outlines and its button. Memoized (0.42); only its own changes re-render it. */
+const MapMachine = memo(function MapMachine({
+  p,
+  label,
+  sprite,
+  animate,
+  lit,
+  selected,
+  moving,
+  columns,
+  viewColumns,
+  rows,
+  h,
+}: {
+  p: Placed;
+  label: string;
+  sprite: SpriteId;
+  animate: boolean;
+  lit: boolean;
+  selected: boolean;
+  /** Another machine is being moved: a click on this one's tiles is a target, not a pick. */
+  moving: boolean;
+  columns: number;
+  viewColumns: number;
+  rows: number;
+  h: MapHandlers;
+}) {
+  const anim = machineAnimation(p);
+  return (
+    <div onMouseEnter={() => h.hover(() => p.key)} onMouseLeave={() => h.hover((k) => (k === p.key ? null : k))}>
+      {/* one tile at a time: a machine never covers tiles that are not its own (playtest 15 bug) */}
+      {p.cells.map((c) => (
+        <div
+          key={c}
+          aria-hidden="true"
+          onClick={() => (moving ? h.clickTile(c) : h.pick(p))}
+          className={`absolute cursor-pointer border ${
+            selected
+              ? 'z-10 border-sky-300 bg-sky-300/30'
+              : lit
+                ? 'z-10 border-yellow-300/80 bg-yellow-300/25'
+                : p.misplaced
+                  ? 'border-red-400/80 bg-red-900/30'
+                  : 'border-slate-900/40 bg-slate-900/30'
+          }`}
+          style={cellBox(c % columns, Math.floor(c / columns), 1, 1, viewColumns, rows)}
+        />
+      ))}
+      <button
+        type="button"
+        ref={(el) => h.machineEl(p.key, el)}
+        onFocus={() => h.hover(() => p.key)}
+        onBlur={() => h.hover((k) => (k === p.key ? null : k))}
+        onClick={() => h.pick(p)}
+        onKeyDown={(e) => h.onMachineKey(p, e)}
+        onPointerDown={(e) => h.startDrag(p, e)}
+        onPointerMove={h.moveDrag}
+        onPointerUp={h.endDrag}
+        onPointerCancel={h.cancelDrag}
+        draggable={false}
+        style={{ ...cellBox(p.core.x, p.core.y, p.core.w, p.core.h, viewColumns, rows), touchAction: 'none' }}
+        aria-label={label}
+        aria-pressed={selected}
+        data-testid={`map-${p.key}`}
+        className="tap-exempt group absolute z-10 flex cursor-grab items-center justify-center hover:z-30 focus-visible:z-30 active:cursor-grabbing"
+      >
+        <MachineSprite sprite={sprite} anim={anim} animate={animate} offset={animationOffset(p.key, anim.period)} />
+        {p.zoneBonus > 0 && (
+          <FloatingTip
+            className="absolute right-0 top-0 text-[10px] leading-none"
+            testId={`star-${p.key}`}
+            focusable={false}
+            onOpenChange={h.starTip}
+            text={zoneTipText(p.type, p.zoneBonus)}
+          >
+            ⭐
+          </FloatingTip>
+        )}
+      </button>
+    </div>
+  );
+});

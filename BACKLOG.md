@@ -113,7 +113,9 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.49 A designed loading screen for the website (Done)
 0. 1.50 A dedicated MegaGen Idle logo (done before 1.49, so the loading screen can show it; Done)
 0. 1.48 Sprite quality pass: shadows, proportions, better map designs (Done)
-0. (then 0.42 Performance pass and the rest of the order below)
+0. 0.42 Performance pass (Done)
+0. 0.18 Test coverage pass → CHECKPOINT 30 (5 items since checkpoint 29: 1.50, 1.49, 1.48, 0.42, 0.18)
+0. (then the rest of the order below)
 
 **Launch priority (owner decision, 2026-10-03):** these come first, in this order. Items already `Done` are skipped, so the first open item is 0.41.
 
@@ -1878,10 +1880,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Keyboard:** a visible amber focus ring on every control. The tabs follow the ARIA tabs pattern (one Tab stop; arrows, Home and End). Map machines move by keyboard: Enter selects, arrow keys move the outline, Enter places, Escape cancels. Dialogs (research details, welcome back, cloud dialogs) keep Tab inside them (`useFocusTrap`) and scroll when taller than the screen.
 - **Motion:** the in-game "Reduce motion" setting now stills every CSS animation (celebrations, glows, pulses, transitions), the same as the operating system's setting, which was already respected.
 
-### 0.42 — Performance pass — CODE — Not started
+### 0.42 — Performance pass — CODE — Done
 **Goal:** stays smooth with a large base.
 **Details:** profile with around 200 generators and a full research tree. Memoize selectors, avoid re-rendering the whole tree on every tick, batch store updates, decouple the 1-second tick from React renders where possible. Add a benchmark script or test asserting the tick stays under a set budget.
 **Acceptance:** measured improvement recorded in the PR; no behavior change; benchmark in CI.
+**Notes:**
+- **Measured** (jsdom, a base of 200 generators at levels 1 to 10, 140 producers, every research done; one live one-second tick, store update plus React render): Map tab 262 ms → about 30 ms, Generators tab 108 ms → about 30 ms, Research tab about 15 ms (unchanged). The pure game step (`advanceTime`) was already about 0.3 ms; the cost was React re-rendering everything that subscribes to the whole store.
+- **Map:** the tile grid (`MapTiles`) and each machine (`MapMachine`) are memoized and take stable handlers through a ref, so a tick (new energy, same map, `layoutSite` already cached) no longer redraws thousands of tiles.
+- **Your generators:** each row (`GeneratorRow`) is memoized and gets its numbers as plain props; each Upgrade button subscribes only to the values it shows (`useShallow`) instead of the whole store.
+- **Benchmark in CI:** `src/performance.test.tsx` (runs with `npm test`) builds that base and checks the game step and a tick on the Map and Generators tabs against generous budgets in `src/data/performance.ts`, and that a tick does not redraw the map tiles (the old code did 25,440 tile lookups in 5 ticks; the test allows 50).
+- No behavior change: all unit and Playwright tests pass unchanged. Other panels still subscribe to the whole store; they are small enough not to matter yet.
 
 ### 0.43 — Visual polish pass — CODE — Done
 **Goal:** the game looks deliberate rather than assembled.
