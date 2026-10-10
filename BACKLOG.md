@@ -33,6 +33,8 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31; Done)
 0. 2.03 Shadows a little lighter (owner request, playtest 31; Done)
 0. 2.05 The website on Cloudflare Pages: landing, play, press, privacy, terms, support (playbook W-05; reworks 1.94; Done) → CHECKPOINT 32 (5 items: 2.06, 2.01, 2.02, 2.03, 2.05)
+**GitHub Pages kept for now (owner, 2026-10-10, after merging playtest 32):** the merged v0.32.0 did not reach the github.io address, because 2.05 removed the deploy. The deploy workflow is back as a temporary measure (`SITE_BASE=/megagen-idle/`, the site links take the base) until Cloudflare Pages is live; then it is deleted (`docs/PUBLIC_RELEASE.md` 9c, step 7).
+
 0. 2.04 Editions (demo, full, mobile), the Full Game panel and the entitlement layer (playbook R-01; reworks 1.95)
 0. 1.98 The Steam desktop build: flavours, steamworks.js, achievements, Supporter DLC, Steam Cloud saves (playbook S-08; builds on 1.96)
 0. 1.97 Mobile apps with Capacitor and RevenueCat, built by Codemagic (playbook A-03)

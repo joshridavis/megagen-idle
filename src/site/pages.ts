@@ -267,7 +267,7 @@ export function seoTags(html: string, path: string): string {
  * Fills one site page: every `<!-- site:name -->` marker becomes its part, and
  * the sharing tags go at the end of <head>. An unknown marker is an error.
  */
-export function buildSitePage(html: string, path: string, opts: { root: string; version: string; now?: Date }): string {
+export function buildSitePage(html: string, path: string, opts: { root: string; version: string; now?: Date; base?: string }): string {
   const md = (key: keyof typeof MARKDOWN_SOURCES) => markdownFor(key, opts.root).html;
   const parts: Record<string, () => string> = {
     header: siteHeader,
@@ -295,7 +295,11 @@ export function buildSitePage(html: string, path: string, opts: { root: string; 
     if (!part) throw new Error(`${path}: unknown marker site:${name}`);
     return part();
   });
-  return filled.replace('</head>', `    ${seoTags(filled, path)}\n  </head>`);
+  const page = filled.replace('</head>', `    ${seoTags(filled, path)}\n  </head>`);
+  // Under a sub-path (the temporary GitHub Pages site at /megagen-idle/), site links get the base.
+  // Source files under /src/ are left to Vite, which adds the base itself.
+  const base = opts.base ?? '/';
+  return base === '/' ? page : page.replace(/(href|src)="\/(?!src\/|\/)/g, `$1="${base}`);
 }
 
 /** sitemap.xml for every listed page. */

@@ -158,7 +158,7 @@ Players who sign in with Google or Discord choose a username the first time. The
 
 ## 9c. The website megagenidle.com on Cloudflare Pages (owner, about 30 minutes plus DNS wait)
 
-The site is ready for it (2.05; playbook W-01, W-05, W-06): `npm run build:web` builds every page into `dist-web/`: the landing page at `/`, the game at `/play/`, and `/press/`, `/privacy/`, `/terms/`, `/support/` and a 404 page, plus `sitemap.xml`, `robots.txt`, the sharing picture and `press-kit.zip`. GitHub Pages is retired: there is no deploy workflow any more, and the last github.io deploy stays online until you turn Pages off.
+The site is ready for it (2.05; playbook W-01, W-05, W-06): `npm run build:web` builds every page into `dist-web/`: the landing page at `/`, the game at `/play/`, and `/press/`, `/privacy/`, `/terms/`, `/support/` and a 404 page, plus `sitemap.xml`, `robots.txt`, the sharing picture and `press-kit.zip`. Until Cloudflare is live, `.github/workflows/deploy.yml` still publishes every merge to `main` on GitHub Pages at https://joshridavis.github.io/megagen-idle/ (built with `SITE_BASE=/megagen-idle/`); it is temporary.
 
 1. **Domain:** buy `megagenidle.com` at Cloudflare (Registrar), so its DNS is already in your Cloudflare account (playbook W-01).
 2. **Pages project:** Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**, pick this repository, then:
@@ -171,7 +171,7 @@ The site is ready for it (2.05; playbook W-01, W-05, W-06): `npm run build:web` 
 4. **Email:** Cloudflare → the domain → **Email → Email Routing**: forward `support@` and `press@` to your own address.
 5. **Visit counts (optional):** Cloudflare Web Analytics for the Pages project. It sets no cookies, so the site needs no cookie banner; the site itself has no analytics code.
 6. **Supabase** (if accounts are on): set the Site URL to `https://megagenidle.com/play/` and add it to the Redirect URLs (section 9, step 4); keep `http://localhost:5173/play/` for local tests.
-7. **GitHub Pages off:** repository **Settings → Pages**: unpublish the site. Then make the repository **private** (playbook W-06, F-06): Cloudflare keeps building from a private repository.
+7. **GitHub Pages off:** delete `.github/workflows/deploy.yml` (or ask Claude to), then repository **Settings → Pages**: unpublish the site. Then make the repository **private** (playbook W-06, F-06): Cloudflare keeps building from a private repository.
 
 **Saves:** a browser keeps its save per web address. A player of the github.io address starts fresh on megagenidle.com unless they move their save: Settings → Save → **Export save** on the old address, then **Import save** on the new one (or cloud saves, if accounts are on).
 
