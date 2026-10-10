@@ -8,7 +8,7 @@ Step IDs in brackets (S-08, A-03, ...) are the playbook's own; they say which ow
 
 ## Launch
 
-- **Date:** Thursday, March 11, 2027, 20:00 Israel time (10:00 PST), on Steam (Windows), Google Play and the App Store at once. The free part plays on megagenidle.com/play/, itch.io and galaxy.click.
+- **Date:** Thursday, March 11, 2027, 18:00 UTC (10:00 PST), on Steam (Windows), Google Play and the App Store at once. The free part plays on megagenidle.com/play/, itch.io and galaxy.click.
 - **If the date slips** (missing the Next Fest registration on January 10, 2027), launch moves to Thursday, July 15, 2027, and every later date by the same 18 weeks.
 - **Platform fees:** $235 in total (Steam Direct $100, Apple $99 a year, Google Play $25, domain about $11 a year). Everything else uses free tiers. **No paid ads, anywhere, ever.**
 
@@ -27,7 +27,7 @@ Step IDs in brackets (S-08, A-03, ...) are the playbook's own; they say which ow
 - **Never shorten the game's name to "MegaGen"** in any text (game, site, store, docs): "MEGA GEN" is a registered dental-implant trademark. The two-line logo ("MegaGen" over "Idle") shows the full name and is fine.
 - **One line, used everywhere:** "Build an energy empire, from one solar panel to a micro-supernova. It keeps generating while you're away."
 - **Promise:** fair and calm. Buy once, own it. No ads, no energy for cash, no timers you must pay to skip.
-- **Developer and publisher (public name):** Joshri Games, a solo developer in Israel. Contact: support@megagenidle.com; press: press@megagenidle.com.
+- **Developer (public name):** MiracleBadger, where a developer name is needed; otherwise leave it out. Never name the owner's country (owner, playtest 32; replaces the playbook's name). Contact: support@megagenidle.com; press: press@megagenidle.com.
 - **Store genres and tags:** Steam genres Casual, Indie, Simulation, Strategy; tags (in order) Idler, Incremental, Clicker, Resource Management, Management, Automation, Building, Base Building, Simulation, Strategy, Casual, Relaxing, Singleplayer, 2D, Pixel Graphics, Indie, Science, Economy, Minimalist, Cozy. Google Play category Simulation. App Store: Games, Simulation and Strategy. English only at launch; translations (German, Simplified Chinese, Russian, Brazilian Portuguese, Japanese) about three months after launch.
 - **Steam AI disclosure:** yes, pre-generated content (AI-assisted text; sprites and store images drawn by code written with an AI coding assistant).
 
