@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/src/assets/sprites/ui/logo_icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MegaGen Idle</title>
+    <!-- Loading screen (1.49): drawn before any script runs, so everything it needs is inline. -->
+    <style>
+      html,
+      body {
+        background: #0f172b;
+      }
+      #boot-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: 16px;
+        background: #0f172b;
+        color: #e2e8f0;
+        font: 600 16px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        text-align: center;
+        transition: opacity 300ms ease-out;
+      }
+      #boot-loader.boot-hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #boot-loader img {
+        width: 384px;
+        max-width: 90vw;
+        height: auto;
+        image-rendering: pixelated;
+      }
+      #boot-loader .boot-bar {
+        width: 192px;
+        height: 12px;
+        border: 2px solid #4a5462;
+        border-radius: 6px;
+        background: #141013;
+        overflow: hidden;
+      }
+      #boot-loader .boot-fill {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, #f9a31b, #fffc40);
+        transform-origin: left center;
+        animation: boot-charge 1.4s ease-in-out infinite;
+      }
+      @keyframes boot-charge {
+        0% {
+          transform: scaleX(0.15);
+          opacity: 0.6;
+        }
+        50% {
+          transform: scaleX(1);
+          opacity: 1;
+        }
+        100% {
+          transform: scaleX(0.15);
+          opacity: 0.6;
+        }
+      }
+      #boot-loader .boot-failed {
+        display: none;
+        color: #ffc825;
+      }
+      #boot-loader.boot-error .boot-failed {
+        display: block;
+      }
+      #boot-loader.boot-error .boot-bar,
+      #boot-loader.boot-error .boot-text {
+        display: none;
+      }
+      #boot-loader a {
+        color: #249fde;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot-loader {
+          transition: none;
+        }
+        #boot-loader .boot-fill {
+          animation: none;
+        }
+      }
+    </style>
+    <script>
+      // If the game script fails to load, or the game has not started after
+      // %BOOT_TIMEOUT_MS% ms, say so instead of loading forever (1.49).
+      (function () {
+        function fail() {
+          var loader = document.getElementById('boot-loader');
+          if (!window.__megagenStarted && loader) loader.classList.add('boot-error');
+        }
+        window.addEventListener(
+          'error',
+          function (e) {
+            var t = e.target;
+            if (t && t.tagName === 'SCRIPT') fail();
+          },
+          true,
+        );
+        setTimeout(fail, %BOOT_TIMEOUT_MS%);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="boot-loader" role="status" aria-live="polite" data-testid="boot-loader">
+      <img src="%BOOT_LOGO%" alt="MegaGen Idle" width="192" height="48" />
+      <div class="boot-bar" aria-hidden="true"><div class="boot-fill"></div></div>
+      <p class="boot-text">Charging up…</p>
+      <p class="boot-failed" data-testid="boot-failed">Could not load the game. <a href="">Reload the page.</a></p>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

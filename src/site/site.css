@@ -1,0 +1,18 @@
+@import 'tailwindcss' source(none);
+@source '../../index.html';
+@source './';
+
+/* The landing page (1.94) uses the game's dark background and AAP-64 accents. */
+:root { color-scheme: dark; }
+body { margin: 0; background: #0f172b; color: #e2e8f0; font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+img.pixel { image-rendering: pixelated; }
+a { color: #7dd3fc; }
+.play-now {
+  display: inline-block; padding: 0.9rem 2.4rem; border-radius: 0.75rem;
+  background: #ffc825; color: #141013; font-weight: 800; font-size: 1.35rem; text-decoration: none;
+  box-shadow: 0 4px 0 #b62b2b;
+}
+.play-now:hover { background: #ffd541; }
+.play-now:focus-visible, a:focus-visible { outline: 3px solid #ffc825; outline-offset: 3px; }
+.store-link, .store-soon { display: inline-block; padding: 0.4rem 0.9rem; border-radius: 0.5rem; background: #1e293b; }
+.store-soon { color: #94a3b8; }

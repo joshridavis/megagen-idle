@@ -126,7 +126,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 **Launch work (Claude's placement after checkpoint 30, CLAUDE.md "Writing new backlog items": launch work first until March 11, 2027; the owner can move them):**
 
-0. 1.94 megagenidle.com: landing page and custom domain
+0. 1.94 megagenidle.com: landing page and custom domain (Done in code; the DNS and Pages domain switch is the owner's step)
 0. 1.95 Full Game unlock and Supporter Pack: purchases framework (needs an owner decision on where the free part ends; a proposal is in the item)
 0. 1.96 Desktop app with Electron, packaged for Windows in GitHub Actions
 0. 1.97 Mobile apps with Capacitor for Android and iOS, built by Codemagic
@@ -1439,7 +1439,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Limit:** a shadow is darker than what it falls on, so over the plain page background (already near black) it is faint; over panels, cards, the logo and the map it reads clearly. Black instead of the palette's ink was used for that reason.
 - **Screenshots:** `docs/screenshots/shadows-2.00-pets-tab.png`, `shadows-2.00-balloon.png`, `shadows-2.00-walking-pets.png`. Tests in `src/components/AirShadows.test.tsx`.
 
-### 1.94 — megagenidle.com: landing page and custom domain — CODE — Not started
+### 1.94 — megagenidle.com: landing page and custom domain — CODE — Done
 **Goal:** launch work (March 11, 2027): the public website megagenidle.com, with a landing page and the game.
 **Details:**
 - A landing page at the site root (a second Vite page, `site/index.html`, sharing the AAP-64 theme): the logo (1.50), the key scene (`src/assets/brand/key_scene.png`), a short pitch, a **Play now** button that opens the game, "Coming March 11, 2027 to Steam, Google Play and the App Store" with store links read from one data file (`src/data/stores.ts`, empty until the owner has the pages), and links to the privacy page and credits.
@@ -1447,6 +1447,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Meta tags for sharing (title, description, Open Graph image from the key scene) and the logo icon as favicon.
 - **Owner step:** point the domain's DNS at GitHub Pages and set the custom domain in the repository's Pages settings (steps in `docs/PUBLIC_RELEASE.md`).
 **Acceptance:** Playwright: the landing page loads, "Play now" reaches the game, the game still loads and saves at its new path; the build and all tests pass.
+
+**Notes:**
+- **Pages (deviation in file names):** the landing page is the root `index.html` and the game moved to `play/index.html`, two inputs in `vite.config.ts`, so the landing page is served at the site root without a post-build move (a `site/index.html` would have been served at `/site/`). The landing script and styles are in `src/site/` (`landing.ts`, `main.ts`, `site.css`, which uses Tailwind and the game's dark background and AAP-64 accents). Pictures come from the `sprites` object and the brand key scene, not hard-coded paths.
+- **Content:** the logo, a short pitch, **Play now** (to `play/`), "No ads, no premium currency, never pay-to-win" (no "free to play" claim until 1.95 settles the free part), the key scene, "Coming March 11, 2027 to Steam, Google Play and the App Store" (it says "Out now on …" from launch day), the store links from `src/data/stores.ts` (each shows "coming soon" while its `url` is empty), credits from `src/data/credits.ts`, the privacy page and the version.
+- **Base:** stays `/megagen-idle/` by default so the github.io preview keeps working; the deploy workflow reads the repository variables `SITE_BASE` and `SITE_URL` (empty now; `/` and `https://megagenidle.com/` after the switch). `public/CNAME` holds `megagenidle.com`.
+- **Sharing:** description, Open Graph and Twitter tags; the key scene is emitted as `og-image.png` at a fixed name so `og:image` can be an absolute URL. The logo icon is the favicon.
+- **Saves:** the game's save is per web address (origin), so moving it to `/play/` keeps every save. The Supabase Site URL and Redirect URLs need `/play/` added (section 9 of `docs/PUBLIC_RELEASE.md` updated).
+- **Owner step:** DNS records, the Pages custom domain, Enforce HTTPS, the two variables and a re-run of the deploy: `docs/PUBLIC_RELEASE.md` section 9c. README and GETTING_STARTED updated (game at `/play/`).
+- **Tests:** `e2e/site.spec.ts` (landing loads, Play now reaches the game, it saves and reloads at `/play/`, 375 px phone without sideways scroll, `og-image.png` is served); `src/site/landing.test.ts`. The other Playwright tests now run against `/play/` and all pass.
 
 ### 1.95 — Full Game unlock and Supporter Pack: purchases framework — CODE — Not started
 **Goal:** launch work: the business model in `CLAUDE.md`: a free part, a one-time "Full Game" unlock and a cosmetic "Supporter Pack". Never pay-to-win, no ads, no premium currency.

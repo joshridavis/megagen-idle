@@ -2,20 +2,20 @@
 
 An idle/incremental game about generating energy. You start with almost nothing and clumsy, inefficient methods, then reinvest energy into resources, research, room and better machines: from solar panels up to nuclear fission and a few fictional methods. Machines keep producing while the game is closed.
 
-**Play it:** https://joshridavis.github.io/megagen-idle/ (live once the repo's Pages source is set to "GitHub Actions"; see `GETTING_STARTED.md`, step 5). Until then the deploy workflow skips publishing with a warning instead of failing; after enabling Pages, re-run it from Actions → Deploy to GitHub Pages → Run workflow, or push to `main`.
+**Play it:** https://joshridavis.github.io/megagen-idle/play/ (the landing page with **Play now** is at https://joshridavis.github.io/megagen-idle/; both move to megagenidle.com when the owner switches the domain, `docs/PUBLIC_RELEASE.md` section 9c; live once the repo's Pages source is set to "GitHub Actions"; see `GETTING_STARTED.md`, step 5). Until then the deploy workflow skips publishing with a warning instead of failing; after enabling Pages, re-run it from Actions → Deploy to GitHub Pages → Run workflow, or push to `main`.
 
 ## Run locally
 
 1. Install **Node.js 20 or newer** (nodejs.org).
 2. In the repo folder run `npm install`, then `npm run dev`.
-3. Open the `http://localhost:5173` address it prints.
+3. Open the `http://localhost:5173` address it prints: the landing page. The game itself is at `http://localhost:5173/play/`.
 
 ## Other commands
 
 | Command | What it does |
 |---|---|
-| `npm run build` | Type-checks and builds the static site into `dist/` (served under `/megagen-idle/`). |
-| `npm run preview` | Serves the built `dist/` locally, at `http://localhost:4173/megagen-idle/`. |
+| `npm run build` | Type-checks and builds the static site into `dist/`: the landing page (`index.html`) at the root and the game (`play/index.html`) at `/play/`, served under `/megagen-idle/`. With the custom domain the deploy sets `SITE_BASE=/` and `SITE_URL=https://megagenidle.com/` (see `docs/PUBLIC_RELEASE.md`, section 9c). |
+| `npm run preview` | Serves the built `dist/` locally, at `http://localhost:4173/megagen-idle/` (game: `.../megagen-idle/play/`). |
 | `npm test` | Runs the Vitest unit tests once. |
 | `npm run test:coverage` | Runs the unit tests with a coverage report (HTML in `coverage/`); fails if the game rules in `src/utils/` drop below 80% lines, statements, functions or branches. CI runs this. |
 | `npm run test:e2e` | Builds the game and runs the Playwright browser smoke test against it. First run `npx playwright install chromium` (or set `PW_CHROMIUM_PATH` to an existing Chromium). |
