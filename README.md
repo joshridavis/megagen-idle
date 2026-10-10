@@ -48,6 +48,10 @@ Every sprite is a generated placeholder. To use real art, save your PNG at the s
 
 The game shows its release version (from `package.json`) at the bottom of the screen. The minor version goes up with each playtest release (`0.5.0`, `0.6.0`, ...).
 
+## Purchases
+
+The business model: a free part, a one-time **Full Game** unlock and a cosmetic **Supporter Pack**; never pay-to-win, no ads, no premium currency. Where the free part ends is one constant, `FREE_MAX_RESEARCH_LEVEL` in `src/data/purchases.ts`. The web build has no store, so the whole game is open there. To try purchases locally, run `npm run dev`, open Settings and tick **Developer: test store** (development builds only; purchases are free and stay in that browser).
+
 ## Saves
 
 The game saves automatically in your browser (IndexedDB). In the **Settings** tab you can **export** the save to a JSON file and **import** it again, for backups or to move to another device; a damaged or wrong file is rejected without touching your current game. If the stored save itself is ever damaged, the game keeps a copy instead of overwriting it and offers it for download in Settings → Save. To start over, use **Reset game** in the Settings tab (it asks twice). Settings also has the number notation choice (short 1.23M, scientific 1.23e6, or full).

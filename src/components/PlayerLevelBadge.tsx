@@ -1,5 +1,5 @@
-import { ACHIEVEMENTS_BY_ID, titleTier } from '../data/achievements';
 import { useStore } from '../store';
+import { titleInfo } from '../utils/achievements';
 import { getPlayerLevel, playerLevelEnergyBonus } from '../utils/playerLevel';
 import ProgressBar from './ProgressBar';
 import { useNumberFormat } from './useNumberFormat';
@@ -11,8 +11,10 @@ export default function PlayerLevelBadge() {
   const lv = getPlayerLevel(lifetime);
   const bonus = playerLevelEnergyBonus(lifetime);
   const titleId = useStore((s) => s.settings.cosmetics?.title ?? null);
-  const title = titleId ? ACHIEVEMENTS_BY_ID[titleId]?.name : null;
-  const tier = titleTier(titleId);
+  // achievement titles and the Supporter Pack's (1.95)
+  const info = titleInfo(titleId);
+  const title = info?.name ?? null;
+  const tier = info && { id: info.tierId, name: info.tierName, color: info.color };
 
   return (
     <div

@@ -20,5 +20,11 @@ const done = () =>
   requestAnimationFrame(() =>
     requestAnimationFrame(() => hideBootLoader(performance.now(), useStore.getState().settings.reduceMotion)),
   );
-if (useStore.persist.hasHydrated()) done();
-else useStore.persist.onFinishHydration(done);
+// Purchases (1.95) are re-checked with the store once the save has loaded, so
+// the store's record of what is owned replaces the save's.
+const ready = () => {
+  void useStore.getState().initPurchases();
+  done();
+};
+if (useStore.persist.hasHydrated()) ready();
+else useStore.persist.onFinishHydration(ready);

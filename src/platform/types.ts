@@ -4,6 +4,8 @@
  * browser or a wrapper directly for these; it goes through `platform`.
  * Only the web implementation exists today.
  */
+import type { PurchaseStore } from './purchases';
+
 export type PlatformName = 'web' | 'desktop' | 'mobile';
 
 export interface Platform {
@@ -20,6 +22,8 @@ export interface Platform {
   requestNotifyPermission: () => Promise<boolean>;
   /** Shows a notification outside the game. Does nothing without permission. */
   notify: (title: string, body: string) => void;
+  /** The store for the Full Game and the Supporter Pack (1.95). */
+  purchases: PurchaseStore;
 }
 
 export type NotifyPermission = 'granted' | 'denied' | 'default' | 'unsupported';

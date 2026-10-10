@@ -27,6 +27,7 @@ const BLOCK_TEXT: Record<ResearchBlock, string> = {
   busy: 'Another research is running',
   prerequisites: 'Needs earlier research',
   building: 'Build the required generator first',
+  fullGame: 'Part of the Full Game',
   level: 'Research level too low',
   cost: 'Not enough energy or resources',
 };

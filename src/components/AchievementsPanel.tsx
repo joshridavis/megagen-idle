@@ -1,7 +1,9 @@
 import { sprites } from '../assets';
 import { ACCENTS, ACHIEVEMENTS, DEFAULT_ACCENT, TITLE_TIERS, titleTier, type AchievementDef } from '../data/achievements';
 import { useStore } from '../store';
-import { achievementProgress, canUseAccent, canUseTitle, metricValue } from '../utils/achievements';
+import { SUPPORTER_ACCENT, SUPPORTER_TITLE } from '../data/purchases';
+import { accentInfo, achievementProgress, canUseAccent, canUseTitle, metricValue, titleInfo } from '../utils/achievements';
+import { isSupporter } from '../utils/purchases';
 import ProgressBar from './ProgressBar';
 import { useNumberFormat } from './useNumberFormat';
 
@@ -17,11 +19,12 @@ export default function AchievementsPanel() {
   const setCosmetics = useStore((s) => s.setCosmetics);
   const cosmetics = state.settings.cosmetics ?? { title: null, accent: DEFAULT_ACCENT };
   const titles = ACHIEVEMENTS.filter((a) => a.title && canUseTitle(state, a.id));
-  const chosenTier = titleTier(cosmetics.title);
+  const chosenTier = titleInfo(cosmetics.title);
+  const supporter = isSupporter(state);
   const cosOpen = state.settings.cosmeticsOpen ?? true;
   const setOpen = useStore((s) => s.setCosmeticsOpen);
-  const titleName = ACHIEVEMENTS.find((a) => a.id === cosmetics.title)?.name;
-  const accentName = ACCENTS.find((x) => x.id === cosmetics.accent)?.name ?? cosmetics.accent;
+  const titleName = chosenTier?.name;
+  const accentName = accentInfo(cosmetics.accent).name;
   return (
     <section aria-label="Achievements" className="flex flex-col gap-4">
       <div className="rounded-lg bg-slate-800 p-3" data-testid="cosmetics">
@@ -61,6 +64,12 @@ export default function AchievementsPanel() {
               <option value="" className="text-slate-100">
                 No title
               </option>
+              {supporter && (
+                // the Supporter Pack's own title (1.95)
+                <option value={SUPPORTER_TITLE.id} style={{ color: SUPPORTER_TITLE.color }} data-testid="title-option-supporter">
+                  {SUPPORTER_TITLE.name}
+                </option>
+              )}
               {TIER_GROUPS.map(({ tier, titles: group }) => (
                 <optgroup key={tier.id} label={tier.name} data-testid={`title-group-${tier.id}`}>
                   {group.map((a) => {
@@ -100,6 +109,19 @@ export default function AchievementsPanel() {
                   </button>
                 );
               })}
+              {supporter && (
+                <button
+                  type="button"
+                  aria-pressed={cosmetics.accent === SUPPORTER_ACCENT.id}
+                  onClick={() => setCosmetics({ accent: SUPPORTER_ACCENT.id })}
+                  title={`${SUPPORTER_ACCENT.name} (Supporter Pack)`}
+                  className={`min-h-9 rounded border px-2 text-xs font-semibold ${cosmetics.accent === SUPPORTER_ACCENT.id ? 'border-white' : 'border-slate-600'}`}
+                  style={{ color: SUPPORTER_ACCENT.color }}
+                  data-testid="accent-supporter"
+                >
+                  {SUPPORTER_ACCENT.name} · Supporter Pack
+                </button>
+              )}
             </div>
           </fieldset>
         </div>

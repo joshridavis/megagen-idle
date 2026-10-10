@@ -2,6 +2,7 @@ import type { Platform } from './types';
 import { webPlatform } from './web';
 
 export type { NotifyPermission, Platform, PlatformName } from './types';
+export type { PurchaseStore, StoreName, StoreProduct } from './purchases';
 
 /**
  * The platform the game runs on. A desktop (Electron or Tauri) or mobile

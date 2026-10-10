@@ -127,7 +127,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 **Launch work (Claude's placement after checkpoint 30, CLAUDE.md "Writing new backlog items": launch work first until March 11, 2027; the owner can move them):**
 
 0. 1.94 megagenidle.com: landing page and custom domain (Done in code; the DNS and Pages domain switch is the owner's step)
-0. 1.95 Full Game unlock and Supporter Pack: purchases framework (needs an owner decision on where the free part ends; a proposal is in the item)
+0. 1.95 Full Game unlock and Supporter Pack: purchases framework (Done; the free boundary is the proposal until the owner decides)
 0. 1.96 Desktop app with Electron, packaged for Windows in GitHub Actions
 0. 1.97 Mobile apps with Capacitor for Android and iOS, built by Codemagic
 0. 1.98 Steam: achievements, the Full Game purchase and an upload workflow → CHECKPOINT 31
@@ -1457,7 +1457,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Owner step:** DNS records, the Pages custom domain, Enforce HTTPS, the two variables and a re-run of the deploy: `docs/PUBLIC_RELEASE.md` section 9c. README and GETTING_STARTED updated (game at `/play/`).
 - **Tests:** `e2e/site.spec.ts` (landing loads, Play now reaches the game, it saves and reloads at `/play/`, 375 px phone without sideways scroll, `og-image.png` is served); `src/site/landing.test.ts`. The other Playwright tests now run against `/play/` and all pass.
 
-### 1.95 — Full Game unlock and Supporter Pack: purchases framework — CODE — Not started
+### 1.95 — Full Game unlock and Supporter Pack: purchases framework — CODE — Done
 **Goal:** launch work: the business model in `CLAUDE.md`: a free part, a one-time "Full Game" unlock and a cosmetic "Supporter Pack". Never pay-to-win, no ads, no premium currency.
 **Details:**
 - A `purchases` part of the platform layer (`src/platform/`): `products()`, `buy(id)`, `restore()`, `owned()`. The web version uses a test implementation behind a dev-only switch; stores plug in their own later (Steam in 1.98, Google Play and the App Store in 1.97).
@@ -1466,6 +1466,15 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The Supporter Pack is cosmetic only: an exclusive accent and title (1.01), and a thank-you line in Settings → Credits. It never changes any number in the game.
 - Tests: entitlements persist and migrate, the free boundary blocks only what it should, the Supporter Pack changes no game number (compare a simulated run with and without it).
 **Acceptance:** the framework, the free boundary and the Supporter Pack cosmetics work in the web build with the test store; `npm run simulate` is unchanged for a Full Game player; the build and all tests pass.
+
+**Notes:**
+- **Platform:** `src/platform/purchases.ts`: a `PurchaseStore` with `products()`, `buy(id)`, `restore()` and `owned()`, on `platform.purchases`. Two implementations: `noStore` (the web build: nothing to buy) and `createTestStore` (development only, behind Settings → "Developer: test store", which sets a `localStorage` switch and reloads; purchases are free and stay in that browser). Steam (1.98) and the mobile stores (1.97) add their own.
+- **Free boundary (owner decision still open):** one constant, `FREE_MAX_RESEARCH_LEVEL = 9` in `src/data/purchases.ts`: every research that needs research level 9 or lower is free (up to and including the Natural Gas Plant and the Oil Rig); research that needs more returns the new block `fullGame` (`getResearchBlock`). Only research is gated, as every later machine comes from research. Nothing built or researched stops working; offline gains go on.
+- **Only with a store:** the boundary applies only when a store is present (`storeActive`, not saved). The web build has none, so the playtest site stays fully open as before; the test store in development, and later the store builds, turn it on.
+- **Entitlements:** `entitlements: { fullGame, supporter }` saved with the game (save version 24; older saves own nothing). On start (`initPurchases`, called from `src/main.tsx` after the save loads) the store's `restore()` replaces the saved value, so a copied or edited save unlocks nothing; if the store cannot be reached, the saved value is kept until the next start. A reset keeps purchases; loading a save keeps the store's record.
+- **The panel:** at the boundary, a calm note above the research tree ("You have reached the end of the free part", buy and restore; `src/components/Purchases.tsx`), never a pop-up. Settings → Purchases lists both products with buy and restore where a store exists. The research details say "Part of the Full Game".
+- **Supporter Pack (cosmetic only):** the Supporter title and accent (AAP-64 mint `#a6fcdb`, 4.5:1 on the top bar) in the Achievements tab, and a thank-you line in Settings → Credits. A test runs the balance simulator for 40 hours with and without the pack (title and accent chosen) and gets the same result; a Full Game player with a store matches the web run, and `npm run simulate` is unchanged.
+- **Owner questions:** where the free part ends (the constant), the prices (set in each store), and whether the web version stays fully free after launch or sells the Full Game too (a web payment provider would be a new item). Screenshot: `docs/screenshots/full-game-panel-1.95.png`.
 
 ### 1.96 — Desktop app with Electron, packaged for Windows in GitHub Actions — CODE — Not started
 **Goal:** launch work: a Windows desktop build for Steam.
