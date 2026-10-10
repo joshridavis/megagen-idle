@@ -24,6 +24,14 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
+**On hold (owner, 2026-10-10, after playtest 29):** do not develop the next backlog item until the owner says so.
+
+**After playtest 29 (owner, 2026-10-10):** when the hold lifts, these come first, in this order (Claude's placement; the owner can move them).
+
+0. 1.94 Decorations listed from cheapest to most expensive (owner request; small)
+0. 1.95 Sightings discovered listed by rarity (owner request; small)
+0. 1.96 Player levels slower in the middle and late game (owner feedback: level 79 to 84 in one night)
+
 **Hold lifted (owner, 2026-10-09, after hotfix 28.1):** the owner confirmed the run continues from the order of work: 1.80, 1.81, 1.55, 1.54 and 1.51 toward checkpoint 29.
 
 ~~On hold (owner, 2026-10-09, after playtest 28): do not develop new backlog items until the owner says so. Hotfixes for what the owner reports are still made (1.93 was, as v0.28.1).~~
@@ -1376,6 +1384,32 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 
 **Notes:** `src/components/CompletionPanel.tsx`: every sighting row shows its rarity after the name (found: "Aurora Rare ×3"; unfound: "??? Rare"), colored by `rarityColor` in `src/data/events.ts`, which takes the title tier of the same name. Names wrap on a phone. Tests in `src/components/SightingRarity.test.tsx` (text, color and 4.5:1 contrast on the row).
 
+### 1.94 — Decorations listed from cheapest to most expensive — CODE — Not started
+**Goal:** owner feedback, playtest 29: the decoration prices are right, but the list must be organized by price, from the cheapest to the most expensive. Today the 🎨 panel and the Completion tab follow the order in `src/data/decorations.ts`, so the eight kinds from 1.54 come after the Founder statue (10M) even though the Flower bed costs 2K.
+**Details:**
+- Order `DECORATIONS` by first-copy price, cheapest first (Tree 1K, Flower bed 2K, Company flag 5K, Bench 10K, Hedge 30K, Pond 100K, Rock garden 200K, Windsock 250K, Picnic table 500K, Lamp post 1M, Fountain 3M, Weather station 5M, Founder statue 10M, Memorial plaque 20M), or sort where they are listed. Either way, every list of decorations shows them in that order: the 🎨 panel, Completion → Decorations, and anywhere else they are listed.
+- Sort by the base price (the first copy), not the next copy's rising price, so the list does not reshuffle as you buy. Ties: by name.
+- A test keeps the data sorted, so a future decoration lands in its place.
+**Acceptance:** tests: the 🎨 panel and the Completion tab list decorations by first-copy price, cheapest first; a new kind added out of order fails the test; the build and all tests pass.
+
+### 1.95 — Sightings discovered listed by rarity — CODE — Not started
+**Goal:** owner request, playtest 29: in Completion → "Sightings discovered", list the sightings in rarity order.
+**Details:**
+- Order: Common, Uncommon, Rare, Legendary (the order of `RARITY_PER_HOUR` / the title tiers), and within a tier keep today's order (the order in `src/data/events.ts`).
+- The rarity labels and colors from 1.91 stay as they are. Found and unfound sightings are sorted the same way.
+**Acceptance:** tests: the list is sorted by rarity, Common first, with the data order inside a tier; the build and all tests pass.
+
+### 1.96 — Player levels slower in the middle and late game — CODE — Not started
+**Goal:** owner feedback, playtest 29: player levels come too fast now; the owner went from level 79 to 84 in one night. Make them harder to gain, mainly from the middle game on.
+**Details:**
+- Today the level needed is `LEVEL_SCALE` × (level − 1)^`LEVEL_EXPONENT` lifetime energy (`src/data/playerLevel.ts`: 200 and 3.56). The simulator reaches level 65 at about 190 h, 82 at 266 h, 92 at 304 h and 99 (the last) at about 340 h, less than half of the 761 h to 100%. Late income grows fast, so the levels race ahead.
+- Proposal (the owner can change it): keep levels up to about 50 as they are, and make each level above that cost more, for example an extra growth factor per level from level 50, so that level 80 comes at about 400 h and level 99 near the end of the game (about 650 to 750 h). Add pacing targets for those in `src/data/pacingTargets.ts`.
+- Everything gated by the player level must still be reachable, at a sensible time: room expansions 9 to 13 (levels 50, 70, 80, 88, 95), the 2nd and 3rd pet slots, the level-gated decorations and pets, the level achievements (Energy Baron at 75) and the level titles. Re-check them in the simulator; move a gate only if the new curve makes it unreachable or absurdly late, and say so.
+- The energy bonus per level (+0.1%, capped at +10%) is unchanged; it will arrive more slowly.
+- Existing saves: the level is computed from lifetime energy, so a late save will show a lower level after the change (for example 84 may become about 75). Nothing bought, built, earned or unlocked is taken away; achievements and titles stay earned. Say so in PLAYTEST.md.
+- Run `npm run simulate`: report the new times for levels 50, 75, 80, 90 and 99, and the estimated hours to 100%, which should stay within 600 to 900 h.
+**Acceptance:** tests: levels up to 50 need the same energy as before; each level above it needs more; the new targets hold in the simulator with no stalls; every level gate is still reached; an existing save loads with everything kept; the build and all tests pass.
+
 ### 1.93 — Fix: Kinetic Capture and Grid Tap make a click worth far more than idling — CODE — Done
 **Goal:** owner report, playtest 28: the last click research, Kinetic Capture and Grid Tap, each add "+25% of your energy/s to each click". At 5,670 energy/s a click goes from 9 to about 1,426 energy, then about 2,844 with both. Clicking dozens of times a minute makes a jump far beyond idling. The upgrade should make more sense.
 **Details:**
@@ -2030,3 +2064,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 28 (answers, more) | | 2026-10-09 | Fix the click research now as a hotfix; 1% per research makes more sense. | 1.93 (hotfix v0.28.1) |
 | 28.1 (v0.28.1, hotfix) | 1.93 | 2026-10-09 | The owner asked to continue from the order of work (hold lifted). | |
 | 29 (v0.29.0) | 1.80, 1.81, 1.55, 1.54, 1.51 | 2026-10-10 | 100% completion simulated at 761.4 h (was 761.3 h); 75% at 301.9 h; last room expansion (13) at 496.9 h. Owner decision during the run: the simulator's stall threshold is 13 h (was 12). Waiting for feedback. | |
+| 29 (answers) | 1.80, 1.81, 1.55, 1.54, 1.51 | 2026-10-10 | 4-second reactions and about 8 meetings an hour with two pets sound right (not seen yet). Decoration prices (2K to 20M) are right, but lists must go from the cheapest to the most expensive. Spring tide +40% and Drought −25% are right for now. A cap of 3 counted pets a second is right. Sightings discovered should be listed by rarity. Player levels come too fast now (level 79 to 84 in one night); make them harder. Do not develop the next backlog item until the owner says so. | 1.94, 1.95, 1.96 |
