@@ -35,6 +35,7 @@ export default function MachineSprite({
         data-anim={animate ? 'on' : 'still'}
         data-testid="machine-sprite"
       >
+        <GroundShadow width={width} height={height} />
         {animate && anim.frame2 ? (
           <>
             <img src={sprites[sprite]} alt="" className={`${img} frame-a`} style={timing} />
@@ -46,6 +47,30 @@ export default function MachineSprite({
         {animate && anim.effect && <Effect sprite={sprite} anim={anim} timing={timing} width={width} height={height} />}
       </span>
     </span>
+  );
+}
+
+/**
+ * A flat dark ellipse under the machine's base (1.99), lit from the top left, so it
+ * falls a little right. Drawn in the sprite's own pixels like the effect layer and
+ * allowed to spill past the picture, so machines that fill their whole sprite
+ * (Hydro Dam, Tidal Station) still show one. Never animated.
+ */
+export const GROUND_SHADOW_OPACITY = 0.6;
+
+function GroundShadow({ width, height }: { width: number; height: number }) {
+  const rx = width * 0.46;
+  const ry = Math.max(3, height * 0.12);
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="xMidYMid meet"
+      className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+      aria-hidden="true"
+      data-testid="ground-shadow"
+    >
+      <ellipse cx={width / 2 + width * 0.04} cy={height - ry * 0.1} rx={rx} ry={ry} fill="#000000" opacity={GROUND_SHADOW_OPACITY} />
+    </svg>
   );
 }
 

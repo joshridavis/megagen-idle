@@ -74,7 +74,7 @@ describe('working machines animate on the map (1.71)', () => {
     expect(spriteOf('k').querySelector('[data-fx="smoke"]')).toBeTruthy();
     for (const k of ['s', 'c']) {
       expect(spriteOf(k).dataset.anim).toBe('still');
-      expect(spriteOf(k).querySelector('.frame-a, .frame-b, svg')).toBeNull();
+      expect(spriteOf(k).querySelector('.frame-a, .frame-b, svg[data-fx]')).toBeNull();
     }
     // producers work: the quarry's crane lifts a block
     cleanup();
@@ -105,7 +105,7 @@ describe('working machines animate on the map (1.71)', () => {
     for (const k of ['w', 'n']) {
       expect(spriteOf(k).dataset.anim).toBe('still');
       expect(spriteOf(k).querySelectorAll('img')).toHaveLength(1);
-      expect(spriteOf(k).querySelector('svg')).toBeNull();
+      expect(spriteOf(k).querySelector('svg[data-fx]')).toBeNull();
     }
     expect(spriteOf('w').querySelector('img')!.getAttribute('src')).toBe(sprites.wind_turbine);
     useStore.getState().setReduceMotion(false);
