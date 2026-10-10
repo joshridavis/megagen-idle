@@ -18,3 +18,6 @@ Thumbs.db
 # test output
 test-results
 playwright-report
+dist-electron
+dist-desktop
+release

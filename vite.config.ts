@@ -65,7 +65,7 @@ export default defineConfig(({ command, isPreview }) => ({
   },
   test: {
     environment: 'jsdom',
-    include: ['src/**/*.test.{ts,tsx}'],
+    include: ['src/**/*.test.{ts,tsx}', 'electron/**/*.test.ts'],
     // `npm run test:coverage` (0.18): the game rules in src/utils/ stay at 80% or more.
     coverage: {
       provider: 'v8',

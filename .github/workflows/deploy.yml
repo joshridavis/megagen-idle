@@ -26,6 +26,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
       - run: npm test
       # Accounts and cloud saves (0.68): public project settings from the
       # repository's Actions variables. Empty until the owner adds them, and the

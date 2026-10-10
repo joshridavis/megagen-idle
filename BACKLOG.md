@@ -128,7 +128,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 0. 1.94 megagenidle.com: landing page and custom domain (Done in code; the DNS and Pages domain switch is the owner's step)
 0. 1.95 Full Game unlock and Supporter Pack: purchases framework (Done; the free boundary is the proposal until the owner decides)
-0. 1.96 Desktop app with Electron, packaged for Windows in GitHub Actions
+0. 1.96 Desktop app with Electron, packaged for Windows in GitHub Actions (Done)
 0. 1.97 Mobile apps with Capacitor for Android and iOS, built by Codemagic
 0. 1.98 Steam: achievements, the Full Game purchase and an upload workflow → CHECKPOINT 31
 0. (then 0.44, 0.45, 0.47 and the rest of the order below)
@@ -1476,7 +1476,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Supporter Pack (cosmetic only):** the Supporter title and accent (AAP-64 mint `#a6fcdb`, 4.5:1 on the top bar) in the Achievements tab, and a thank-you line in Settings → Credits. A test runs the balance simulator for 40 hours with and without the pack (title and accent chosen) and gets the same result; a Full Game player with a store matches the web run, and `npm run simulate` is unchanged.
 - **Owner questions:** where the free part ends (the constant), the prices (set in each store), and whether the web version stays fully free after launch or sells the Full Game too (a web payment provider would be a new item). Screenshot: `docs/screenshots/full-game-panel-1.95.png`.
 
-### 1.96 — Desktop app with Electron, packaged for Windows in GitHub Actions — CODE — Not started
+### 1.96 — Desktop app with Electron, packaged for Windows in GitHub Actions — CODE — Done
 **Goal:** launch work: a Windows desktop build for Steam.
 **Details:**
 - `electron/main.ts` and a preload script that loads the Vite build from local files (works offline), one window with a sensible minimum size, no menu bar, links opening in the system browser.
@@ -1484,6 +1484,13 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - npm scripts `desktop:dev` and `desktop:build` (electron-builder, Windows NSIS and a portable folder for Steam's depot); `README.md` updated.
 - A GitHub Actions workflow on `windows-latest` builds the app on tags and on manual runs and uploads it as an artifact. Code signing is optional: it reads `WIN_CSC_LINK` and `WIN_CSC_KEY_PASSWORD` from GitHub secrets when the owner adds them.
 **Acceptance:** the workflow file validates; unit tests for the desktop platform layer with a fake Electron bridge; the web build is unchanged; the build and all tests pass.
+
+**Notes:**
+- **Electron (`electron/`):** `main.ts` serves the game build from `dist-desktop/` over a private `app://megagen/` scheme (offline, absolute paths work, and the save origin never changes), one window (1280×860, at least 800×600), no menu bar, a single instance, links to the system browser (only `http(s)` and `mailto`). `preload.ts` exposes `window.megagenDesktop` (sandboxed, context isolation, no Node in the page). Pure helpers in `files.ts` (allowed save keys, file names, which file an address serves) are unit-tested.
+- **`src/platform/desktop.ts`:** background on minimize and foreground on restore (so offline gains and the welcome-back summary work as on the web), `openExternal` through the bridge, notifications as on the web, no store yet (Steam in 1.98), and `saveKV`: the save in files in the user data folder (`saves/<key>.json`, written to a temp file then renamed), with a one-time copy of the browser save when no file exists yet. `src/platform/index.ts` picks it when the bridge is present; `src/store/storage.ts` uses `platform.saveKV` when set, so the web build is unchanged.
+- **Scripts:** `desktop:web` (the game built with base `/` into `dist-desktop/`), `desktop:compile` (tsc to CommonJS in `dist-electron/`), `desktop:dev` and `desktop:build` (electron-builder: NSIS installer and the unpacked folder for Steam's depot, `electron-builder.yml`; no npm packages are shipped, the app is 1.2 MB plus Electron). README updated.
+- **Workflow:** `.github/workflows/desktop.yml` on `windows-latest`, on `v*` tags and manual runs; tests, builds, uploads both artifacts. Signing reads `WIN_CSC_LINK` and `WIN_CSC_KEY_PASSWORD` (**owner step**, optional). CI and the Pages deploy skip the Electron download (`ELECTRON_SKIP_BINARY_DOWNLOAD`).
+- **Checked here:** a Linux package built with the same config ran under a virtual display with Playwright's Electron driver: the game loaded at `app://megagen/play/`, the bridge was present, the save was written to files and came back after a restart (`docs/screenshots/desktop-1.96.png`). Tests: `src/platform/desktop.test.ts` (fake bridge), `electron/files.test.ts`, `src/data/workflows.test.ts` (every workflow parses; the desktop one's triggers, runner and secrets). Electron added to the in-game credits.
 
 ### 1.97 — Mobile apps with Capacitor for Android and iOS, built by Codemagic — CODE — Not started
 **Goal:** launch work: Google Play and App Store builds made in the cloud.
