@@ -1,5 +1,7 @@
 # MegaGen Idle: multi-platform release plan
 
+> **Superseded where they differ** by `docs/RELEASE_DECISIONS.md` (the owner's Launch & Growth Playbook, adopted at playtest 31): Electron (not Tauri) for Steam, Windows first; Cloudflare Pages for the website; editions demo, full and mobile; RevenueCat for mobile purchases; Codemagic for mobile builds (no Mac needed).
+
 Item 0.87 (owner request, playtest 10). Goal: release on a **dedicated website**, on **Steam** and on **mobile (Android and iOS)**, with **Melvor Idle-style saves**. The game saves automatically, both locally and to the cloud, and the player can load either save on any device. For example, play on the computer, then open the mobile app and continue.
 
 This document is a plan. Nothing here is built yet except the small platform layer in `src/platform/` (see "Shared code" below). Prices and store rules change; check them when you start each step.

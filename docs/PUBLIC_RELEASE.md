@@ -158,6 +158,8 @@ Players who sign in with Google or Discord choose a username the first time. The
 
 ## 9c. The website megagenidle.com (owner, about 20 minutes plus DNS wait)
 
+> **Replaced by the owner's plan:** the domain is bought at Cloudflare and the site is hosted on Cloudflare Pages (playbook W-01, W-06; `docs/RELEASE_DECISIONS.md`). Item 2.05 moves the build there and rewrites this section. The GitHub Pages steps below apply only if the site stays on GitHub Pages until then.
+
 The site is built for it already (1.94): a landing page at the root with **Play now**, the game at `/play/`, the privacy page at `/privacy.html`, and `public/CNAME` holding `megagenidle.com`. Until you switch, it all runs at `https://joshridavis.github.io/megagen-idle/` (game: `.../megagen-idle/play/`).
 
 1. At the company where you bought the domain, open its DNS settings and add:

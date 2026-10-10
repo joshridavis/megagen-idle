@@ -6,7 +6,7 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 **Scope:** every item's code and config is done inside cloud sessions. Release work (Electron for Steam, Capacitor for Android and iOS, in-app purchases, the public website, store build configs, GitHub Actions workflows and `codemagic.yaml`) is in scope; a release item may wait on an owner step such as a store account or a secret, and names it. Audio, new hand-made or AI-generated art, secrets in the repo, and anything needing Xcode or Android Studio on a local machine are out of scope (see "Out of scope"). Sprites are generic stand-ins made by a script and ship as they are.
 
-**Public launch:** March 11, 2027 on Steam (Windows), Google Play, the App Store and megagenidle.com. Free part plus a one-time "Full Game" unlock and a cosmetic "Supporter Pack"; never pay-to-win, no ads, no premium currency (see `CLAUDE.md`).
+**Public launch:** March 11, 2027 on Steam (Windows), Google Play, the App Store and megagenidle.com. Free part plus a one-time "Full Game" unlock and a cosmetic "Supporter Pack"; never pay-to-win, no ads, no premium currency (see `CLAUDE.md`). Prices, platforms, editions, IDs, hosting and dates: `docs/RELEASE_DECISIONS.md` (owner's Launch & Growth Playbook, adopted at playtest 31); follow it without asking.
 
 **Status values:** `Done` · `Not started` · `In progress` · `Partial` (with a note on what remains)
 
@@ -24,7 +24,19 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**Hold lifted (owner, 2026-10-10):** the owner asked to continue from the order of work. The run goes on with 1.99 and 2.00, then the launch items 1.94 to 1.98 toward checkpoint 31.
+**On hold (owner, 2026-10-10, after playtest 31): do not develop new backlog items until the owner says so.** When the hold lifts, work in this order (Claude's placement after playtest 31, following the dates in `docs/RELEASE_DECISIONS.md`; the owner can move them):
+
+0. 2.06 Fix: "Player level up" is unchecked when notifications are first turned on (owner report, playtest 31; small)
+0. 2.01 Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures (owner report, playtest 31)
+0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31)
+0. 2.03 Shadows a little lighter (owner request, playtest 31)
+0. 2.05 The website on Cloudflare Pages: landing, play, press, privacy, terms, support (playbook W-05; reworks 1.94) → CHECKPOINT 32 (5 items: 2.06, 2.01, 2.02, 2.03, 2.05)
+0. 2.04 Editions (demo, full, mobile), the Full Game panel and the entitlement layer (playbook R-01; reworks 1.95)
+0. 1.98 The Steam desktop build: flavours, steamworks.js, achievements, Supporter DLC, Steam Cloud saves (playbook S-08; builds on 1.96)
+0. 1.97 Mobile apps with Capacitor and RevenueCat, built by Codemagic (playbook A-03)
+0. (then the next playbook items, written when due: store screenshots S-06, clip mode C-07, itch.io package C-03, Supporter Pack themes and DLC art R-01/R-02, trailer mode S-12, review prompt L-01; then 0.44, 0.45, 0.47 and the rest of the order below)
+
+~~Hold lifted (owner, 2026-10-10): the owner asked to continue from the order of work. The run went on with 1.99, 2.00, 1.94, 1.95 and 1.96 toward checkpoint 31.~~
 
 ~~On hold (owner, 2026-10-10, after playtest 30): do not develop new backlog items until the owner says so.~~
 
@@ -129,9 +141,9 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.94 megagenidle.com: landing page and custom domain (Done in code; the DNS and Pages domain switch is the owner's step)
 0. 1.95 Full Game unlock and Supporter Pack: purchases framework (Done; the free boundary is the proposal until the owner decides)
 0. 1.96 Desktop app with Electron, packaged for Windows in GitHub Actions (Done) → CHECKPOINT 31 (5 items since checkpoint 30: 1.99, 2.00, 1.94, 1.95, 1.96)
-0. 1.97 Mobile apps with Capacitor for Android and iOS, built by Codemagic
-0. 1.98 Steam: achievements, the Full Game purchase and an upload workflow
-0. 1.97 and 1.98 come next, then 0.44, 0.45, 0.47 and the rest of the order below
+0. 1.97 Mobile apps with Capacitor for Android and iOS, built by Codemagic (rewritten after playtest 31; in the order at the top)
+0. 1.98 Steam: achievements, the Full Game purchase and an upload workflow (rewritten after playtest 31; in the order at the top)
+0. 1.97 and 1.98: rewritten after playtest 31 and moved into the order at the top
 
 **Launch priority (owner decision, 2026-10-03):** these come first, in this order. Items already `Done` are skipped, so the first open item is 0.41.
 
@@ -1439,6 +1451,65 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Limit:** a shadow is darker than what it falls on, so over the plain page background (already near black) it is faint; over panels, cards, the logo and the map it reads clearly. Black instead of the palette's ink was used for that reason.
 - **Screenshots:** `docs/screenshots/shadows-2.00-pets-tab.png`, `shadows-2.00-balloon.png`, `shadows-2.00-walking-pets.png`. Tests in `src/components/AirShadows.test.tsx`.
 
+### 2.06 — Fix: "Player level up" is unchecked when notifications are first turned on — CODE — Not started
+**Goal:** owner report, playtest 31 (screenshot of Settings → Notifications): when notifications are turned on for the first time, every type is checked except "Player level up", which stays unchecked until it is checked by hand. All types should start checked.
+**Details:**
+- Cause: not a display bug. Item 1.07 set "player level up" off by default (`DEFAULT_NOTIFY.types.level: false` in `src/data/notifyRules.ts`), so a new save starts with it unchecked. The owner wants it on, like the others.
+- Set `level: true` in `DEFAULT_NOTIFY`.
+- Existing saves: a save whose notifications were never switched on (`enabled: false`) has no player choice to keep, so a save-version migration sets `types.level` to true there. A save that already turned notifications on keeps its choices as they are.
+- Level-ups still count toward `MAX_PER_HOUR` and are merged into one summary with the others, so turning this on cannot flood the player.
+**Acceptance:** tests: a new save has every type checked; turning notifications on shows all five checked; an old save with notifications off migrates to level on, and one with them on keeps its level choice; the build and all tests pass.
+
+### 2.01 — Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures — CODE — Not started
+**Goal:** owner report, playtest 31 (screenshots of the key scene and the map): some machine pictures have water drawn in, which looks silly where they are not on water: on the generator cards, in the key scene on the landing page and in the store images, and on dry map tiles (the Oil Rig stands on the oil field). Water must show only where the machine really stands on water on the map. Fix it everywhere.
+**Details:**
+- In `scripts/generate-generic-assets.mjs`, draw these without water: `hydroDam` (the reservoir and the river, both frames), `tidalStation` (the sea, both frames), `oilRig` (the sea, both frames) and `deuteriumExtractor` (the shore and the sea). Keep the structure and its animation (the second frame moves the turbine or the pump, not water); the base sits on its own small foundation or pilings. Check for other sprites with drawn water (`C.blue` or `C.sky` bands, `waves(...)`) and fix them the same way, except tiles and map details that are water themselves (sea, river, lake, coast, waves).
+- On the map the water comes from the tiles under the machine (river, coast, sea, lake), so a machine on water still reads as on water. If a water machine's block looks cut off from its tiles, add a thin water edge drawn by the map (CSS or SVG), only when the machine's tiles are water tiles.
+- Regenerate with `--force`, then `npm run brand` (the key scene, the capsules and the landing page use these sprites), and check every place the pictures show: generator and producer cards, the map, the research tree, the welcome-back summary, the landing page.
+- Sizes and names stay the same; `npm run check:assets` passes.
+**Acceptance:** a test that these sprites have no water-colored rows (no `C.blue` band across the picture); before and after screenshots of the key scene, a generator card, and the map with the machines on water and on land; the build and all tests pass.
+
+### 2.02 — Flying things cast their shadow far below them — CODE — Not started
+**Goal:** owner report, playtest 31 (screenshot of the map birds): the shadow of a flying thing sits right next to it, so it does not look like it is flying. It should fall well below it, on the ground, to give the illusion of height.
+**Details:**
+- Map birds and the map's shooting star (`src/components/MapEventLayer.tsx`): take the shadow out of the sprite (no `AIR_SHADOW` in the generator script; regenerate) and draw it as its own layer: the bird's silhouette (the same sprite with `brightness(0)` and partial opacity, or a soft ellipse), offset well below it, about 1 to 1.5 map tiles down and a little right, a bit smaller and blurred. It moves with the bird and flaps with it.
+- Flying sightings (2.00, `src/components/Sightings.tsx`): the same idea; the `.air-shadow` drop shadow moves further down (about 40 to 60 px at desktop size, less on a phone) and gets softer. The gulls in the sighting flock get the same far shadow.
+- Things on the ground (machines, pets, the walking cat) keep their shadow right under them.
+- Reduce motion: no change (the shadow is still; it only follows what moves).
+**Acceptance:** tests: a map bird's shadow is a separate element at least one tile below it and moves with it; the sprite has no baked shadow; the sighting shadow offset is the new distance; screenshots on the map and over the page; the build and all tests pass.
+
+### 2.03 — Shadows a little lighter — CODE — Not started
+**Goal:** owner feedback, playtest 31: "I can see them now. Making them a little bit less dark will look better."
+**Details:**
+- About a quarter lighter everywhere: the sprite ground shadow `GROUND_SHADOW_ALPHA` 150 → about 115 (45%) in `scripts/generate-generic-assets.mjs` (regenerate, `npm run brand`), the map's machine ground ellipse `GROUND_SHADOW_OPACITY` 0.6 → about 0.45 (`src/components/MachineSprite.tsx`), the pet and walking-cat `.ground-shadow` 0.65 → about 0.5, and the flying shadows of 2.02 to match. One named constant per kind, so the owner can ask for another step.
+- Keep them visible on the light tiles (sand, ground) and the dark ones; check by screenshot.
+**Acceptance:** tests updated to the new values; before and after screenshots of the map, a sighting and the walking pets; `npm run check:assets`, the build and all tests pass.
+
+### 2.04 — Editions (demo, full, mobile), the Full Game panel and the entitlement layer — CODE — Not started
+**Goal:** launch work, playbook step R-01, reworking 1.95 to the owner's release decisions (`docs/RELEASE_DECISIONS.md`, "Editions" and "Business model and prices"). Needed before the Steam build (1.98) and the mobile apps (1.97).
+**Details:**
+- `VITE_EDITION` chooses the edition at build time: `demo` (the web build, itch.io, galaxy.click and the Steam demo: only the free part, and data for later content is **not in the bundle at all**), `full` (the Steam full game: everything open) and `mobile` (Android and iOS: everything in the bundle, the content after the free part locked until `full_game` is owned). The default for `npm run build` and `npm run dev` stays the full game until 2.05 sets `PLAY_EDITION` for the site, so owner playtests are not cut off.
+- The free part keeps the current boundary, `FREE_MAX_RESEARCH_LEVEL` 9 (owner, playtest 31: "For now it is fine"); the boundary stays one constant. In the demo, research and machines past it show as "Full Game" (locked, with what they unlock) rather than missing.
+- Entitlement layer `src/platform/entitlements.ts`: `hasFullGame()`, `hasSupporter()`, `purchase(productId)`, `restore()`, on top of the 1.95 `PurchaseStore`. Web demo: both false; Steam full: full true, supporter from the DLC check (1.98); mobile: from RevenueCat (1.97, a stub until then). Products `full_game` and `supporter_pack`.
+- The "Get the Full Game" panel replaces the 1.95 note: what comes next (Gas, Oil, Nuclear, Fusion, Micro-Supernova, Grid Contracts, energy pets), "Your save carries over", "Buy once. No ads. No pay-to-win." Web demo: Steam, Google Play and App Store buttons from `src/site/links.ts` (empty ones hidden); Steam demo: the Steam store page; mobile: a buy button with the store's local price and Restore purchases. It opens by itself at most once per session (at the boundary or on tapping a locked item); a small "Full Game" button stays in the top bar in the demo and in the locked mobile edition.
+- Web demo: a small "Support the developer" link to `KOFI_URL` in Settings (and the site footer in 2.05).
+- Save carry-over: a demo save loads unchanged in the full and mobile editions (test it).
+- The 1.95 Supporter title and accent stay until the Supporter Pack themes item replaces them; the dev-only test store stays for development.
+**Acceptance:** a test builds the demo bundle and fails if any full-only id (research past the boundary, generators, Grid Contracts, energy pets) appears in it; tests for the entitlement layer per edition, the panel (once per session, the buttons per edition), and demo-save carry-over; `npm run simulate` unchanged for the full edition; the build and all tests pass.
+
+### 2.05 — The website on Cloudflare Pages: landing, play, press, privacy, terms, support — CODE — Not started
+**Goal:** launch work, playbook step W-05, reworking 1.94 to the owner's release decisions (`docs/RELEASE_DECISIONS.md`, "Website" and "IDs and services"): the site moves from GitHub Pages to Cloudflare Pages, and gets every page the launch needs.
+**Details:**
+- `npm run build:web` outputs `dist-web/`: `/` (landing), `/play/` (the game built with base `/play/`, edition from `PLAY_EDITION`, default `demo` once 2.04 exists), `/press/`, `/privacy/`, `/terms/`, `/support/` and a 404 page. Plain Vite multi-page HTML with Tailwind (no React on site pages), the game's dark pixel-art look and AAP-64 colors, from 360 px wide, under 200 KB per page before images.
+- Replace GitHub Pages: delete `.github/workflows/deploy.yml` (keep `ci.yml`), remove `public/CNAME` and the `SITE_BASE`/`SITE_URL` switch from 1.94 (the site root is `/`), and change every playtest URL in `README.md`, `PLAYTEST.md` and `GETTING_STARTED.md` to https://megagenidle.com/play/ (owner playtests: the Cloudflare preview link of each pull request, `PLAY_EDITION=full`). Update `docs/PUBLIC_RELEASE.md` section 9c to the Cloudflare steps (playbook W-01, W-06) and the Supabase redirect URLs.
+- All external links in one file, `src/site/links.ts` (the list and the known values are in `docs/RELEASE_DECISIONS.md`); an empty link hides its button or embed. Merge `src/data/stores.ts` (1.94) into it.
+- Landing page, top to bottom, with the playbook's texts: the hero (app icon, name, tagline, "Play free in your browser", "Wishlist on Steam", "Join the Discord", "Coming March 11, 2027 to PC, Android and iPhone" and store buttons when their links exist), the trailer (YouTube, loaded only on click, hidden while empty), six feature cards with sprites, a gallery of 4 screenshots captured with Playwright at 1920×1080 into `public/screens/`, "Fair by design", the FAQ, and the footer (social icons, support email, Privacy, Terms, Press kit, Ko-fi, "© 2026 MegaGen Idle"). Keep the current pitch where it fits (owner: it is fine).
+- `/privacy/` and `/terms/` render `docs/legal/privacy.md` and `docs/legal/terms.md`; `/press/` renders `docs/press.md` and offers `press-kit.zip` (logo, app icon, 6 screenshots); `/support/` has the FAQ, the support email and illustrated save-export steps. The owner adds the three Markdown files (playbook W-04); until then the pages show the in-repo `public/privacy.html` text and short placeholders.
+- SEO: a title and description per page, Open Graph and Twitter tags with a 1200×630 image (sprites and logo), favicons from the app icon, `sitemap.xml`, `robots.txt`, JSON-LD `VideoGame` on the landing page. No cookies and no analytics code.
+- Every text uses the full name "MegaGen Idle", never "MegaGen" alone (trademark), in the site and in the game: the achievement `energy_2b` is named "MegaGen"; rename it (for example "Mega Generator"), keeping its id so saves and Steam (1.98) are unaffected, and add a test that no player-facing text says "MegaGen" without "Idle".
+- **Owner steps:** Cloudflare Pages project (build `npm run build:web`, output `dist-web`, `NODE_VERSION=22`), the custom domains, `PLAY_EDITION=full` in the preview environment, then make the repository private (playbook W-06, F-06).
+**Acceptance:** Playwright: every page loads at 360 and 1280 px without sideways scroll, "Play free in your browser" reaches the game at `/play/`, which saves and reloads; empty links hide their buttons; a test checks each page's size budget and meta tags; the build, `npm run build:web` and all tests pass.
+
 ### 1.94 — megagenidle.com: landing page and custom domain — CODE — Done
 **Goal:** launch work (March 11, 2027): the public website megagenidle.com, with a landing page and the game.
 **Details:**
@@ -1474,7 +1545,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Entitlements:** `entitlements: { fullGame, supporter }` saved with the game (save version 24; older saves own nothing). On start (`initPurchases`, called from `src/main.tsx` after the save loads) the store's `restore()` replaces the saved value, so a copied or edited save unlocks nothing; if the store cannot be reached, the saved value is kept until the next start. A reset keeps purchases; loading a save keeps the store's record.
 - **The panel:** at the boundary, a calm note above the research tree ("You have reached the end of the free part", buy and restore; `src/components/Purchases.tsx`), never a pop-up. Settings → Purchases lists both products with buy and restore where a store exists. The research details say "Part of the Full Game".
 - **Supporter Pack (cosmetic only):** the Supporter title and accent (AAP-64 mint `#a6fcdb`, 4.5:1 on the top bar) in the Achievements tab, and a thank-you line in Settings → Credits. A test runs the balance simulator for 40 hours with and without the pack (title and accent chosen) and gets the same result; a Full Game player with a store matches the web run, and `npm run simulate` is unchanged.
-- **Owner questions:** where the free part ends (the constant), the prices (set in each store), and whether the web version stays fully free after launch or sells the Full Game too (a web payment provider would be a new item). Screenshot: `docs/screenshots/full-game-panel-1.95.png`.
+- **Owner questions (answered at playtest 31):** the free part stays at research level 9 for now; prices and the web (free part with a Ko-fi tip, never selling the Full Game) are in `docs/RELEASE_DECISIONS.md`; 2.04 reworks this item into editions. Screenshot: `docs/screenshots/full-game-panel-1.95.png`.
 
 ### 1.96 — Desktop app with Electron, packaged for Windows in GitHub Actions — CODE — Done
 **Goal:** launch work: a Windows desktop build for Steam.
@@ -1492,23 +1563,32 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Workflow:** `.github/workflows/desktop.yml` on `windows-latest`, on `v*` tags and manual runs; tests, builds, uploads both artifacts. Signing reads `WIN_CSC_LINK` and `WIN_CSC_KEY_PASSWORD` (**owner step**, optional). CI and the Pages deploy skip the Electron download (`ELECTRON_SKIP_BINARY_DOWNLOAD`).
 - **Checked here:** a Linux package built with the same config ran under a virtual display with Playwright's Electron driver: the game loaded at `app://megagen/play/`, the bridge was present, the save was written to files and came back after a restart (`docs/screenshots/desktop-1.96.png`). Tests: `src/platform/desktop.test.ts` (fake bridge), `electron/files.test.ts`, `src/data/workflows.test.ts` (every workflow parses; the desktop one's triggers, runner and secrets). Electron added to the in-game credits.
 
-### 1.97 — Mobile apps with Capacitor for Android and iOS, built by Codemagic — CODE — Not started
-**Goal:** launch work: Google Play and App Store builds made in the cloud.
+### 1.97 — Mobile apps with Capacitor and RevenueCat for Android and iOS, built by Codemagic — CODE — Not started
+**Goal:** launch work, playbook step A-03 (rewritten after playtest 31 to the owner's release decisions, `docs/RELEASE_DECISIONS.md`): Google Play and App Store builds made in the cloud. After 2.04.
 **Details:**
-- Capacitor config (`capacitor.config.ts`, app id `com.megagenidle.app`), the generated `android/` and `ios/` projects committed, app icons and splash from the brand images (1.52) via a script, and safe-area padding checked.
-- `src/platform/mobile.ts`: pause and resume from the App plugin, native storage (Preferences or Filesystem) for the save, `openExternal` through the Browser plugin.
-- `codemagic.yaml`: an Android workflow building a signed AAB and an iOS workflow building a signed IPA, publishing to the Play internal track and TestFlight when the owner's credentials exist. Secrets the owner adds in Codemagic: the Android keystore (and its passwords), the Google Play service account JSON, and an App Store Connect API key.
-- Nothing needs Xcode or Android Studio on a local machine.
-**Acceptance:** `npx cap sync` runs in CI; unit tests for the mobile platform layer with fakes; `codemagic.yaml` passes a schema check; the build and all tests pass.
+- Capacitor (latest stable), `appId` `com.megagenidle.game`, `appName` "MegaGen Idle"; the `android/` and `ios/` projects committed. Android targetSdk 36, minSdk 24; iOS iPhone and iPad, deployment target 15; both orientations.
+- The mobile edition (2.04): the free part plays without paying; the Full Game is an in-app purchase.
+- Platform layer `src/platform/mobile.ts` (storage, lifecycle, links, purchases, notifications); the web implementation stays as it is. Save when the app goes to the background; on resume, offline gains from timestamps. Mirror the save into Capacitor Preferences as well as IndexedDB. Safe areas (notch, home bar, Android edge to edge), a dark status bar, the splash screen from the app icon. Android back button closes the open panel, then asks "Quit?". External links in the system browser.
+- Purchases with `@revenuecat/purchases-capacitor`: public SDK keys in `src/platform/purchaseKeys.ts` (`ANDROID = "goog_REPLACE"`, `IOS = "appl_REPLACE"`); entitlements `full_game` and `supporter`, products `full_game` and `supporter_pack`; Restore purchases in Settings; unlocks through the 2.04 entitlement layer, cached for offline play.
+- Optional local notifications (off by default; permission asked only when switched on): "Research complete" and "Your offline storage is full" after the offline cap. No push server.
+- iOS: `PrivacyInfo.xcprivacy` (no tracking; purchase history collected, not linked to identity, for app functionality and analytics; required-reason API entries for what Capacitor and its plugins use) and `ITSAppUsesNonExemptEncryption` = NO in `Info.plist`.
+- Store graphics from the real game with Playwright into `docs/stores/`: Android icon 512×512, feature graphic 1024×500, 8 phone screenshots 1080×1920, 4 tablet 1920×1200; iOS 8 iPhone 1320×2868 and 4 iPad 2064×2752 (the same scenes as the Steam screenshots).
+- `codemagic.yaml`, two workflows started by hand: `android-release` (npm ci, build with `VITE_EDITION=mobile`, never `build:web`; `cap sync android`; signed release AAB with the keystore reference `megagen_upload`; versionCode = the Codemagic build number; artifact `app-release.aab`) and `ios-release` (build with `VITE_EDITION=mobile`, `cap sync ios`, signing with distribution type app_store, bundle id `com.megagenidle.game`, certificate `megagen_distribution`, profile `megagen_appstore`, publishing through the App Store Connect integration "MegaGen ASC", build number = latest TestFlight build + 1, TestFlight only). `docs/MOBILE.md`.
+- **Owner steps** (playbook A-04 to A-11b, I-04 to I-09): the upload keystore, the Codemagic integrations, the store apps and products, RevenueCat and its public keys. Nothing needs Xcode or Android Studio on a local machine.
+**Acceptance:** `npx cap sync` runs in CI; unit tests for the mobile platform layer and purchases with fakes; `codemagic.yaml` parses and has both workflows with the names above; the build and all tests pass.
 
-### 1.98 — Steam: achievements, the Full Game purchase and an upload workflow — CODE — Not started
-**Goal:** launch work: connect the desktop app (1.96) to Steam.
+### 1.98 — The Steam desktop build: flavours, steamworks.js, achievements, Supporter DLC, Steam Cloud saves — CODE — Not started
+**Goal:** launch work, playbook step S-08 (rewritten after playtest 31 to the owner's release decisions, `docs/RELEASE_DECISIONS.md`, "IDs and services"), building on the Electron app of 1.96. After 2.04.
 **Details:**
-- `steamworks.js` in the Electron main process only, behind the platform layer: our achievements (`src/data/achievements.ts`, stable ids) unlock the matching Steam achievements; rich presence shows the energy rate.
-- The Full Game on Steam is the paid base game or a DLC (owner decision, see 1.95); the Supporter Pack is a DLC. Ownership is read from Steam at start.
-- A GitHub Actions workflow uploads the Windows build to Steam with steamcmd on manual runs. Secrets the owner adds: `STEAM_USERNAME`, `STEAM_CONFIG_VDF`, and the app and depot ids as repository variables.
-- `docs/steam/` gets the achievements list for Steamworks (names, descriptions, generated 64 px icons) and the upload steps.
-**Acceptance:** unit tests with a fake Steam bridge (achievement mapping, ownership); the workflow file validates; the build and all tests pass.
+- Two flavours from one codebase: **full** and **demo** (the demo uses the 2.04 demo edition). App IDs in `desktop/steam-app-ids.json` as `{"full": 0, "demo": 0, "supporterDlc": 0}`; the owner fills them in. Keep the 1.96 code in `electron/` (or move it to `desktop/` as the playbook names it, if that is simpler; say which in the PR).
+- Steam through **steamworks.js** in the main process only: init with the flavour's App ID; if the game was not started by Steam, restart it through Steam; the Steam overlay works. The preload bridge gains `unlockAchievement` and `isDlcInstalled` (context isolation stays on, no `nodeIntegration`).
+- Achievements: every achievement in `src/data/achievements.ts` maps to a Steam API name, `ACH_` plus its id in upper snake case; unlocked on Steam when the game unlocks it, and all unlocked ones re-synced on start. Write `docs/steam/achievements.csv` (api name, display name, description, hidden 0/1) and 256×256 JPG icons per achievement, unlocked (color) and locked (gray), in `docs/steam/achievement-icons/`, drawn by code from the current sprites. The demo never unlocks Steam achievements; the full game grants the earned ones through its start-up re-sync.
+- Supporter Pack: when the `supporterDlc` is installed, grant the Supporter cosmetics through the 2.04 entitlement layer. The full game owns `full_game` by being the full game.
+- Saves: the files are already in the user data folder (1.96); make sure it resolves to `%APPDATA%/MegaGen Idle/saves/*.json` in both flavours (Steam Auto-Cloud syncs that folder, and the full game picks up the demo save), and write on every autosave and on quit.
+- Window changes from 1.96: at least 960×600 (was 800×600), remembers size and position, F11 toggles full screen, no dev tools in packaged builds, keeps producing when minimized (`backgroundThrottling: false`). Executable "MegaGen Idle.exe".
+- Workflow `.github/workflows/desktop.yml`: started by hand with an input `flavour` = `full` or `demo` (tags no longer trigger it); uploads `MegaGenIdle-<flavour>-win64.zip` (the unpacked folder, zipped) as an artifact. The NSIS installer from 1.96 may stay as a second artifact. No Steam credentials anywhere in CI (the owner uploads with SteamPipe GUI, playbook S-11).
+- Steam icons in `docs/steam/icons/`: community icon 184×184 JPG, client icon `.ico` (16 and 32 px), shortcut icon `.ico` (256 px). README updated.
+**Acceptance:** unit tests with a fake Steam bridge (the ACH_ mapping, unlock and re-sync, the demo never unlocking, the DLC grant); a test that `achievements.csv` lists every achievement; the workflow parses with the `flavour` input; the build and all tests pass.
 
 ### 1.93 — Fix: Kinetic Capture and Grid Tap make a click worth far more than idling — CODE — Done
 **Goal:** owner report, playtest 28: the last click research, Kinetic Capture and Grid Tap, each add "+25% of your energy/s to each click". At 5,670 energy/s a click goes from 9 to about 1,426 energy, then about 2,844 with both. Clicking dozens of times a minute makes a jump far beyond idling. The upgrade should make more sense.
@@ -2178,3 +2258,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 30 (v0.30.0) | 1.50, 1.49, 1.48, 0.42, 0.18 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; last room expansion (13) at 496.9 h. Owner feedback during the run: center "Idle" under "MegaGen" in the logo (done). Waiting for feedback. | |
 | 30 (answers) | 1.50, 1.49, 1.48, 0.42, 0.18 | 2026-10-10 | Logo clear and the right size on computer and phone; keep its size. Loading screen text and bar are good. The game is smooth and the Map tab is fast. Shadows: the owner sees none (1.48 is merged but too faint at map size); wants them on the flying sightings and the pets too. Do not develop new backlog items until the owner says so. | 1.99, 2.00 |
 | 31 (v0.31.0) | 1.99, 2.00, 1.94, 1.95, 1.96 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; last room expansion (13) at 496.9 h. The proposed free part ends later than its estimate: the first research past research level 9 (Oil Refining) is done at 58.4 h. Owner decisions asked: where the free part ends, prices, whether the website sells the Full Game, desktop platforms. Waiting for feedback. | |
+| 31 (answers) | 1.99, 2.00, 1.94, 1.95, 1.96 | 2026-10-10 | Machine pictures with water drawn in look silly off the water, everywhere (key scene, cards, map). Map shadows look better, but a flying thing's shadow (the map birds) sits too close: it should fall far below. Pet shadows good. Shadows a little lighter. Landing pitch fine. Free part at research level 9: fine for now. Prices, platforms and release: the owner's Launch & Growth Playbook, recorded in `docs/RELEASE_DECISIONS.md` (Steam $6.99 with a free demo and a $2.99 Supporter DLC; mobile free to start, Full Game $4.99, Supporter Pack $2.99; the web is the free part with a Ko-fi tip; Windows first, macOS and Linux later; Cloudflare hosting; editions demo, full and mobile). 1.97 and 1.98 rewritten to it. Do not develop new backlog items until the owner says so. Later the same day: "Player level up" starts unchecked when notifications are first turned on (bug). | 2.06, 2.01, 2.02, 2.03, 2.04, 2.05 |
