@@ -114,7 +114,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.50 A dedicated MegaGen Idle logo (done before 1.49, so the loading screen can show it; Done)
 0. 1.48 Sprite quality pass: shadows, proportions, better map designs (Done)
 0. 0.42 Performance pass (Done)
-0. 0.18 Test coverage pass → CHECKPOINT 30 (5 items since checkpoint 29: 1.50, 1.49, 1.48, 0.42, 0.18)
+0. 0.18 Test coverage pass (Done) → CHECKPOINT 30 (5 items since checkpoint 29: 1.50, 1.49, 1.48, 0.42, 0.18)
 0. (then the rest of the order below)
 
 **Launch priority (owner decision, 2026-10-03):** these come first, in this order. Items already `Done` are skipped, so the first open item is 0.41.
@@ -1901,10 +1901,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Transitions:** a new machine in "Your generators" fades in; a build card that unlocks during play glows twice (not when a game loads). Research completion keeps its celebration. All of it is off with reduced motion (the OS setting or the in-game one).
 - **Before and after:** before, the tabs wrapped to two rows at 1280 px and the energy total scrolled out of view on long lists; panels and headings differed slightly between tabs. Progress bars already shared `ProgressBar`; no change there.
 
-### 0.18 — Test coverage pass — CODE — Not started
+### 0.18 — Test coverage pass — CODE — Done
 **Goal:** fill gaps left by individual items.
 **Details:** review coverage for `idleEngine`, `generatorSystem`, `researchSystem`, `resourceSystem`, `roomSystem`, `energyGeneration`, `formatNumber`. Cover edge cases: negative time, huge gaps, insufficient resources, prerequisite chains, save migrations. Target 80% or more on `src/utils/`.
 **Acceptance:** coverage report meets the target; tests stable with no dependence on real time.
+**Notes:**
+- **Coverage tool:** `@vitest/coverage-v8` and `npm run test:coverage` (CI runs it instead of `npm test`), measuring `src/utils/` with an 80% floor on lines, statements, functions and branches.
+- **Result:** `src/utils/` was already at 98.7% lines and 88.3% branches; now 99.3% lines, 97.0% statements, 98.8% functions, 88.8% branches. New tests cover the weakest files: the time-away summary (only new research and new out-of-fuel machines are reported; a clock moved backwards gives 0 s), the `useIdleEngine` hook (credits time away on start, snapshots when hidden, summarizes on return, waits for the save to load), "Your order" and "Upgradable" sorting edge cases, and which notification switch each log entry falls under.
+- Negative time, huge gaps, insufficient resources, prerequisite chains and save migrations were already covered by earlier items' tests. All new tests use fixed timestamps or fake timers, never the real clock.
 
 ### 0.44 — More real-world generation methods — CODE — Not started
 **Goal:** broaden the real-world methods the design lists, keeping fiction a minority.

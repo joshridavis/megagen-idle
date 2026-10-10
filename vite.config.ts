@@ -39,5 +39,13 @@ export default defineConfig(({ command, isPreview }) => ({
   test: {
     environment: 'jsdom',
     include: ['src/**/*.test.{ts,tsx}'],
+    // `npm run test:coverage` (0.18): the game rules in src/utils/ stay at 80% or more.
+    coverage: {
+      provider: 'v8',
+      include: ['src/utils/**'],
+      exclude: ['**/*.test.*'],
+      reporter: ['text-summary', 'html'],
+      thresholds: { lines: 80, statements: 80, functions: 80, branches: 80 },
+    },
   },
 }));

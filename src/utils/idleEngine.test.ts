@@ -90,3 +90,52 @@ describe('offline cap (playtest 1: 24 hours)', () => {
     expect(useStore.getState().energy).toBeCloseTo(24 * 3600);
   });
 });
+
+describe('useIdleEngine (0.18)', () => {
+  it('credits time away on start, snapshots when hidden and summarizes on return', async () => {
+    const { renderHook } = await import('@testing-library/react');
+    const { platform } = await import('../platform');
+    const { useIdleEngine } = await import('./idleEngine');
+    let report: ((hidden: boolean) => void) | undefined;
+    const off = vi.fn();
+    vi.spyOn(platform, 'onBackground').mockImplementation((cb) => {
+      report = cb;
+      return off;
+    });
+    vi.useFakeTimers({ now: T0 + 10_000 });
+    try {
+      const { unmount } = renderHook(() => useIdleEngine());
+      expect(useStore.getState().energy).toBeCloseTo(10, 5); // 10 s away at 1/s, credited on start
+      report!(true);
+      expect(useStore.getState().awaySnapshot?.at).toBe(T0 + 10_000);
+      vi.setSystemTime(T0 + 130_000); // 2 minutes hidden
+      report!(false);
+      expect(useStore.getState().welcomeBack?.awaySeconds).toBe(120);
+      unmount();
+      expect(off).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('waits for the save to load before crediting time', async () => {
+    const { renderHook } = await import('@testing-library/react');
+    const { useIdleEngine } = await import('./idleEngine');
+    let loaded: (() => void) | undefined;
+    vi.spyOn(useStore.persist, 'hasHydrated').mockReturnValue(false);
+    vi.spyOn(useStore.persist, 'onFinishHydration').mockImplementation((fn) => {
+      loaded = () => fn(useStore.getState());
+      return () => {};
+    });
+    vi.useFakeTimers({ now: T0 + 5_000 });
+    try {
+      const { unmount } = renderHook(() => useIdleEngine());
+      expect(useStore.getState().energy).toBe(0);
+      loaded!();
+      expect(useStore.getState().energy).toBeCloseTo(5, 5);
+      unmount();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
