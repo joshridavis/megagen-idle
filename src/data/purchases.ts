@@ -29,8 +29,9 @@ export const PRODUCTS_BY_ID = Object.fromEntries(PRODUCTS.map((p) => [p.id, p]))
 /**
  * Where the free part ends (owner decision pending; this is the proposal in
  * BACKLOG.md 1.95): every research that needs research level 9 or lower is
- * free, which covers everything up to and including the Natural Gas Plant,
- * about 17 hours of play. Research that needs a higher level needs the Full
+ * free, which covers everything up to and including the Natural Gas Plant and
+ * the Oil Rig; in the simulator the first research past it (Oil Refining) comes
+ * at about 58 hours of play. Research that needs a higher level needs the Full
  * Game. Nothing already built or researched ever stops working.
  */
 export const FREE_MAX_RESEARCH_LEVEL = 9;

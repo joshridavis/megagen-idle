@@ -128,10 +128,10 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 0. 1.94 megagenidle.com: landing page and custom domain (Done in code; the DNS and Pages domain switch is the owner's step)
 0. 1.95 Full Game unlock and Supporter Pack: purchases framework (Done; the free boundary is the proposal until the owner decides)
-0. 1.96 Desktop app with Electron, packaged for Windows in GitHub Actions (Done)
+0. 1.96 Desktop app with Electron, packaged for Windows in GitHub Actions (Done) → CHECKPOINT 31 (5 items since checkpoint 30: 1.99, 2.00, 1.94, 1.95, 1.96)
 0. 1.97 Mobile apps with Capacitor for Android and iOS, built by Codemagic
-0. 1.98 Steam: achievements, the Full Game purchase and an upload workflow → CHECKPOINT 31
-0. (then 0.44, 0.45, 0.47 and the rest of the order below)
+0. 1.98 Steam: achievements, the Full Game purchase and an upload workflow
+0. 1.97 and 1.98 come next, then 0.44, 0.45, 0.47 and the rest of the order below
 
 **Launch priority (owner decision, 2026-10-03):** these come first, in this order. Items already `Done` are skipped, so the first open item is 0.41.
 
@@ -2177,3 +2177,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 29 (answers) | 1.80, 1.81, 1.55, 1.54, 1.51 | 2026-10-10 | The owner asked to continue from the order of work: 1.50, 1.49, 1.48, 0.42 and 0.18 toward checkpoint 30. | |
 | 30 (v0.30.0) | 1.50, 1.49, 1.48, 0.42, 0.18 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; last room expansion (13) at 496.9 h. Owner feedback during the run: center "Idle" under "MegaGen" in the logo (done). Waiting for feedback. | |
 | 30 (answers) | 1.50, 1.49, 1.48, 0.42, 0.18 | 2026-10-10 | Logo clear and the right size on computer and phone; keep its size. Loading screen text and bar are good. The game is smooth and the Map tab is fast. Shadows: the owner sees none (1.48 is merged but too faint at map size); wants them on the flying sightings and the pets too. Do not develop new backlog items until the owner says so. | 1.99, 2.00 |
+| 31 (v0.31.0) | 1.99, 2.00, 1.94, 1.95, 1.96 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; last room expansion (13) at 496.9 h. The proposed free part ends later than its estimate: the first research past research level 9 (Oil Refining) is done at 58.4 h. Owner decisions asked: where the free part ends, prices, whether the website sells the Full Game, desktop platforms. Waiting for feedback. | |
