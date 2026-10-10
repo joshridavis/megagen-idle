@@ -79,7 +79,7 @@ const TITLES: Record<string, TitleTierId> = {
   contracts_200: 'epic', // 128 h
   energy_2b: 'epic', // 132 h
   adult_all: 'epic', // 176 h
-  decor_30: 'epic', // play style: every decoration copy bought (36 today), prices rising each copy (1.78)
+  decor_30: 'epic', // play style: every decoration copy bought (84 since 1.54), prices rising each copy (1.78)
   types_all: 'legendary', // 228 h
   research_all: 'legendary', // 243 h
   maxed_all: 'legendary', // 265 h (100%)

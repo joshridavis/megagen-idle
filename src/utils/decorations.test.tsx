@@ -37,7 +37,8 @@ describe('map decorations (1.13)', () => {
     expect(isDecorationUnlocked({ ...fresh, achievements: achieved(14) }, 'windsock')).toBe(false);
     expect(isDecorationUnlocked({ ...fresh, contracts: { ...fresh.contracts, done: 10 } }, 'pond')).toBe(true);
     expect(isDecorationUnlocked({ ...fresh, contracts: { ...fresh.contracts, done: 50 } }, 'statue')).toBe(true);
-    const all = { ...fresh, lifetimeEnergy: energyForLevel(20), achievements: achieved(15), contracts: { ...fresh.contracts, done: 50 } };
+    // the last of the 1.54 kinds need level 45, 25 achievements and 100 contracts
+    const all = { ...fresh, lifetimeEnergy: energyForLevel(45), achievements: achieved(25), contracts: { ...fresh.contracts, done: 100 } };
     expect(unlockedDecorations(all)).toHaveLength(DECORATIONS.length);
   });
 

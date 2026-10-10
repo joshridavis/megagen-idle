@@ -1,3 +1,4 @@
+import { DECORATIONS } from '../data/decorations';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import App from '../App';
@@ -54,6 +55,6 @@ describe('completion log (0.66)', () => {
     expect(panel.getByText('Tree').parentElement!.textContent).toContain('(done)');
     expect(panel.getByText('Tree').parentElement!.textContent).toContain('6/6 bought');
     expect(panel.getByText('Lamp post').parentElement!.textContent).toContain('5/6 bought');
-    expect(panel.getByRole('button', { name: /^Decorations ?\d+\/\d+/ }).textContent).toContain('4/6');
+    expect(panel.getByRole('button', { name: /^Decorations ?\d+\/\d+/ }).textContent).toContain(`4/${DECORATIONS.length}`);
   });
 });

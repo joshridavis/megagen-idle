@@ -75,6 +75,14 @@ import decorWindsock from './sprites/map/decor_windsock.png';
 import decorStatue from './sprites/map/decor_statue.png';
 import decorFlag from './sprites/map/decor_flag.png';
 import decorLamp from './sprites/map/decor_lamp.png';
+import decorFlowerbed from './sprites/map/decor_flowerbed.png';
+import decorBench from './sprites/map/decor_bench.png';
+import decorHedge from './sprites/map/decor_hedge.png';
+import decorRockGarden from './sprites/map/decor_rock_garden.png';
+import decorPicnic from './sprites/map/decor_picnic.png';
+import decorFountain from './sprites/map/decor_fountain.png';
+import decorWeatherStation from './sprites/map/decor_weather_station.png';
+import decorPlaque from './sprites/map/decor_plaque.png';
 import tileCoalfield from './sprites/map/coalfield.png';
 import tileOutcrop from './sprites/map/outcrop.png';
 import tileOilfield from './sprites/map/oilfield.png';
@@ -236,6 +244,14 @@ export const sprites = {
   decor_statue: decorStatue,
   decor_flag: decorFlag,
   decor_lamp: decorLamp,
+  decor_flowerbed: decorFlowerbed,
+  decor_bench: decorBench,
+  decor_hedge: decorHedge,
+  decor_rock_garden: decorRockGarden,
+  decor_picnic: decorPicnic,
+  decor_fountain: decorFountain,
+  decor_weather_station: decorWeatherStation,
+  decor_plaque: decorPlaque,
   tile_coalfield: tileCoalfield,
   tile_outcrop: tileOutcrop,
   tile_oilfield: tileOilfield,

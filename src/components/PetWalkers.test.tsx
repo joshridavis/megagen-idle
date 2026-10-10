@@ -12,6 +12,7 @@ import SettingsPanel from './SettingsPanel';
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 const adult = { stage: 3, growUntil: null, foundAt: 0 };
@@ -100,6 +101,8 @@ describe('pets walk on screen (1.60)', () => {
 
   it('walks on a timer, and a click plays the pet reaction', async () => {
     vi.useFakeTimers();
+    // a fixed roll: no meeting (1.81) keeps a pet waiting
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
     withPets();
     render(<PetWalkers />);
     await act(async () => {

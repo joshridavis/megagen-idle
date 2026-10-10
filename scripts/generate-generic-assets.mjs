@@ -926,6 +926,99 @@ function decorLamp() {
   return c;
 }
 
+// 1.54: more decorations, same 16x16 tile as the first six
+function decorFlowerbed() {
+  const c = new Canvas(16, 16);
+  c.rect(2, 10, 12, 4, C.brown3); // soil bed
+  c.rect(2, 10, 12, 1, C.brown4);
+  for (const [x, col] of [[4, C.red], [7, C.yellow], [10, C.purple], [12, C.orange]]) {
+    c.rect(x, 7, 1, 3, C.green); // stem
+    c.rect(x - 1, 5, 3, 2, col); // bloom
+  }
+  c.outline(C.ink);
+  return c;
+}
+function decorBench() {
+  const c = new Canvas(16, 16);
+  c.rect(2, 5, 12, 2, C.brown3); // backrest
+  c.rect(2, 9, 12, 2, C.brown4); // seat
+  c.rect(2, 9, 12, 1, C.brown5);
+  c.rect(3, 11, 1, 4, C.grey5); // legs
+  c.rect(12, 11, 1, 4, C.grey5);
+  c.rect(3, 7, 1, 2, C.grey5);
+  c.rect(12, 7, 1, 2, C.grey5);
+  c.outline(C.ink);
+  return c;
+}
+function decorHedge() {
+  const c = new Canvas(16, 16);
+  c.rect(1, 6, 14, 9, C.darkGreen);
+  c.rect(2, 5, 12, 2, C.green);
+  for (const [x, y] of [[3, 8], [7, 10], [11, 8], [5, 12], [12, 12]]) c.set(x, y, C.lime);
+  c.outline(C.forest);
+  return c;
+}
+function decorRockGarden() {
+  const c = new Canvas(16, 16);
+  c.rect(1, 11, 14, 4, C.sand); // raked gravel
+  for (const y of [12, 14]) c.rect(2, y, 12, 1, C.khaki);
+  c.circle(5, 10, 3, C.grey3);
+  c.circle(4, 9, 1, C.grey1);
+  c.circle(11, 11, 2, C.grey4);
+  c.rect(8, 9, 1, 2, C.green); // a tuft
+  c.outline(C.ink);
+  return c;
+}
+function decorPicnic() {
+  const c = new Canvas(16, 16);
+  c.rect(2, 6, 12, 2, C.brown3); // table top
+  c.rect(3, 6, 2, 1, C.red); // checked cloth
+  c.rect(7, 6, 2, 1, C.red);
+  c.rect(11, 6, 2, 1, C.red);
+  c.rect(4, 8, 1, 6, C.brown4); // legs
+  c.rect(11, 8, 1, 6, C.brown4);
+  c.rect(1, 11, 14, 1, C.brown2); // benches
+  c.rect(7, 4, 2, 2, C.lime); // an apple
+  c.outline(C.ink);
+  return c;
+}
+function decorFountain() {
+  const c = new Canvas(16, 16);
+  c.rect(2, 11, 12, 4, C.grey3); // basin
+  c.rect(3, 11, 10, 2, C.sky);
+  c.rect(7, 5, 2, 7, C.grey2); // column
+  c.rect(5, 4, 6, 2, C.grey3); // top bowl
+  c.set(8, 2, C.cyan); // water spout
+  c.set(6, 3, C.cyan);
+  c.set(10, 3, C.cyan);
+  c.set(4, 6, C.sky);
+  c.set(11, 6, C.sky);
+  c.outline(C.ink);
+  return c;
+}
+function decorWeatherStation() {
+  const c = new Canvas(16, 16);
+  c.rect(7, 4, 1, 11, C.grey5); // mast
+  c.rect(3, 9, 8, 5, C.white); // louvered box
+  c.rect(3, 10, 8, 1, C.grey2);
+  c.rect(3, 12, 8, 1, C.grey2);
+  c.rect(4, 3, 7, 1, C.grey4); // anemometer arms
+  for (const x of [3, 11]) c.rect(x, 2, 2, 2, C.orange); // cups
+  c.outline(C.ink);
+  return c;
+}
+function decorPlaque() {
+  const c = new Canvas(16, 16);
+  c.rect(3, 12, 10, 3, C.grey4); // stone base
+  c.rect(4, 4, 8, 8, C.brown4); // plaque
+  c.rect(5, 5, 6, 6, C.amber);
+  c.rect(6, 6, 4, 1, C.brown3); // engraved lines
+  c.rect(6, 8, 4, 1, C.brown3);
+  c.set(8, 10, C.yellow);
+  c.outline(C.ink);
+  return c;
+}
+
 // ---------- site map tiles (1.04) ----------
 
 function groundTile() {
@@ -1473,6 +1566,14 @@ const DRAW = {
   decor_statue: decorStatue,
   decor_flag: decorFlag,
   decor_lamp: decorLamp,
+  decor_flowerbed: decorFlowerbed,
+  decor_bench: decorBench,
+  decor_hedge: decorHedge,
+  decor_rock_garden: decorRockGarden,
+  decor_picnic: decorPicnic,
+  decor_fountain: decorFountain,
+  decor_weather_station: decorWeatherStation,
+  decor_plaque: decorPlaque,
   achievement_unlocked: () => trophy(C.yellow, C.lemon, C.brown3),
   achievement_locked: () => trophy(C.grey5, C.grey4, C.grey6),
   sighting_spaceship: spaceship,
