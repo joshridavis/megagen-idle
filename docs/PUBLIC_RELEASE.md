@@ -68,7 +68,7 @@ The database setup is in `docs/supabase-schema.sql`, ready to paste.
   - All protection comes from row-level security: every save row is readable and writable only by its owner (`auth.uid() = user_id`).
   - The secret "service role" key is never used by the game and never goes in the repository.
 - **The keys are not committed:**
-  - They are GitHub **repository variables** (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`), passed to the build by the deploy workflow.
+  - They are environment variables of the Cloudflare Pages project (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`), read by the build (section 9c).
   - Without them the game builds as today, with accounts hidden.
 - **Abuse limits:**
   - Supabase limits sign-up, log-in and email rates by default.
@@ -112,8 +112,8 @@ About 15 minutes. Nothing here needs a credit card.
 2. When the project is ready, open **SQL Editor → New query**, paste all of `docs/supabase-schema.sql`, and click **Run**. It should say "Success. No rows returned".
 3. Open **Authentication → Sign In / Providers → Email** and make sure **Confirm email** is on.
 4. Open **Authentication → URL Configuration**:
-   - **Site URL:** `https://joshridavis.github.io/megagen-idle/play/` (the game moved to `/play/` when the landing page took the site root, 1.94)
-   - **Redirect URLs:** add the same address. Add `http://localhost:5173/play/` too, for testing locally. After the switch to megagenidle.com (section 9c), add `https://megagenidle.com/play/` and make it the Site URL.
+   - **Site URL:** `https://megagenidle.com/play/` (the game on the website, section 9c)
+   - **Redirect URLs:** add the same address. Add `http://localhost:5173/play/` too, for testing locally.
 5. Open **Project Settings → API** (or **Data API**) and copy the **Project URL**, which looks like `https://abcd1234.supabase.co` with nothing after `.co` (not the RESTful endpoint ending in `/rest/v1/`; the game now trims that anyway), and the **publishable** key (`sb_publishable_…`; older projects show an **anon public** key instead, which works the same). Do not copy the secret or `service_role` key.
 6. In GitHub, open the repository **Settings → Secrets and variables → Actions → Variables** tab, and click **New repository variable** twice:
    - `VITE_SUPABASE_URL` = the Project URL
@@ -139,7 +139,7 @@ You will need your Supabase **callback URL**. It is shown on each provider's pag
    - Publish the app when you are ready for everyone; while it is in testing, only test users you add can sign in.
 3. Open **APIs & Services → Credentials → Create credentials → OAuth client ID**:
    - **Type:** Web application.
-   - **Authorized JavaScript origins:** `https://joshridavis.github.io`
+   - **Authorized JavaScript origins:** `https://megagenidle.com`
    - **Authorized redirect URIs:** the Supabase callback URL.
    - Copy the **Client ID** and **Client secret**.
 4. In Supabase → **Authentication → Sign In / Providers → Google**, turn it on, paste both values and save.
@@ -151,29 +151,31 @@ You will need your Supabase **callback URL**. It is shown on each provider's pag
 4. In Supabase → **Authentication → Sign In / Providers → Discord**, turn it on, paste both values and save.
 
 **Then turn the buttons on**
-1. In GitHub → repository **Settings → Secrets and variables → Actions → Variables**, add `VITE_AUTH_PROVIDERS` = `google,discord` (or just one of them).
-2. Variables are read when the site is built, so rebuild it: **Actions → Deploy to GitHub Pages → Run workflow** (on `main`). The same applies whenever you change any of these variables.
+1. In Cloudflare → the Pages project → **Settings → Environment variables**, add `VITE_AUTH_PROVIDERS` = `google,discord` (or just one of them).
+2. Variables are read when the site is built, so rebuild it: in Cloudflare (the Pages project → **Deployments → Retry deployment** on the latest `main` build). The same applies whenever you change any of these variables.
 
 Players who sign in with Google or Discord choose a username the first time. Their email comes from the provider, and the cloud saves work the same.
 
-## 9c. The website megagenidle.com (owner, about 20 minutes plus DNS wait)
+## 9c. The website megagenidle.com on Cloudflare Pages (owner, about 30 minutes plus DNS wait)
 
-> **Replaced by the owner's plan:** the domain is bought at Cloudflare and the site is hosted on Cloudflare Pages (playbook W-01, W-06; `docs/RELEASE_DECISIONS.md`). Item 2.05 moves the build there and rewrites this section. The GitHub Pages steps below apply only if the site stays on GitHub Pages until then.
+The site is ready for it (2.05; playbook W-01, W-05, W-06): `npm run build:web` builds every page into `dist-web/`: the landing page at `/`, the game at `/play/`, and `/press/`, `/privacy/`, `/terms/`, `/support/` and a 404 page, plus `sitemap.xml`, `robots.txt`, the sharing picture and `press-kit.zip`. GitHub Pages is retired: there is no deploy workflow any more, and the last github.io deploy stays online until you turn Pages off.
 
-The site is built for it already (1.94): a landing page at the root with **Play now**, the game at `/play/`, the privacy page at `/privacy.html`, and `public/CNAME` holding `megagenidle.com`. Until you switch, it all runs at `https://joshridavis.github.io/megagen-idle/` (game: `.../megagen-idle/play/`).
+1. **Domain:** buy `megagenidle.com` at Cloudflare (Registrar), so its DNS is already in your Cloudflare account (playbook W-01).
+2. **Pages project:** Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**, pick this repository, then:
+   - Production branch: `main`
+   - Build command: `npm run build:web`
+   - Build output directory: `dist-web`
+   - Environment variables (Production and Preview): `NODE_VERSION` = `22`, `ELECTRON_SKIP_BINARY_DOWNLOAD` = `1`; if accounts are on, also `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and `VITE_AUTH_PROVIDERS` with the values you set in GitHub before (they are not secrets).
+   - **Preview** environment only: `PLAY_EDITION` = `full`, so the preview link of every pull request plays the full edition for your playtests (once item 2.04 adds editions). Never share preview links.
+3. **Custom domains:** in the Pages project, **Custom domains → Set up a domain**: add `megagenidle.com`, then `www.megagenidle.com`. Cloudflare creates the DNS records and the HTTPS certificates.
+4. **Email:** Cloudflare → the domain → **Email → Email Routing**: forward `support@` and `press@` to your own address.
+5. **Visit counts (optional):** Cloudflare Web Analytics for the Pages project. It sets no cookies, so the site needs no cookie banner; the site itself has no analytics code.
+6. **Supabase** (if accounts are on): set the Site URL to `https://megagenidle.com/play/` and add it to the Redirect URLs (section 9, step 4); keep `http://localhost:5173/play/` for local tests.
+7. **GitHub Pages off:** repository **Settings → Pages**: unpublish the site. Then make the repository **private** (playbook W-06, F-06): Cloudflare keeps building from a private repository.
 
-1. At the company where you bought the domain, open its DNS settings and add:
-   - four **A** records for `megagenidle.com` (host `@`): `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`;
-   - optionally four **AAAA** records (host `@`): `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`;
-   - a **CNAME** record for `www` pointing to `joshridavis.github.io`.
-   (GitHub's current list: docs.github.com, "Managing a custom domain for your GitHub Pages site".)
-2. Optional but recommended: verify the domain for your GitHub account (**GitHub → Settings → Pages → Add a domain**), so nobody else can take it over.
-3. In the repository, **Settings → Pages → Custom domain**: type `megagenidle.com` and **Save**. When the DNS check passes (minutes to a day), tick **Enforce HTTPS**.
-4. **Settings → Secrets and variables → Actions → Variables**: add `SITE_BASE` = `/` and `SITE_URL` = `https://megagenidle.com/`. These are not secrets.
-5. Re-run **Actions → Deploy to GitHub Pages → Run workflow** on `main`. The site now builds for the domain root. The old github.io address forwards to the domain.
-6. In Supabase (if accounts are on), update the Site URL and Redirect URLs as in section 9, step 4.
+**Saves:** a browser keeps its save per web address. A player of the github.io address starts fresh on megagenidle.com unless they move their save: Settings → Save → **Export save** on the old address, then **Import save** on the new one (or cloud saves, if accounts are on).
 
-**Saves:** a browser keeps its save per web address. A player who played on the github.io address starts fresh on megagenidle.com unless they use cloud saves (Settings → Account) or export and import their save (Settings → Save). Moving the game from `/megagen-idle/` to `/megagen-idle/play/` keeps saves, as it is the same address.
+**Links:** every external link (Steam, the stores, Discord, socials, the trailer, Ko-fi) is in `src/site/links.ts`. An empty link hides its button; fill it in when the page exists. Privacy, Terms and the press text come from `docs/legal/privacy.md`, `docs/legal/terms.md` and `docs/press.md` when you add them (playbook W-04); until then the site shows short in-repo texts from `src/site/fallback/`.
 
 ## 10. Costs
 

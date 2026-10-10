@@ -24,13 +24,15 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold (owner, 2026-10-10, after playtest 31): do not develop new backlog items until the owner says so.** When the hold lifts, work in this order (Claude's placement after playtest 31, following the dates in `docs/RELEASE_DECISIONS.md`; the owner can move them):
+**Hold lifted (owner, 2026-10-10, after playtest 31):** the owner asked to continue from the order of work. The run goes on with 2.06, 2.01, 2.02, 2.03 and 2.05 toward checkpoint 32.
 
-0. 2.06 Fix: "Player level up" is unchecked when notifications are first turned on (owner report, playtest 31; small)
-0. 2.01 Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures (owner report, playtest 31)
-0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31)
-0. 2.03 Shadows a little lighter (owner request, playtest 31)
-0. 2.05 The website on Cloudflare Pages: landing, play, press, privacy, terms, support (playbook W-05; reworks 1.94) → CHECKPOINT 32 (5 items: 2.06, 2.01, 2.02, 2.03, 2.05)
+~~On hold (owner, 2026-10-10, after playtest 31): do not develop new backlog items until the owner says so.~~ Work in this order (Claude's placement after playtest 31, following the dates in `docs/RELEASE_DECISIONS.md`; the owner can move them):
+
+0. 2.06 Fix: "Player level up" is unchecked when notifications are first turned on (owner report, playtest 31; small; Done)
+0. 2.01 Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures (owner report, playtest 31; Done)
+0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31; Done)
+0. 2.03 Shadows a little lighter (owner request, playtest 31; Done)
+0. 2.05 The website on Cloudflare Pages: landing, play, press, privacy, terms, support (playbook W-05; reworks 1.94; Done) → CHECKPOINT 32 (5 items: 2.06, 2.01, 2.02, 2.03, 2.05)
 0. 2.04 Editions (demo, full, mobile), the Full Game panel and the entitlement layer (playbook R-01; reworks 1.95)
 0. 1.98 The Steam desktop build: flavours, steamworks.js, achievements, Supporter DLC, Steam Cloud saves (playbook S-08; builds on 1.96)
 0. 1.97 Mobile apps with Capacitor and RevenueCat, built by Codemagic (playbook A-03)
@@ -1451,7 +1453,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Limit:** a shadow is darker than what it falls on, so over the plain page background (already near black) it is faint; over panels, cards, the logo and the map it reads clearly. Black instead of the palette's ink was used for that reason.
 - **Screenshots:** `docs/screenshots/shadows-2.00-pets-tab.png`, `shadows-2.00-balloon.png`, `shadows-2.00-walking-pets.png`. Tests in `src/components/AirShadows.test.tsx`.
 
-### 2.06 — Fix: "Player level up" is unchecked when notifications are first turned on — CODE — Not started
+### 2.06 — Fix: "Player level up" is unchecked when notifications are first turned on — CODE — Done
 **Goal:** owner report, playtest 31 (screenshot of Settings → Notifications): when notifications are turned on for the first time, every type is checked except "Player level up", which stays unchecked until it is checked by hand. All types should start checked.
 **Details:**
 - Cause: not a display bug. Item 1.07 set "player level up" off by default (`DEFAULT_NOTIFY.types.level: false` in `src/data/notifyRules.ts`), so a new save starts with it unchecked. The owner wants it on, like the others.
@@ -1460,7 +1462,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Level-ups still count toward `MAX_PER_HOUR` and are merged into one summary with the others, so turning this on cannot flood the player.
 **Acceptance:** tests: a new save has every type checked; turning notifications on shows all five checked; an old save with notifications off migrates to level on, and one with them on keeps its level choice; the build and all tests pass.
 
-### 2.01 — Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures — CODE — Not started
+### 2.01 — Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures — CODE — Done
+**Done note:** the four machines stand on a foundation or on pilings; the dam's second frame turns a turbine wheel in the powerhouse instead of moving the spillway water. No other machine sprite had drawn water (the remaining blue is icons, the pond decoration and the water tiles themselves). On the map the dams sit on river tiles and the tidal stations on the coast, and they read well without an extra water edge, so none was added.
 **Goal:** owner report, playtest 31 (screenshots of the key scene and the map): some machine pictures have water drawn in, which looks silly where they are not on water: on the generator cards, in the key scene on the landing page and in the store images, and on dry map tiles (the Oil Rig stands on the oil field). Water must show only where the machine really stands on water on the map. Fix it everywhere.
 **Details:**
 - In `scripts/generate-generic-assets.mjs`, draw these without water: `hydroDam` (the reservoir and the river, both frames), `tidalStation` (the sea, both frames), `oilRig` (the sea, both frames) and `deuteriumExtractor` (the shore and the sea). Keep the structure and its animation (the second frame moves the turbine or the pump, not water); the base sits on its own small foundation or pilings. Check for other sprites with drawn water (`C.blue` or `C.sky` bands, `waves(...)`) and fix them the same way, except tiles and map details that are water themselves (sea, river, lake, coast, waves).
@@ -1469,7 +1472,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Sizes and names stay the same; `npm run check:assets` passes.
 **Acceptance:** a test that these sprites have no water-colored rows (no `C.blue` band across the picture); before and after screenshots of the key scene, a generator card, and the map with the machines on water and on land; the build and all tests pass.
 
-### 2.02 — Flying things cast their shadow far below them — CODE — Not started
+### 2.02 — Flying things cast their shadow far below them — CODE — Done
+**Done note:** map birds and the shooting star draw their shadow as a separate layer (`MAP_AIR_SHADOW` in `src/components/MapEventLayer.tsx`: 1.25 tiles down, 0.3 right, 80% size, blurred), inside the moving element so it follows and flaps; the sprites have no baked shadow. Sightings use CSS variables `--air-shadow-*` in `src/index.css` (52 px down at desktop, 32 px below 640 px wide); the gull flock now gets the same drop shadow.
 **Goal:** owner report, playtest 31 (screenshot of the map birds): the shadow of a flying thing sits right next to it, so it does not look like it is flying. It should fall well below it, on the ground, to give the illusion of height.
 **Details:**
 - Map birds and the map's shooting star (`src/components/MapEventLayer.tsx`): take the shadow out of the sprite (no `AIR_SHADOW` in the generator script; regenerate) and draw it as its own layer: the bird's silhouette (the same sprite with `brightness(0)` and partial opacity, or a soft ellipse), offset well below it, about 1 to 1.5 map tiles down and a little right, a bit smaller and blurred. It moves with the bird and flaps with it.
@@ -1478,7 +1482,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reduce motion: no change (the shadow is still; it only follows what moves).
 **Acceptance:** tests: a map bird's shadow is a separate element at least one tile below it and moves with it; the sprite has no baked shadow; the sighting shadow offset is the new distance; screenshots on the map and over the page; the build and all tests pass.
 
-### 2.03 — Shadows a little lighter — CODE — Not started
+### 2.03 — Shadows a little lighter — CODE — Done
+**Done note:** sprite ground shadow `GROUND_SHADOW_ALPHA` 150 → 115; map machine ellipse `GROUND_SHADOW_OPACITY` 0.6 → 0.45; pets and the walking cat `--ground-shadow-alpha` 0.65 → 0.5 (`src/index.css`); flying shadows `--air-shadow-alpha` 0.45 and map birds `MAP_AIR_SHADOW.opacity` 0.38. Checked by screenshot on sand, grass, coal field and water tiles.
 **Goal:** owner feedback, playtest 31: "I can see them now. Making them a little bit less dark will look better."
 **Details:**
 - About a quarter lighter everywhere: the sprite ground shadow `GROUND_SHADOW_ALPHA` 150 → about 115 (45%) in `scripts/generate-generic-assets.mjs` (regenerate, `npm run brand`), the map's machine ground ellipse `GROUND_SHADOW_OPACITY` 0.6 → about 0.45 (`src/components/MachineSprite.tsx`), the pet and walking-cat `.ground-shadow` 0.65 → about 0.5, and the flying shadows of 2.02 to match. One named constant per kind, so the owner can ask for another step.
@@ -1497,7 +1502,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The 1.95 Supporter title and accent stay until the Supporter Pack themes item replaces them; the dev-only test store stays for development.
 **Acceptance:** a test builds the demo bundle and fails if any full-only id (research past the boundary, generators, Grid Contracts, energy pets) appears in it; tests for the entitlement layer per edition, the panel (once per session, the buttons per edition), and demo-save carry-over; `npm run simulate` unchanged for the full edition; the build and all tests pass.
 
-### 2.05 — The website on Cloudflare Pages: landing, play, press, privacy, terms, support — CODE — Not started
+### 2.05 — The website on Cloudflare Pages: landing, play, press, privacy, terms, support — CODE — Done
+**Done note:** site pages are plain HTML whose `<!-- site:... -->` markers are filled at build time by `src/site/pages.ts` from `src/site/links.ts` (all external links; `src/data/stores.ts` merged in) and `src/site/content.ts` (features, Fair by design, FAQ); `src/site/main.ts` is the only script (launch line, click-to-load trailer). One Vite build with base `/` holds the site and the game, so the game at `/play/` shares the site's `/assets/` folder instead of a separate `/play/` base. `PLAY_EDITION` is passed on as `VITE_EDITION` for 2.04 to read. `npm run build:web` checks each page with `scripts/check-site.mjs` (largest: the landing page at about 27 KB before images). Screenshots by `npm run screens:site`; the press kit zip is written at build time by `scripts/lib/zip.mjs`. Privacy, terms and press show `src/site/fallback/*.md` until the owner adds `docs/legal/*.md` and `docs/press.md`. Social links are text buttons (no brand logos drawn). `public/privacy.html` now forwards to `/privacy/`, and the game's privacy link points at https://megagenidle.com/privacy/. The achievement `energy_2b` is now "Mega Generator". Owner steps: `docs/PUBLIC_RELEASE.md` section 9c.
 **Goal:** launch work, playbook step W-05, reworking 1.94 to the owner's release decisions (`docs/RELEASE_DECISIONS.md`, "Website" and "IDs and services"): the site moves from GitHub Pages to Cloudflare Pages, and gets every page the launch needs.
 **Details:**
 - `npm run build:web` outputs `dist-web/`: `/` (landing), `/play/` (the game built with base `/play/`, edition from `PLAY_EDITION`, default `demo` once 2.04 exists), `/press/`, `/privacy/`, `/terms/`, `/support/` and a 404 page. Plain Vite multi-page HTML with Tailwind (no React on site pages), the game's dark pixel-art look and AAP-64 colors, from 360 px wide, under 200 KB per page before images.
@@ -2259,3 +2265,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 30 (answers) | 1.50, 1.49, 1.48, 0.42, 0.18 | 2026-10-10 | Logo clear and the right size on computer and phone; keep its size. Loading screen text and bar are good. The game is smooth and the Map tab is fast. Shadows: the owner sees none (1.48 is merged but too faint at map size); wants them on the flying sightings and the pets too. Do not develop new backlog items until the owner says so. | 1.99, 2.00 |
 | 31 (v0.31.0) | 1.99, 2.00, 1.94, 1.95, 1.96 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; last room expansion (13) at 496.9 h. The proposed free part ends later than its estimate: the first research past research level 9 (Oil Refining) is done at 58.4 h. Owner decisions asked: where the free part ends, prices, whether the website sells the Full Game, desktop platforms. Waiting for feedback. | |
 | 31 (answers) | 1.99, 2.00, 1.94, 1.95, 1.96 | 2026-10-10 | Machine pictures with water drawn in look silly off the water, everywhere (key scene, cards, map). Map shadows look better, but a flying thing's shadow (the map birds) sits too close: it should fall far below. Pet shadows good. Shadows a little lighter. Landing pitch fine. Free part at research level 9: fine for now. Prices, platforms and release: the owner's Launch & Growth Playbook, recorded in `docs/RELEASE_DECISIONS.md` (Steam $6.99 with a free demo and a $2.99 Supporter DLC; mobile free to start, Full Game $4.99, Supporter Pack $2.99; the web is the free part with a Ko-fi tip; Windows first, macOS and Linux later; Cloudflare hosting; editions demo, full and mobile). 1.97 and 1.98 rewritten to it. Do not develop new backlog items until the owner says so. Later the same day: "Player level up" starts unchecked when notifications are first turned on (bug). | 2.06, 2.01, 2.02, 2.03, 2.04, 2.05 |
+| 32 (v0.32.0) | 2.06, 2.01, 2.02, 2.03, 2.05 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; free part ends at 58.4 h (Oil Refining). GitHub Pages retired; the owner sets up Cloudflare Pages (`docs/PUBLIC_RELEASE.md` 9c) to play the preview link. Questions asked: flying-shadow distance, shadow darkness, the dam and tidal station on foundations, the landing texts, the achievement name "Mega Generator". Waiting for feedback. | |

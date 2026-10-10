@@ -106,3 +106,26 @@ describe('logo sprites (1.50)', () => {
     }
   });
 });
+
+describe('machines without drawn-in water (2.01)', () => {
+  const WATER = new Set(['285cc4', '249fde']); // C.blue, C.sky
+  const files = [
+    'generators/hydro_dam.png', 'generators/hydro_dam_2.png', 'generators/tidal_station.png', 'generators/tidal_station_2.png',
+    'producers/oil_rig.png', 'producers/oil_rig_2.png', 'producers/deuterium_extractor.png',
+  ];
+
+  it('no water-colored band across the picture: at most a few water pixels in any row', () => {
+    for (const file of files) {
+      const png = PNG.sync.read(readFileSync(join(assetsDir, 'sprites', file)));
+      for (let y = 0; y < png.height; y++) {
+        let water = 0;
+        for (let x = 0; x < png.width; x++) {
+          const i = (y * png.width + x) * 4;
+          const hex = [0, 1, 2].map((k) => png.data[i + k].toString(16).padStart(2, '0')).join('');
+          if (png.data[i + 3] > 0 && WATER.has(hex)) water++;
+        }
+        expect(water, `${file} row ${y}`).toBeLessThanOrEqual(6);
+      }
+    }
+  });
+});

@@ -4,46 +4,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MegaGen Idle: an idle game about generating energy</title>
-    <meta name="description" content="%SITE_DESCRIPTION%" />
-    <link rel="icon" type="image/png" href="/src/assets/sprites/ui/logo_icon.png" />
-    <link rel="canonical" href="%SITE_URL%" />
-    <!-- Sharing (1.94): the key scene as the preview image. -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="MegaGen Idle" />
-    <meta property="og:title" content="MegaGen Idle" />
-    <meta property="og:description" content="%SITE_DESCRIPTION%" />
-    <meta property="og:url" content="%SITE_URL%" />
-    <meta property="og:image" content="%SITE_URL%og-image.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="MegaGen Idle" />
-    <meta name="twitter:description" content="%SITE_DESCRIPTION%" />
-    <meta name="twitter:image" content="%SITE_URL%og-image.png" />
+    <meta name="description" content="Build an energy empire, from one solar panel to a micro-supernova. It keeps generating while you're away. Play the free part in your browser." />
+    <!-- site:json-ld -->
     <script type="module" src="/src/site/main.ts"></script>
   </head>
   <body>
-    <main class="mx-auto flex max-w-3xl flex-col items-center gap-8 px-4 py-10 text-center">
-      <h1 class="m-0 w-full">
-        <img class="pixel mx-auto block h-auto w-full max-w-[384px]" data-img="logo" alt="MegaGen Idle" width="192" height="48" />
-      </h1>
-      <p class="m-0 max-w-xl text-lg text-slate-200" data-testid="pitch">
-        Start with one clumsy solar panel. Dig coal, pump oil, research smarter machines and fill your site with wind farms, dams and
-        reactors, all the way to a micro supernova in a fast-time dimension. Your machines keep making energy while you are away.
-      </p>
-      <a class="play-now" href="play/" data-testid="play-now">Play now</a>
-      <p class="m-0 text-sm text-slate-400">Play in your browser, on any computer or phone. No ads, no premium currency, never pay-to-win.</p>
-      <img class="pixel block h-auto w-full rounded-lg" data-img="key-scene" alt="A MegaGen Idle site map full of solar panels, wind turbines, a dam and power plants" width="1920" height="1080" />
-      <section class="flex flex-col items-center gap-3" aria-labelledby="launch">
-        <h2 id="launch" class="m-0 text-xl font-bold text-[#ffc825]" data-launch>Coming March 11, 2027 to Steam, Google Play and the App Store</h2>
-        <ul class="m-0 flex list-none flex-wrap justify-center gap-3 p-0" data-stores data-testid="stores"></ul>
+    <!-- site:header -->
+    <main class="site-main">
+      <section class="hero" aria-labelledby="hero-title">
+        <img class="pixel app-icon" src="/src/assets/brand/app_icon_1024.png" alt="" width="128" height="128" />
+        <h1 id="hero-title">MegaGen Idle</h1>
+        <p class="tagline" data-testid="tagline"><!-- site:tagline --></p>
+        <div class="buttons" data-testid="hero-buttons">
+          <!-- site:hero-buttons -->
+        </div>
+        <p class="launch" data-launch data-testid="launch"><!-- site:launch --></p>
+        <ul class="stores" data-testid="stores"><!-- site:stores --></ul>
+        <img class="pixel key-scene" src="/src/assets/brand/key_scene.png" alt="Solar panels, wind turbines, a dam and power plants on a hill at sunset" width="1920" height="1080" />
+        <p class="pitch" data-testid="pitch"><!-- site:pitch --></p>
       </section>
-      <details class="w-full text-left text-sm text-slate-300">
-        <summary class="cursor-pointer text-center font-semibold">Credits</summary>
-        <ul class="mt-3" data-credits data-testid="credits"></ul>
-      </details>
-      <footer class="flex flex-wrap justify-center gap-4 text-sm text-slate-400">
-        <a href="privacy.html">Privacy</a>
-        <span>MegaGen Idle v%APP_VERSION%</span>
-      </footer>
+
+      <!-- site:trailer -->
+
+      <section class="section" aria-labelledby="features-title">
+        <h2 id="features-title">What you do</h2>
+        <ul class="cards" data-testid="features"><!-- site:features --></ul>
+      </section>
+
+      <section class="section" aria-labelledby="gallery-title">
+        <h2 id="gallery-title">Screenshots</h2>
+        <ul class="gallery" data-testid="gallery"><!-- site:gallery --></ul>
+      </section>
+
+      <section class="section fair" aria-labelledby="fair-title">
+        <h2 id="fair-title">Fair by design</h2>
+        <ul data-testid="fair"><!-- site:fair --></ul>
+      </section>
+
+      <section class="section" aria-labelledby="faq-title">
+        <h2 id="faq-title">Questions</h2>
+        <!-- site:faq -->
+      </section>
     </main>
+    <!-- site:footer -->
   </body>
 </html>

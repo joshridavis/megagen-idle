@@ -41,20 +41,15 @@ The first item creates the whole project, so the first pull request is large. Cl
 
 Do this each time Claude opens a PR. Nothing reaches `main` until you merge.
 
-## 5. Turn on the live website (once, after item 0.22 is merged)
+## 5. Turn on the live website (once)
 
-1. Repo → **Settings** → **Pages** (left sidebar).
-2. Under **Source**, choose **GitHub Actions**. Save if asked.
-3. Repo → **Actions** tab. Wait for the deploy run to finish (a green check).
-4. Your game is at `https://<your-github-username>.github.io/megagen-idle/`.
-
-If the page is blank, open the Actions tab and check the run finished.
+The website runs on Cloudflare Pages at https://megagenidle.com/ (the game at https://megagenidle.com/play/). Follow `docs/PUBLIC_RELEASE.md`, section 9c: connect the repository to a Cloudflare Pages project with the build command `npm run build:web` and the output folder `dist-web`. After that, every merge to `main` updates the site, and every pull request gets its own preview link.
 
 ## 6. Playtest when Claude asks
 
 Claude stops and says the game is ready to test, and writes `PLAYTEST.md` in the repo with what to try.
 
-Play it at the URL from step 5. Then reply in the same Claude session with what felt good, what felt slow, what was confusing, and anything broken. Be specific about pacing ("it took 20 minutes to afford the second generator"). Claude turns your feedback into new items and continues.
+Play it at the pull request's Cloudflare preview link (Cloudflare posts it on the pull request), where /play/ is the full edition, or at https://megagenidle.com/play/ after merging. Then reply in the same Claude session with what felt good, what felt slow, what was confusing, and anything broken. Be specific about pacing ("it took 20 minutes to afford the second generator"). Claude turns your feedback into new items and continues.
 
 ## 7. Keep going
 

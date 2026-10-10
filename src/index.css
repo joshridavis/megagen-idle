@@ -352,10 +352,15 @@ body {
 /* Shadows for flying sightings and pets (2.00), the same strength as the map's (1.99).
    Things in the air: a drop shadow that follows the sprite. Things on the ground: a flat
    ink ellipse under the feet that stays on the ground and shrinks while the pet is up. */
-.air-shadow { filter: drop-shadow(6px 10px 1px rgba(0, 0, 0, 0.7)); }
+/* 2.02: a flying thing's shadow falls well below it, on the ground, so it reads as high up. */
+:root { --air-shadow-x: 12px; --air-shadow-y: 52px; --air-shadow-blur: 3px; --air-shadow-alpha: 0.45; }
+/* 2.03 (playtest 31): shadows a quarter lighter; one value per kind, to step again if asked. */
+:root { --ground-shadow-alpha: 0.5; }
+@media (max-width: 639px) { :root { --air-shadow-x: 8px; --air-shadow-y: 32px; } }
+.air-shadow { filter: drop-shadow(var(--air-shadow-x) var(--air-shadow-y) var(--air-shadow-blur) rgba(0, 0, 0, var(--air-shadow-alpha))); }
 .ground-shadow {
   position: absolute; left: 14%; right: 6%; bottom: -4%; height: 16%;
-  border-radius: 50%; background: rgba(0, 0, 0, 0.65); pointer-events: none;
+  border-radius: 50%; background: rgba(0, 0, 0, var(--ground-shadow-alpha)); pointer-events: none;
 }
 @keyframes pet-shadow-hop { 0%, 30%, 60%, 100% { transform: scale(1); opacity: 1; } 15% { transform: scale(0.75); opacity: 0.7; } 45% { transform: scale(0.85); opacity: 0.8; } }
 .pet-shadow-hop { animation: pet-shadow-hop 2.5s ease-in-out; }

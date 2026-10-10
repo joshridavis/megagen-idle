@@ -102,7 +102,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   a('energy_100k', 'Live Wire', 'Produce 100,000 energy in total.', 'Energy', 'lifetimeEnergy', 1e5),
   a('energy_10m', 'Power Station', 'Produce 10 million energy in total.', 'Energy', 'lifetimeEnergy', 1e7),
   a('energy_1b', 'Grid Operator', 'Produce 1 billion energy in total.', 'Energy', 'lifetimeEnergy', 1e9),
-  a('energy_2b', 'MegaGen', 'Produce 2 billion energy in total.', 'Energy', 'lifetimeEnergy', 2e9),
+  a('energy_2b', 'Mega Generator', 'Produce 2 billion energy in total.', 'Energy', 'lifetimeEnergy', 2e9),
   a('clicks_100', 'Hand Crank', 'Click "Generate energy" 100 times.', 'Energy', 'clicks', 100, true),
   a('clicks_1k', 'Sore Wrist', 'Click "Generate energy" 1,000 times.', 'Energy', 'clicks', 1000, true),
   a('clicks_10k', 'Human Dynamo', 'Click "Generate energy" 10,000 times.', 'Energy', 'clicks', 10_000, true),

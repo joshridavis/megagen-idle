@@ -8,7 +8,7 @@ import { TUTORIAL_DONE } from '../data/tutorial';
 import { resolveAccent } from '../utils/achievements';
 
 /** Bump when the saved shape changes, and add a step to `MIGRATIONS`. */
-export const SAVE_VERSION = 24;
+export const SAVE_VERSION = 25;
 
 type AnySave = Record<string, unknown>;
 
@@ -84,6 +84,14 @@ const MIGRATIONS: Record<number, (save: AnySave) => AnySave> = {
   },
   // 1.95: purchases. Nothing is owned yet; the store's own record is checked on start.
   23: (save) => ({ ...save, entitlements: { fullGame: false, supporter: false } }),
+  // 2.06: "Player level up" starts checked. Only saves that never turned notifications on change;
+  // a save that did keeps the player's choices.
+  24: (save) => {
+    const settings = save.settings as { notifications?: { enabled: boolean; types: Record<string, boolean> } } | undefined;
+    const notify = settings?.notifications;
+    if (!notify || notify.enabled) return save;
+    return { ...save, settings: { ...settings, notifications: { ...notify, types: { ...notify.types, level: true } } } };
+  },
 };
 
 /** Upgrades a persisted save of any older version to the current shape. */

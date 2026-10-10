@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { EVENTS, EVENTS_BY_ID } from '../data/events';
 import { createInitialState } from '../data/initialState';
 import { GeneratorType, type Generator } from '../types/generator';
@@ -183,6 +183,28 @@ describe('map events in random places (1.67)', () => {
     const stored = useStore.getState().mapEvent;
     useStore.setState({ energy: useStore.getState().energy + 1 });
     expect(useStore.getState().mapEvent?.pos).toEqual(stored?.pos);
+  });
+
+  it('a bird casts its shadow as its own layer, over a tile below it, inside the moving flock (2.02)', () => {
+    for (const dir of [1, -1] as const) {
+      const flock = show({ id: 'map_flock', at: 0, cells: [], pos: { y: 0.5, dir, slope: 0 } });
+      const birds = within(flock).getAllByTestId('map-bird');
+      const shadows = within(flock).getAllByTestId('map-air-shadow');
+      expect(shadows).toHaveLength(birds.length);
+      birds.forEach((bird, i) => {
+        // the box is 2 tiles tall, so one tile is 50% of it
+        expect(parseFloat(shadows[i].style.top) - parseFloat(bird.style.top)).toBeGreaterThanOrEqual(50);
+        expect(shadows[i].style.filter).toContain('brightness(0)');
+        // it flaps with its gull: the same two frames
+        expect(shadows[i].querySelectorAll('img')).toHaveLength(2);
+      });
+      // light from the top left: the shadow falls to the right on screen, either way the flock flies
+      const shift = parseFloat(shadows[0].style.left) - parseFloat(birds[0].style.left);
+      expect(dir > 0 ? shift > 0 : shift < 0).toBe(true);
+      cleanup();
+    }
+    const star = show({ id: 'map_star', at: 0, cells: [MAP_COLUMNS], pos: { y: 0.3 } });
+    expect(parseFloat(within(star).getByTestId('map-air-shadow').style.top)).toBeGreaterThanOrEqual(50);
   });
 
   it('events from before 1.67 (no position) still draw in the old places', () => {
