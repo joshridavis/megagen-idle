@@ -101,7 +101,10 @@ export default function App() {
       data-testid="main"
     >
       <header className="-mb-2 flex flex-col items-center">
-        <h1 className="text-3xl font-bold tracking-tight">MegaGen Idle</h1>
+        {/* The pixel wordmark (1.50), drawn at twice its size with crisp pixels. */}
+        <h1>
+          <img src={sprites.logo_wordmark} alt="MegaGen Idle" width={384} height={96} className="pixelated h-auto w-[192px] sm:w-[384px]" />
+        </h1>
       </header>
       {/* The top bar (energy, rate, room, level) stays in view while scrolling (0.43). It sits above
           hovered cards (z-40) and their tooltips; dialogs, toasts and celebrations stay above it (playtest 20). */}

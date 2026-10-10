@@ -13,6 +13,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Canvas } from './lib/canvas.mjs';
 import { C, nearestPaletteRgb } from './lib/palette.mjs';
+import { drawWordmark, LINE_1, LINE_2, layoutLine } from './lib/logo.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 // --assets-dir=<dir> targets another folder (used by tests).
@@ -1599,7 +1600,59 @@ const DRAW = {
   research_lock: lock,
   research_check: check,
   research_panel_bg: panelBg,
+  logo_wordmark: logoWordmark,
+  logo_icon: logoIcon,
 };
+
+// ---------- logo (1.50) ----------
+
+/**
+ * Header wordmark, 192×48: "MegaGen" in the store logo's font (3 px per font
+ * pixel), with a smaller "Idle" and bolt (2 px) tucked under "Gen", clear of the
+ * "g" descender. Same colors, outline and shadow as the store logo.
+ */
+function logoWordmark() {
+  const W = 192, H = 48;
+  const line1 = layoutLine(LINE_1);
+  const line2 = layoutLine(LINE_2);
+  const w1 = line1.width * 3, w2 = line2.width * 2;
+  const x1 = Math.floor((W - 3 - w1) / 2);
+  const y2 = 7 * 3 + 5; // under the caps, beside the descender; the bolt's tip stays clear of the "n"
+  return drawWordmark(W, H, [
+    { names: LINE_1, unit: 3, x: x1, y: 0, shadeRows: 9 },
+    { names: LINE_2, unit: 2, x: x1 + w1 - w2, y: y2, shadeRows: 7 },
+  ]);
+}
+
+/** App and tab icon, 32×32: the logo's bolt on a dark blue rounded square. */
+function logoIcon() {
+  const n = 32;
+  const c = new Canvas(n, n);
+  const r = 7;
+  const inside = (x, y, inset) => {
+    const lo = inset, hi = n - 1 - inset, rr = r - inset;
+    const qx = Math.min(Math.max(x, lo + rr), hi - rr);
+    const qy = Math.min(Math.max(y, lo + rr), hi - rr);
+    return x >= lo && x <= hi && y >= lo && y <= hi && (x - qx) ** 2 + (y - qy) ** 2 <= rr * rr;
+  };
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      if (!inside(x, y, 0)) continue;
+      if (!inside(x, y, 1)) c.set(x, y, '122020');
+      else if (!inside(x, y, 2)) c.set(x, y, C.blue);
+      else c.set(x, y, y > 24 ? '242234' : C.navy);
+    }
+  }
+  // The bolt: 7×9 font pixels at 3 px with outline and shadow is 24×30; centered.
+  const bolt = drawWordmark(24, 30, [{ names: ['bolt'], unit: 3, x: 0, y: 3, shadeRows: 9 }]);
+  for (let y = 0; y < bolt.height; y++) {
+    for (let x = 0; x < bolt.width; x++) {
+      const px = bolt.getRGBA(x, y);
+      if (px[3] > 0) c.setRGBA(x + 4, y + 1, px);
+    }
+  }
+  return c;
+}
 
 /** Draws one manifest sprite by ID. Inactive variants derive from the active one. */
 export function drawSprite(id) {

@@ -51,6 +51,8 @@ import researchCheck from './sprites/research/check.png';
 import researchPanelBg from './sprites/research/panel_bg.png';
 import achievementUnlocked from './sprites/ui/achievement_unlocked.png';
 import achievementLocked from './sprites/ui/achievement_locked.png';
+import logoWordmark from './sprites/ui/logo_wordmark.png';
+import logoIcon from './sprites/ui/logo_icon.png';
 import tileGround from './sprites/map/ground.png';
 import mapBird1 from './sprites/events/map_bird_1.png';
 import mapBird2 from './sprites/events/map_bird_2.png';
@@ -220,6 +222,8 @@ export const sprites = {
   research_panel_bg: researchPanelBg,
   achievement_unlocked: achievementUnlocked,
   achievement_locked: achievementLocked,
+  logo_wordmark: logoWordmark,
+  logo_icon: logoIcon,
   tile_ground: tileGround,
   map_bird_1: mapBird1,
   map_bird_2: mapBird2,

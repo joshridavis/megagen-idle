@@ -165,6 +165,8 @@
     "sprites/ui/capacity_critical.png",
     "sprites/ui/capacity_empty.png",
     "sprites/ui/capacity_filled.png",
+    "sprites/ui/logo_icon.png",
+    "sprites/ui/logo_wordmark.png",
     "sprites/ui/room_expansion.png"
   ]
 }

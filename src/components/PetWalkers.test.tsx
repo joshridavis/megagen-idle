@@ -177,6 +177,7 @@ describe('pets walk on screen (1.60)', () => {
 
   it('a resting pet stands still with no bubble or food', async () => {
     vi.useFakeTimers();
+    vi.spyOn(Math, 'random').mockReturnValue(0.99); // no chance meeting (1.81) on the first step
     withPets();
     render(<PetWalkers />);
     // the pets start out resting

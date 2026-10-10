@@ -6,6 +6,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 import manifest from './sprite-manifest.json';
 import generic from './generic-assets.json';
 import { sprites } from '.';
+// @ts-expect-error pngjs ships no types
+import { PNG } from 'pngjs';
+// @ts-expect-error plain .mjs module without types
+import { AAP64 } from '../../scripts/lib/palette.mjs';
 
 const assetsDir = resolve(__dirname);
 const script = resolve(__dirname, '../../scripts/generate-generic-assets.mjs');
@@ -83,5 +87,22 @@ describe('generate-generic-assets script', () => {
     expect(readFileSync(listed, 'utf8')).toBe('edited');
     run('--force');
     expect(readFileSync(listed, 'utf8')).not.toBe('edited');
+  });
+});
+
+describe('logo sprites (1.50)', () => {
+  const read = (file: string) => PNG.sync.read(readFileSync(join(assetsDir, 'sprites', file)));
+  const palette = new Set((AAP64 as string[]).map((h) => parseInt(h, 16)));
+
+  it('the wordmark and icon use AAP-64 colors only, on a transparent background', () => {
+    for (const file of ['ui/logo_wordmark.png', 'ui/logo_icon.png']) {
+      const png = read(file);
+      for (let i = 0; i < png.data.length; i += 4) {
+        if (png.data[i + 3] === 0) continue;
+        expect(png.data[i + 3], file).toBe(255);
+        expect(palette.has((png.data[i] << 16) | (png.data[i + 1] << 8) | png.data[i + 2]), file).toBe(true);
+      }
+      expect(png.data[3], `${file} top-left corner`).toBe(0);
+    }
   });
 });

@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { PNG } from 'pngjs';
 import { Canvas } from './lib/canvas.mjs';
 import { C, nearestPaletteRgb } from './lib/palette.mjs';
+import { drawStoreLogo } from './lib/logo.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const outArg = process.argv.find((a) => a.startsWith('--out-root='));
@@ -86,101 +87,8 @@ function upscale(src, k) {
 
 // ---------- logo ----------
 
-// Bold pixel font: caps 7 rows, lowercase x-height 5 (rows 2-6), descender rows 7-8.
-const GLYPHS = {
-  M: ['XX...XX', 'XXX.XXX', 'XXXXXXX', 'XX.X.XX', 'XX.X.XX', 'XX...XX', 'XX...XX'],
-  G: ['.XXXXX', 'XX..XX', 'XX....', 'XX.XXX', 'XX..XX', 'XX..XX', '.XXXXX'],
-  I: ['XXXX', '.XX.', '.XX.', '.XX.', '.XX.', '.XX.', 'XXXX'],
-  e: ['......', '......', '.XXXX.', 'XX..XX', 'XXXXXX', 'XX....', '.XXXX.'],
-  g: ['......', '......', '.XXXXX', 'XX..XX', 'XX..XX', 'XX..XX', '.XXXXX', '....XX', '.XXXX.'],
-  a: ['......', '......', '.XXXX.', '....XX', '.XXXXX', 'XX..XX', '.XXXXX'],
-  n: ['......', '......', 'XXXXX.', 'XX..XX', 'XX..XX', 'XX..XX', 'XX..XX'],
-  d: ['....XX', '....XX', '.XXXXX', 'XX..XX', 'XX..XX', 'XX..XX', '.XXXXX'],
-  l: ['XX', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-  bolt: ['....XXX', '...XXX.', '..XXX..', '.XXXXXX', 'XXXXXX.', '...XXX.', '..XXX..', '..XX...', '.XX....'],
-};
-const UNIT = 3; // logo pixels per font pixel; the outline is one logo pixel
-
-/** Lay out a line of glyphs; returns filled font cells. */
-function layoutLine(names, gap = 1) {
-  const cells = [];
-  let x = 0;
-  names.forEach((n, i) => {
-    if (i > 0) x += n === 'bolt' ? gap + 1 : gap;
-    const g = GLYPHS[n];
-    const dy = n === 'bolt' ? -1 : 0; // the bolt rises one row into the line gap
-    g.forEach((row, y) => [...row].forEach((ch, dx) => ch === 'X' && cells.push([x + dx, y + dy])));
-    x += g[0].length;
-  });
-  return { cells, width: x, height: Math.max(...cells.map(([, y]) => y)) + 1 };
-}
-
-/**
- * The wordmark at one logo pixel per image pixel: "MegaGen" over "Idle" and a
- * small bolt, electric yellow with a bevel, a dark outline and a drop shadow.
- * Transparent background, tight bounds. Scale it with upscale().
- */
-function drawLogo() {
-  const line1 = layoutLine(['M', 'e', 'g', 'a', 'G', 'e', 'n']);
-  const line2 = layoutLine(['I', 'd', 'l', 'e', 'bolt']);
-  const gridW = Math.max(line1.width, line2.width);
-  const line2Y = 10; // one empty font row under the "g" descender
-  const fill = new Set();
-  const add = (cells, ox, oy) => cells.forEach(([x, y]) => fill.add(`${x + ox},${y + oy}`));
-  add(line1.cells, Math.floor((gridW - line1.width) / 2), 0);
-  add(line2.cells, Math.floor((gridW - line2.width) / 2), line2Y);
-
-  const pad = 1; // outline
-  const c = new Canvas(gridW * UNIT + pad * 2 + 1, (line2Y + line2.height) * UNIT + pad * 2 + 1);
-  const isFill = (x, y) => {
-    const fx = x - pad, fy = y - pad;
-    if (fx < 0 || fy < 0) return false;
-    return fill.has(`${Math.floor(fx / UNIT)},${Math.floor(fy / UNIT)}`);
-  };
-  const line2Top = pad + line2Y * UNIT;
-  for (let y = 0; y < c.height; y++) {
-    for (let x = 0; x < c.width; x++) {
-      if (!isFill(x, y)) continue;
-      // Two-tone fill per line, with a light top edge and an amber bottom edge.
-      const top = y < line2Top ? pad : line2Top;
-      const mid = top + (y < line2Top ? 9 : 7) * UNIT * 0.45;
-      let color = y < mid ? C.lemon : C.yellow;
-      if (!isFill(x, y - 1)) color = C.cream;
-      else if (!isFill(x, y + 1)) color = C.amber;
-      c.set(x, y, color);
-    }
-  }
-  c.outline(C.ink);
-  // Narrow gaps between strokes (the inside of M, the counter of G) fill with ink too.
-  for (let y = 0; y < c.height; y++) {
-    for (let x = 0; x < c.width; x++) {
-      if (c.alphaAt(x, y) > 0) continue;
-      const h = c.alphaAt(x - 1, y) > 0 && c.alphaAt(x + 1, y) > 0;
-      const v = c.alphaAt(x, y - 1) > 0 && c.alphaAt(x, y + 1) > 0;
-      if (h || v) c.set(x, y, C.ink);
-    }
-  }
-  // Corner pixels of the outline, so the letters read as solid chunky blocks.
-  const corners = [];
-  for (let y = 0; y < c.height; y++) {
-    for (let x = 0; x < c.width; x++) {
-      if (c.alphaAt(x, y) > 0) continue;
-      if ([[1, 1], [-1, 1], [1, -1], [-1, -1]].some(([dx, dy]) => isFill(x + dx, y + dy))) corners.push([x, y]);
-    }
-  }
-  corners.forEach(([x, y]) => c.set(x, y, C.ink));
-  // Drop shadow: one pixel down and right of the outline.
-  const shadow = [];
-  for (let y = 0; y < c.height; y++) {
-    for (let x = 0; x < c.width; x++) {
-      if (c.alphaAt(x, y) === 0 && c.alphaAt(x - 1, y - 1) > 0) shadow.push([x, y]);
-    }
-  }
-  shadow.forEach(([x, y]) => c.set(x, y, '3b1725'));
-  return c;
-}
-
-const LOGO = drawLogo();
+// The wordmark itself is drawn by scripts/lib/logo.mjs (shared with the in-game logo, 1.50).
+const LOGO = drawStoreLogo();
 
 // ---------- scene ----------
 
