@@ -1608,7 +1608,7 @@ const DRAW = {
 
 /**
  * Header wordmark, 192×48: "MegaGen" in the store logo's font (3 px per font
- * pixel), with a smaller "Idle" and bolt (2 px) tucked under "Gen", clear of the
+ * pixel), with a smaller "Idle" and bolt (2 px) centered below it, clear of the
  * "g" descender. Same colors, outline and shadow as the store logo.
  */
 function logoWordmark() {
@@ -1617,10 +1617,10 @@ function logoWordmark() {
   const line2 = layoutLine(LINE_2);
   const w1 = line1.width * 3, w2 = line2.width * 2;
   const x1 = Math.floor((W - 3 - w1) / 2);
-  const y2 = 7 * 3 + 5; // under the caps, beside the descender; the bolt's tip stays clear of the "n"
+  const y2 = 9 * 3 + 3; // below the "g" descender, centered like the store logo
   return drawWordmark(W, H, [
     { names: LINE_1, unit: 3, x: x1, y: 0, shadeRows: 9 },
-    { names: LINE_2, unit: 2, x: x1 + w1 - w2, y: y2, shadeRows: 7 },
+    { names: LINE_2, unit: 2, x: x1 + Math.floor((w1 - w2) / 2), y: y2, shadeRows: 7 },
   ]);
 }
 

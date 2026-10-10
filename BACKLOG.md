@@ -1164,7 +1164,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** the header shows the logo with the right alt text; `npm run check:assets` passes; the build and all tests pass.
 **Notes:**
 - **Same look as the store logo:** the font, colors, bevel, outline and shadow of the 1.52 store logo moved to `scripts/lib/logo.mjs`, shared by `npm run brand` (its images are byte-for-byte unchanged) and the generic asset script. Mixed case "MegaGen" (as in the store logo) rather than "MEGAGEN".
-- **`logo_wordmark` (192×48):** "MegaGen" at 3 px per font pixel, "Idle" and the bolt at 2 px, tucked under "Gen" clear of the "g". The header shows it at 1× on phones and 2× from 640 px up, crisp pixels, inside the page's `h1` with `alt="MegaGen Idle"`.
+- **`logo_wordmark` (192×48):** "MegaGen" at 3 px per font pixel, "Idle" and the bolt at 2 px, centered below it and clear of the "g" (centered at the owner's request; it first sat under "Gen"). The header shows it at 1× on phones and 2× from 640 px up, crisp pixels, inside the page's `h1` with `alt="MegaGen Idle"`.
 - **`logo_icon` (32×32):** the logo's bolt on a dark blue rounded square, like the 1024 app icon; it is the browser tab icon now (was the energy icon).
 - **Also fixed:** a pet walking test could fail at random under load (a chance meeting from 1.81 on the first step); it now fixes `Math.random`.
 
