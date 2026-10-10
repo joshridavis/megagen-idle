@@ -6,6 +6,7 @@ import { createInitialState } from '../data/initialState';
 import { EVENTS_BY_ID } from '../data/events';
 import { PET_WALK } from '../data/pets';
 import { useStore } from '../store';
+import { MAP_AIR_SHADOW } from './MapEventLayer';
 import PetsPanel from './PetsPanel';
 import PetWalkers, { petShadowPose } from './PetWalkers';
 import Sightings from './Sightings';
@@ -74,6 +75,14 @@ describe('flying sightings cast a shadow (2.00)', () => {
     expect(phone.y).toBeGreaterThanOrEqual(20);
     expect(desktop.blur).toBeGreaterThan(1);
     expect(css).toMatch(/\.air-shadow \{ filter: drop-shadow\(var\(--air-shadow-x\) var\(--air-shadow-y\)/);
+  });
+
+  it('shadows are a quarter lighter (2.03): air 0.45, pets and the walking cat 0.5, map birds about 0.38', () => {
+    const css = readFileSync(resolve(__dirname, '../index.css'), 'utf8');
+    expect(css).toContain('--air-shadow-alpha: 0.45;');
+    expect(css).toContain('--ground-shadow-alpha: 0.5;');
+    expect(css).toMatch(/\.ground-shadow \{[^}]*rgba\(0, 0, 0, var\(--ground-shadow-alpha\)\)/);
+    expect(MAP_AIR_SHADOW.opacity).toBeCloseTo(0.38);
   });
 
   it('the walking cat has a ground shadow, like the pets', async () => {

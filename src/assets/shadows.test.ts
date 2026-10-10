@@ -23,9 +23,10 @@ const shadowPixels = (c: Sprite, alpha: number) => {
 };
 
 describe('sprite shadows are visible at map size (1.99)', () => {
-  it('a ground shadow is about 59% ink, 4 px on 48 px and larger sprites, 2 px on 16 px ones', () => {
-    expect(GROUND_SHADOW_ALPHA / 255).toBeGreaterThanOrEqual(0.5);
-    expect(GROUND_SHADOW_ALPHA / 255).toBeLessThanOrEqual(0.6);
+  it('a ground shadow is about 45% ink (2.03), 4 px on 48 px and larger sprites, 2 px on 16 px ones', () => {
+    expect(GROUND_SHADOW_ALPHA).toBe(115);
+    expect(GROUND_SHADOW_ALPHA / 255).toBeGreaterThanOrEqual(0.4);
+    expect(GROUND_SHADOW_ALPHA / 255).toBeLessThanOrEqual(0.5);
     expect(groundShadowOffset(64)).toBe(4);
     expect(groundShadowOffset(48)).toBe(4);
     expect(groundShadowOffset(16)).toBe(2);

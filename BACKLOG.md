@@ -31,7 +31,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 2.06 Fix: "Player level up" is unchecked when notifications are first turned on (owner report, playtest 31; small; Done)
 0. 2.01 Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures (owner report, playtest 31; Done)
 0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31; Done)
-0. 2.03 Shadows a little lighter (owner request, playtest 31)
+0. 2.03 Shadows a little lighter (owner request, playtest 31; Done)
 0. 2.05 The website on Cloudflare Pages: landing, play, press, privacy, terms, support (playbook W-05; reworks 1.94) → CHECKPOINT 32 (5 items: 2.06, 2.01, 2.02, 2.03, 2.05)
 0. 2.04 Editions (demo, full, mobile), the Full Game panel and the entitlement layer (playbook R-01; reworks 1.95)
 0. 1.98 The Steam desktop build: flavours, steamworks.js, achievements, Supporter DLC, Steam Cloud saves (playbook S-08; builds on 1.96)
@@ -1482,7 +1482,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Reduce motion: no change (the shadow is still; it only follows what moves).
 **Acceptance:** tests: a map bird's shadow is a separate element at least one tile below it and moves with it; the sprite has no baked shadow; the sighting shadow offset is the new distance; screenshots on the map and over the page; the build and all tests pass.
 
-### 2.03 — Shadows a little lighter — CODE — Not started
+### 2.03 — Shadows a little lighter — CODE — Done
+**Done note:** sprite ground shadow `GROUND_SHADOW_ALPHA` 150 → 115; map machine ellipse `GROUND_SHADOW_OPACITY` 0.6 → 0.45; pets and the walking cat `--ground-shadow-alpha` 0.65 → 0.5 (`src/index.css`); flying shadows `--air-shadow-alpha` 0.45 and map birds `MAP_AIR_SHADOW.opacity` 0.38. Checked by screenshot on sand, grass, coal field and water tiles.
 **Goal:** owner feedback, playtest 31: "I can see them now. Making them a little bit less dark will look better."
 **Details:**
 - About a quarter lighter everywhere: the sprite ground shadow `GROUND_SHADOW_ALPHA` 150 → about 115 (45%) in `scripts/generate-generic-assets.mjs` (regenerate, `npm run brand`), the map's machine ground ellipse `GROUND_SHADOW_OPACITY` 0.6 → about 0.45 (`src/components/MachineSprite.tsx`), the pet and walking-cat `.ground-shadow` 0.65 → about 0.5, and the flying shadows of 2.02 to match. One named constant per kind, so the owner can ask for another step.

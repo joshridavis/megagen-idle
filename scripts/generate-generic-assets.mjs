@@ -1702,7 +1702,8 @@ const GROUND_SHADOW = /^(producer_|deco_(rock|bush|stump|mushroom|log|cactus|bou
  * a fainter, further one. Since 2.02 that one is not in the sprite: the map and the
  * sightings draw it as its own layer, well below the flying thing.
  */
-export const GROUND_SHADOW_ALPHA = 150;
+// 2.03 (playtest 31): a quarter lighter, about 45% ink.
+export const GROUND_SHADOW_ALPHA = 115;
 export function groundShadowOffset(width) {
   return width >= 48 ? 4 : width >= 32 ? 3 : 2;
 }

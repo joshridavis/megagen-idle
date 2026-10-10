@@ -56,7 +56,8 @@ export default function MachineSprite({
  * allowed to spill past the picture, so machines that fill their whole sprite
  * (Hydro Dam, Tidal Station) still show one. Never animated.
  */
-export const GROUND_SHADOW_OPACITY = 0.6;
+/** 2.03 (playtest 31): a quarter lighter than the first 0.6. */
+export const GROUND_SHADOW_OPACITY = 0.45;
 
 function GroundShadow({ width, height }: { width: number; height: number }) {
   const rx = width * 0.46;

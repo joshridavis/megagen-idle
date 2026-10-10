@@ -15,7 +15,7 @@ describe('a ground shadow under every machine on the map (1.99)', () => {
     expect(container.querySelector('[data-testid="machine-sprite"]')!.firstElementChild).toBe(shadow);
     const e = shadow.querySelector('ellipse')!;
     expect(Number(e.getAttribute('opacity'))).toBe(GROUND_SHADOW_OPACITY);
-    expect(GROUND_SHADOW_OPACITY).toBeGreaterThanOrEqual(0.5);
+    expect(GROUND_SHADOW_OPACITY).toBe(0.45); // 2.03: a quarter lighter than 0.6
     // the Hydro Dam fills its 80x64 picture: the ellipse reaches below it
     expect(Number(e.getAttribute('cy')) + Number(e.getAttribute('ry'))).toBeGreaterThan(64);
     // lit from the top left: it falls a little right of center

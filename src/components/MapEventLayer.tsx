@@ -13,7 +13,7 @@ export const MAP_EVENT_CHECK_MS = 5000;
  * Shadows of things in the air on the map (2.02): their own layer, well below
  * them on the ground, so they read as flying. In map tiles, plus size and look.
  */
-export const MAP_AIR_SHADOW = { down: 1.25, right: 0.3, scale: 0.8, blur: 1, opacity: 0.5 };
+export const MAP_AIR_SHADOW = { down: 1.25, right: 0.3, scale: 0.8, blur: 1, opacity: 0.38 };
 const airShadowStyle: CSSProperties = { filter: `brightness(0) blur(${MAP_AIR_SHADOW.blur}px)`, opacity: MAP_AIR_SHADOW.opacity };
 
 /** The flock: [left %, top %, wing-beat delay] per gull, the leader at the front. */
