@@ -43,6 +43,7 @@ export interface Statistics {
   /** Per second: made by producers, burned as fuel, and the difference. */
   resources: ResourceFlow[];
   clicks: number;
+  petClicks: number;
   clickEnergy: number;
   playSeconds: number;
   returns: number;
@@ -83,6 +84,7 @@ export function getStatistics(s: GameState): Statistics {
     byType,
     resources,
     clicks: s.stats?.clicks ?? 0,
+    petClicks: s.stats?.petClicks ?? 0,
     clickEnergy: s.stats?.clickEnergy ?? 0,
     playSeconds: s.stats?.playSeconds ?? 0,
     returns: s.stats?.returns ?? 0,

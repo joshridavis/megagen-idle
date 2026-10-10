@@ -20,6 +20,8 @@ export function metricValue(s: S, metric: AchievementMetric): number {
       return s.lifetimeEnergy;
     case 'clicks':
       return s.stats?.clicks ?? 0;
+    case 'petClicks':
+      return s.stats?.petClicks ?? 0;
     case 'generators':
       return s.activeGenerators.length;
     case 'typesBuilt':

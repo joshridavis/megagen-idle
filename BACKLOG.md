@@ -108,7 +108,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.45 Generate-energy button next to the pinned energy bar
 0. 1.46 Cloud save from any tab
 0. 1.47 Decorations in a panel that opens over the map → CHECKPOINT 22
-0. 1.51 Achievements for petting your pets
+0. 1.51 Achievements for petting your pets (Done)
 0. 1.52 Store images from the current art (owner request; Done)
 0. 1.49 A designed loading screen for the website
 0. 1.50 A dedicated MegaGen Idle logo
@@ -1156,7 +1156,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - The real logo can replace these files later at the same size without code changes.
 **Acceptance:** the header shows the logo with the right alt text; `npm run check:assets` passes; the build and all tests pass.
 
-### 1.51 — Achievements for petting your pets — CODE — Not started
+### 1.51 — Achievements for petting your pets — CODE — Done
 **Goal:** owner request after playtest 21: achievements for petting the pets a number of times.
 **Details:**
 - Count pet clicks (the click reaction from 0.99) in the saved stats as `petClicks` (migration: 0).
@@ -1164,6 +1164,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Rapid clicking counts, but at most a few pets per second, so an auto-clicker gains nothing special.
 - Stats tab shows "Pets petted".
 **Acceptance:** tests: clicks count (with the rate cap), the achievements unlock at their counts, old saves load with 0; completion totals update; the build and all tests pass.
+
+**Notes:** `stats.petClicks` (old saves get 0 through the stats defaults; no save version change). Every click on a pet, in the Pets tab or walking on screen, calls `petPet` (`src/store/slices/petSlice.ts`), which counts at most 3 per second (`PET_CLICK_CAP` in `src/data/pets.ts`, `countPetClick` in `src/utils/petClicks.ts`); clicks during the reaction now count too. Achievements Gentle Hand (10), Best Friend (100) and Pet Whisperer (1,000, an Uncommon title), all bonus (play style, like the click achievements), so 100% and the simulator are unchanged. The Stats tab shows "Pets petted". Tests in `src/utils/petClicks.test.tsx`.
 
 ### 1.52 — Store images from the current art — CODE — Done
 **Goal:** owner request: store and brand images for Steam (and later the other stores and the website), composed by code from the existing generic sprites. This is not new art (CLAUDE.md rule 3): the script only places existing sprites on simple shapes.

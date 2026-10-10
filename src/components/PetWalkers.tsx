@@ -81,6 +81,7 @@ function useLayerWidth(): number {
 /** One walking pet: a button only as big as the pet, so the rest of the layer never blocks clicks. */
 function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; still: boolean; layerPx: number }) {
   const [playing, setPlaying] = useState(false);
+  const petPet = useStore((s) => s.petPet);
   useEffect(() => {
     if (!playing) return;
     const t = setTimeout(() => setPlaying(false), PET_REACT_MS);
@@ -98,7 +99,11 @@ function WalkingPet({ w, stage, still, layerPx }: { w: Walker; stage: number; st
   return (
     <button
       type="button"
-      onClick={() => !playing && !still && setPlaying(true)}
+      onClick={() => {
+        // every click counts as petting (1.51, rate-capped in the store); the reaction plays once at a time
+        petPet();
+        if (!playing && !still) setPlaying(true);
+      }}
       aria-label={`Pet ${name}`}
       title={`Pet ${name}`}
       data-testid={`walking-pet-${w.id}`}

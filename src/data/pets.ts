@@ -65,6 +65,11 @@ export interface PetDef {
 export const PET_STAGES = ['Baby', 'Young', 'Adult'] as const;
 /** How long a pet's reaction plays when clicked (0.99, ms). */
 export const PET_REACT_MS = 2500;
+/**
+ * Petting counts toward the petting achievements (1.51) at most `count` times
+ * per `ms`, so rapid clicking counts but an auto-clicker gains nothing special.
+ */
+export const PET_CLICK_CAP = { count: 3, ms: 1000 };
 /** Particles a pet shows when clicked. */
 export const PET_PARTICLES: Record<PetId, string> = {
   hamster: '❤',

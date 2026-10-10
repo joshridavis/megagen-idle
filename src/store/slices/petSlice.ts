@@ -2,6 +2,7 @@ import { ENTRY_ICONS } from '../../data/logIcons';
 import { PETS_BY_ID, PET_REACTION_MS, PET_STAGES, type PetId } from '../../data/pets';
 import type { PetsState } from '../../types/state';
 import { buyPetSlot, feedPet, restPet, setActivePet, updatePets } from '../../utils/pets';
+import { countPetClick } from '../../utils/petClicks';
 import { deriveRates } from '../../utils/simulation';
 import { pickSaved } from '../migrations';
 import type { LogInput } from '../../utils/eventLog';
@@ -19,6 +20,8 @@ export interface PetActions {
   restPet: (id: PetId) => void;
   /** Buys the next active pet slot with energy (1.59). Returns success. */
   buyPetSlot: () => boolean;
+  /** A pet was petted (clicked, 1.51): counts in the stats, rate-capped. Returns whether it counted. */
+  petPet: (now?: number) => boolean;
   /**
    * The walking pets celebrate or react (1.80). Ignored while one still plays,
    * so a burst of events plays only the first. Live play only: callers skip it
@@ -40,6 +43,9 @@ export function petLogEntries(found: PetId[], grown: PetId[], owned: PetsState['
   ];
 }
 
+/** Times of recently counted pet clicks (1.51), for the rate cap. Not saved. */
+let recentPetClicks: number[] = [];
+
 /** Energy pets (0.92). Game rules live in src/utils/pets.ts. */
 export const createPetSlice =
   (initial: PetsState): SliceCreator<PetsState & Pick<TransientState, 'celebrations' | 'petReaction'> & PetActions> =>
@@ -47,6 +53,13 @@ export const createPetSlice =
     ...initial,
     celebrations: [],
     petReaction: null,
+    petPet: (now = Date.now()) => {
+      const r = countPetClick(recentPetClicks, now);
+      recentPetClicks = r.recent;
+      if (!r.counts) return false;
+      set((st) => ({ stats: { ...st.stats, petClicks: (st.stats?.petClicks ?? 0) + 1 } }), undefined, 'pets/pet');
+      return true;
+    },
     reactPets: (reaction, now = Date.now()) => {
       const cur = get().petReaction;
       if (cur && now >= cur.at && now - cur.at < PET_REACTION_MS) return;

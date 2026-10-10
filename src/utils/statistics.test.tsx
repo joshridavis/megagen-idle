@@ -111,7 +111,7 @@ describe('lifetime counters (0.39)', () => {
 
   it('older saves get the new counters; their start time is unknown', () => {
     const m = migrateSave({ energy: 5, lastSavedTimestamp: 0, stats: { clicks: 9, returns: 2 } }, 18);
-    expect(m.stats).toEqual({ clicks: 9, returns: 2, playSeconds: 0, clickEnergy: 0, startedAt: null, lastOffline: null });
+    expect(m.stats).toEqual({ clicks: 9, petClicks: 0, returns: 2, playSeconds: 0, clickEnergy: 0, startedAt: null, lastOffline: null });
   });
 });
 
