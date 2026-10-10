@@ -103,6 +103,17 @@ describe('the website pages (2.05)', () => {
     expect(html).toContain('<a href="mailto:support@megagenidle.com">support@megagenidle.com</a>');
   });
 
+  it('under a sub-path every site link gets the base once; Vite adds it to /src/ files itself (temporary GitHub Pages)', () => {
+    const html = buildSitePage(readFileSync(resolve(root, '404.html'), 'utf8'), '/404.html', { root, version: '1', base: '/megagen-idle/' });
+    const doc = asDom(html);
+    expect(doc.querySelector('.btn-play')!.getAttribute('href')).toBe('/megagen-idle/play/');
+    expect(doc.querySelector('[data-testid="site-footer"] a[href="/megagen-idle/privacy/"]')).not.toBeNull();
+    expect(html).toContain('href="/src/assets/brand/favicon_64.png"');
+    expect(html).not.toMatch(/(href|src)="\/(?!megagen-idle\/|src\/)/);
+    // sharing tags stay on the real domain
+    expect(doc.querySelector('meta[property="og:image"]')!.getAttribute('content')).toBe(`${links.SITE_URL}og-image.png`);
+  });
+
   it('lists every public page in the sitemap, not the 404 page', () => {
     const xml = sitemapXml();
     for (const p of ['', 'play/', 'press/', 'privacy/', 'terms/', 'support/']) expect(xml).toContain(`<loc>${links.SITE_URL}${p}</loc>`);

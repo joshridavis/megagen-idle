@@ -19,10 +19,11 @@ export const REQUIRED_TAGS = [
 ];
 
 /** The bytes a page needs before images: its HTML and every script and stylesheet it loads. */
-export function pageBytes(dir, html) {
+export function pageBytes(dir, html, base = process.env.SITE_BASE || '/') {
   const refs = [...html.matchAll(/<(?:script[^>]+src|link[^>]+(?:rel="(?:stylesheet|modulepreload)")[^>]*href)="([^"]+)"/g)].map((m) => m[1]);
   const more = [...html.matchAll(/<link[^>]+href="([^"]+\.(?:js|css))"/g)].map((m) => m[1]);
-  const files = new Set([...refs, ...more].filter((u) => u.startsWith('/')));
+  // under a sub-path (SITE_BASE, the temporary GitHub Pages site) the files sit at the root of `dir`
+  const files = new Set([...refs, ...more].filter((u) => u.startsWith('/')).map((u) => (u.startsWith(base) ? `/${u.slice(base.length)}` : u)));
   let bytes = Buffer.byteLength(html);
   for (const f of files) {
     const p = join(dir, f);
