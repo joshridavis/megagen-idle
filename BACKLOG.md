@@ -108,7 +108,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.45 Generate-energy button next to the pinned energy bar
 0. 1.46 Cloud save from any tab
 0. 1.47 Decorations in a panel that opens over the map → CHECKPOINT 22
-0. 1.51 Achievements for petting your pets (Done)
+0. 1.51 Achievements for petting your pets (Done) → CHECKPOINT 29 (5 items since checkpoint 28: 1.80, 1.81, 1.55, 1.54, 1.51)
 0. 1.52 Store images from the current art (owner request; Done)
 0. 1.49 A designed loading screen for the website
 0. 1.50 A dedicated MegaGen Idle logo
@@ -2028,4 +2028,5 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 28 (v0.28.0) | 1.89, 1.87, 1.88, 1.90, 1.91 | 2026-10-09 | 100% completion simulated at 761.3 h (was 327.3 h); 75% at 306.9 h (was 97.8 h); last room expansion (13) at 496.4 h. Waiting for feedback. | |
 | 28 (answers) | 1.89, 1.87, 1.88, 1.90, 1.91 | 2026-10-09 | 5x longer middle-game research feels right for now; expansions 11 to 13 are the right size and price for now; the accent names are good; the research level row is in the right place. New report: Kinetic Capture and Grid Tap add +25% of energy/s per click each (at 5,670/s a click goes from 9 to about 2,844), far too much when clicking fast. Do not develop new backlog items until the owner says so. | 1.93 |
 | 28 (answers, more) | | 2026-10-09 | Fix the click research now as a hotfix; 1% per research makes more sense. | 1.93 (hotfix v0.28.1) |
-| 28.1 (v0.28.1, hotfix) | 1.93 | 2026-10-09 | Waiting for feedback. | |
+| 28.1 (v0.28.1, hotfix) | 1.93 | 2026-10-09 | The owner asked to continue from the order of work (hold lifted). | |
+| 29 (v0.29.0) | 1.80, 1.81, 1.55, 1.54, 1.51 | 2026-10-10 | 100% completion simulated at 761.4 h (was 761.3 h); 75% at 301.9 h; last room expansion (13) at 496.9 h. Owner decision during the run: the simulator's stall threshold is 13 h (was 12). Waiting for feedback. | |
