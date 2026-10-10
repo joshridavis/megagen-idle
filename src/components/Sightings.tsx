@@ -94,8 +94,8 @@ export default function Sightings() {
         ))}
       {def.id === 'birds' ? (
         // a V of flapping gulls (owner request: the old flock was a static sprite)
-        // the gull sprites carry their own air shadow (1.48, stronger since 1.99)
-        <div className={`sighting-${def.animation} absolute h-24 w-40`} style={style} data-sprite="map_bird" data-shadow="sprite">
+        // the whole flock casts one far air shadow (2.02; the gull sprites no longer carry one)
+        <div className={`sighting-${def.animation} air-shadow absolute h-24 w-40`} style={style} data-sprite="map_bird" data-shadow="air">
           {FLOCK.map(([x, y, flap, bob], i) => (
             <span key={i} className="sighting-bob absolute h-6 w-6 sm:h-8 sm:w-8" style={{ left: `${x}%`, top: `${y}%`, animationDelay: bob }}>
               <span className="block h-full w-full -scale-x-100">

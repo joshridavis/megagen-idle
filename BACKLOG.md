@@ -30,7 +30,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 0. 2.06 Fix: "Player level up" is unchecked when notifications are first turned on (owner report, playtest 31; small; Done)
 0. 2.01 Fix: water drawn into the Hydro Dam, Tidal Station, Oil Rig and Deuterium Extractor pictures (owner report, playtest 31; Done)
-0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31)
+0. 2.02 Flying things cast their shadow far below them (owner report, playtest 31; Done)
 0. 2.03 Shadows a little lighter (owner request, playtest 31)
 0. 2.05 The website on Cloudflare Pages: landing, play, press, privacy, terms, support (playbook W-05; reworks 1.94) → CHECKPOINT 32 (5 items: 2.06, 2.01, 2.02, 2.03, 2.05)
 0. 2.04 Editions (demo, full, mobile), the Full Game panel and the entitlement layer (playbook R-01; reworks 1.95)
@@ -1472,7 +1472,8 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Sizes and names stay the same; `npm run check:assets` passes.
 **Acceptance:** a test that these sprites have no water-colored rows (no `C.blue` band across the picture); before and after screenshots of the key scene, a generator card, and the map with the machines on water and on land; the build and all tests pass.
 
-### 2.02 — Flying things cast their shadow far below them — CODE — Not started
+### 2.02 — Flying things cast their shadow far below them — CODE — Done
+**Done note:** map birds and the shooting star draw their shadow as a separate layer (`MAP_AIR_SHADOW` in `src/components/MapEventLayer.tsx`: 1.25 tiles down, 0.3 right, 80% size, blurred), inside the moving element so it follows and flaps; the sprites have no baked shadow. Sightings use CSS variables `--air-shadow-*` in `src/index.css` (52 px down at desktop, 32 px below 640 px wide); the gull flock now gets the same drop shadow.
 **Goal:** owner report, playtest 31 (screenshot of the map birds): the shadow of a flying thing sits right next to it, so it does not look like it is flying. It should fall well below it, on the ground, to give the illusion of height.
 **Details:**
 - Map birds and the map's shooting star (`src/components/MapEventLayer.tsx`): take the shadow out of the sprite (no `AIR_SHADOW` in the generator script; regenerate) and draw it as its own layer: the bird's silhouette (the same sprite with `brightness(0)` and partial opacity, or a soft ellipse), offset well below it, about 1 to 1.5 map tiles down and a little right, a bit smaller and blurred. It moves with the bird and flaps with it.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error: a plain JS module
-import { AIR_SHADOW_ALPHA, drawSprite, GROUND_SHADOW_ALPHA, groundShadowOffset, withShadow } from '../../scripts/generate-generic-assets.mjs';
+import { drawSprite, GROUND_SHADOW_ALPHA, groundShadowOffset, withShadow } from '../../scripts/generate-generic-assets.mjs';
 // @ts-expect-error: a plain JS module
 import { Canvas } from '../../scripts/lib/canvas.mjs';
 // @ts-expect-error: a plain JS module
@@ -54,9 +54,13 @@ describe('sprite shadows are visible at map size (1.99)', () => {
     expect(found).toBe(true);
   });
 
-  it('things in the air keep a fainter, further shadow; flat things have none', () => {
-    expect(AIR_SHADOW_ALPHA).toBeLessThan(GROUND_SHADOW_ALPHA);
-    expect(shadowPixels(drawSprite('map_bird_1') as Sprite, AIR_SHADOW_ALPHA)).toBeGreaterThan(0);
+  it('things in the air have no shadow baked in (2.02: the map draws it far below them); flat things have none', () => {
+    for (const id of ['map_bird_1', 'map_bird_2', 'map_star']) {
+      const c = drawSprite(id) as Sprite;
+      let translucent = 0;
+      for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) if (c.alphaAt(x, y) > 0 && c.alphaAt(x, y) < 255) translucent++;
+      expect(translucent, id).toBe(0);
+    }
     expect(shadowPixels(drawSprite('deco_lily') as Sprite, GROUND_SHADOW_ALPHA)).toBe(0);
     expect(shadowPixels(drawSprite('tile_ground') as Sprite, GROUND_SHADOW_ALPHA)).toBe(0);
   });

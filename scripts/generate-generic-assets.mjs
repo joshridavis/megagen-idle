@@ -1694,24 +1694,21 @@ export function withShadow(src, d, alpha) {
 
 /** Things that stand on the ground cast a shadow; flat ones (grass, lilies, shells) and tiles do not. */
 const GROUND_SHADOW = /^(producer_|deco_(rock|bush|stump|mushroom|log|cactus|boulder|boat|buoy|warning|pylon|driftwood)$|decor_(?!pond))/;
-/** Things in the air cast theirs further away. */
-const AIR_SHADOW = /^map_(bird_\d|star)$/;
 
 /**
  * Shadow strength (1.99): the map draws machines smaller than their sprites on dark
  * tiles, so the 1.48 shadow (35% ink, 2 px) vanished. Now about 59% ink, 4 px on 48 px
  * and larger sprites, 3 px on 32 px ones, 2 px on 16 px ones; things in the air keep
- * a fainter, further one.
+ * a fainter, further one. Since 2.02 that one is not in the sprite: the map and the
+ * sightings draw it as its own layer, well below the flying thing.
  */
 export const GROUND_SHADOW_ALPHA = 150;
-export const AIR_SHADOW_ALPHA = 110;
 export function groundShadowOffset(width) {
   return width >= 48 ? 4 : width >= 32 ? 3 : 2;
 }
 
 function shadowFor(id, c) {
   const generator = manifest[id]?.file.startsWith('generators/');
-  if (AIR_SHADOW.test(id)) return withShadow(c, groundShadowOffset(c.width) + 1, AIR_SHADOW_ALPHA);
   if (generator || GROUND_SHADOW.test(id)) return withShadow(c, groundShadowOffset(c.width), GROUND_SHADOW_ALPHA);
   return c;
 }

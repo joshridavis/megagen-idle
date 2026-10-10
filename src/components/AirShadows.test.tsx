@@ -1,4 +1,6 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createInitialState } from '../data/initialState';
 import { EVENTS_BY_ID } from '../data/events';
@@ -54,9 +56,24 @@ describe('flying sightings cast a shadow (2.00)', () => {
     for (const m of meteors) expect(m.className).toContain('air-shadow');
   });
 
-  it('the gulls keep the shadow drawn into their sprite', async () => {
+  it('the gull flock casts one far air shadow (2.02)', async () => {
     const el = await show('birds');
-    expect(el.querySelector('[data-shadow="sprite"]')).not.toBeNull();
+    const flock = el.querySelector('[data-shadow="air"]') as HTMLElement;
+    expect(flock.className).toContain('air-shadow');
+    expect(flock.className).toMatch(/sighting-/);
+  });
+
+  it('the air shadow falls well below: 40 to 60 px on a desktop, less on a phone, softer (2.02)', () => {
+    const css = readFileSync(resolve(__dirname, '../index.css'), 'utf8');
+    const vars = (block: string) => Object.fromEntries([...block.matchAll(/--air-shadow-(\w+):\s*([\d.]+)/g)].map((m) => [m[1], Number(m[2])]));
+    const desktop = vars(css.match(/:root \{ --air-shadow-x[^}]*\}/)![0]);
+    const phone = vars(css.match(/@media \(max-width: 639px\) \{ :root \{[^}]*\}/)![0]);
+    expect(desktop.y).toBeGreaterThanOrEqual(40);
+    expect(desktop.y).toBeLessThanOrEqual(60);
+    expect(phone.y).toBeLessThan(desktop.y);
+    expect(phone.y).toBeGreaterThanOrEqual(20);
+    expect(desktop.blur).toBeGreaterThan(1);
+    expect(css).toMatch(/\.air-shadow \{ filter: drop-shadow\(var\(--air-shadow-x\) var\(--air-shadow-y\)/);
   });
 
   it('the walking cat has a ground shadow, like the pets', async () => {

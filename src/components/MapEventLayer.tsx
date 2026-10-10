@@ -9,6 +9,13 @@ import Frames from './Frames';
 /** How often to roll map events while the Map tab is open (rolls use the real time passed, not this count). */
 export const MAP_EVENT_CHECK_MS = 5000;
 
+/**
+ * Shadows of things in the air on the map (2.02): their own layer, well below
+ * them on the ground, so they read as flying. In map tiles, plus size and look.
+ */
+export const MAP_AIR_SHADOW = { down: 1.25, right: 0.3, scale: 0.8, blur: 1, opacity: 0.5 };
+const airShadowStyle: CSSProperties = { filter: `brightness(0) blur(${MAP_AIR_SHADOW.blur}px)`, opacity: MAP_AIR_SHADOW.opacity };
+
 /** The flock: [left %, top %, wing-beat delay] per gull, the leader at the front. */
 const FLOCK: [number, number, string][] = [
   [66, 25, '0s'],
@@ -96,8 +103,27 @@ export default function MapEventLayer({
           data-sprite="map_bird"
           data-dir={dir}
         >
+          {/* the shadows first, so they sit under every gull; they flap with them (2.02).
+              The box is 3 tiles wide and 2 tall; the flock is mirrored to fly left, so the
+              shadow's sideways offset is mirrored back to keep it on the right. */}
           {FLOCK.map(([x, y, delay], i) => (
-            <span key={i} className="absolute" style={{ left: `${x}%`, top: `${y}%`, width: '34%', height: '50%' }}>
+            <span
+              key={`s${i}`}
+              className="absolute"
+              style={{
+                left: `${x + ((dir < 0 ? -1 : 1) * MAP_AIR_SHADOW.right * 100) / 3 + (34 * (1 - MAP_AIR_SHADOW.scale)) / 2}%`,
+                top: `${y + (MAP_AIR_SHADOW.down * 100) / 2 + (50 * (1 - MAP_AIR_SHADOW.scale)) / 2}%`,
+                width: `${34 * MAP_AIR_SHADOW.scale}%`,
+                height: `${50 * MAP_AIR_SHADOW.scale}%`,
+                ...airShadowStyle,
+              }}
+              data-testid="map-air-shadow"
+            >
+              <Frames a="map_bird_1" b="map_bird_2" still={reduceMotion} period="0.45s" delay={delay} />
+            </span>
+          ))}
+          {FLOCK.map(([x, y, delay], i) => (
+            <span key={i} className="absolute" style={{ left: `${x}%`, top: `${y}%`, width: '34%', height: '50%' }} data-testid="map-bird">
               <Frames a="map_bird_1" b="map_bird_2" still={reduceMotion} period="0.45s" delay={delay} />
             </span>
           ))}
@@ -125,7 +151,15 @@ export default function MapEventLayer({
           data-testid="map-event"
           data-sprite="map_star"
         >
-          <img src={sprites.map_star} alt="" className="pixelated h-full w-full object-contain" />
+          {/* its shadow on the sea, well below it (2.02); the box is 2 tiles tall */}
+          <img
+            src={sprites.map_star}
+            alt=""
+            className="pixelated absolute h-full w-full object-contain"
+            style={{ top: `${(MAP_AIR_SHADOW.down * 100) / 2}%`, left: `${(MAP_AIR_SHADOW.right * 100) / Math.max(1, viewColumns - MAP_COLUMNS)}%`, transform: `scale(${MAP_AIR_SHADOW.scale})`, ...airShadowStyle }}
+            data-testid="map-air-shadow"
+          />
+          <img src={sprites.map_star} alt="" className="pixelated relative h-full w-full object-contain" />
         </div>
       );
     }
