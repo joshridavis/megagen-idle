@@ -31,6 +31,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 1.94 Decorations listed from cheapest to most expensive (owner request; small)
 0. 1.95 Sightings discovered listed by rarity (owner request; small)
 0. 1.96 Player levels slower in the middle and late game (owner feedback: level 79 to 84 in one night)
+0. 1.97 The plant cat sighting walks: animated legs and a bob (owner report, playtest 29)
 
 **Hold lifted (owner, 2026-10-09, after hotfix 28.1):** the owner confirmed the run continues from the order of work: 1.80, 1.81, 1.55, 1.54 and 1.51 toward checkpoint 29.
 
@@ -1410,6 +1411,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Run `npm run simulate`: report the new times for levels 50, 75, 80, 90 and 99, and the estimated hours to 100%, which should stay within 600 to 900 h.
 **Acceptance:** tests: levels up to 50 need the same energy as before; each level above it needs more; the new targets hold in the simulator with no stalls; every level gate is still reached; an existing save loads with everything kept; the build and all tests pass.
 
+### 1.97 — The plant cat sighting walks: animated legs and a bob — CODE — Not started
+**Goal:** owner report, playtest 29 (screenshot): the "Plant cat" sighting slides along the top of the screen as one still sprite, which looks very odd. It must be animated so it looks like it is walking.
+**Details:**
+- Cause: `Sightings.tsx` draws `sighting_cat` as a single image moved by the `sighting-walk` CSS animation; the legs never move.
+- Add a second frame, `sighting_cat_2` (24×16, legs in the other step, tail a little raised), made by `scripts/generate-generic-assets.mjs`, added to the Asset manifest, `sprite-manifest.json` and `sprites`. Play the two frames with the existing `Frames` component (as the flapping birds do, 1.40), about 0.3 s per step, plus a small up-and-down bob in step with them.
+- Its walking speed across the screen stays as it is; it faces the way it walks.
+- While at it, check the other creature sightings: the whale (`swim`) should at least bob or tilt as it swims; the flying objects (spaceship, UFO, paper plane, balloon, drone, comet) may stay single frames.
+- Reduce motion: unchanged (sightings are not shown).
+**Acceptance:** tests: the cat sighting shows both frames alternating and bobs; `npm run check:assets` passes; a browser screenshot of the cat mid-walk; the build and all tests pass.
+
 ### 1.93 — Fix: Kinetic Capture and Grid Tap make a click worth far more than idling — CODE — Done
 **Goal:** owner report, playtest 28: the last click research, Kinetic Capture and Grid Tap, each add "+25% of your energy/s to each click". At 5,670 energy/s a click goes from 9 to about 1,426 energy, then about 2,844 with both. Clicking dozens of times a minute makes a jump far beyond idling. The upgrade should make more sense.
 **Details:**
@@ -2065,3 +2076,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 28.1 (v0.28.1, hotfix) | 1.93 | 2026-10-09 | The owner asked to continue from the order of work (hold lifted). | |
 | 29 (v0.29.0) | 1.80, 1.81, 1.55, 1.54, 1.51 | 2026-10-10 | 100% completion simulated at 761.4 h (was 761.3 h); 75% at 301.9 h; last room expansion (13) at 496.9 h. Owner decision during the run: the simulator's stall threshold is 13 h (was 12). Waiting for feedback. | |
 | 29 (answers) | 1.80, 1.81, 1.55, 1.54, 1.51 | 2026-10-10 | 4-second reactions and about 8 meetings an hour with two pets sound right (not seen yet). Decoration prices (2K to 20M) are right, but lists must go from the cheapest to the most expensive. Spring tide +40% and Drought −25% are right for now. A cap of 3 counted pets a second is right. Sightings discovered should be listed by rarity. Player levels come too fast now (level 79 to 84 in one night); make them harder. Do not develop the next backlog item until the owner says so. | 1.94, 1.95, 1.96 |
+| 29 (answers, more) | | 2026-10-10 | Screenshot: the Plant cat sighting is not animated and looks very odd; it must walk. | 1.97 |
