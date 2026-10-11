@@ -29,6 +29,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 0. 2.10 Fix: late player levels come far too fast (owner report, 2026-10-11: level 87 to 92 in one night; Done)
 0. 2.07 Fix: the top bar overflows its box on small phones (Done)
 0. 2.08 Fix: invented developer details on the website (Done)
+0. 2.09 Fix: link previews show "Image failed to load" (Partial: the owner checks Discord after the deploy)
 
 ~~On hold (owner, 2026-10-10, after playtest 32): do not develop new backlog items until the owner says so.~~ When the hold lifts, work in this order:
 
@@ -1497,13 +1498,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** the press page, the press kit text and the JSON-LD show "MiracleBadger" or no developer at all; the test passes; the build and all tests pass.
 **Notes:** the fact sheet in `src/site/fallback/press.md` says "Developer: MiracleBadger" (no publisher line, no country). `DEVELOPER_NAME` in `src/site/content.ts` feeds the JSON-LD `author` and `publisher` (a `Person`, was an invented `Organization`). Searching the repository found nothing else: `electron-builder.yml` already says "Copyright © 2026 MegaGen Idle", and there is no `codemagic.yaml` yet. Tests in `src/site/pages.test.ts`: the JSON-LD names MiracleBadger, the press page says "Developer: MiracleBadger", and no text file outside `BACKLOG.md` says "Joshri Games" or "Israel".
 
-### 2.09 — Fix: link previews show "Image failed to load" — CODE — Not started
+### 2.09 — Fix: link previews show "Image failed to load" — CODE — Partial
 **Goal:** owner report, playtest 32 (Discord screenshot): pasting https://joshridavis.github.io/megagen-idle/ shows the title and description but "Image failed to load".
 **Details:**
 - Cause: every page's `og:image`, `twitter:image`, `og:url` and canonical address point at https://megagenidle.com/ (`SITE_URL` in `src/site/links.ts`), and that domain is not live yet, so the picture cannot be fetched. The picture itself is built (`og-image.png` at the site root).
 - Make the absolute site address a build setting: `SITE_URL` from the environment (default `https://megagenidle.com/`), used by `buildSitePage`, the sitemap and robots. The temporary GitHub Pages workflow sets `SITE_URL=https://joshridavis.github.io/megagen-idle/`. Cloudflare needs nothing (the default is right).
 - After deploying, check with a preview tool (for example opengraph.xyz) or by pasting the address into Discord again; Discord caches previews, so add `?v=2` to the address when testing again.
 **Acceptance:** a test that a build with `SITE_URL` set puts that address in `og:image`, `og:url`, the canonical link and the sitemap; the build and all tests pass; the owner sees the picture in Discord.
+**Notes:** `siteUrlFrom` in `src/site/pages.ts` reads `SITE_URL` (a trailing slash is added; empty means `https://megagenidle.com/` from `src/site/links.ts`); `vite.config.ts` passes it to `buildSitePage` (canonical, `og:url`, `og:image`, `twitter:image`, the JSON-LD), `sitemapXml` and `robotsTxt`. `.github/workflows/deploy.yml` sets `SITE_URL=https://joshridavis.github.io/megagen-idle/`; Cloudflare needs nothing. Checked locally: a build with both settings puts `https://joshridavis.github.io/megagen-idle/og-image.png` in the tags, and that file (1200×630 PNG, 70 KB) sits at the site root. The game's own links (`PLAY_URL` and others) stay on megagenidle.com. Test in `src/site/pages.test.ts`. **Remaining (owner):** after this is merged and deployed, paste https://joshridavis.github.io/megagen-idle/?v=2 into Discord and check the picture shows.
 
 ### 2.06 — Fix: "Player level up" is unchecked when notifications are first turned on — CODE — Done
 **Goal:** owner report, playtest 31 (screenshot of Settings → Notifications): when notifications are turned on for the first time, every type is checked except "Player level up", which stays unchecked until it is checked by hand. All types should start checked.

@@ -2,7 +2,7 @@
 
 An idle/incremental game about generating energy. You start with almost nothing and clumsy, inefficient methods, then reinvest energy into resources, research, room and better machines: from solar panels up to nuclear fission and a few fictional methods. Machines keep producing while the game is closed.
 
-**Play it:** https://joshridavis.github.io/megagen-idle/play/ for now (the landing page is at https://joshridavis.github.io/megagen-idle/). The deploy workflow publishes every merge to `main` there, built with `SITE_BASE=/megagen-idle/`, until the site moves to Cloudflare Pages at https://megagenidle.com/ (`docs/PUBLIC_RELEASE.md` section 9c); the workflow is then deleted.
+**Play it:** https://joshridavis.github.io/megagen-idle/play/ for now (the landing page is at https://joshridavis.github.io/megagen-idle/). The deploy workflow publishes every merge to `main` there, built with `SITE_BASE=/megagen-idle/` and `SITE_URL=https://joshridavis.github.io/megagen-idle/` (the absolute address in link previews and the sitemap; it defaults to https://megagenidle.com/), until the site moves to Cloudflare Pages at https://megagenidle.com/ (`docs/PUBLIC_RELEASE.md` section 9c); the workflow is then deleted.
 
 ## Run locally
 

@@ -216,14 +216,14 @@ export const exportSteps = () =>
 <img class="shot" src="/screens/${SUPPORT_SCREENSHOT.file}" alt="${esc(SUPPORT_SCREENSHOT.alt)}" loading="lazy" />`;
 
 /** JSON-LD for search engines (landing page only). */
-export function videoGameJsonLd(): string {
+export function videoGameJsonLd(siteUrl = SITE_URL): string {
   const data = {
     '@context': 'https://schema.org',
     '@type': 'VideoGame',
     name: 'MegaGen Idle',
     description: TAGLINE,
-    url: SITE_URL,
-    image: `${SITE_URL}${OG_IMAGE.name}`,
+    url: siteUrl,
+    image: `${siteUrl}${OG_IMAGE.name}`,
     genre: ['Idle', 'Incremental', 'Simulation', 'Strategy'],
     gamePlatform: ['PC', 'Android', 'iOS', 'Web browser'],
     applicationCategory: 'Game',
@@ -232,18 +232,18 @@ export function videoGameJsonLd(): string {
     // the developer's public name (docs/RELEASE_DECISIONS.md, owner, playtest 32)
     author: { '@type': 'Person', name: DEVELOPER_NAME },
     publisher: { '@type': 'Person', name: DEVELOPER_NAME },
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', url: `${SITE_URL}play/`, description: 'The free part, in your browser' },
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', url: `${siteUrl}play/`, description: 'The free part, in your browser' },
   };
   return `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
 }
 
 /** Canonical address, Open Graph and Twitter tags, favicons; from the page's own <title> and description. */
-export function seoTags(html: string, path: string): string {
+export function seoTags(html: string, path: string, siteUrl = SITE_URL): string {
   const title = html.match(/<title>([^<]*)<\/title>/)?.[1];
   const description = html.match(/<meta name="description" content="([^"]*)"/)?.[1];
   if (!title || !description) throw new Error(`${path}: a site page needs a <title> and a description`);
-  const url = `${SITE_URL}${path.replace(/^\//, '').replace(/index\.html$/, '')}`;
-  const image = `${SITE_URL}${OG_IMAGE.name}`;
+  const url = `${siteUrl}${path.replace(/^\//, '').replace(/index\.html$/, '')}`;
+  const image = `${siteUrl}${OG_IMAGE.name}`;
   return [
     path === '/404.html' ? '<meta name="robots" content="noindex" />' : `<link rel="canonical" href="${url}" />`,
     '<meta name="theme-color" content="#0f172b" />',
@@ -265,10 +265,24 @@ export function seoTags(html: string, path: string): string {
 }
 
 /**
+ * The absolute site address for sharing tags, the sitemap and robots.txt (2.09): `SITE_URL` from the
+ * build's environment (the temporary GitHub Pages site sets it), else links.ts. Always ends in "/".
+ */
+export function siteUrlFrom(value: string | undefined): string {
+  const v = (value ?? '').trim();
+  return v ? (v.endsWith('/') ? v : `${v}/`) : SITE_URL;
+}
+
+/**
  * Fills one site page: every `<!-- site:name -->` marker becomes its part, and
  * the sharing tags go at the end of <head>. An unknown marker is an error.
  */
-export function buildSitePage(html: string, path: string, opts: { root: string; version: string; now?: Date; base?: string }): string {
+export function buildSitePage(
+  html: string,
+  path: string,
+  opts: { root: string; version: string; now?: Date; base?: string; siteUrl?: string },
+): string {
+  const siteUrl = opts.siteUrl ?? SITE_URL;
   const md = (key: keyof typeof MARKDOWN_SOURCES) => markdownFor(key, opts.root).html;
   const parts: Record<string, () => string> = {
     header: siteHeader,
@@ -286,7 +300,7 @@ export function buildSitePage(html: string, path: string, opts: { root: string; 
     'export-steps': exportSteps,
     'support-email': () => `<a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>`,
     'press-email': () => `<a href="mailto:${PRESS_EMAIL}">${PRESS_EMAIL}</a>`,
-    'json-ld': videoGameJsonLd,
+    'json-ld': () => videoGameJsonLd(siteUrl),
     privacy: () => md('privacy'),
     terms: () => md('terms'),
     press: () => md('press'),
@@ -296,7 +310,7 @@ export function buildSitePage(html: string, path: string, opts: { root: string; 
     if (!part) throw new Error(`${path}: unknown marker site:${name}`);
     return part();
   });
-  const page = filled.replace('</head>', `    ${seoTags(filled, path)}\n  </head>`);
+  const page = filled.replace('</head>', `    ${seoTags(filled, path, siteUrl)}\n  </head>`);
   // Under a sub-path (the temporary GitHub Pages site at /megagen-idle/), site links get the base.
   // Source files under /src/ are left to Vite, which adds the base itself.
   const base = opts.base ?? '/';
@@ -304,11 +318,11 @@ export function buildSitePage(html: string, path: string, opts: { root: string; 
 }
 
 /** sitemap.xml for every listed page. */
-export function sitemapXml(): string {
+export function sitemapXml(siteUrl = SITE_URL): string {
   const urls = SITE_PAGES.filter((p) => p.sitemap)
-    .map((p) => `  <url><loc>${SITE_URL}${p.path.slice(1)}</loc></url>`)
-    .concat(`  <url><loc>${SITE_URL}play/</loc></url>`);
+    .map((p) => `  <url><loc>${siteUrl}${p.path.slice(1)}</loc></url>`)
+    .concat(`  <url><loc>${siteUrl}play/</loc></url>`);
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
 }
 
-export const robotsTxt = () => `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}sitemap.xml\n`;
+export const robotsTxt = (siteUrl = SITE_URL) => `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}sitemap.xml\n`;

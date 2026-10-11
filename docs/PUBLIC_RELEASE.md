@@ -158,7 +158,7 @@ Players who sign in with Google or Discord choose a username the first time. The
 
 ## 9c. The website megagenidle.com on Cloudflare Pages (owner, about 30 minutes plus DNS wait)
 
-The site is ready for it (2.05; playbook W-01, W-05, W-06): `npm run build:web` builds every page into `dist-web/`: the landing page at `/`, the game at `/play/`, and `/press/`, `/privacy/`, `/terms/`, `/support/` and a 404 page, plus `sitemap.xml`, `robots.txt`, the sharing picture and `press-kit.zip`. Until Cloudflare is live, `.github/workflows/deploy.yml` still publishes every merge to `main` on GitHub Pages at https://joshridavis.github.io/megagen-idle/ (built with `SITE_BASE=/megagen-idle/`); it is temporary.
+The site is ready for it (2.05; playbook W-01, W-05, W-06): `npm run build:web` builds every page into `dist-web/`: the landing page at `/`, the game at `/play/`, and `/press/`, `/privacy/`, `/terms/`, `/support/` and a 404 page, plus `sitemap.xml`, `robots.txt`, the sharing picture and `press-kit.zip`. Until Cloudflare is live, `.github/workflows/deploy.yml` still publishes every merge to `main` on GitHub Pages at https://joshridavis.github.io/megagen-idle/ (built with `SITE_BASE=/megagen-idle/` and `SITE_URL=https://joshridavis.github.io/megagen-idle/`, so link previews find their picture); it is temporary.
 
 1. **Domain:** buy `megagenidle.com` at Cloudflare (Registrar), so its DNS is already in your Cloudflare account (playbook W-01).
 2. **Pages project:** Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**, pick this repository, then:
