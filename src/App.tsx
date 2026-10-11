@@ -27,6 +27,7 @@ import Sightings from './components/Sightings';
 import Toasts from './components/Toasts';
 import CloudDialogs from './components/CloudDialogs';
 import CloudButton from './components/CloudButton';
+import { useMediaQuery } from './components/useMediaQuery';
 import { startCloud } from './store/account';
 import TutorialCoach from './components/TutorialCoach';
 import VersionFooter from './components/VersionFooter';
@@ -68,6 +69,8 @@ export default function App() {
   }, [reduceMotion]);
   // The small ⚡ button by the pinned bar shows only while the big one is out of view (1.45).
   const [clickInView, setClickInView] = useState(true);
+  // 2.07: below 400 px the cloud button leaves the pinned bar for the page's top corner, so the bar fits
+  const narrow = useMediaQuery('(max-width: 399px)');
   // "Account settings" and "Sign in" in the top-bar cloud menu open Settings → Account (1.46).
   const [accountRequest, setAccountRequest] = useState(0);
   const openAccount = useCallback(() => {
@@ -100,20 +103,25 @@ export default function App() {
       className={`mx-auto flex min-h-screen max-w-7xl flex-col gap-6 p-4 sm:p-6 ${researching ? 'pb-28 sm:pb-28' : ''}`}
       data-testid="main"
     >
-      <header className="-mb-2 flex flex-col items-center">
+      <header className="relative -mb-2 flex flex-col items-center">
         {/* The pixel wordmark (1.50), drawn at twice its size with crisp pixels. */}
         <h1>
           <img src={sprites.logo_wordmark} alt="MegaGen Idle" width={384} height={96} className="pixelated h-auto w-[192px] sm:w-[384px]" />
         </h1>
+        {narrow && (
+          <div className="absolute right-0 top-0" data-testid="header-cloud-slot">
+            <CloudButton onOpenAccount={openAccount} />
+          </div>
+        )}
       </header>
       {/* The top bar (energy, rate, room, level) stays in view while scrolling (0.43). It sits above
           hovered cards (z-40) and their tooltips; dialogs, toasts and celebrations stay above it (playtest 20). */}
-      <div className="sticky top-2 z-[45] -mb-2 flex items-center gap-2 self-center" data-testid="top-bar">
+      <div className="sticky top-2 z-[45] -mb-2 flex max-w-full items-center gap-2 self-center" data-testid="top-bar">
         <EnergyDisplay />
         {/* Side buttons stack on phones so the bar never scrolls sideways. */}
-        <div className="flex flex-col gap-1 empty:hidden sm:flex-row sm:gap-2">
+        <div className="flex flex-col gap-1 empty:hidden sm:flex-row sm:gap-2" data-testid="top-side-buttons">
           {!clickInView && <MiniClickButton />}
-          <CloudButton onOpenAccount={openAccount} />
+          {!narrow && <CloudButton onOpenAccount={openAccount} />}
         </div>
       </div>
       <div className="flex flex-col items-center gap-4">
