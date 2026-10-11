@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pkg from './package.json';
 import { BOOT_TIMEOUT_MS } from './src/data/boot';
-import { buildSitePage, OG_IMAGE, robotsTxt, SCREENSHOTS, SITE_PAGES, sitemapXml } from './src/site/pages';
+import { buildSitePage, OG_IMAGE, robotsTxt, SCREENSHOTS, SITE_PAGES, siteUrlFrom, sitemapXml } from './src/site/pages';
 // @ts-expect-error plain .mjs module without types
 import { zip } from './scripts/lib/zip.mjs';
 
@@ -37,8 +37,20 @@ const root = fileURLToPath(new URL('.', import.meta.url));
 // Temporary (owner, after playtest 32): until Cloudflare Pages is set up, the site also
 // deploys to GitHub Pages at /megagen-idle/ (.github/workflows/deploy.yml sets SITE_BASE).
 const BASE = process.env.SITE_BASE || '/';
-// PLAY_EDITION picks the edition of the game at /play/ (2.04 reads VITE_EDITION).
-if (process.env.PLAY_EDITION && !process.env.VITE_EDITION) process.env.VITE_EDITION = process.env.PLAY_EDITION;
+// The absolute address in the sharing tags, the sitemap and robots.txt (2.09): the GitHub Pages
+// workflow sets SITE_URL to its github.io address, so link previews can fetch the picture.
+const SITE_URL = siteUrlFrom(process.env.SITE_URL);
+/**
+ * The edition (2.04, src/data/edition.ts): VITE_EDITION, else PLAY_EDITION (the site's /play/), else
+ * the demo for the website build (`npm run build:web`, mode "web") and the full game for everything
+ * else (npm run dev, npm run build, tests). The temporary GitHub Pages deploy and the Playwright
+ * tests set PLAY_EDITION=full; Cloudflare's previews too (docs/PUBLIC_RELEASE.md).
+ */
+export function editionFor(mode: string, env: NodeJS.ProcessEnv = process.env): string {
+  const e = env.VITE_EDITION || env.PLAY_EDITION || (mode === 'web' ? 'demo' : 'full');
+  if (!['demo', 'full', 'mobile'].includes(e)) throw new Error(`Unknown edition "${e}" (demo, full or mobile)`);
+  return e;
+}
 
 const sitePages = {
   name: 'megagen-site-pages',
@@ -46,14 +58,14 @@ const sitePages = {
     order: 'pre' as const,
     handler: (html: string, ctx: { path: string }) => {
       const page = SITE_PAGES.find((p) => `/${p.file}` === ctx.path || p.path === ctx.path);
-      return page ? buildSitePage(html, page.path, { root, version: pkg.version, base: BASE }) : html;
+      return page ? buildSitePage(html, page.path, { root, version: pkg.version, base: BASE, siteUrl: SITE_URL }) : html;
     },
   },
   generateBundle(this: { emitFile: (f: { type: 'asset'; fileName: string; source: string | Uint8Array }) => void }) {
     const file = (rel: string) => readFileSync(new URL(rel, import.meta.url));
     this.emitFile({ type: 'asset', fileName: OG_IMAGE.name, source: file(`./${OG_IMAGE.file}`) });
-    this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemapXml() });
-    this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robotsTxt() });
+    this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemapXml(SITE_URL) });
+    this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robotsTxt(SITE_URL) });
     const shots = SCREENSHOTS.filter((s) => existsSync(new URL(`./public/screens/${s.file}`, import.meta.url)));
     this.emitFile({
       type: 'asset',
@@ -68,7 +80,7 @@ const sitePages = {
   },
 };
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: BASE,
   plugins: [bootLoader, sitePages, react(), tailwindcss()],
   build: {
@@ -83,6 +95,7 @@ export default defineConfig({
   // Release version shown in the footer. Bump `version` in package.json in each playtest PR.
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
+    __EDITION__: JSON.stringify(editionFor(mode)),
     __APP_COMMIT__: JSON.stringify((process.env.GITHUB_SHA ?? '').slice(0, 7)),
   },
   test: {
@@ -97,4 +110,4 @@ export default defineConfig({
       thresholds: { lines: 80, statements: 80, functions: 80, branches: 80 },
     },
   },
-});
+}));

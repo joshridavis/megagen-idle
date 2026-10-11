@@ -18,7 +18,7 @@ export default function PlayerLevelBadge() {
 
   return (
     <div
-      className="group relative ml-3 w-16 shrink-0 border-l border-slate-600 pl-3 text-sm sm:ml-4 sm:w-28 sm:pl-4"
+      className="group relative ml-1 w-16 shrink-0 border-l border-slate-600 pl-2 text-sm sm:ml-4 sm:w-28 sm:pl-4"
       data-testid="player-level"
       tabIndex={0}
       aria-describedby="player-level-tip"

@@ -15,7 +15,7 @@ import AccountPanel from './AccountPanel';
 import NotificationSettings from './NotificationSettings';
 import { SUPPORTER_COLOR } from '../data/purchases';
 import { isSupporter } from '../utils/purchases';
-import { PurchasesSettings, TestStoreSwitch } from './Purchases';
+import { PurchasesSettings, SupportLink, TestStoreSwitch } from './Purchases';
 
 function CreditList({ items }: { items: Credit[] }) {
   return (
@@ -238,6 +238,7 @@ export default function SettingsPanel() {
         <strong>{formatHours(MAX_OFFLINE_SECONDS)}</strong>. Research that finishes later still completes.
       </div>
       <PurchasesSettings />
+      <SupportLink />
       <details className="panel text-sm text-slate-300" data-testid="credits">
         <summary className="cursor-pointer panel-title">Credits</summary>
         <p className="mt-2">MegaGen Idle. All sprites are drawn by the game's own script, using the AAP-64 palette.</p>

@@ -1,3 +1,4 @@
+import { edition } from '../../data/edition';
 import type { ProductId } from '../../data/purchases';
 import { platform } from '../../platform';
 import type { PurchaseStore, StoreName, StoreProduct } from '../../platform/purchases';
@@ -14,7 +15,14 @@ export interface PurchaseTransient {
   purchaseBusy: boolean;
   /** The last purchase or restore message for the Full Game panel, or null. */
   purchaseMessage: string | null;
+  /** The "Get the Full Game" panel is open (2.04; not saved). */
+  fullGameOpen: boolean;
+  /** The panel already opened by itself this session (not saved): it does so at most once. */
+  fullGameAutoShown: boolean;
 }
+
+/** Why the "Get the Full Game" panel opens: the player reached the boundary, tapped a locked item, or the top bar button. */
+export type FullGameReason = 'boundary' | 'locked' | 'button';
 
 export interface PurchaseActions {
   /**
@@ -25,6 +33,12 @@ export interface PurchaseActions {
   initPurchases: (store?: PurchaseStore) => Promise<void>;
   buyProduct: (id: ProductId) => Promise<boolean>;
   restorePurchases: () => Promise<void>;
+  /**
+   * Opens the "Get the Full Game" panel (2.04). At the boundary or on a locked item it opens by
+   * itself at most once per session; the top bar button always opens it.
+   */
+  offerFullGame: (reason: FullGameReason) => void;
+  closeFullGame: () => void;
 }
 
 let current: PurchaseStore = platform.purchases;
@@ -38,9 +52,19 @@ export const createPurchaseSlice =
     storeProducts: [],
     purchaseBusy: false,
     purchaseMessage: null,
+    fullGameOpen: false,
+    fullGameAutoShown: false,
+    offerFullGame: (reason) => {
+      if (get().fullGameOpen) return;
+      if (reason !== 'button' && get().fullGameAutoShown) return;
+      set({ fullGameOpen: true, fullGameAutoShown: get().fullGameAutoShown || reason !== 'button', purchaseMessage: null }, undefined, `purchases/offer-${reason}`);
+    },
+    closeFullGame: () => set({ fullGameOpen: false }, undefined, 'purchases/close-offer'),
     initPurchases: async (store = platform.purchases) => {
       current = store;
-      const active = store.name !== 'none';
+      // the demo sells nothing (it links to the stores); the mobile edition always asks its store,
+      // so a copied or edited save unlocks nothing there (2.04)
+      const active = edition() !== 'demo' && (store.name !== 'none' || edition() === 'mobile');
       set({ storeActive: active, storeName: store.name }, undefined, 'purchases/init');
       if (!active) return;
       try {

@@ -11,6 +11,7 @@ import { getBonuses } from '../utils/bonuses';
 import { getProducerBlock, getProducerCost, producerScrapRefund, type ProducerBlock } from '../utils/producerSystem';
 import CostList from './CostList';
 import { PRODUCER_SPRITES } from './producerSprites';
+import { FullGameLockedCard } from './Purchases';
 import { ScrapButton, ScrapQuantityConfirm } from './Scrap';
 import { useNumberFormat } from './useNumberFormat';
 
@@ -109,7 +110,11 @@ export default function ProducerPanel() {
       </p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {PRODUCER_IDS.map((id) => (
-          <ProducerCard key={id} id={id} />
+          PRODUCERS[id].fullGame ? (
+            <FullGameLockedCard key={id} name={PRODUCERS[id].name} sprite={PRODUCER_SPRITES[id]} testId={`producer-card-${id}`} />
+          ) : (
+            <ProducerCard key={id} id={id} />
+          )
         ))}
       </div>
     </section>

@@ -34,13 +34,14 @@ export default function EnergyDisplay() {
   // overall change from all boosts (event effects can apply to one generator type only)
   const boost = breakdown.base > 0 ? breakdown.total / breakdown.base - 1 : breakdown.modifiers.reduce((sum, m) => sum + (m.percent ?? 0), 0);
   return (
-    <div className={`flex items-center gap-3 rounded-lg bg-slate-800/95 px-4 py-3 shadow-lg shadow-black/40 ring-2 backdrop-blur`}
+    <div className={`flex min-w-0 max-w-full items-center gap-2 rounded-lg bg-slate-800/95 px-3 py-3 shadow-lg shadow-black/40 ring-2 backdrop-blur sm:gap-3 sm:px-4`}
       style={{ '--tw-ring-color': `${accent.color}99` } as CSSProperties}
       data-testid="energy-display"
       data-accent={accent.id}
     >
-      <img src={sprites.energy_icon} alt="Energy" width={32} height={32} className="pixelated" />
-      <div className="leading-tight">
+      <img src={sprites.energy_icon} alt="Energy" width={32} height={32} className="pixelated shrink-0 max-[359px]:hidden" />
+      {/* 2.07: on small phones the room column wraps and the icon hides below 360 px, so the bar fits */}
+      <div className="shrink-0 leading-tight">
         <span className="font-mono text-2xl" style={{ color: accent.color }} aria-label="Energy total">
           {fmt.num(energy)}
         </span>
@@ -58,9 +59,9 @@ export default function EnergyDisplay() {
           )}
         </div>
       </div>
-      <div className="ml-3 border-l border-slate-600 pl-3 text-sm sm:ml-4 sm:pl-4" aria-label="Room">
+      <div className="ml-1 min-w-0 border-l border-slate-600 pl-2 text-sm sm:ml-4 sm:pl-4" aria-label="Room">
         <div className="text-slate-400">Room</div>
-        <div className="font-mono">
+        <div className="font-mono break-words" title={`${room}/${capacity} (${free} free)`}>
           {room}/{capacity} <span className="text-xs text-slate-400">({free} free)</span>
         </div>
       </div>

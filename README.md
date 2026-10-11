@@ -2,7 +2,7 @@
 
 An idle/incremental game about generating energy. You start with almost nothing and clumsy, inefficient methods, then reinvest energy into resources, research, room and better machines: from solar panels up to nuclear fission and a few fictional methods. Machines keep producing while the game is closed.
 
-**Play it:** https://joshridavis.github.io/megagen-idle/play/ for now (the landing page is at https://joshridavis.github.io/megagen-idle/). The deploy workflow publishes every merge to `main` there, built with `SITE_BASE=/megagen-idle/`, until the site moves to Cloudflare Pages at https://megagenidle.com/ (`docs/PUBLIC_RELEASE.md` section 9c); the workflow is then deleted.
+**Play it:** https://joshridavis.github.io/megagen-idle/play/ for now (the landing page is at https://joshridavis.github.io/megagen-idle/). The deploy workflow publishes every merge to `main` there, built with `PLAY_EDITION=full` (the owner's playtests use the full game), `SITE_BASE=/megagen-idle/` and `SITE_URL=https://joshridavis.github.io/megagen-idle/` (the absolute address in link previews and the sitemap; it defaults to https://megagenidle.com/), until the site moves to Cloudflare Pages at https://megagenidle.com/ (`docs/PUBLIC_RELEASE.md` section 9c); the workflow is then deleted.
 
 ## Run locally
 
@@ -14,18 +14,26 @@ An idle/incremental game about generating energy. You start with almost nothing 
 
 | Command | What it does |
 |---|---|
-| `npm run build` | Type-checks and builds the website into `dist/`: the landing page at `/`, the game (`play/index.html`) at `/play/`, and `/press/`, `/privacy/`, `/terms/`, `/support/` and `404.html`. |
-| `npm run build:web` | The same build into `dist-web/` for Cloudflare Pages, then checks every site page (under 200 KB before images, title, description and sharing tags). `PLAY_EDITION` picks the game's edition. |
+| `npm run build` | Type-checks and builds the website into `dist/`: the landing page at `/`, the game (`play/index.html`) at `/play/`, and `/press/`, `/privacy/`, `/terms/`, `/support/` and `404.html`. The game is the full edition unless `VITE_EDITION` says `demo` or `mobile`. |
+| `npm run build:web` | The same build into `dist-web/` for Cloudflare Pages, then checks every site page (under 200 KB before images, title, description and sharing tags). The game at `/play/` is the **demo** (the free part only) unless `PLAY_EDITION` (or `VITE_EDITION`) says `full` or `mobile`. |
 | `npm run preview` | Serves the built `dist/` locally at `http://localhost:4173/` (game: `/play/`). Add `-- --outDir dist-web` to serve the web build. |
 | `npm test` | Runs the Vitest unit tests once. |
 | `npm run test:coverage` | Runs the unit tests with a coverage report (HTML in `coverage/`); fails if the game rules in `src/utils/` drop below 80% lines, statements, functions or branches. CI runs this. |
-| `npm run test:e2e` | Builds the website (`build:web`) and runs the Playwright browser tests against it: the game and every site page. First run `npx playwright install chromium` (or set `PW_CHROMIUM_PATH` to an existing Chromium). |
+| `npm run test:e2e` | Builds the website (`build:web` with `PLAY_EDITION=full`) and runs the Playwright browser tests against it: the game and every site page. First run `npx playwright install chromium` (or set `PW_CHROMIUM_PATH` to an existing Chromium). |
 | `npm run simulate` | Runs the balance simulator (a greedy idle player) and writes `BALANCE_REPORT.md`: milestone times, pacing targets from `src/data/pacingTargets.ts`, stalls and hours to 100% completion. |
 | `npm run screens:site` | Captures the website's screenshots with Playwright (six game scenes at 1920×1080 and the Settings save panel) into `public/screens/`. Set `PW_CHROMIUM_PATH` if Playwright's own Chromium is not installed. |
 | `npm run check:assets` | Checks every sprite in the manifest exists as a PNG of the right size, and lists which are still generic stand-ins. |
 | `npm run notices` | Rewrites `THIRD_PARTY_NOTICES.md` with the license of every package shipped in the game. Run after changing dependencies. |
 | `npm run generate:assets` | Draws any missing generic stand-in sprites. Add `-- --force` to redraw the generic ones; files not listed in `src/assets/generic-assets.json` (real art) are never touched. |
 | `npm run brand` | Draws the store and brand images from the existing sprites: `src/assets/brand/` (logo, 1024 px app icon, key scene, the 1200×630 sharing picture and the favicons) and the Steam capsules in `docs/steam/capsules/`. Overwrites them; run it after changing `scripts/generate-brand.mjs` (a test checks the committed images match). |
+
+## Editions
+
+One codebase builds three editions (`docs/RELEASE_DECISIONS.md`, "Editions"), chosen at build time with `VITE_EDITION` (or `PLAY_EDITION` for the site's `/play/`):
+
+- `demo`: the free part only (research up to level 9); the Full Game's data is left out of the bundle, and its machines show as locked "Full Game" cards. `npm run build:web` builds it by default.
+- `full`: the Steam full game, everything open. The default for `npm run dev`, `npm run build` and the tests.
+- `mobile`: Android and iOS, everything in the bundle, the content after the free part locked until the Full Game is bought.
 
 ## Project layout
 

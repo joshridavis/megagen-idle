@@ -431,3 +431,67 @@ test('the map with every room expansion fits a 375px phone', async ({ page }) =>
   expect(overflow).toBeLessThanOrEqual(0);
   await page.screenshot({ path: 'test-results/map-13-expansions-375.png', fullPage: true });
 });
+
+// 2.07 (owner, playtest 32): on a small phone the top bar of a late-game save ran out of its box
+// (level column, title and the cloud button). The cloud button only shows in builds with cloud
+// settings, so a stand-in of its size goes where App puts it.
+for (const width of [320, 360, 412]) {
+  test(`the top bar of a late-game save fits its box at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('./');
+    await expect(page.getByLabel('Energy total')).toBeVisible();
+    const { ROOM_TIERS } = await import('../src/data/rooms');
+    const { SAVE_VERSION } = await import('../src/store/migrations');
+    const { TUTORIAL_DONE } = await import('../src/data/tutorial');
+    const capacity = 13 + ROOM_TIERS.reduce((sum, t) => sum + t.capacity, 0);
+    const save = {
+      game: 'megagen-idle',
+      version: SAVE_VERSION,
+      exportedAt: new Date().toISOString(),
+      state: {
+        energy: 688_888_888_888,
+        lifetimeEnergy: 4e10,
+        lastSavedTimestamp: Date.now(),
+        roomCapacity: capacity,
+        expansionLevel: ROOM_TIERS.length,
+        researchLevel: 1,
+        completedResearch: [],
+        activeGenerators: [],
+        settings: { tutorial: { step: TUTORIAL_DONE, replay: false }, cosmetics: { title: 'decor_30', accent: 'amber' } },
+      },
+    };
+    await page.locator('#tab-settings').click();
+    await page.getByLabel('Import save file').setInputFiles({ name: 'save.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(save)) });
+    await page.getByRole('button', { name: 'Load this save' }).click();
+    await page.locator('#tab-generators').click();
+    await expect(page.getByTestId('player-title')).toBeVisible();
+    await page.evaluate(() => {
+      const stand = document.createElement('div');
+      stand.dataset.testid = 'cloud-stand-in';
+      stand.className = 'h-11 w-11 shrink-0 rounded-full bg-sky-700';
+      (document.querySelector('[data-testid="header-cloud-slot"]') ?? document.querySelector('[data-testid="top-side-buttons"]'))!.append(stand);
+      window.scrollTo(0, 0);
+    });
+    const r = await page.evaluate(() => {
+      const box = document.querySelector('[data-testid="energy-display"]')!.getBoundingClientRect();
+      const inside = (sel: string) => {
+        const e = document.querySelector(sel)!.getBoundingClientRect();
+        return e.left >= box.left - 0.5 && e.right <= box.right + 0.5 && e.top >= box.top - 0.5 && e.bottom <= box.bottom + 0.5;
+      };
+      const stand = document.querySelector('[data-testid="cloud-stand-in"]')!.getBoundingClientRect();
+      const click = document.querySelector('[data-testid="click-button"], button[aria-label="Generate energy"]')!.getBoundingClientRect();
+      const overlaps = (a: DOMRect, b: DOMRect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      return {
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        level: inside('[data-testid="player-level"]'),
+        title: inside('[data-testid="player-title"]'),
+        energy: inside('[aria-label="Energy total"]'),
+        room: inside('[aria-label="Room"]'),
+        standOnScreen: stand.left >= 0 && stand.right <= window.innerWidth,
+        standCoversClick: overlaps(stand, click),
+      };
+    });
+    await page.screenshot({ path: `test-results/top-bar-late-${width}.png` });
+    expect(r).toEqual({ overflow: 0, level: true, title: true, energy: true, room: true, standOnScreen: true, standCoversClick: false });
+  });
+}

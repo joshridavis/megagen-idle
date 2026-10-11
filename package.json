@@ -1,7 +1,7 @@
 {
   "name": "megagen-idle",
   "private": true,
-  "version": "0.32.0",
+  "version": "0.33.0",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:web": "tsc && vite build --outDir dist-web && node scripts/check-site.mjs dist-web",
+    "build:web": "tsc && vite build --mode web --outDir dist-web && node scripts/check-site.mjs dist-web",
     "preview": "vite preview",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",

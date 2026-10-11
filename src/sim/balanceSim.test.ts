@@ -28,6 +28,12 @@ describe('balance simulator (0.35)', () => {
       expect(m!.hours, target.id).toBeGreaterThanOrEqual(target.hours[0]);
       expect(m!.hours, target.id).toBeLessThanOrEqual(target.hours[1]);
     }
+    // 2.10 (owner: level 87 to 92 in one night): from level 80 on, a 12-hour stretch brings
+    // at most one more level
+    const levels = r.milestones.filter((m) => /^plevel:\d+$/.test(m.id)).map((m) => ({ n: Number(m.id.slice(7)), h: m.hours }));
+    for (const a of levels.filter((l) => l.n >= 80)) {
+      expect(levels.filter((b) => b.n > a.n && b.h - a.h < 12).length, `after level ${a.n}`).toBeLessThanOrEqual(1);
+    }
     // map layouts (1.05) made a run take several seconds: allow it, within the budget above.
     // The runner timeout sits above that budget so the check above decides, even when the
     // full suite runs in parallel. 1.86's scarcer fuel made the run longer (327 h, about 50 s

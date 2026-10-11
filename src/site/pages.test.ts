@@ -9,7 +9,7 @@ import { checkSite, PAGE_BUDGET_BYTES } from '../../scripts/check-site.mjs';
 import { crc32, zip } from '../../scripts/lib/zip.mjs';
 import { FAQ, FEATURES } from './content';
 import * as links from './links';
-import { buildSitePage, heroButtons, MARKDOWN_SOURCES, markdownFor, renderMarkdown, SITE_PAGES, sitemapXml, siteFooter, spriteSrc, storeButtons, trailer } from './pages';
+import { buildSitePage, heroButtons, robotsTxt, siteUrlFrom, MARKDOWN_SOURCES, markdownFor, renderMarkdown, SITE_PAGES, sitemapXml, siteFooter, spriteSrc, storeButtons, trailer } from './pages';
 import { launchLine } from './pages-runtime';
 
 const root = resolve(__dirname, '../..');
@@ -47,6 +47,9 @@ describe('the website pages (2.05)', () => {
     const ld = JSON.parse(doc.querySelector('script[type="application/ld+json"]')!.textContent!);
     expect(ld['@type']).toBe('VideoGame');
     expect(ld.name).toBe('MegaGen Idle');
+    // 2.08 (owner, playtest 32): the developer's public name, never an invented company
+    expect(ld.author).toEqual({ '@type': 'Person', name: 'MiracleBadger' });
+    expect(ld.publisher).toEqual({ '@type': 'Person', name: 'MiracleBadger' });
     // the canonical address of the site root
     expect(doc.querySelector('link[rel="canonical"]')!.getAttribute('href')).toBe(links.SITE_URL);
   });
@@ -112,6 +115,22 @@ describe('the website pages (2.05)', () => {
     expect(html).not.toMatch(/(href|src)="\/(?!megagen-idle\/|src\/)/);
     // sharing tags stay on the real domain
     expect(doc.querySelector('meta[property="og:image"]')!.getAttribute('content')).toBe(`${links.SITE_URL}og-image.png`);
+  });
+
+  it('a build with SITE_URL set uses that address for sharing, the sitemap and robots.txt (2.09)', () => {
+    expect(siteUrlFrom(undefined)).toBe(links.SITE_URL);
+    expect(siteUrlFrom('')).toBe(links.SITE_URL);
+    const gh = siteUrlFrom('https://joshridavis.github.io/megagen-idle');
+    expect(gh).toBe('https://joshridavis.github.io/megagen-idle/');
+    const html = buildSitePage(readFileSync(resolve(root, 'press/index.html'), 'utf8'), '/press/', { root, version: '1', base: '/megagen-idle/', siteUrl: gh });
+    const doc = asDom(html);
+    expect(doc.querySelector('meta[property="og:image"]')!.getAttribute('content')).toBe(`${gh}og-image.png`);
+    expect(doc.querySelector('meta[name="twitter:image"]')!.getAttribute('content')).toBe(`${gh}og-image.png`);
+    expect(doc.querySelector('meta[property="og:url"]')!.getAttribute('content')).toBe(`${gh}press/`);
+    expect(doc.querySelector('link[rel="canonical"]')!.getAttribute('href')).toBe(`${gh}press/`);
+    expect(sitemapXml(gh)).toContain(`<loc>${gh}play/</loc>`);
+    expect(sitemapXml(gh)).not.toContain('megagenidle.com');
+    expect(robotsTxt(gh)).toContain(`Sitemap: ${gh}sitemap.xml`);
   });
 
   it('lists every public page in the sitemap, not the 404 page', () => {
@@ -199,5 +218,28 @@ describe('the full name, never "MegaGen" alone (trademark, 2.05)', () => {
     const a = ACHIEVEMENTS.find((x) => x.id === 'energy_2b')!;
     expect(a.name).toBe('Mega Generator');
     expect(ACHIEVEMENTS.every((x) => !ALONE.test(x.name) && !ALONE.test(x.description))).toBe(true);
+  });
+});
+
+describe('no invented developer details (2.08, owner, playtest 32)', () => {
+  const SKIP = new Set(['node_modules', '.git', 'dist', 'dist-web', 'dist-desktop', 'test-results', 'playwright-report', 'release']);
+  const TEXT = /\.(ts|tsx|js|mjs|cjs|json|md|html|yml|yaml|css|txt|xml)$/;
+  const files = (dir: string): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+      SKIP.has(e.name) ? [] : e.isDirectory() ? files(join(dir, e.name)) : TEXT.test(e.name) ? [join(dir, e.name)] : [],
+    );
+
+  it('the press kit names MiracleBadger as the developer', () => {
+    const doc = asDom(build('press/index.html', '/press/'));
+    expect(doc.body.textContent).toContain('Developer: MiracleBadger');
+  });
+
+  it('no file outside the backlog says "Joshri Games" or names a country for the developer', () => {
+    const self = resolve(__dirname, 'pages.test.ts');
+    const bad = files(root).filter((f) => {
+      if (f === self || f.endsWith('BACKLOG.md') || f.endsWith('package-lock.json')) return false;
+      return /Joshri Games|Israel/i.test(readFileSync(f, 'utf8'));
+    });
+    expect(bad).toEqual([]);
   });
 });

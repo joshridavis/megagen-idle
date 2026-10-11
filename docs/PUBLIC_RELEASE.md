@@ -158,7 +158,7 @@ Players who sign in with Google or Discord choose a username the first time. The
 
 ## 9c. The website megagenidle.com on Cloudflare Pages (owner, about 30 minutes plus DNS wait)
 
-The site is ready for it (2.05; playbook W-01, W-05, W-06): `npm run build:web` builds every page into `dist-web/`: the landing page at `/`, the game at `/play/`, and `/press/`, `/privacy/`, `/terms/`, `/support/` and a 404 page, plus `sitemap.xml`, `robots.txt`, the sharing picture and `press-kit.zip`. Until Cloudflare is live, `.github/workflows/deploy.yml` still publishes every merge to `main` on GitHub Pages at https://joshridavis.github.io/megagen-idle/ (built with `SITE_BASE=/megagen-idle/`); it is temporary.
+The site is ready for it (2.05; playbook W-01, W-05, W-06): `npm run build:web` builds every page into `dist-web/`: the landing page at `/`, the game at `/play/`, and `/press/`, `/privacy/`, `/terms/`, `/support/` and a 404 page, plus `sitemap.xml`, `robots.txt`, the sharing picture and `press-kit.zip`. Until Cloudflare is live, `.github/workflows/deploy.yml` still publishes every merge to `main` on GitHub Pages at https://joshridavis.github.io/megagen-idle/ (built with `SITE_BASE=/megagen-idle/` and `SITE_URL=https://joshridavis.github.io/megagen-idle/`, so link previews find their picture); it is temporary.
 
 1. **Domain:** buy `megagenidle.com` at Cloudflare (Registrar), so its DNS is already in your Cloudflare account (playbook W-01).
 2. **Pages project:** Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**, pick this repository, then:
@@ -166,7 +166,7 @@ The site is ready for it (2.05; playbook W-01, W-05, W-06): `npm run build:web` 
    - Build command: `npm run build:web`
    - Build output directory: `dist-web`
    - Environment variables (Production and Preview): `NODE_VERSION` = `22`, `ELECTRON_SKIP_BINARY_DOWNLOAD` = `1`; if accounts are on, also `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and `VITE_AUTH_PROVIDERS` with the values you set in GitHub before (they are not secrets).
-   - **Preview** environment only: `PLAY_EDITION` = `full`, so the preview link of every pull request plays the full edition for your playtests (once item 2.04 adds editions). Never share preview links.
+   - **Preview** environment only: `PLAY_EDITION` = `full`, so the preview link of every pull request plays the full edition for your playtests (production, without it, plays the demo: the free part only). Never share preview links.
 3. **Custom domains:** in the Pages project, **Custom domains → Set up a domain**: add `megagenidle.com`, then `www.megagenidle.com`. Cloudflare creates the DNS records and the HTTPS certificates.
 4. **Email:** Cloudflare → the domain → **Email → Email Routing**: forward `support@` and `press@` to your own address.
 5. **Visit counts (optional):** Cloudflare Web Analytics for the Pages project. It sets no cookies, so the site needs no cookie banner; the site itself has no analytics code.

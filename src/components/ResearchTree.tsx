@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { sprites } from '../assets';
+import { edition } from '../data/edition';
 import { RESEARCH, RESEARCH_BY_ID } from '../data/research';
 import { useStore } from '../store';
 import { computeResearchLayout } from '../utils/researchLayout';
-import { researchProgress } from '../utils/researchSystem';
+import { getResearchBlock, researchProgress } from '../utils/researchSystem';
 import BonusesPanel from './BonusesPanel';
 import ProgressBar from './ProgressBar';
 import ResearchNode, { NODE_H, NODE_W } from './ResearchNode';
 import ResearchPanel from './ResearchPanel';
 import { getNodeStatus } from './researchStatus';
-import { FullGamePanel } from './Purchases';
+import { FullGameBanner, FullGameLockedCard } from './Purchases';
 
 const GAP_X = 56;
 const GAP_Y = 20;
@@ -72,7 +73,7 @@ export default function ResearchTree({ openRequest = null, onRequestHandled }: {
 
   return (
     <section aria-label="Research" className="w-full">
-      <FullGamePanel />
+      <FullGameBanner />
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="panel-title">Research</h2>
         <span className="text-right text-sm">
@@ -152,12 +153,21 @@ export default function ResearchTree({ openRequest = null, onRequestHandled }: {
                 status={getNodeStatus(state, def.id)}
                 x={p.x}
                 y={p.y}
-                onOpen={() => setOpenId(def.id)}
+                onOpen={() => {
+                  // a research of the Full Game (mobile, locked): the panel opens by itself once per session
+                  if (getResearchBlock(useStore.getState(), def.id) === 'fullGame') useStore.getState().offerFullGame('locked');
+                  setOpenId(def.id);
+                }}
               />
             );
           })}
         </div>
       </div>
+      {edition() === 'demo' && (
+        <div className="mt-3 max-w-sm">
+          <FullGameLockedCard name="Twelve more research" sprite="research_advanced" testId="full-game-research" />
+        </div>
+      )}
       {openId && <ResearchPanel id={openId} onClose={() => setOpenId(null)} />}
     </section>
   );
