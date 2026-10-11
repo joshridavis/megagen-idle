@@ -4,6 +4,9 @@
  * Always the full name "MegaGen Idle", never "MegaGen" alone (trademark).
  */
 
+/** The developer's public name, where one is needed (owner, playtest 32); never a company name or a country. */
+export const DEVELOPER_NAME = 'MiracleBadger';
+
 /** One line, used everywhere (docs/RELEASE_DECISIONS.md). */
 export const TAGLINE = "Build an energy empire, from one solar panel to a micro-supernova. It keeps generating while you're away.";
 

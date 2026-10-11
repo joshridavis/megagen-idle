@@ -9,7 +9,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import manifest from '../assets/sprite-manifest.json';
-import { EXPORT_STEPS, FAIR, FAQ, FEATURES, PITCH, TAGLINE } from './content';
+import { DEVELOPER_NAME, EXPORT_STEPS, FAIR, FAQ, FEATURES, PITCH, TAGLINE } from './content';
 import {
   DISCORD_URL,
   KOFI_URL,
@@ -229,8 +229,9 @@ export function videoGameJsonLd(): string {
     applicationCategory: 'Game',
     operatingSystem: 'Windows, Android, iOS, Web',
     inLanguage: 'en',
-    author: { '@type': 'Organization', name: 'Joshri Games' },
-    publisher: { '@type': 'Organization', name: 'Joshri Games' },
+    // the developer's public name (docs/RELEASE_DECISIONS.md, owner, playtest 32)
+    author: { '@type': 'Person', name: DEVELOPER_NAME },
+    publisher: { '@type': 'Person', name: DEVELOPER_NAME },
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', url: `${SITE_URL}play/`, description: 'The free part, in your browser' },
   };
   return `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;

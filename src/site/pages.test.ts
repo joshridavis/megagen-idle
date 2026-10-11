@@ -47,6 +47,9 @@ describe('the website pages (2.05)', () => {
     const ld = JSON.parse(doc.querySelector('script[type="application/ld+json"]')!.textContent!);
     expect(ld['@type']).toBe('VideoGame');
     expect(ld.name).toBe('MegaGen Idle');
+    // 2.08 (owner, playtest 32): the developer's public name, never an invented company
+    expect(ld.author).toEqual({ '@type': 'Person', name: 'MiracleBadger' });
+    expect(ld.publisher).toEqual({ '@type': 'Person', name: 'MiracleBadger' });
     // the canonical address of the site root
     expect(doc.querySelector('link[rel="canonical"]')!.getAttribute('href')).toBe(links.SITE_URL);
   });
@@ -199,5 +202,28 @@ describe('the full name, never "MegaGen" alone (trademark, 2.05)', () => {
     const a = ACHIEVEMENTS.find((x) => x.id === 'energy_2b')!;
     expect(a.name).toBe('Mega Generator');
     expect(ACHIEVEMENTS.every((x) => !ALONE.test(x.name) && !ALONE.test(x.description))).toBe(true);
+  });
+});
+
+describe('no invented developer details (2.08, owner, playtest 32)', () => {
+  const SKIP = new Set(['node_modules', '.git', 'dist', 'dist-web', 'dist-desktop', 'test-results', 'playwright-report', 'release']);
+  const TEXT = /\.(ts|tsx|js|mjs|cjs|json|md|html|yml|yaml|css|txt|xml)$/;
+  const files = (dir: string): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+      SKIP.has(e.name) ? [] : e.isDirectory() ? files(join(dir, e.name)) : TEXT.test(e.name) ? [join(dir, e.name)] : [],
+    );
+
+  it('the press kit names MiracleBadger as the developer', () => {
+    const doc = asDom(build('press/index.html', '/press/'));
+    expect(doc.body.textContent).toContain('Developer: MiracleBadger');
+  });
+
+  it('no file outside the backlog says "Joshri Games" or names a country for the developer', () => {
+    const self = resolve(__dirname, 'pages.test.ts');
+    const bad = files(root).filter((f) => {
+      if (f === self || f.endsWith('BACKLOG.md') || f.endsWith('package-lock.json')) return false;
+      return /Joshri Games|Israel/i.test(readFileSync(f, 'utf8'));
+    });
+    expect(bad).toEqual([]);
   });
 });

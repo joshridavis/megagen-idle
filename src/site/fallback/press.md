@@ -4,7 +4,7 @@
 
 ## Fact sheet
 
-- **Developer and publisher:** Joshri Games, a solo developer in Israel
+- **Developer:** MiracleBadger
 - **Release date:** March 11, 2027
 - **Platforms:** Windows (Steam, plays on Steam Deck), Android, iPhone and iPad; the free part in any browser at megagenidle.com
 - **Price:** free to start; the Full Game is a one-time purchase (US$6.99 on Steam, US$4.99 on Android and iPhone)

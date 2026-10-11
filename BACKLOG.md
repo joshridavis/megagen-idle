@@ -28,6 +28,7 @@ Deployment and documentation come early so playtesting only needs a browser. Res
 
 0. 2.10 Fix: late player levels come far too fast (owner report, 2026-10-11: level 87 to 92 in one night; Done)
 0. 2.07 Fix: the top bar overflows its box on small phones (Done)
+0. 2.08 Fix: invented developer details on the website (Done)
 
 ~~On hold (owner, 2026-10-10, after playtest 32): do not develop new backlog items until the owner says so.~~ When the hold lifts, work in this order:
 
@@ -1486,7 +1487,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 **Acceptance:** a Playwright test with a seeded late-game save (big numbers, an equipped title, the cloud button shown) at 320, 360 and 412 px: no sideways scroll, and every part of the top bar inside its box; screenshots before and after; the build and all tests pass.
 **Notes:** below 400 px the cloud button leaves the pinned bar for the top right corner of the page, beside the wordmark (`useMediaQuery` in `src/components/useMediaQuery.ts`; App renders it in one place or the other, so it keeps one menu state); the small ⚡ button still joins the bar when the big one scrolls away. The stat box is tighter on phones (`px-3`, `gap-2`, narrower dividers; `sm:` keeps the old spacing), the room column may shrink and wrap (full text in its tooltip), and the energy icon hides below 360 px. The energy total never truncates; the title stays truncated inside the level column. The Playwright test (`e2e/layout.spec.ts`) seeds a late-game save (688B energy, all 13 room expansions, level 98, the Landscape Architect title) and puts a cloud-button-sized stand-in where App places the button (builds without cloud settings do not show the real one): at 320, 360 and 412 px no sideways scroll, the energy, room, level and title inside the box, the stand-in on screen and off the Generate energy button. Screenshots: `docs/screenshots/top-bar-2.07-before-320.png`, `-before-360.png`, `-after-320.png`, `-after-360.png`, `-after-412.png`. The boost chip and the research chip sit outside the bar and were unchanged; the existing layout tests at 360 px still pass.
 
-### 2.08 — Fix: invented developer details on the website — CODE — Not started
+### 2.08 — Fix: invented developer details on the website — CODE — Done
 **Goal:** owner report, playtest 32: the press kit says "Developer and publisher: Joshri Games, a solo developer in Israel". The owner does not want the country named, and does not want to be called "Joshri Games". Where a developer name is needed, use **MiracleBadger**; where it is not, leave it out.
 **Details:**
 - `src/site/fallback/press.md`: the fact sheet line becomes "Developer: MiracleBadger" (no country, no "publisher" unless needed).
@@ -1494,6 +1495,7 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - Search the whole repository (site, game credits, store texts, docs, Electron `package.json`/`electron-builder.yml` author and copyright fields, `codemagic.yaml`) for "Joshri", "Israel" and other invented personal details, and replace or remove them. `docs/RELEASE_DECISIONS.md` is already updated (owner answer, playtest 32).
 - A test: no file outside `BACKLOG.md` says "Joshri Games" or names the owner's country.
 **Acceptance:** the press page, the press kit text and the JSON-LD show "MiracleBadger" or no developer at all; the test passes; the build and all tests pass.
+**Notes:** the fact sheet in `src/site/fallback/press.md` says "Developer: MiracleBadger" (no publisher line, no country). `DEVELOPER_NAME` in `src/site/content.ts` feeds the JSON-LD `author` and `publisher` (a `Person`, was an invented `Organization`). Searching the repository found nothing else: `electron-builder.yml` already says "Copyright © 2026 MegaGen Idle", and there is no `codemagic.yaml` yet. Tests in `src/site/pages.test.ts`: the JSON-LD names MiracleBadger, the press page says "Developer: MiracleBadger", and no text file outside `BACKLOG.md` says "Joshri Games" or "Israel".
 
 ### 2.09 — Fix: link previews show "Image failed to load" — CODE — Not started
 **Goal:** owner report, playtest 32 (Discord screenshot): pasting https://joshridavis.github.io/megagen-idle/ shows the title and description but "Image failed to load".
