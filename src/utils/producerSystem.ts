@@ -31,6 +31,7 @@ export type ProducerBlock = 'locked' | 'room' | 'resources' | 'energy';
 
 export function getProducerBlock(state: GameState, id: ProducerId, bonuses: Bonuses = NO_BONUSES): ProducerBlock | null {
   const def = PRODUCERS[id];
+  if (def.fullGame) return 'locked';
   if (def.requiresResearch && !state.completedResearch.includes(def.requiresResearch)) return 'locked';
   if (state.roomUsed + def.roomCost > state.roomCapacity) return 'room';
   const cost = getProducerCost(id, state.producers[id] ?? 0, bonuses);

@@ -168,6 +168,19 @@ export default function ResearchPanel({ id, onClose }: { id: string; onClose: ()
             {block ? BLOCK_TEXT[block] : 'Start research'}
           </button>
         )}
+        {block === 'fullGame' && (
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              useStore.getState().offerFullGame('button');
+            }}
+            className="mt-2 min-h-11 w-full rounded bg-aap-yellow px-3 py-2 font-semibold text-aap-ink hover:brightness-110"
+            data-testid="research-get-full-game"
+          >
+            Get the Full Game
+          </button>
+        )}
       </div>
     </div>
   );

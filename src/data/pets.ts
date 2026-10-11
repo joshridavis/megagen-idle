@@ -1,6 +1,8 @@
 import { GeneratorType } from '../types/generator';
 import type { ResourceId } from '../types/state';
 import { MATERIAL_COST_FACTOR } from './balance';
+import { DEMO_BUILD, spliceAfter } from './edition';
+import { FULL_PET_DEFS } from './petsFull';
 
 /**
  * Energy pets (0.92, playtest 11): a light collection activity. Pets fit the
@@ -246,7 +248,7 @@ export const PET_EVENT_REACTIONS: Record<string, PetReactionDef> = {
 /** Hours to grow after feeding: to young, to adult. */
 export const GROW_HOURS: [number, number] = [2, 8];
 
-const PET_DEFS: PetDef[] = [
+const FREE_PET_DEFS: PetDef[] = [
   {
     id: 'hamster',
     name: 'Wheel Hamster',
@@ -324,17 +326,6 @@ const PET_DEFS: PetDef[] = [
     food: 'coal',
     feedCost: [200, 2_000],
   },
-  {
-    id: 'jellyfish',
-    name: 'Glowing Jellyfish',
-    description: 'Drifts in the cooling pond, glowing softly. Boosts uranium production.',
-    find: { kind: 'build', generator: GeneratorType.NUCLEAR },
-    hint: 'Build a Nuclear Fission Plant.',
-    bonus: { kind: 'production', resource: 'uranium' },
-    bonusByStage: stages(0.3),
-    food: 'energy',
-    feedCost: [500_000, 10_000_000],
-  },
   // ---- 1.56 (owner request, playtest 22): six more, each with a bonus no other pet gives ----
   {
     id: 'mole',
@@ -391,18 +382,10 @@ const PET_DEFS: PetDef[] = [
     food: 'energy',
     feedCost: [2_000_000, 40_000_000],
   },
-  {
-    id: 'axolotl',
-    name: 'Atomic Axolotl',
-    description: 'Glows happily in the reactor cooling tanks. Boosts fission and fusion plants.',
-    find: { kind: 'build', generator: GeneratorType.FUSION },
-    hint: 'Build a Fusion Reactor.',
-    bonus: { kind: 'generator', generators: [GeneratorType.NUCLEAR, GeneratorType.FUSION] },
-    bonusByStage: stages(0.1),
-    food: 'energy',
-    feedCost: [20_000_000, 400_000_000],
-  },
 ];
+
+/** The pets, with the Full Game's two left out of the demo (2.04). */
+const PET_DEFS: PetDef[] = DEMO_BUILD ? FREE_PET_DEFS : spliceAfter(FREE_PET_DEFS, FULL_PET_DEFS, (p) => p.id);
 
 /** The pets; feeding with metal or stone costs MATERIAL_COST_FACTOR times more (playtest 19.3). */
 export const PETS: PetDef[] = PET_DEFS.map((p) =>

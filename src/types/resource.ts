@@ -15,6 +15,8 @@ export interface ProducerDef {
   baseCost: { energy: number; resources: ResourceAmounts };
   /** Research needed before more can be bought. */
   requiresResearch?: string;
+  /** A name-only stand-in in the demo for a producer of the Full Game (2.04); never buyable. */
+  fullGame?: boolean;
 }
 
 /** A cost or amount in any subset of resources. */

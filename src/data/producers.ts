@@ -1,10 +1,12 @@
 import type { ProducerDef, ProducerId } from '../types/resource';
 import { scaleMaterials } from './balance';
+import { DEMO_BUILD } from './edition';
+import { FULL_PRODUCER_DEFS, type FullProducerId } from './producersFull';
 
 /** Each producer bought costs this many times more than the previous one. */
 export const PRODUCER_COST_GROWTH = 1.2;
 
-const PRODUCER_DEFS: Record<ProducerId, ProducerDef> = {
+const FREE_PRODUCER_DEFS: Omit<Record<ProducerId, ProducerDef>, FullProducerId> = {
   quarry: {
     id: 'quarry',
     name: 'Stone Quarry',
@@ -55,30 +57,25 @@ const PRODUCER_DEFS: Record<ProducerId, ProducerDef> = {
     baseCost: { energy: 20000, resources: { metal: 200, stone: 100 } },
     requiresResearch: 'oil_drilling',
   },
-  // 0.33. The first one is granted by Uranium Mining. Late game, one mine fuels about two reactors (1.86: was seven).
-  uraniumMine: {
-    id: 'uraniumMine',
-    name: 'Uranium Mine',
-    resource: 'uranium',
-    amount: 1,
-    intervalSeconds: 6000,
-    roomCost: 2,
-    baseCost: { energy: 60000, resources: { metal: 400, stone: 300 } },
-    requiresResearch: 'uranium_mining',
-  },
-  // 0.34. Heavy water from the sea, for fusion. The first one is granted by Heavy Water Extraction.
-  // Late game, one extractor fuels about two Fusion Reactors or one Micro-Supernova (1.86: was thirty reactors).
-  deuteriumExtractor: {
-    id: 'deuteriumExtractor',
-    name: 'Deuterium Extractor',
-    resource: 'deuterium',
-    amount: 1,
-    intervalSeconds: 5400,
-    roomCost: 3,
-    baseCost: { energy: 400000, resources: { metal: 1500, stone: 800 } },
-    requiresResearch: 'heavy_water',
-  },
 };
+
+/** The Full Game's producers in the demo (2.04): the name and resource only, never buyable. */
+const stub = (id: FullProducerId, name: string, resource: ProducerDef['resource']): ProducerDef => ({
+  id,
+  name,
+  resource,
+  amount: 0,
+  intervalSeconds: 1,
+  roomCost: 0,
+  baseCost: { energy: 0, resources: {} },
+  fullGame: true,
+});
+const FULL_GAME_STUBS: Record<FullProducerId, ProducerDef> = {
+  uraniumMine: stub('uraniumMine', 'Uranium Mine', 'uranium'),
+  deuteriumExtractor: stub('deuteriumExtractor', 'Deuterium Extractor', 'deuterium'),
+};
+
+const PRODUCER_DEFS: Record<ProducerId, ProducerDef> = { ...FREE_PRODUCER_DEFS, ...(DEMO_BUILD ? FULL_GAME_STUBS : FULL_PRODUCER_DEFS) };
 
 /** The producers, with metal and stone costs scaled by MATERIAL_COST_FACTOR (playtest 19.3). */
 export const PRODUCERS = Object.fromEntries(

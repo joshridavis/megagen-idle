@@ -1,3 +1,4 @@
+import { edition } from '../data/edition';
 import { GENERATOR_TYPES } from '../data/generators';
 import { PRODUCER_IDS } from '../data/producers';
 import { RESEARCH_BY_ID } from '../data/research';
@@ -72,6 +73,10 @@ export function parseSaveFile(text: string, now = Date.now()): ImportResult {
     return { ok: false, error: 'This save could not be upgraded to the current version.' };
   }
   const problem = validateState(state);
+  // the demo has no research past the free part (2.04): a save from the Full Game names some
+  if (problem?.startsWith('research') || problem?.startsWith('current research')) {
+    if (edition() === 'demo') return { ok: false, error: 'This save has progress from the Full Game, which this free version cannot open.' };
+  }
   if (problem) return { ok: false, error: `This save is damaged: ${problem}.` };
   return { ok: true, state: deriveRates({ ...state, lastSavedTimestamp: now }) };
 }

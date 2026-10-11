@@ -6,6 +6,7 @@ import { RESEARCH } from '../data/research';
 import { createTestStore, noStore, type KeyValue, type PurchaseStore } from '../platform/purchases';
 import { useStore } from '../store';
 import AchievementsPanel from './AchievementsPanel';
+import { FullGameDialog } from './Purchases';
 import ResearchTree from './ResearchTree';
 import SettingsPanel from './SettingsPanel';
 
@@ -18,7 +19,7 @@ afterEach(async () => {
   cleanup();
   await useStore.getState().initPurchases(noStore);
   useStore.getState().resetGame();
-  useStore.setState({ entitlements: { fullGame: false, supporter: false }, purchaseMessage: null });
+  useStore.setState({ entitlements: { fullGame: false, supporter: false }, purchaseMessage: null, fullGameOpen: false, fullGameAutoShown: false });
 });
 
 const atBoundary = () => {
@@ -71,27 +72,43 @@ describe('purchases in the store (1.95)', () => {
   });
 });
 
-describe('the Full Game panel (1.95)', () => {
+describe('the Full Game panel (1.95, a panel and a banner since 2.04)', () => {
   it('shows only at the end of the free part with a store, and goes once the Full Game is bought', async () => {
     atBoundary();
-    render(<ResearchTree />);
-    expect(screen.queryByTestId('full-game-panel')).toBeNull(); // no store: everything open
+    render(
+      <>
+        <ResearchTree />
+        <FullGameDialog />
+      </>,
+    );
+    expect(screen.queryByTestId('full-game-banner')).toBeNull(); // no store: everything open
+    expect(screen.queryByTestId('full-game-panel')).toBeNull();
     await act(async () => {
       await useStore.getState().initPurchases(createTestStore(memory()));
     });
+    expect(screen.getByTestId('full-game-banner').textContent).toContain('Everything you built keeps working');
+    // it opened by itself at the boundary
     const panel = screen.getByTestId('full-game-panel');
-    expect(panel.textContent).toContain('Everything you have built keeps working');
+    expect(panel.textContent).toContain('Your save carries over.');
+    expect(panel.textContent).toContain('Buy once. No ads. No pay-to-win.');
     expect(screen.getByTestId('buy-full_game').textContent).toContain('Test: free');
     await act(async () => {
       fireEvent.click(screen.getByTestId('buy-full_game'));
     });
     expect(useStore.getState().entitlements.fullGame).toBe(true);
-    expect(screen.queryByTestId('full-game-panel')).toBeNull();
+    expect(screen.queryByTestId('full-game-banner')).toBeNull();
+    expect(screen.getByTestId('owned-full_game')).toBeTruthy();
   });
 
   it('a new player with a store sees no panel', async () => {
     await useStore.getState().initPurchases(createTestStore(memory()));
-    render(<ResearchTree />);
+    render(
+      <>
+        <ResearchTree />
+        <FullGameDialog />
+      </>,
+    );
+    expect(screen.queryByTestId('full-game-banner')).toBeNull();
     expect(screen.queryByTestId('full-game-panel')).toBeNull();
   });
 });

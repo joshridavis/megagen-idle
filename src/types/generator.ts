@@ -27,6 +27,8 @@ export interface GeneratorDef {
   maxLevel?: number;
   /** Resources burned per hour while active. */
   maintenanceCost?: ResourceAmounts;
+  /** A name-only stand-in in the demo for a machine of the Full Game (2.04); never buildable. */
+  fullGame?: boolean;
 }
 
 /** A built generator. */

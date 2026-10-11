@@ -1,5 +1,7 @@
 import { GeneratorType, type GeneratorDef } from '../types/generator';
 import { scaleMaterials } from './balance';
+import { DEMO_BUILD } from './edition';
+import { FULL_GENERATOR_DEFS, type FullGeneratorType } from './generatorsFull';
 
 /**
  * Every generator also costs energy: its base output over this many seconds.
@@ -21,7 +23,7 @@ export const UPGRADES = { maxLevel: 10, outputPerLevel: 0.25, costGrowth: 1.6, r
 export const SCRAP_REFUND_SHARE = 0.1;
 
 /** Generators, cheapest first. Costs in resources; maintenance in resources per hour. */
-const GENERATOR_DEFS: Record<GeneratorType, GeneratorDef> = {
+const FREE_GENERATOR_DEFS: Omit<Record<GeneratorType, GeneratorDef>, FullGeneratorType> = {
   [GeneratorType.SOLAR]: {
     type: GeneratorType.SOLAR,
     requiredLevel: 1,
@@ -78,49 +80,27 @@ const GENERATOR_DEFS: Record<GeneratorType, GeneratorDef> = {
     buildCost: { metal: 150, stone: 75 },
     maintenanceCost: { naturalGas: 2 },
   },
-  // ---- Tier 3 (0.33): about 2.5x the energy per room of the tier before, more fuel. ----
-  [GeneratorType.OIL]: {
-    type: GeneratorType.OIL,
-    requiredLevel: 9,
-    name: 'Oil Power Plant',
-    description: 'Burns 6 oil per hour for 2.5x the output per room of a gas plant.',
-    energyPerSecond: 20,
-    roomCost: 10,
-    buildCost: { metal: 300, stone: 150 },
-    maintenanceCost: { oil: 6 },
-  },
-  [GeneratorType.NUCLEAR]: {
-    type: GeneratorType.NUCLEAR,
-    requiredLevel: 10,
-    name: 'Nuclear Fission Plant',
-    description: 'Splits uranium: huge, steady output. Burns 1 uranium per hour.',
-    energyPerSecond: 60,
-    roomCost: 12,
-    buildCost: { metal: 800, stone: 600 },
-    maintenanceCost: { uranium: 1 },
-  },
-  // ---- Fictional (0.34): the few methods that do not exist (yet). About 2.5x the energy per room again each. ----
-  [GeneratorType.FUSION]: {
-    type: GeneratorType.FUSION,
-    requiredLevel: 12,
-    name: 'Fusion Reactor',
-    description: 'A star in a magnetic bottle. Burns 1 deuterium per hour for 2.5x the output per room of fission.',
-    energyPerSecond: 200,
-    roomCost: 16,
-    buildCost: { metal: 4000, stone: 2500, deuterium: 5 },
-    maintenanceCost: { deuterium: 1 },
-  },
-  [GeneratorType.SUPERNOVA]: {
-    type: GeneratorType.SUPERNOVA,
-    requiredLevel: 14,
-    name: 'Micro-Supernova',
-    description: 'A supernova in a fast-time micro dimension: a star lives and dies every second, and we catch the light. Burns 2 deuterium per hour.',
-    energyPerSecond: 780,
-    roomCost: 25,
-    buildCost: { metal: 12000, stone: 8000, deuterium: 10 },
-    maintenanceCost: { deuterium: 2 },
-  },
 };
+
+/** The Full Game's machines in the demo (2.04): the name only, never buildable (no research unlocks them). */
+const stub = (type: FullGeneratorType, name: string): GeneratorDef => ({
+  type,
+  name,
+  description: 'Part of the Full Game.',
+  energyPerSecond: 0,
+  roomCost: 0,
+  requiredLevel: Infinity,
+  buildCost: {},
+  fullGame: true,
+});
+const FULL_GAME_STUBS: Pick<Record<GeneratorType, GeneratorDef>, FullGeneratorType> = {
+  [GeneratorType.OIL]: stub(GeneratorType.OIL, 'Oil Power Plant'),
+  [GeneratorType.NUCLEAR]: stub(GeneratorType.NUCLEAR, 'Nuclear Fission Plant'),
+  [GeneratorType.FUSION]: stub(GeneratorType.FUSION, 'Fusion Reactor'),
+  [GeneratorType.SUPERNOVA]: stub(GeneratorType.SUPERNOVA, 'Micro-Supernova'),
+};
+
+const GENERATOR_DEFS: Record<GeneratorType, GeneratorDef> = { ...FREE_GENERATOR_DEFS, ...(DEMO_BUILD ? FULL_GAME_STUBS : FULL_GENERATOR_DEFS) };
 
 /** The generators, with metal and stone costs scaled by MATERIAL_COST_FACTOR (playtest 19.3). */
 export const GENERATORS = Object.fromEntries(

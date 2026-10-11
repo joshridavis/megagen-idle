@@ -27,6 +27,7 @@ import Sightings from './components/Sightings';
 import Toasts from './components/Toasts';
 import CloudDialogs from './components/CloudDialogs';
 import CloudButton from './components/CloudButton';
+import { FullGameButton, FullGameDialog } from './components/Purchases';
 import { useMediaQuery } from './components/useMediaQuery';
 import { startCloud } from './store/account';
 import TutorialCoach from './components/TutorialCoach';
@@ -109,6 +110,11 @@ export default function App() {
           <img src={sprites.logo_wordmark} alt="MegaGen Idle" width={384} height={96} className="pixelated h-auto w-[192px] sm:w-[384px]" />
         </h1>
         {narrow && (
+          <div className="absolute left-0 top-0">
+            <FullGameButton compact />
+          </div>
+        )}
+        {narrow && (
           <div className="absolute right-0 top-0" data-testid="header-cloud-slot">
             <CloudButton onOpenAccount={openAccount} />
           </div>
@@ -121,6 +127,7 @@ export default function App() {
         {/* Side buttons stack on phones so the bar never scrolls sideways. */}
         <div className="flex flex-col gap-1 empty:hidden sm:flex-row sm:gap-2" data-testid="top-side-buttons">
           {!clickInView && <MiniClickButton />}
+          {!narrow && <FullGameButton />}
           {!narrow && <CloudButton onOpenAccount={openAccount} />}
         </div>
       </div>
@@ -234,6 +241,7 @@ export default function App() {
       <ResearchCelebration />
       <Toasts />
       <CloudDialogs />
+      <FullGameDialog />
       <Sightings />
       <WelcomeBack />
     </main>

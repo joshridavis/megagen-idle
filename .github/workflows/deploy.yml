@@ -42,6 +42,8 @@ jobs:
           SITE_BASE: /megagen-idle/
           # the absolute address for link previews (2.09): megagenidle.com is not live yet
           SITE_URL: https://joshridavis.github.io/megagen-idle/
+          # the owner playtests here: the full game, not the demo (2.04)
+          PLAY_EDITION: full
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
           # "Continue with …" buttons to show, e.g. google,discord (1.22)

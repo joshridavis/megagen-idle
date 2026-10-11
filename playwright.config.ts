@@ -17,7 +17,7 @@ export default defineConfig({
     launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
   },
   webServer: {
-    command: `npm run build:web && npx vite preview --outDir dist-web --port ${PORT} --strictPort`,
+    command: `PLAY_EDITION=full npm run build:web && npx vite preview --outDir dist-web --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}/`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

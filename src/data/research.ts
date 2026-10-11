@@ -1,5 +1,7 @@
 import { GeneratorType } from '../types/generator';
 import type { ResearchDef } from '../types/research';
+import { DEMO_BUILD, spliceAfter } from './edition';
+import { FULL_RESEARCH_DEFS } from './researchFull';
 import { MID_RESEARCH_COST_FACTOR, MID_RESEARCH_LEVEL, MID_RESEARCH_TIME_FACTOR, RESEARCH_TIME_FACTOR, scaleMaterials } from './balance';
 
 /** Generators available before any research (playtest 2: Solar from the start). */
@@ -26,7 +28,7 @@ export const BONUS_CAPS = {
  * level requirement, and longer than each of its prerequisites. Durations are
  * in seconds. Checked by src/data/research.test.ts.
  */
-const RESEARCH_DEFS: ResearchDef[] = [
+const FREE_RESEARCH_DEFS: ResearchDef[] = [
   {
     id: 'basic_solar',
     name: 'Basic Solar',
@@ -330,31 +332,6 @@ const RESEARCH_DEFS: ResearchDef[] = [
     effects: [{ type: 'clickPower', value: 4 }],
   },
   {
-    id: 'kinetic_capture',
-    name: 'Kinetic Capture',
-    description: 'Each click also adds 1% of your plants\' energy per second.',
-    category: 'efficiency',
-    requiredLevel: 13,
-    cost: { energy: 60000, resources: { metal: 300 } },
-    duration: 255 * 60,
-    prerequisites: ['geared_crank'],
-    unlocks: {},
-    effects: [{ type: 'clickRateShare', value: 0.01 }],
-  },
-  {
-    id: 'grid_tap',
-    name: 'Grid Tap',
-    description: 'Clicks tap straight into the grid: another 1% of your energy per second each.',
-    category: 'advanced',
-    requiredLevel: 21,
-    cost: { energy: 250000, resources: { metal: 800 } },
-    duration: 330 * 60,
-    prerequisites: ['kinetic_capture'],
-    unlocks: {},
-    effects: [{ type: 'clickRateShare', value: 0.01 }],
-  },
-  // ---- Tier 3 (0.33): oil and nuclear, plus boosts that support them. First guesses, tuned by the simulator. ----
-  {
     id: 'reinforced_concrete',
     name: 'Reinforced Concrete',
     description: 'Steel-backed foundations make every build cheaper.',
@@ -377,122 +354,10 @@ const RESEARCH_DEFS: ResearchDef[] = [
     prerequisites: ['gas_extraction'],
     unlocks: { producers: { oilRig: 1 } },
   },
-  {
-    id: 'oil_refining',
-    name: 'Oil Refining',
-    description: 'Unlocks the Oil Power Plant (needs research level 9).',
-    category: 'energy',
-    requiredLevel: 13,
-    cost: { energy: 60000, resources: { metal: 300 } },
-    duration: 240 * 60,
-    prerequisites: ['oil_drilling'],
-    unlocks: { generators: [GeneratorType.OIL] },
-  },
-  {
-    id: 'heat_recovery',
-    name: 'Heat Recovery',
-    description: 'Waste heat preheats the fuel: fuel-burning generators use less.',
-    category: 'efficiency',
-    requiredLevel: 13,
-    cost: { energy: 55000, resources: { metal: 250, coal: 200 } },
-    duration: 245 * 60,
-    prerequisites: ['efficient_boilers'],
-    unlocks: {},
-    effects: [{ type: 'fuelEfficiency', value: 0.15 }],
-  },
-  {
-    id: 'uranium_mining',
-    name: 'Uranium Mining',
-    description: 'Opens your first Uranium Mine: 1 uranium every 100 minutes.',
-    category: 'materials',
-    requiredLevel: 13,
-    cost: { energy: 80000, resources: { metal: 400, stone: 200 } },
-    duration: 250 * 60,
-    prerequisites: ['deep_drilling'],
-    unlocks: { producers: { uraniumMine: 1 } },
-  },
-  {
-    id: 'nuclear_fission',
-    name: 'Nuclear Fission',
-    description: 'Unlocks the Nuclear Fission Plant (needs research level 10).',
-    category: 'advanced',
-    requiredLevel: 17,
-    cost: { energy: 150000, resources: { metal: 600, uranium: 2 } },
-    duration: 300 * 60,
-    prerequisites: ['uranium_mining', 'superconductors'],
-    unlocks: { generators: [GeneratorType.NUCLEAR] },
-  },
-  {
-    id: 'reactor_safety',
-    name: 'Reactor Safety Systems',
-    description: 'Run every plant closer to its limits, safely.',
-    category: 'advanced',
-    requiredLevel: 21,
-    cost: { energy: 300000, resources: { metal: 1000, uranium: 5 } },
-    duration: 360 * 60,
-    prerequisites: ['nuclear_fission'],
-    unlocks: {},
-    effects: [{ type: 'globalEnergy', value: 0.1 }],
-  },
-  // ---- Experimental physics (0.34): the fictional generators. First guesses, tuned by the simulator. ----
-  {
-    id: 'heavy_water',
-    name: 'Heavy Water Extraction',
-    description: 'Opens your first Deuterium Extractor: 1 deuterium every 90 minutes, from sea water.',
-    category: 'materials',
-    requiredLevel: 26,
-    cost: { energy: 1_000_000, resources: { metal: 3000, stone: 1500 } },
-    duration: 420 * 60,
-    prerequisites: ['reactor_safety'],
-    unlocks: { producers: { deuteriumExtractor: 1 } },
-  },
-  {
-    id: 'fusion_ignition',
-    name: 'Fusion Ignition',
-    description: 'Unlocks the Fusion Reactor (needs research level 12).',
-    category: 'advanced',
-    requiredLevel: 26,
-    cost: { energy: 2_000_000, resources: { metal: 5000, uranium: 10, deuterium: 2 } },
-    duration: 480 * 60,
-    prerequisites: ['heavy_water'],
-    unlocks: { generators: [GeneratorType.FUSION] },
-  },
-  {
-    id: 'magnetic_confinement',
-    name: 'Magnetic Confinement',
-    description: 'Tighter fields waste less fuel in every plant.',
-    category: 'efficiency',
-    requiredLevel: 31,
-    cost: { energy: 4_000_000, resources: { metal: 8000, deuterium: 4 } },
-    duration: 540 * 60,
-    prerequisites: ['fusion_ignition'],
-    unlocks: {},
-    effects: [{ type: 'fuelEfficiency', value: 0.1 }],
-  },
-  {
-    id: 'fast_time_dimension',
-    name: 'Fast-Time Dimension',
-    description: 'Fold a pocket of space where a second lasts a billion years. Unlocks the Micro-Supernova (needs research level 14).',
-    category: 'advanced',
-    requiredLevel: 35,
-    cost: { energy: 15_000_000, resources: { metal: 20_000, uranium: 40, deuterium: 6 } },
-    duration: 720 * 60,
-    prerequisites: ['magnetic_confinement'],
-    unlocks: { generators: [GeneratorType.SUPERNOVA] },
-  },
-  {
-    id: 'stellar_harvest',
-    name: 'Stellar Harvest',
-    description: 'Catch more of every collapse, and of every other plant too.',
-    category: 'advanced',
-    requiredLevel: 38,
-    cost: { energy: 40_000_000, resources: { metal: 30_000, deuterium: 10 } },
-    duration: 900 * 60,
-    prerequisites: ['fast_time_dimension'],
-    unlocks: {},
-    effects: [{ type: 'globalEnergy', value: 0.15 }],
-  },
 ];
+
+/** The free research, plus the research past the free part except in the demo (2.04). */
+const RESEARCH_DEFS: ResearchDef[] = DEMO_BUILD ? FREE_RESEARCH_DEFS : spliceAfter(FREE_RESEARCH_DEFS, FULL_RESEARCH_DEFS, (r) => r.id);
 
 /**
  * The research list, with durations scaled by RESEARCH_TIME_FACTOR (to whole minutes) and
