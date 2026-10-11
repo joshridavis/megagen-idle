@@ -24,7 +24,12 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**Hold lifted (owner, 2026-10-11, after playtest 32):** the owner asked to continue from the order of work, with the too easy player level-ups first ("I just opened my save now and leveled up from 87 to 92 in one night"). The run goes on with 2.10, then 2.07, 2.08, 2.09 and 2.04 toward checkpoint 33.
+**On hold (owner, 2026-10-11, after playtest 33): do not develop new backlog items until the owner says so.** When the hold lifts, work in this order:
+
+0. 2.11 Fix: the cloud button cannot be reached after scrolling on phones (owner report, playtest 33; small)
+0. 1.98 The Steam desktop build, then 1.97 the mobile apps, then the next playbook items, as listed below
+
+~~Hold lifted (owner, 2026-10-11, after playtest 32)~~: the owner asked to continue from the order of work, with the too easy player level-ups first ("I just opened my save now and leveled up from 87 to 92 in one night"). The run goes on with 2.10, then 2.07, 2.08, 2.09 and 2.04 toward checkpoint 33.
 
 0. 2.10 Fix: late player levels come far too fast (owner report, 2026-10-11: level 87 to 92 in one night; Done)
 0. 2.07 Fix: the top bar overflows its box on small phones (Done)
@@ -1470,6 +1475,14 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Limit:** a shadow is darker than what it falls on, so over the plain page background (already near black) it is faint; over panels, cards, the logo and the map it reads clearly. Black instead of the palette's ink was used for that reason.
 - **Screenshots:** `docs/screenshots/shadows-2.00-pets-tab.png`, `shadows-2.00-balloon.png`, `shadows-2.00-walking-pets.png`. Tests in `src/components/AirShadows.test.tsx`.
 
+### 2.11 — Fix: the cloud button cannot be reached after scrolling on phones — CODE — Not started
+**Goal:** owner report, playtest 33: since 2.07, on phones (below 400 px) the ☁️ cloud button sits in the page's top corner beside the logo, so once the page scrolls down it is gone; it must stay reachable while scrolling, as it did in the pinned top bar.
+**Details:**
+- The pinned top bar (`data-testid="top-bar"` in `src/App.tsx`) stays in view; the header with the logo does not. Below 400 px the button must be in or attached to the pinned part, without bringing back 2.07's overflow: for example a small round button pinned at the bar's right end, overlapping its corner, or a row under the bar that appears only while scrolled (like the small ⚡ button from 1.45), or a fixed button in the screen's top right corner that clears the bar.
+- The same goes for the ⭐ Full Game button (2.04), which also moved to the header below 400 px.
+- Keep 2.07's rule: at 320, 360 and 412 px nothing in the top bar leaves its box, there is no sideways scroll, and nothing covers the "Generate energy" button or the small ⚡ button.
+**Acceptance:** a Playwright test with the late-game save from 2.07 and cloud-button and Full Game stand-ins at 320, 360 and 412 px: scrolled to the top and scrolled far down, both stand-ins are on screen and clickable (not covered), the top bar stays inside its box, no sideways scroll; screenshots; the build and all tests pass.
+
 ### 2.10 — Fix: late player levels come far too fast — CODE — Done
 **Goal:** owner report, 2026-10-11 (after playtest 32): "I just opened my save now and leveled up from 87 to 92 in one night." Late player levels must come much more slowly, without touching the early and middle game.
 **Details:**
@@ -2332,3 +2345,4 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 | 32 (v0.32.0) | 2.06, 2.01, 2.02, 2.03, 2.05 | 2026-10-10 | 100% completion simulated at 761.4 h (unchanged); 75% at 301.9 h; free part ends at 58.4 h (Oil Refining). GitHub Pages retired; the owner sets up Cloudflare Pages (`docs/PUBLIC_RELEASE.md` 9c) to play the preview link. Questions asked: flying-shadow distance, shadow darkness, the dam and tidal station on foundations, the landing texts, the achievement name "Mega Generator". Waiting for feedback. | |
 | 32 (answers) | 2.06, 2.01, 2.02, 2.03, 2.05 | 2026-10-10 | Flying shadows, shadow darkness, the landing texts: fine as they are for now. The dam and tidal station on foundations: yes. "Mega Generator": yes. Bugs: on a small phone the top bar (tiles, player level and experience) runs out of its box; the press kit invents developer details (not "Joshri Games", no country; use "MiracleBadger" if a name is needed); pasting the site into Discord shows "Image failed to load". GitHub Pages kept for now (temporary deploy, PR 60). Do not develop new backlog items until the owner says so. | 2.07, 2.08, 2.09 |
 | 33 (v0.33.0) | 2.10, 2.07, 2.08, 2.09, 2.04 | 2026-10-11 | 100% completion simulated at 776.2 h (was 761.4 h): late player levels slower (level 99 at 658 h, was 327 h; room expansion 13 now waits on level 95, 559.6 h). Owner report before the run: level 87 to 92 in one night. The owner's save drops from about 92 to 76 once. The github.io deploy stays the full game (`PLAY_EDITION=full`); the demo is the default of `build:web`. 2.09 waits on the owner's Discord check. Questions asked: the level drop (keep it or keep the old level), late level pace, the Full Game panel text, Grid Contracts and pets in the demo, the cloud button's place on small phones. | |
+| 33 (answers) | 2.10, 2.07, 2.08, 2.09, 2.04 | 2026-10-11 | The level drop to about 76: fine as it is. Late level pace (12 to 25 h each from 85): fine for now. The Full Game panel text: good for now. Grid Contracts and most pets stay in the demo; the boundary stays at research level 9. Bug: on phones the cloud button in the top corner is gone once the page scrolls; it must stay reachable. Do not develop new backlog items until the owner says so. | 2.11 |
