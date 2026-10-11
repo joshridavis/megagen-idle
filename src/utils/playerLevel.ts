@@ -1,8 +1,18 @@
-import { ENERGY_BONUS_PER_LEVEL, LEVEL_EXPONENT, LEVEL_SCALE, MAX_PLAYER_LEVEL, PLAYER_LEVEL_BONUS_CAP } from '../data/playerLevel';
+import {
+  ENERGY_BONUS_PER_LEVEL,
+  LATE_LEVEL_START,
+  LATE_LEVEL_STEEPNESS,
+  LEVEL_EXPONENT,
+  LEVEL_SCALE,
+  MAX_PLAYER_LEVEL,
+  PLAYER_LEVEL_BONUS_CAP,
+} from '../data/playerLevel';
 
 /** Lifetime energy needed to reach `level` (level 1 needs nothing). */
 export function energyForLevel(level: number): number {
-  return level <= 1 ? 0 : LEVEL_SCALE * (level - 1) ** LEVEL_EXPONENT;
+  if (level <= 1) return 0;
+  const late = Math.max(0, level - LATE_LEVEL_START);
+  return LEVEL_SCALE * (level - 1) ** LEVEL_EXPONENT * Math.exp(LATE_LEVEL_STEEPNESS * late * late);
 }
 
 export interface PlayerLevel {
@@ -18,10 +28,14 @@ export interface PlayerLevel {
 /** The player's level for a lifetime energy total. */
 export function getPlayerLevel(lifetimeEnergy: number): PlayerLevel {
   const e = Math.max(0, lifetimeEnergy || 0);
-  // invert the curve, then correct for rounding at the boundaries
-  let level = Math.min(MAX_PLAYER_LEVEL, Math.max(1, Math.floor((e / LEVEL_SCALE) ** (1 / LEVEL_EXPONENT)) + 1));
-  while (level < MAX_PLAYER_LEVEL && energyForLevel(level + 1) <= e) level++;
-  while (level > 1 && energyForLevel(level) > e) level--;
+  // binary search: the highest level whose threshold is reached
+  let level = 1;
+  let high = MAX_PLAYER_LEVEL;
+  while (level < high) {
+    const mid = Math.ceil((level + high) / 2);
+    if (energyForLevel(mid) <= e) level = mid;
+    else high = mid - 1;
+  }
   const isMax = level >= MAX_PLAYER_LEVEL;
   const current = energyForLevel(level);
   const next = isMax ? current : energyForLevel(level + 1);

@@ -66,3 +66,23 @@ describe('early levels take real effort (0.95, playtest 12)', () => {
     expect(useStore.getState().celebrations).toEqual([]);
   });
 });
+
+describe('late player levels are slower (2.10, owner: level 87 to 92 in one night)', () => {
+  it('levels up to the late start keep their old thresholds', async () => {
+    const { LATE_LEVEL_START, LEVEL_EXPONENT, LEVEL_SCALE } = await import('../data/playerLevel');
+    for (let l = 2; l <= LATE_LEVEL_START; l++) expect(energyForLevel(l)).toBeCloseTo(LEVEL_SCALE * (l - 1) ** LEVEL_EXPONENT, 6);
+  });
+
+  it('from the late start on, each level costs a larger share more than the one before', async () => {
+    const { LATE_LEVEL_START } = await import('../data/playerLevel');
+    const step = (l: number) => energyForLevel(l) / energyForLevel(l - 1);
+    for (let l = LATE_LEVEL_START + 2; l <= MAX_PLAYER_LEVEL; l++) expect(step(l)).toBeGreaterThan(step(l - 1));
+    expect(step(MAX_PLAYER_LEVEL)).toBeGreaterThan(1.15);
+  });
+
+  it('a 12-hour night at the end-game energy rate from level 87 gives at most 2 levels', () => {
+    const endGameRate = 60_000; // energy/s of the balance simulator at 100% completion
+    const night = energyForLevel(87) + endGameRate * 12 * 3600;
+    expect(getPlayerLevel(night).level).toBeLessThanOrEqual(89);
+  });
+});

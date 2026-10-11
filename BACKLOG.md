@@ -24,7 +24,11 @@ All paths are **relative to the repo root**. Read `CLAUDE.md` first.
 
 Deployment and documentation come early so playtesting only needs a browser. Resources exist before anything costs them. `→ CHECKPOINT` marks where a playtest is due if the game is playable.
 
-**On hold (owner, 2026-10-10, after playtest 32): do not develop new backlog items until the owner says so.** When the hold lifts, work in this order:
+**Hold lifted (owner, 2026-10-11, after playtest 32):** the owner asked to continue from the order of work, with the too easy player level-ups first ("I just opened my save now and leveled up from 87 to 92 in one night"). The run goes on with 2.10, then 2.07, 2.08, 2.09 and 2.04 toward checkpoint 33.
+
+0. 2.10 Fix: late player levels come far too fast (owner report, 2026-10-11: level 87 to 92 in one night; Done)
+
+~~On hold (owner, 2026-10-10, after playtest 32): do not develop new backlog items until the owner says so.~~ When the hold lifts, work in this order:
 
 0. 2.07 Fix: the top bar overflows its box on small phones (owner report, playtest 32)
 0. 2.08 Fix: invented developer details on the website; use "MiracleBadger" or nothing (owner report, playtest 32; small)
@@ -1461,6 +1465,16 @@ Electron (Steam) and Capacitor (Android, iOS) packaging moved into scope with th
 - **Pets:** a flat black ellipse at 65% (`.ground-shadow`) under every pet in the Pets tab and under each walking pet. It is a direct child of the pet, outside the part that jumps and turns, so it stays on the ground; while the pet is up (jump, the click hop, celebrate, happy, cheer) it shrinks and fades in step (`petShadowPose` in `src/components/PetWalkers.tsx`). Walking pets stand on the screen edge, so their shadow sits inside it. With Reduce motion the shadows still show and only their shrink stops.
 - **Limit:** a shadow is darker than what it falls on, so over the plain page background (already near black) it is faint; over panels, cards, the logo and the map it reads clearly. Black instead of the palette's ink was used for that reason.
 - **Screenshots:** `docs/screenshots/shadows-2.00-pets-tab.png`, `shadows-2.00-balloon.png`, `shadows-2.00-walking-pets.png`. Tests in `src/components/AirShadows.test.tsx`.
+
+### 2.10 — Fix: late player levels come far too fast — CODE — Done
+**Goal:** owner report, 2026-10-11 (after playtest 32): "I just opened my save now and leveled up from 87 to 92 in one night." Late player levels must come much more slowly, without touching the early and middle game.
+**Details:**
+- Cause: the curve from 0.95, 200 × (L − 1)^3.56, is a polynomial, while late-game output grows by large factors (room expansions 11 to 13, fusion, the Micro-Supernova). Near level 90 one more level needed only about 4% more lifetime energy, so a night offline gave five levels; the simulator reached level 99 at about 330 h, less than half way to 100% (761 h).
+- From level 55 on, multiply each threshold by exp(k × (L − 55)²) (numbers in `src/data/playerLevel.ts`), so every level above 55 costs a little more than the one before, and level 99 lands near 100% completion in the simulator. Levels 1 to 55 keep their thresholds.
+- Saves keep their lifetime energy; the level is recalculated, so a late save shows a lower level once, without a celebration (as in 0.95). Anything already bought or unlocked stays.
+- Keep the level gates (room expansions 80, 88, 95; pet slot 3 at 80; perk levels 75) and check with the simulator that 100% stays in its 600 to 900 h target with no stalls.
+**Acceptance:** tests: levels 1 to 55 are unchanged; from 55 on each level's step is larger than the one before; a 12-hour night at the end-game rate (60K energy/s) from level 87 gives at most 2 levels; in the simulator, no 12-hour stretch after level 80 brings more than one more level; all pacing targets hold with no stalls; the build and all tests pass.
+**Notes:** `LATE_LEVEL_START` = 55 and `LATE_LEVEL_STEEPNESS` = 0.0015 in `src/data/playerLevel.ts`; `energyForLevel` in `src/utils/playerLevel.ts` applies them, and `getPlayerLevel` now finds the level by binary search (the closed-form inverse no longer fits). Each level above 55 costs ×1.07 more at 55, ×1.13 at 80, ×1.18 at 99; level 99 needs about 45 billion lifetime energy (was 2.5 billion). The owner's save at level 92 (about 1.9 billion lifetime energy) shows level 76 after the update. Simulator: level 70 at 234 h (was about 206 h), 80 at 340 h (251 h), 88 at 458 h (290 h), 95 at 560 h (314 h), 99 at 658 h (327 h). Level 95 now holds back room expansion 13 (560 h, was 497 h). 100% at 776.2 h (was 761.4 h), no stalls (`BALANCE_REPORT.md`). Tests in `src/utils/playerLevel.test.ts` and `src/sim/balanceSim.test.ts`.
 
 ### 2.07 — Fix: the top bar overflows its box on small phones — CODE — Not started
 **Goal:** owner report, playtest 32 (screenshot of a late-game save on a phone): the stat box at the top (energy, room, player level) does not fit. The level column with its experience bar and the equipped title ("Landscap…") runs past the box's border, and the cloud-save button sits half outside it, over the page edge.
